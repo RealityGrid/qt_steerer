@@ -86,26 +86,26 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
    
   // set up actions for configure check interval, attach and quit
   mSetCheckIntervalAction =  new QAction("Set polling interval",
-					 "Set Polling Interval",
+					 "Set &polling interval",
 					 CTRL+Key_P, this, "setcheckaction");
   mSetCheckIntervalAction->setToolTip(QString("Set polling interval"));
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, 
 	  SLOT(configureSteererSlot()));
 
-  mToggleAutoPollAction = new QAction("Toggle use of auto. polling interval",
-				      "Toggle use of auto. polling interval",
+  mToggleAutoPollAction = new QAction("Turn on auto polling interval",
+				      "Turn on auto polling interval",
 				      ALT+Key_P, this, "toggleautopollaction");
   mToggleAutoPollAction->setToolTip(QString("Toggle use of auto polling interval"));
   connect(mToggleAutoPollAction, SIGNAL(activated()), this, 
 	  SLOT(toggleAutoPollSlot()));
 
-  mAttachAction = new QAction("Attach to local application", "Local &Attach",
+  mAttachAction = new QAction("Attach to local application", "Local &attach",
 			      CTRL+Key_A, this, "attachaction");
   mAttachAction->setToolTip(QString("Attach to local app"));
   connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
 
 
-  mGridAttachAction = new QAction("Attach to app on Grid", "&Grid Attach",
+  mGridAttachAction = new QAction("Attach to app on Grid", "&Grid attach",
 			      CTRL+Key_G, this, "gridattachaction");
   mGridAttachAction->setToolTip(QString("Attach to Grid app"));
   connect( mGridAttachAction, SIGNAL(activated()), this, 
@@ -138,7 +138,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mSetTabTitleAction->setEnabled(TRUE);
   mQuitAction->setEnabled(TRUE);
 
-
   // Create layouts to position the widgets
   mTopLayout = new QHBoxLayout( mCentralWgt, 5);
   
@@ -153,7 +152,8 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     mStackLogoLabel->setFont(QFont("Times", 9, QFont::DemiBold));
   }
    
-  // SMR XXX - future add more widgets to stack for log viewing, for now only tabwidget
+  // SMR XXX - future add more widgets to stack for log viewing, 
+  // for now only tabwidget
   mStack = new QWidgetStack(mCentralWgt);
 
   // tab widget - each tab will be form for one steered application
@@ -176,8 +176,16 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   // create commsthread so can set checkinterval 
   // - thread is started on first attach
   mCommsThread = new CommsThread(this);
-  if (mCommsThread != kNULL)
+  if (mCommsThread != kNULL){
     mSetCheckIntervalAction->setEnabled(TRUE);
+
+    if(mCommsThread->getUseAutoPollFlag()){
+      mToggleAutoPollAction->setMenuText(QString("Turn off auto &polling interval"));
+    }
+    else{
+      mToggleAutoPollAction->setMenuText(QString("Turn on auto &polling interval"));
+    }
+  }
 
   // Check if we're auto connecting to a GSH
   if (autoConnect){
@@ -548,27 +556,17 @@ SteererMainWindow::configureSteererSlot()
 void SteererMainWindow::toggleAutoPollSlot()
 {
   int lFlag;
-
   lFlag = mCommsThread->getUseAutoPollFlag();
 
   if(lFlag){
 
-    if(QMessageBox::information(this, QString("Toggle use of auto polling"), 
-				QString("Turn off auto polling?"), 
-				QMessageBox::Yes, 
-				QMessageBox::No, 0) == QMessageBox::Yes){
-
-        mCommsThread->setUseAutoPollFlag(0);
-    }
+    mCommsThread->setUseAutoPollFlag(0);
+    mToggleAutoPollAction->setMenuText(QString("Turn on auto &polling interval"));
   }
   else{
-    if(QMessageBox::information(this, QString("Toggle use of auto polling"), 
-				QString("Turn on auto polling?"), 
-				QMessageBox::Yes, 
-				QMessageBox::No, 0) == QMessageBox::Yes){
 
-        mCommsThread->setUseAutoPollFlag(1);
-    }
+    mCommsThread->setUseAutoPollFlag(1);
+    mToggleAutoPollAction->setMenuText(QString("Turn off auto &polling interval"));
   }
   return;
 }
