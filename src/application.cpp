@@ -252,11 +252,16 @@ Application::enableCmdButtons()
 void
 Application::closeApplicationSlot()
 {
-  // user has hit close button (only enabled when application has detached)
-  // so get rid of this form
+  // currently close only enabled if user tells appl to stop/detach
+  // or the appl itself detaches/stops
 
-  // tell steering lib we're detaching
-  detachFromApplication();
+  // user has hit close button
+  // so get rid of form for this application
+
+  // tell steering lib we're detaching if not already 
+  // may not be detached if still waiting for application to act on Stop/detach command
+  if (!mDetachedFlag)
+    detachFromApplication();
 
   emit closeApplicationSignal(mSimHandle);
 
@@ -275,16 +280,22 @@ Application::detachFromApplicationForErrorSlot()
 void 
 Application::emitDetachCmdSlot()
 {
-  detachFromApplication();
+  emitSingleCmd(REG_STR_DETACH);
+
   // make gui read only except for close button
   disableForDetach();
-  mControlForm->setStatusLabel("Detached from application (User requested)");
+  mControlForm->setStatusLabel("Attached - awaiting user requested detach");
 }
 
 void 
 Application::emitStopCmdSlot()
 {
   emitSingleCmd(REG_STR_STOP);
+
+  // make gui read only except for close button
+  disableForDetach();
+  mControlForm->setStatusLabel("Attached - awaiting user requested stop");
+
 }
 
 void 
@@ -300,6 +311,8 @@ Application::emitResumeCmdSlot()
   mControlForm->enableIOCmdButtons();
 
   emitSingleCmd(REG_STR_RESUME);
+  
+  mControlForm->setStatusLabel("Attached to application");
 
 }
 
@@ -317,6 +330,8 @@ Application::emitPauseCmdSlot()
 
   emitSingleCmd(REG_STR_PAUSE);
 
+  mControlForm->setStatusLabel("Attached - user requested pause");
+ 
 
 }
 
