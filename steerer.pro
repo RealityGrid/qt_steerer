@@ -45,9 +45,10 @@ TARGET      = steerer
 ## debug modes DBG_VERSION DBG_CONS
 DEFINES     += DBG_VERSION
 CONFIG      += qt thread
-INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR} 
+INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR} ${REG_QWT_INCDIR}
 LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer
-LIBS        += -L${REG_XML_LIBDIR} -lxml2 
+LIBS        += -L${REG_XML_LIBDIR} -lxml2
+LIBS        += -L${REG_QWT_LIBDIR} -lqwt
 MOC_DIR      = moc
 OBJECTS_DIR  = obj
 
@@ -63,7 +64,9 @@ HEADERS += inc/application.h \
            inc/exception.h \
            inc/iotype.h \
            inc/iotypetable.h \
+           inc/historyplot.h \
            inc/parameter.h \
+           inc/parameterhistory.h \
            inc/parametertable.h \
            inc/steerermainwindow.h \
            inc/table.h \
@@ -79,7 +82,9 @@ SOURCES += src/application.cpp \
            src/exception.cpp \
            src/iotype.cpp \
            src/iotypetable.cpp \
+           src/historyplot.cpp \
            src/parameter.cpp \
+           src/parameterhistory.cpp \
            src/parametertable.cpp \
            src/steerer.cpp \
            src/steerermainwindow.cpp \
