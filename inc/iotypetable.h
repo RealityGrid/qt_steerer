@@ -61,7 +61,9 @@ public:
   int getNumIOTypes() const;
 
   int getCommandRequestsCount();
+  int getCommandRequestsCountNew();
   int populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
+  int populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
   int setNewFreqValuesInLib();
 
 private:
@@ -70,16 +72,33 @@ private:
   int findIOTypeRowIndex(int aId);
   IOType *findIOType(int aId);
 
+  void setRestartButtonState();
+  void setCreateButtonState();
+
 protected slots:
 
   void validateValueSlot( int row, int col );
   void emitCommandsSlot();
   void emitValuesSlot();
-  void emitRestartSlot();
+  //void emitRestartSlot();
+
+  // MR:
+  void createButtonPressedSlot();
+  void restartButtonPressedSlot();
+  
+  //void contextMenuSlot(int row, int column, const QPoint &pnt);
+  //void createCheckpointSlot(int row);
+  //void restartCheckpointSlot(int row);
+  void selectionChangedSlot();
+  void currentChangedSlot(int row, int column);
 
 signals:
   void enableSampleButtonsSignal();
   void enableChkPtButtonsSignal();
+  void disableRestartButtonSignal();
+  void enableRestartButtonSignal();
+  void disableCreateButtonSignal();
+  void enableCreateButtonSignal();
 
 
 private:
@@ -87,6 +106,7 @@ private:
 
   bool		mChkPtTypeFlag;
   int		mRestartRowIndex;
+  int   mRestartRowIndexNew;
 
 };
 
