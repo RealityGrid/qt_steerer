@@ -42,6 +42,7 @@
 #include "exception.h"
 #include "steerermainwindow.h"
 
+#include <qmotifplusstyle.h>
 
 #include <signal.h>
 #include <new.h>
@@ -140,7 +141,8 @@ int main( int argc, char ** argv )
   {
     QApplication lApp( argc, argv );
     lApp.setFont(QFont("Times", 11));  //SMR XXX default is Helvetica on errol
-    
+    lApp.setStyle(new QMotifPlusStyle);
+
     lSteererMainWindow = new SteererMainWindow();
     gSteererMainWindowSelfPtr = lSteererMainWindow;
     lApp.setMainWidget( lSteererMainWindow );
