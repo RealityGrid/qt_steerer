@@ -379,12 +379,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       // get supported command list from library and enable buttons appropriately
       mAppList.current()->enableCmdButtons();
 
-      if (aIsLocal){    
-        mAppTabs->addTab(mAppList.current(), QString("Local Application"));
-      }
-      else{
-        mAppTabs->addTab(mAppList.current(), QString(aSimID));      
-      }
+      mAppTabs->addTab(mAppList.current(), QString(aSimID));      
 
       // Need showpage otherwise only shown on first attach - why? SMR XXX
       mAppTabs->showPage(mAppList.current()); 
