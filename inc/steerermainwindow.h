@@ -95,8 +95,10 @@ private:
   //SMR XXX not sure what copting going on here so done 2 to be safe for demo
   QLabel	*mLogoLabel;
   QPixmap	*mLogoPixMap;
-
-  QAction	*mSetCheckIntervalAction;
+  QLabel	*mStackLogoLabel;
+  QPixmap	*mStackLogoPixMap;
+ 
+ QAction	*mSetCheckIntervalAction;
   CommsThread	*mCommsThread;
 
   Application	*mApplication; //SMR XXX will be list - future

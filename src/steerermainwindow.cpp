@@ -67,8 +67,8 @@ SteererMainWindow::SteererMainWindow()
   : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL), mTopLayout(kNULL),  
     mLeftLayout(kNULL), mRightLayout(kNULL), mAttachButton(kNULL), mGridAttachButton(kNULL), 
     mQuitButton(kNULL), mReadMsgButton(kNULL), mStack(kNULL), mAppTabs(kNULL), mLogoLabel(kNULL),
-    mLogoPixMap(kNULL), mSetCheckIntervalAction(kNULL),
-    mCommsThread(kNULL), mApplication(kNULL)
+    mLogoPixMap(kNULL), mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
+    mSetCheckIntervalAction(kNULL), mCommsThread(kNULL), mApplication(kNULL)
 {
   DBGCON("SteererMainWindow");
   setCaption( "ReG Steerer" );
@@ -106,7 +106,16 @@ SteererMainWindow::SteererMainWindow()
     mLogoLabel->setPixmap(*mLogoPixMap);
   else 
     mLogoLabel->setText("");
+  
+  mStackLogoLabel = new QLabel(mCentralWgt);
+  mStackLogoPixMap = new QPixmap();
+  if (mStackLogoPixMap->load("logo-sm.bmp"))
+    mStackLogoLabel->setPixmap(*mStackLogoPixMap);
+  else 
+    mStackLogoLabel->setText("");
+  
   mLeftLayout->addWidget(mLogoLabel);
+
 
   // set up all buttons
   mAttachButton = new QPushButton( "Local &Attach", mCentralWgt, "attachbutton" );
@@ -136,7 +145,7 @@ SteererMainWindow::SteererMainWindow()
 ///SMR	connect( mReadMsgButton, SIGNAL(clicked()), this, SLOT(readMsgSlot()) );
 ///SMR  mLeftLayout->addWidget(mReadMsgButton); 
 
-  QSpacerItem* spacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
+  QSpacerItem* spacer = new QSpacerItem( 0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding );
   mLeftLayout->addItem( spacer);
 
   mQuitButton = new QPushButton("&Quit", mCentralWgt, "quitbutton"); 
@@ -155,7 +164,9 @@ SteererMainWindow::SteererMainWindow()
  
   mStack->addWidget(mAppTabs);
   mRightLayout->addWidget(mStack);
-  
+  mStack->addWidget(mStackLogoLabel);
+  mStack->raiseWidget(mStackLogoLabel);
+
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
 
@@ -212,8 +223,11 @@ SteererMainWindow::isThreadRunning() const
 void 
 SteererMainWindow::resizeForNoAttached()
 {
-  resize(150, 120); 
-  //  mLogoLabel->hide();
+  mStack->raiseWidget(mStackLogoLabel);
+  mLogoLabel->hide();
+  resize(150,120);
+  qApp->processEvents();
+  this->adjustSize();
 
 }
 
@@ -348,11 +362,10 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 	}
       }
       
-      
+      mLogoLabel->show();
       // resize - only do for first app attached? SMR XXX
       resize(985, 800);     
-      mLogoLabel->show();
-
+     
       statusBar()->clear();
       
       
@@ -407,6 +420,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   mAttachButton->setEnabled(TRUE);
   mGridAttachButton->setEnabled(TRUE);
 
+ 
   // SMR XXX  if last application being steered,resie the window
   resizeForNoAttached();
 }
