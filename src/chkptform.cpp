@@ -82,8 +82,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     //    QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
     QVBoxLayout *lListLayout = new QVBoxLayout(6, "chkptlistlayout");
     QVBoxLayout *lButtonLayout = new QVBoxLayout(6, "chkptbuttonlayout");
-    QSpacerItem* lSpacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
-    
+     
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("CheckPoint Tags", this));
     mListBox = new QListBox(this);
@@ -114,21 +113,20 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     ///    lListLayout->addLayout(lFilterLayout);
     
     mRestartButton = new QPushButton("Restart", this, "restartbutton"); 
-    mRestartButton->setMinimumSize(mRestartButton->sizeHint());
-    mRestartButton->setMaximumSize(mRestartButton->sizeHint());
     mRestartButton->setAutoDefault(FALSE);
     QToolTip::add(mRestartButton, "Restart using selected checkpoint");
     connect(mRestartButton, SIGNAL(clicked()), this, SLOT(restartSlot()));
     
-    
     mCancelButton = new QPushButton("Cancel", this, "cancelbutton");
-    mCancelButton->setMinimumSize(mCancelButton->sizeHint());
-    mCancelButton->setMaximumSize(mCancelButton->sizeHint());
     mCancelButton->setAutoDefault(FALSE);
     connect(mCancelButton,  SIGNAL(clicked()), this, SLOT( reject()));
-    
 
-    lButtonLayout->addItem(lSpacer);
+    mRestartButton->setMinimumSize(mRestartButton->sizeHint());
+    mRestartButton->setMaximumSize(mRestartButton->sizeHint());
+    mCancelButton->setMinimumSize(mRestartButton->sizeHint());
+    mCancelButton->setMaximumSize(mCancelButton->sizeHint());
+
+    lButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding ));
     lButtonLayout->addWidget(mRestartButton);
     lButtonLayout->addWidget(mCancelButton);
     

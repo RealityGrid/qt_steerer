@@ -105,7 +105,11 @@ private:
   QLabel	*mStackLogoLabel;
   QPixmap	*mStackLogoPixMap;
  
- QAction	*mSetCheckIntervalAction;
+  QAction	*mSetCheckIntervalAction;
+  QAction	*mAttachAction;
+  QAction	*mGridAttachAction;
+  QAction	*mQuitAction;
+
   CommsThread	*mCommsThread;
 
   Application	*mApplication; //SMR XXX will be list - future

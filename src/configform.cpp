@@ -83,18 +83,18 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *n
   lFormLayout->addWidget( mLineEdit);
 
   mApplyButton = new QPushButton("Apply", this, "Applybutton"); \
-  mApplyButton->setMinimumSize(mApplyButton->sizeHint());
-  mApplyButton->setMaximumSize(mApplyButton->sizeHint());
   mApplyButton->setAutoDefault(FALSE);
   QToolTip::add(mApplyButton, "Apply to steerer");
-  connect(mApplyButton, SIGNAL(clicked()), this, SLOT(applySlot()));
-  
+  connect(mApplyButton, SIGNAL(clicked()), this, SLOT(applySlot()));  
     
   mCancelButton = new QPushButton("Cancel", this, "cancelbutton");
-  mCancelButton->setMinimumSize(mCancelButton->sizeHint());
-  mCancelButton->setMaximumSize(mCancelButton->sizeHint());
   mCancelButton->setAutoDefault(FALSE);
   connect(mCancelButton,  SIGNAL(clicked()), this, SLOT( reject()));
+
+  mCancelButton->setMinimumSize(mCancelButton->sizeHint());
+  mCancelButton->setMaximumSize(mCancelButton->sizeHint());
+  mApplyButton->setMinimumSize(mCancelButton->sizeHint());
+  mApplyButton->setMaximumSize(mApplyButton->sizeHint());
     
   lButtonLayout->addWidget(mApplyButton);
   lButtonLayout->addWidget(mCancelButton);

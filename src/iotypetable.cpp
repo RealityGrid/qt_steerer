@@ -107,16 +107,21 @@ IOTypeTable::initTable()
 
   horizontalHeader()->setLabel(kIO_ID_COLUMN, "ID");
   horizontalHeader()->setLabel(kIO_NAME_COLUMN, "Name"); 
-  horizontalHeader()->setLabel(kIO_VALUE_COLUMN, "Frequency");
-  horizontalHeader()->setLabel(kIO_NEWVALUE_COLUMN, "New Frequency");
-  horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "Request");
+  horizontalHeader()->setLabel(kIO_VALUE_COLUMN, "Freq");
+  horizontalHeader()->setLabel(kIO_NEWVALUE_COLUMN, "New Freq");
   horizontalHeader()->setLabel(kIO_SPLIT, "");
 
   if (mChkPtTypeFlag)
   {
+    horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "Create");
     horizontalHeader()->setLabel(kIO_RESTART_COLUMN, "Restart");
-    setColumnWidth(kIO_REQUEST_COLUMN, 70);
-    setColumnWidth(kIO_RESTART_COLUMN, 70);
+    setColumnWidth(kIO_REQUEST_COLUMN, 50);
+    setColumnWidth(kIO_RESTART_COLUMN, 55);
+  }
+  else
+  {
+    horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "Request");
+    setColumnWidth(kIO_REQUEST_COLUMN, 80);
   }
 
   
@@ -128,8 +133,8 @@ IOTypeTable::initTable()
 
   hideColumn(kIO_ID_COLUMN);
   setColumnWidth(kIO_NAME_COLUMN, 200);
-   setColumnWidth(kIO_VALUE_COLUMN, 80);
-  setColumnWidth(kIO_NEWVALUE_COLUMN, 117);
+  setColumnWidth(kIO_VALUE_COLUMN, 40);
+  setColumnWidth(kIO_NEWVALUE_COLUMN, 70);
   setColumnWidth(kIO_SPLIT, 10);
 
   
@@ -269,12 +274,12 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
 
 	break;
       case REG_IO_OUT:
-	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, "Create"));
+	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, ""));
 	setItem(lRowIndex, kIO_RESTART_COLUMN, new QTableItem(this, QTableItem::Never, QString::null));
 	break;
       case REG_IO_INOUT:
-	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, "Create"));
-	setItem(lRowIndex, kIO_RESTART_COLUMN, new QCheckTableItem(this, "Restart"));
+	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, ""));
+	setItem(lRowIndex, kIO_RESTART_COLUMN, new QCheckTableItem(this, ""));
 	break;
     }
   }
@@ -297,7 +302,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
   incrementRowIndex();
   
   DBGMSG1("mMaxRowIndexPtr", getMaxRowIndex());
-
+  DBGMSG1("NUmInitRows", getNumInitRows());
 }
 
 void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)

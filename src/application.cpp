@@ -70,64 +70,55 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
 
 
   // create the form which contains all the (dynamic) steered data (parameters etc)
-  mControlBox = new QGroupBox(1, Vertical, "Control Monitor", this, "editbox" );
+  mControlBox = new QGroupBox(1, Vertical, "", this, "editbox" );
   mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this);
   lFormLayout->addWidget(mControlBox);
 
-
-  // button to allow user to get rid of this application form when detached
-  mCloseButton = new QPushButton( "Close", this, "close" );
-  mCloseButton->setMinimumSize(mCloseButton->sizeHint());
-  mCloseButton->setMaximumSize(mCloseButton->sizeHint());
-  // this only becomes enabled when detach from application
-  mCloseButton->setEnabled(FALSE);
-  QToolTip::add( mCloseButton, "Close Control Monitor");
-  connect(mCloseButton, SIGNAL( clicked() ), this, SLOT(closeApplicationSlot()) );
-  connect (this, SIGNAL(closeApplicationSignal(int)), aParent, SLOT(closeApplicationSlot(int)) );
-
-  //create Tell&Detach button
-  ///SMR	mTellAndDetachButton = new QPushButton( "Tell && Detach", this, "tellanddetach" );
-  ///SMR	mTellAndDetachButton->setMinimumSize(mTellAndDetachButton->sizeHint());
-  ///SMR	mTellAndDetachButton->setMaximumSize(mTellAndDetachButton->sizeHint());
-  ///SMR	connect( mTellAndDetachButton, SIGNAL( clicked() ), mControlForm, SLOT( emitAllAndDetachCmdSlot() ));
-  
-
   // create the main command buttons for steering the application
-  mStopButton = new QPushButton( "Stop", this, "stop" );
-  mStopButton->setMinimumSize(mStopButton->sizeHint());
-  mStopButton->setMaximumSize(mStopButton->sizeHint());
-  QToolTip::add(mStopButton, "Tell the attached application to stop");
-  connect( mStopButton, SIGNAL( clicked() ), this, SLOT( emitStopCmdSlot() ));
-
-  mDetachButton = new QPushButton( "Detach", this, "detach" );
-  mDetachButton->setMinimumSize(mDetachButton->sizeHint());
-  mDetachButton->setMaximumSize(mDetachButton->sizeHint());
-  QToolTip::add(mDetachButton, "Tell the attached application to detach");
-  connect( mDetachButton, SIGNAL( clicked() ), this, SLOT( emitDetachCmdSlot() ));
-  
-  mPauseButton = new QPushButton( "Pause", this, "pause" );
-  mPauseButton->setMinimumSize(mPauseButton->sizeHint());
-  mPauseButton->setMaximumSize(mPauseButton->sizeHint());
-  QToolTip::add(mPauseButton, "Tell the attached application to pause");
-  connect( mPauseButton, SIGNAL( clicked() ), this, SLOT( emitPauseCmdSlot() ));
-  
+  // note we use Resume button sizeHint to size all buttons to this size
   mResumeButton = new QPushButton( "Resume", this, "resume" );
   mResumeButton->setMinimumSize(mResumeButton->sizeHint());
   mResumeButton->setMaximumSize(mResumeButton->sizeHint());
   QToolTip::add(mResumeButton, "Tell the attached application to resume");
   connect( mResumeButton, SIGNAL( clicked() ), this, SLOT( emitResumeCmdSlot() ));
 
+  mStopButton = new QPushButton( "Stop", this, "stop" );
+  mStopButton->setMinimumSize(mResumeButton->sizeHint());
+  mStopButton->setMaximumSize(mStopButton->sizeHint());
+  QToolTip::add(mStopButton, "Tell the attached application to stop");
+  connect( mStopButton, SIGNAL( clicked() ), this, SLOT( emitStopCmdSlot() ));
+
+  mDetachButton = new QPushButton( "Detach", this, "detach" );
+  mDetachButton->setMinimumSize(mResumeButton->sizeHint());
+  mDetachButton->setMaximumSize(mDetachButton->sizeHint());
+  QToolTip::add(mDetachButton, "Tell the attached application to detach");
+  connect( mDetachButton, SIGNAL( clicked() ), this, SLOT( emitDetachCmdSlot() ));
+  
+  mPauseButton = new QPushButton( "Pause", this, "pause" );
+  mPauseButton->setMinimumSize(mResumeButton->sizeHint());
+  mPauseButton->setMaximumSize(mPauseButton->sizeHint());
+  QToolTip::add(mPauseButton, "Tell the attached application to pause");
+  connect( mPauseButton, SIGNAL( clicked() ), this, SLOT( emitPauseCmdSlot() ));
+  
+  // button to allow user to get rid of this application form when detached
+  mCloseButton = new QPushButton( "Close", this, "close" );
+  mCloseButton->setMinimumSize(mResumeButton->sizeHint());
+  mCloseButton->setMaximumSize(mCloseButton->sizeHint());
+  QToolTip::add( mCloseButton, "Close Control Monitor");
+  connect(mCloseButton, SIGNAL( clicked() ), this, SLOT(closeApplicationSlot()) );
+  connect (this, SIGNAL(closeApplicationSignal(int)), aParent, SLOT(closeApplicationSlot(int)) );
+  // Close button only becomes enabled when detach from application
+  mCloseButton->setEnabled(FALSE);
 
   // add buttons to layout
   QSpacerItem* spacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  lButtonLayout->addWidget(mCloseButton);
   lButtonLayout->addWidget(mStopButton);
-  lButtonLayout->addItem(spacer);
-
-  ///  lButtonLayout->addWidget(mTellAndDetachButton);
+  lButtonLayout->addWidget(mCloseButton);
   lButtonLayout->addWidget(mDetachButton);
   lButtonLayout->addWidget(mPauseButton);
   lButtonLayout->addWidget(mResumeButton);
+  lButtonLayout->addItem(spacer);
+
   lFormLayout->addLayout(lButtonLayout);
 
 } 
@@ -170,9 +161,6 @@ Application::disableForDetach(const bool aUnRegister)
 {
   mControlForm->disableAll(aUnRegister);
   disableCmdButtons();
-  
-  // enable Close button
-  mCloseButton->setEnabled(TRUE);
   
 }  
 
@@ -530,6 +518,9 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	      disableForDetach(true);
 	      mControlForm->setStatusLabel("Application has detached");
 
+	      // enable Close button
+	      mCloseButton->setEnabled(TRUE);
+
 	      mDetachedFlag = true;
 	      break;
 	    
@@ -541,6 +532,9 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	      // make GUI form for this application read only
 	      disableForDetach(true);
 	      mControlForm->setStatusLabel("Detached as application has stopped");
+
+	      // enable Close button
+	      mCloseButton->setEnabled(TRUE);
 
 	      mDetachedFlag = true;
 	      break;

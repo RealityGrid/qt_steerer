@@ -91,9 +91,10 @@ ParameterTable::initTable()
   horizontalHeader()->setLabel(kVALUE_COLUMN, "Value");
  
   hideColumn(kID_COLUMN);
+  hideColumn(kREG_COLUMN);
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
-  setColumnWidth(kVALUE_COLUMN, 120);
+  setColumnWidth(kVALUE_COLUMN, 95);
 
 }
 
@@ -276,10 +277,11 @@ SteeredParameterTable::initTable()
   setColumnReadOnly(kSPLIT, TRUE);
 
   hideColumn(kID_COLUMN);
+  hideColumn(kREG_COLUMN);
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
-  setColumnWidth(kVALUE_COLUMN, 120);
-  setColumnWidth(kNEWVALUE_COLUMN, 120);
+  setColumnWidth(kVALUE_COLUMN, 95);
+  setColumnWidth(kNEWVALUE_COLUMN, 95);
   setColumnWidth(kSPLIT, 10);
 
   // set up signal/slot to handle data entered by user (new parameter value)

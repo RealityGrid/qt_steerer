@@ -59,7 +59,7 @@
 //parameter tables sizes
 #define kNUM_MON_COLUMNS	4
 #define kNUM_STEER_COLUMNS	6 
-#define kINIT_ROWS		4
+#define kINIT_ROWS		3
 
 
 //iotype table constants
@@ -74,7 +74,7 @@
 
 //iotype tables sizes
 #define kNUM_IO_COLUMNS		6  // not include kIO_RESTART_COLUMN
-#define kIO_INIT_ROWS		4
+#define kIO_INIT_ROWS		2
 
 // iotype new frequency not set indicator
 #define kNULL_FREQ		-1

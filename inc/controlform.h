@@ -52,6 +52,7 @@ class Application;
 class ParameterTable;
 class SteeredParameterTable;
 class IOTypeTable;
+class TableLabel;
 
 class ControlForm : public QWidget 
 {
@@ -96,7 +97,7 @@ signals:
 private:
   int			mSimHandle;		
 
-  QLabel		*mStatusLabel;
+  TableLabel		*mStatusLabel;
 
   QPushButton		*mEmitButton;
 

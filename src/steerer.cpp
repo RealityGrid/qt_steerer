@@ -164,7 +164,7 @@ int main( int argc, char ** argv )
   if (Steerer_initialize() == REG_SUCCESS)		//ReG library
   {
     QApplication lApp( argc, argv );
-    lApp.setFont(QFont("Times", 11));  //SMR XXX default is Helvetica on errol
+    lApp.setFont(QFont("Times", 10));  //SMR XXX default is Helvetica on errol
     lApp.setStyle(new QMotifPlusStyle);
 
     lSteererMainWindow = new SteererMainWindow();

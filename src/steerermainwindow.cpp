@@ -73,45 +73,68 @@ SteererMainWindow::SteererMainWindow()
     mLeftLayout(kNULL), mRightLayout(kNULL), mAttachButton(kNULL), mGridAttachButton(kNULL), 
     mQuitButton(kNULL), mReadMsgButton(kNULL), mStack(kNULL), mAppTabs(kNULL), mLogoLabel(kNULL),
     mLogoPixMap(kNULL), mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
-    mSetCheckIntervalAction(kNULL), mCommsThread(kNULL), mApplication(kNULL)
+    mSetCheckIntervalAction(kNULL), mAttachAction(kNULL), mGridAttachAction(kNULL), 
+    mQuitAction(kNULL), mCommsThread(kNULL), mApplication(kNULL)
 {
   DBGCON("SteererMainWindow");
-  setCaption( "ReG Steerer" );
+  setCaption( "ReG" );
 
   //make a central widget to contain the other widgets
   mCentralWgt = new QWidget( this );
   setCentralWidget(mCentralWgt);
-
    
-  // set up action for configure check interval
-  mSetCheckIntervalAction =  new QAction("Set poling interval","&Set Poling Interval",
+  // set up actions for configure check interval, attach and quit
+  mSetCheckIntervalAction =  new QAction("Set poling interval","Set Poling Interval",
 						  CTRL+Key_P, this, "setcheckaction");
 
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
 
+  mAttachAction = new QAction("Attach to local application", "Local &Attach",
+			      CTRL+Key_A, this, "attachaction");
+
+  connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
+
+  mGridAttachAction = new QAction("Attach to app on Grid", "&Grid Attach",
+			      CTRL+Key_G, this, "gridattachaction");
+
+  connect( mGridAttachAction, SIGNAL(activated()), this, SLOT(attachGridAppSlot()) );
+
+  mQuitAction =  new QAction("Quit (& detach)", "&Quit",
+			      CTRL+Key_Q, this, "quitaction");
+
+  connect( mQuitAction, SIGNAL(activated()), this, SLOT(quitSlot()) );
+
   QPopupMenu *lConfigMenu = new QPopupMenu( this );
-  menuBar()->insertItem( "Configure Steerer", lConfigMenu );
+  menuBar()->insertItem( "Steerer", lConfigMenu );
+  mAttachAction->addTo(lConfigMenu);
+  mGridAttachAction->addTo(lConfigMenu);
   mSetCheckIntervalAction->addTo(lConfigMenu);
+  mQuitAction->addTo(lConfigMenu);
+
   mSetCheckIntervalAction->setEnabled(FALSE);
+  mAttachAction->setEnabled(TRUE);
+  mGridAttachAction->setEnabled(FALSE);
+  mQuitAction->setEnabled(TRUE);
+
 
  // Create layouts to position the widgets
-  mTopLayout = new QHBoxLayout( mCentralWgt, 10 );
-  mLeftLayout = new QVBoxLayout(-1, "hb1" );
-  mRightLayout = new QVBoxLayout(-1, "hb2");
-  
-  mTopLayout->addLayout(mLeftLayout);
-  mTopLayout->addLayout(mRightLayout);
-  mLeftLayout->setMargin(10);
-
+  mTopLayout = new QHBoxLayout( mCentralWgt, 5);
+///  mLeftLayout = new QVBoxLayout(-1, "hb1" );
+///  mRightLayout = new QVBoxLayout(-1, "hb2");
+///  
+///  mTopLayout->addLayout(mLeftLayout);
+///  mTopLayout->addLayout(mRightLayout);
+///  mLeftLayout->setMargin(10);
+///
 
   // set up the ReG logo
-  mLogoLabel = new QLabel(mCentralWgt);
-  mLogoPixMap = new QPixmap();
-  if (mLogoPixMap->load("logo-sm.bmp"))
-    mLogoLabel->setPixmap(*mLogoPixMap);
-  else 
-    mLogoLabel->setText("");
-  
+///  mLogoLabel = new QLabel(mCentralWgt);
+///  mLogoPixMap = new QPixmap();
+///  if (mLogoPixMap->load("logo-sm.bmp"))
+///    mLogoLabel->setPixmap(*mLogoPixMap);
+///  else 
+///    mLogoLabel->setText("");
+///  
   mStackLogoLabel = new QLabel(mCentralWgt);
   mStackLogoPixMap = new QPixmap();
   if (mStackLogoPixMap->load("logo-sm.bmp"))
@@ -119,28 +142,28 @@ SteererMainWindow::SteererMainWindow()
   else 
     mStackLogoLabel->setText("");
   
-  mLeftLayout->addWidget(mLogoLabel);
+  ///  mLeftLayout->addWidget(mLogoLabel);
 
 
   // set up all buttons
-  mAttachButton = new QPushButton( "Local &Attach", mCentralWgt, "attachbutton" );
-  mAttachButton->setMinimumSize(mAttachButton->sizeHint());
-  mAttachButton->setMaximumSize(mAttachButton->sizeHint());
-  mAttachButton->setEnabled(TRUE);
-  QToolTip::add( mAttachButton, "Attach to local application" );
-  connect( mAttachButton, SIGNAL(clicked()),
-	   this, SLOT(attachAppSlot()) );
-  mLeftLayout->addWidget(mAttachButton); 
-
-  mGridAttachButton= new QPushButton( "&Grid Attach", mCentralWgt, "gridattachbutton" );
-  mGridAttachButton->setMinimumSize(mGridAttachButton->sizeHint());
-  mGridAttachButton->setMaximumSize(mGridAttachButton->sizeHint());
-  mGridAttachButton->setEnabled(TRUE);
-  QToolTip::add( mGridAttachButton, "Attach to application on grid" );
-  connect( mGridAttachButton, SIGNAL(clicked()),
-	   this, SLOT(attachGridAppSlot()) );
-  mLeftLayout->addWidget(mGridAttachButton); 
-
+///  mAttachButton = new QPushButton( "Local &Attach", mCentralWgt, "attachbutton" );
+///  mAttachButton->setMinimumSize(mAttachButton->sizeHint());
+///  mAttachButton->setMaximumSize(mAttachButton->sizeHint());
+///  mAttachButton->setEnabled(TRUE);
+///  QToolTip::add( mAttachButton, "Attach to local application" );
+///  connect( mAttachButton, SIGNAL(clicked()),
+///	   this, SLOT(attachAppSlot()) );
+///  mLeftLayout->addWidget(mAttachButton); 
+///
+///  mGridAttachButton= new QPushButton( "&Grid Attach", mCentralWgt, "gridattachbutton" );
+///  mGridAttachButton->setMinimumSize(mGridAttachButton->sizeHint());
+///  mGridAttachButton->setMaximumSize(mGridAttachButton->sizeHint());
+///  mGridAttachButton->setEnabled(TRUE);
+///  QToolTip::add( mGridAttachButton, "Attach to application on grid" );
+///  connect( mGridAttachButton, SIGNAL(clicked()),
+///	   this, SLOT(attachGridAppSlot()) );
+///  mLeftLayout->addWidget(mGridAttachButton); 
+///
 
   // SMR XXX tmp button to read steerer files - replaced with thread that poles for files
 ///SMR	mReadMsgButton = new QPushButton( "&ReadMsg", mCentralWgt, "ReadMsgbutton" );
@@ -150,16 +173,17 @@ SteererMainWindow::SteererMainWindow()
 ///SMR	connect( mReadMsgButton, SIGNAL(clicked()), this, SLOT(readMsgSlot()) );
 ///SMR  mLeftLayout->addWidget(mReadMsgButton); 
 
-  QSpacerItem* spacer = new QSpacerItem( 0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding );
-  mLeftLayout->addItem( spacer);
-
-  mQuitButton = new QPushButton("&Quit", mCentralWgt, "quitbutton"); 
-  mQuitButton->setMinimumSize(mQuitButton->sizeHint());
-  mQuitButton->setMaximumSize(mQuitButton->sizeHint());
-  QToolTip::add( mQuitButton, "Quit steerer (and detach from any attached applications)" );
-  connect( mQuitButton, SIGNAL(clicked()),
-	   this, SLOT(quitSlot()) );
-  mLeftLayout->addWidget(mQuitButton); 
+///  QSpacerItem* spacer = new QSpacerItem( 0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding );
+///  mLeftLayout->addItem( spacer);
+///
+///  mQuitButton = new QPushButton("&Quit", mCentralWgt, "quitbutton"); 
+///  mQuitButton->setMinimumSize(mQuitButton->sizeHint());
+///  mQuitButton->setMaximumSize(mQuitButton->sizeHint());
+///  QToolTip::add( mQuitButton, "Quit steerer (and detach from any attached applications)" );
+///  connect( mQuitButton, SIGNAL(clicked()),
+///	   this, SLOT(quitSlot()) );
+///  mLeftLayout->addWidget(mQuitButton); 
+///
 
   // SMR XXX - future add more widgets to stack for log viewing, for now only tabwidget
   mStack = new QWidgetStack(mCentralWgt);
@@ -168,7 +192,7 @@ SteererMainWindow::SteererMainWindow()
   mAppTabs = new QTabWidget();
  
   mStack->addWidget(mAppTabs);
-  mRightLayout->addWidget(mStack);
+  mTopLayout->addWidget(mStack);
   mStack->addWidget(mStackLogoLabel);
   mStack->raiseWidget(mStackLogoLabel);
 
@@ -202,9 +226,6 @@ SteererMainWindow::cleanUp()
   // detach and delete application // SMR XXX do for list
   delete mApplication;
   mApplication = kNULL;
-  
-  delete mLogoPixMap;
-  mLogoPixMap = kNULL;
   
   delete mStackLogoPixMap;
   mStackLogoPixMap = kNULL;
@@ -258,7 +279,7 @@ void
 SteererMainWindow::resizeForNoAttached()
 {
   mStack->raiseWidget(mStackLogoLabel);
-  mLogoLabel->hide();
+  //  mLogoLabel->hide();
   resize(150,120);
   qApp->processEvents();
   this->adjustSize();
@@ -377,12 +398,12 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       ///SMR	   mApplication = lNewWindow->getApplication();
       
       // SMR XXX disable attach buttons as currently only attach to one application
-      mAttachButton->setEnabled(FALSE);
-      mGridAttachButton->setEnabled(FALSE);
+      mAttachAction->setEnabled(FALSE);
+      mGridAttachAction->setEnabled(FALSE);
       
-      mLogoLabel->show();
+      //      mLogoLabel->show();
       // resize - only do for first app attached? SMR XXX
-      resize(950, 820);     
+      resize(645, 700);     
      
       statusBar()->clear();
 
@@ -454,8 +475,8 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   mApplication = kNULL;
 
   // re-enable attach button SMR XXX
-  mAttachButton->setEnabled(TRUE);
-  mGridAttachButton->setEnabled(TRUE);
+  mAttachAction->setEnabled(TRUE);
+  //  mGridAttachAction->setEnabled(TRUE);
 
  
   // SMR XXX  if last application being steered,resie the window
