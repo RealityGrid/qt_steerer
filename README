@@ -6,6 +6,7 @@ produced by the Supercomputing, Visualization & e-Science Group,
 Manchester Computing, University of Manchester.
 
 The QT steerer requires QT version 3 configured with threading support.
+See http://www.trolltech.com for QT information.
 
 How to install:
 
