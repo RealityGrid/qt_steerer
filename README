@@ -5,19 +5,30 @@ Manchester.  It uses the steering API for the RealityGrid project,
 produced by the Supercomputing, Visualization & e-Science Group,
 Manchester Computing, University of Manchester.
 
+The QT steerer requires QT version 3 configured with threading support.
+
 How to install:
 
 1. Install steering library (reg_steer_lib under CVS)
 
-2. In top level directory type :
-qmake -o Makefile steerer.pro
+2. Set up the environment variable QTDIR to point to the QT installation.
+Add $QTDIR/bin to your $PATH.
+
+3. In top level directory type :
+
+ For linux:
+  qmake "QMAKE_CXXFLAGS_RELEASE+=-fexceptions" -o Makefile steerer.pro
+
+ For Irix:
+  qmake -o Makefile steerer.pro
+
 
 This will produce the Makefiles
 
-3. In top level directory type :
+4. In top level directory type :
 make
 
-4. To run type:
+5. To run type:
 steerer
 (Note: environment variables as for steering library are required)
 
@@ -25,7 +36,7 @@ steerer
 NOTE:
 
 The QT steerer GUI is still under development.
-The current version has only been compiled and executed on an SSGI O2.
+The current version has only been compiled and executed under Irix and Linux.
 
 
 
@@ -33,6 +44,7 @@ The current version has only been compiled and executed on an SSGI O2.
 Any comments, enquiries or pleas for explanation should be sent to:
 
 Sue Ramsden                Sue.Ramsden@man.ac.uk
+
 SVE Group
 Manchester Computing
 University of Manchester
