@@ -65,6 +65,12 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHand
   // each parameter object holds the row id  of the row in the parameter table
   // that represents that parameter
   // each table row holds the parameter id in a column hidden form the user
+
+  // MR:
+  // Playing with the default minimum table heights as with IOTypeTable
+  setMinimumHeight(100);
+  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+
 }  
 
 ParameterTable::~ParameterTable()

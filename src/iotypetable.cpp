@@ -89,6 +89,12 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bo
   // MR:
   connect(this, SIGNAL(disableCreateButtonSignal()), aParent, SLOT(disableCreateButtonSlot()));
   connect(this, SIGNAL(enableCreateButtonSignal()), aParent, SLOT(enableCreateButtonSlot()));
+
+  // MR:
+  // Ensure that instances of this table aren't drawn too large,
+  // since they're unlikely to be particularly full
+  setMinimumHeight(90);
+  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
   
 }
 
