@@ -62,13 +62,10 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   QHBoxLayout *lStatusLayout = new QHBoxLayout(6, "statuslayout");
   QHBoxLayout *lBottomButtonLayout = new QHBoxLayout(6, "bottombuttonlayout");
 
-  QSpacerItem* lSpacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
-
   mStatusLabel = new QLabel("Attached to application", this);
   lStatusLayout->addWidget(new TableLabel("Steering Status: ", this));
   lStatusLayout->addWidget(mStatusLabel);
-  lStatusLayout->addItem(lSpacer);
-  lStatusLayout->addItem(lSpacer);
+  lStatusLayout->addItem(new QSpacerItem( 0, 48, QSizePolicy::Minimum, QSizePolicy::Minimum ));
 
   // set up table for monitored parameters
   QHBoxLayout *lMonLayout = new QHBoxLayout(6, "montablayout");
@@ -92,7 +89,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   connect( mEmitButton, SIGNAL( clicked() ), mSteerParamTable, SLOT( emitValuesSlot() ) );
     
   // layout steered parameters
-  lSteerButtonLayout->addItem(lSpacer);
+  lSteerButtonLayout->addItem(new QSpacerItem( 0, 48, QSizePolicy::Minimum, QSizePolicy::Expanding));
   lSteerButtonLayout->addWidget(mEmitButton);
   lSteerLayout->addWidget(mSteerParamTable);  
   lSteerLayout->addLayout(lSteerButtonLayout);
@@ -116,7 +113,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mSetSampleFreqButton->setMaximumSize(mSetSampleFreqButton->sizeHint());
   connect(mSetSampleFreqButton, SIGNAL( clicked() ), mIOTypeSampleTable, SLOT( emitValuesSlot()));
 
-  lSampleButtonLayout->addItem(lSpacer);
+
+  lSampleButtonLayout->addItem(new QSpacerItem( 0, 48, QSizePolicy::Minimum, QSizePolicy::Expanding));
   lSampleButtonLayout->addWidget(mSndSampleButton);
   lSampleButtonLayout->addWidget(mSetSampleFreqButton);
   lSampleLayout->addWidget(mIOTypeSampleTable);
@@ -141,7 +139,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mSetChkPtFreqButton->setMaximumSize(mSetChkPtFreqButton->sizeHint());
   connect(mSetChkPtFreqButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( emitValuesSlot()));
 
-  lChkPtButtonLayout->addItem(lSpacer);
+  lChkPtButtonLayout->addItem(new QSpacerItem( 0, 48, QSizePolicy::Minimum, QSizePolicy::Expanding));
   lChkPtButtonLayout->addWidget(mSndChkPtButton);
   lChkPtButtonLayout->addWidget(mSetChkPtFreqButton);
   lChkPtLayout->addWidget(mIOTypeChkPtTable);
@@ -167,8 +165,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   lBottomButtonLayout->addWidget(mEmitAllValuesButton);
   lBottomButtonLayout->addWidget(mEmitAllIOCommandsButton);
   lBottomButtonLayout->addWidget(mEmitAllButton);
-  lBottomButtonLayout->addItem(lSpacer);
-
+  lBottomButtonLayout->addItem(new QSpacerItem( 0, 48, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
   connect(this, SIGNAL(detachFromApplicationForErrorSignal()), 
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
@@ -176,23 +173,27 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   // the overall layout
   lEditLayout->addLayout(lStatusLayout);
-  lEditLayout->addItem(lSpacer);
+  ///s  lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
   lEditLayout->addWidget(new TableLabel("Monitored Parameters", this));
   lEditLayout->addLayout(lMonLayout);
-  lEditLayout->addItem(lSpacer);
+  ///s lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
 
   lEditLayout->addWidget(new TableLabel("Steered Parameters", this));
   lEditLayout->addLayout(lSteerLayout);
-  lEditLayout->addItem(lSpacer);
+  ///s lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
 
   lEditLayout->addWidget(new TableLabel("Sample IOTypes", this));
   lEditLayout->addLayout(lSampleLayout);
-  lEditLayout->addItem(lSpacer);
+  ///s lEditLayout->addItem(new QSpacerItem( 0, 64 QSizePolicy::Minimum, QSizePolicy::Expanding));
+
 
   lEditLayout->addWidget(new TableLabel("CheckPoint IOTypes", this));
   lEditLayout->addLayout(lChkPtLayout);
-  lEditLayout->addItem(lSpacer);
+  ///s lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
+
 
   lEditLayout->addLayout(lBottomButtonLayout);
 
@@ -473,6 +474,8 @@ ControlForm::disableIOCmdButtons()
 {
   mSndSampleButton->setEnabled(FALSE); 
   mSndChkPtButton->setEnabled(FALSE); 
+  mEmitAllIOCommandsButton->setEnabled(FALSE);
+  mEmitAllButton->setEnabled(FALSE);
 }
 void
 ControlForm::enableIOCmdButtons()
@@ -483,6 +486,12 @@ ControlForm::enableIOCmdButtons()
   if (mIOTypeChkPtTable->getNumIOTypes() > 0)
     mSndChkPtButton->setEnabled(TRUE); 
 
+  if (mIOTypeSampleTable->getNumIOTypes() > 0  ||
+      mIOTypeChkPtTable->getNumIOTypes() > 0)
+  {
+    mEmitAllIOCommandsButton->setEnabled(TRUE);
+    mEmitAllButton->setEnabled(TRUE);
+  }
 }
 
 void 
