@@ -372,88 +372,88 @@ ControlForm::updateParameters(bool aSteeredFlag)
   Param_details_struct *lParamDetails = kNULL;
 
   try
-  {
+    {
       // find out number of parameters that library is going to give us
-    if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) != REG_SUCCESS)  //ReG library
-      THROWEXCEPTION("Get_param_number");
+      if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) != REG_SUCCESS)  //ReG library
+	THROWEXCEPTION("Get_param_number");
     
-    DBGMSG1("Number Params: = ", lNumParams);
+      DBGMSG1("Number Params: = ", lNumParams);
     
-    if (lNumParams > 0)
-    {
-      // flag that cleanup required - don't like this but checking for kNULL didn't work
-      lCleanUpFlag = true;
+      if (lNumParams > 0)
+	{
+	  // flag that cleanup required - don't like this but checking for kNULL didn't work
+	  lCleanUpFlag = true;
 
-      // set up arrays of appropriate size for Get_param_values
-     lParamDetails = new Param_details_struct[lNumParams];
+	  // set up arrays of appropriate size for Get_param_values
+	  lParamDetails = new Param_details_struct[lNumParams];
 
-      // point to relevent table - i.e. steered or monitored
-      ParameterTable *lTablePtr;
-      if (aSteeredFlag)
-        lTablePtr = mSteerParamTable;
-      else
-        lTablePtr = mMonParamTable;
+	  // point to relevent table - i.e. steered or monitored
+	  ParameterTable *lTablePtr;
+	  if (aSteeredFlag)
+	    lTablePtr = mSteerParamTable;
+	  else
+	    lTablePtr = mMonParamTable;
       
-    // get parameter data from library and update tables on gui
-      if (Get_param_values(mSimHandle,		//ReG library
-         aSteeredFlag,
-         lNumParams,
-         lParamDetails) == REG_SUCCESS)
-      {
+	  // get parameter data from library and update tables on gui
+	  if (Get_param_values(mSimHandle,		//ReG library
+			       aSteeredFlag,
+			       lNumParams,
+			       lParamDetails) == REG_SUCCESS)
+	    {
 
-  for (int i=0; i<lNumParams; i++)
-  {
-    //check if already exists - if so only update value
-    if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
-             lParamDetails[i].value)))
-    {
-      // must be new parameter so add it
-      // MR: changes to add the min and max values to the steerable parameter table
-      if (aSteeredFlag){
-        ((SteeredParameterTable*)lTablePtr)->addRow(lParamDetails[i].handle,
-                          lParamDetails[i].label, 
-                          lParamDetails[i].value, 
-                          lParamDetails[i].type,
-                          lParamDetails[i].min_val,
-                          lParamDetails[i].max_val);
-      }
-      else{
-        lTablePtr->addRow(lParamDetails[i].handle,
-                          lParamDetails[i].label,
-                          lParamDetails[i].value,
-                          lParamDetails[i].type);
-      }
+	      for (int i=0; i<lNumParams; i++)
+		{
+		  //check if already exists - if so only update value
+		  if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
+					     lParamDetails[i].value)))
+		    {
+		      // must be new parameter so add it
+		      // MR: changes to add the min and max values to the steerable parameter table
+		      if (aSteeredFlag){
+			((SteeredParameterTable*)lTablePtr)->addRow(lParamDetails[i].handle,
+								    lParamDetails[i].label, 
+								    lParamDetails[i].value, 
+								    lParamDetails[i].type,
+								    lParamDetails[i].min_val,
+								    lParamDetails[i].max_val);
+		      }
+		      else{
+			lTablePtr->addRow(lParamDetails[i].handle,
+					  lParamDetails[i].label,
+					  lParamDetails[i].value,
+					  lParamDetails[i].type);
+		      }
       
-	  } 
-	} //for lNumParams
-	
-      } // if Get_param_values
-      else
-	THROWEXCEPTION("Get_param_values");
+		    } 
+		} //for lNumParams
       
-      // delete local arrays
-      delete [] lParamDetails;
+	    } // if Get_param_values
+	  else
+	    {
+	    THROWEXCEPTION("Get_param_values");
+	    }
 
-    } // if lNumParams > 0
+	  // delete local arrays
+	  delete [] lParamDetails;
 
-    // finally check for any parameters no longer present and flag 
-    // as unregistered SMR XXX to do (ReG library not support unRegister yet)
+	} // if lNumParams > 0
+
+      // finally check for any parameters no longer present and flag 
+      // as unregistered SMR XXX to do (ReG library not support unRegister yet)
   
-
-
-  } //try
+    } //try
 
   catch (SteererException StEx)
-  {
-    // clean up
-    if (lCleanUpFlag)
     {
-      delete [] lParamDetails;
-    }
+      // clean up
+      if (lCleanUpFlag)
+	{
+	  delete [] lParamDetails;
+	}
 
-    // rethrow to Application::processNextMessage
-    throw StEx;
-  }
+      // rethrow to Application::processNextMessage
+      throw StEx;
+    }
     
 } // ::updateParameters
 
