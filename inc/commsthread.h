@@ -43,9 +43,11 @@ class SteererMainWindow;
 class CommsThread : public QThread
 {
 public:
-    CommsThread(SteererMainWindow *, int aCheckInterval);
+    CommsThread(SteererMainWindow *, int aCheckInterval=1000);
     ~CommsThread();
 
+    void setCheckInterval(const int aInterval);
+    int getCheckInterval() const;
     void stop();
 
 protected:
@@ -57,7 +59,7 @@ private:
 private:
     SteererMainWindow	*mSteerer;
     bool		mKeepRunningFlag;
-    int			mCheckInterval;
+    int			mCheckInterval;  //milliseconds
 
 };
 
