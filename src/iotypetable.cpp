@@ -47,11 +47,12 @@
 
 #include <qapplication.h>
 #include <qmessagebox.h>
+#include <qpopupmenu.h>
 #include <qtable.h>
 
 
 IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bool aChkPtType)
-  : Table(aParent, aName, aSimHandle), mChkPtTypeFlag(aChkPtType), mRestartRowIndex(kNULL_INDX)
+  : Table(aParent, aName, aSimHandle), mChkPtTypeFlag(aChkPtType), mRestartRowIndex(kNULL_INDX), mRestartRowIndexNew(kNULL_INDX)
 {
   DBGCON("IOTypeTable constructor");
 
@@ -73,6 +74,21 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bo
   // set up signal/slots to enable buttons when tables populated
   connect(this, SIGNAL(enableSampleButtonsSignal()), aParent, SLOT(enableSampleButtonsSlot()));
   connect(this, SIGNAL(enableChkPtButtonsSignal()), aParent, SLOT(enableChkPtButtonsSlot()));
+
+  // MR: add a context menu so that we can right click on a cell to select whether to create or restart a checkpoint
+  //connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), this, SLOT(contextMenuSlot(int, int, const QPoint &)));
+
+  // MR: propogate table selection changes
+  connect(this, SIGNAL(selectionChanged()), this, SLOT(selectionChangedSlot()));
+  connect(this, SIGNAL(currentChanged(int, int)), this, SLOT(currentChangedSlot(int, int)));
+
+  // MR:
+  connect(this, SIGNAL(disableRestartButtonSignal()), aParent, SLOT(disableRestartButtonSlot()));
+  connect(this, SIGNAL(enableRestartButtonSignal()), aParent, SLOT(enableRestartButtonSlot()));
+
+  // MR:
+  connect(this, SIGNAL(disableCreateButtonSignal()), aParent, SLOT(disableCreateButtonSlot()));
+  connect(this, SIGNAL(enableCreateButtonSignal()), aParent, SLOT(enableCreateButtonSlot()));
   
 }
 
@@ -90,7 +106,7 @@ IOTypeTable::initTable()
   setNumRows(kIO_INIT_ROWS);
 
   if (mChkPtTypeFlag)
-    setNumCols(kNUM_IO_COLUMNS+1);
+    setNumCols(kNUM_IO_COLUMNS-1);
   else
      setNumCols(kNUM_IO_COLUMNS);
   
@@ -112,10 +128,12 @@ IOTypeTable::initTable()
 
   if (mChkPtTypeFlag)
   {
+/* MR:
     horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "Create");
     horizontalHeader()->setLabel(kIO_RESTART_COLUMN, "Restart");
     setColumnWidth(kIO_REQUEST_COLUMN, 50);
     setColumnWidth(kIO_RESTART_COLUMN, 55);
+*/
   }
   else
   {
@@ -258,6 +276,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
   // SMR XXXn this is WRONG!
   if (mChkPtTypeFlag)
   {
+/* MR:
     switch(lType)
     {
       case REG_IO_IN:
@@ -278,6 +297,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
 	setItem(lRowIndex, kIO_RESTART_COLUMN, new QCheckTableItem(this, QString::null));
 	break;
     }
+*/
   }
   else
   {
@@ -330,11 +350,13 @@ void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
 
     if (mChkPtTypeFlag)
     {
-      if (lIOTypePtr->getType() != REG_IO_IN)
+/* MR:
+     if (lIOTypePtr->getType() != REG_IO_IN)
 	((QCheckTableItem *)item(lRowIndex, kIO_REQUEST_COLUMN))->setChecked(FALSE);
 
       if (lIOTypePtr->getType() != REG_IO_OUT)
-	((QCheckTableItem *)item(lRowIndex, kIO_RESTART_COLUMN))->setChecked(FALSE);      
+	((QCheckTableItem *)item(lRowIndex, kIO_RESTART_COLUMN))->setChecked(FALSE);
+*/ 
     }
     else      
       ((QCheckTableItem *)item(lRowIndex, kIO_REQUEST_COLUMN))->setChecked(FALSE);
@@ -369,6 +391,7 @@ void IOTypeTable::clearNewValues()
 void 
 IOTypeTable::validateValueSlot( int aRow, int aCol )
 {
+  printf("\nMR: validateValueSlot\n\n");
   // validate the value entered by user and set on gui, 
   // otherwise just post invalid msg and clear cell of invalid entry
 
@@ -418,11 +441,13 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 	  // SMR XXX make that cell the selected one -  to do setCurrentCell not work
 	}
       }
-      else if (aCol == kIO_RESTART_COLUMN)
+/*      else if (aCol == kIO_RESTART_COLUMN)
       {      
 	// can only have one restart checked at once
 
 	if (((QCheckTableItem *) this->item(aRow, aCol))->isChecked())
+  // MR: change so that we test if the row is selected rather than the select box
+  //if (isRowSelected(aRow))
         {
 	  int lOldRestartRowIndex = mRestartRowIndex;
 	  mRestartRowIndex = aRow;
@@ -436,9 +461,9 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 	  // check if unchecking mRestartRowIndex
 	  if (mRestartRowIndex == aRow)
 	    mRestartRowIndex = kNULL_INDX;
-	}	
+	}
       }
-      
+*/      
     } //getAppAttached
 
 
@@ -537,7 +562,11 @@ IOTypeTable::populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, 
 
 void 
 IOTypeTable::emitCommandsSlot()
-{ 
+{
+  // MR: only deal with the SampleIOTypes table, there's another method now for the Checkpoint table
+  if (mChkPtTypeFlag)
+    return;
+
   // emit any iotype-command the user has flagged as ("request" checkbox on gui)
   // and clear checkboxes
 
@@ -605,6 +634,7 @@ IOTypeTable::emitCommandsSlot()
     
 }
 
+/*
 void 
 IOTypeTable::emitRestartSlot()
 { 
@@ -613,6 +643,7 @@ IOTypeTable::emitRestartSlot()
   char			**lCmdParamArray = kNULL;
   ChkPtForm		*lChkPtForm = kNULL;
 
+  printf("\nEmitRestartSlot\n\n");
   try 
   {
   
@@ -630,7 +661,8 @@ IOTypeTable::emitRestartSlot()
 	
 	bool lOk = false;
 	lCheckItem = (QCheckTableItem *) this->item(mRestartRowIndex, kIO_RESTART_COLUMN);
-	
+
+  printf("\nRow: %d\n\n", mRestartRowIndex);
 	if (lCheckItem->isChecked())
 	{
 	  // find the cmdid for this row
@@ -698,7 +730,8 @@ IOTypeTable::emitRestartSlot()
 	  DBGMSG("mRestartRowIndex not checked - resetting");  //log this SMR XXX
 	
 	// reset regardless of errors
-	lCheckItem->setChecked(FALSE);
+  if (lCheckItem != NULL)
+  	lCheckItem->setChecked(FALSE);
 	mRestartRowIndex = kNULL_INDX;
 	
 	// clean up
@@ -739,7 +772,7 @@ IOTypeTable::emitRestartSlot()
   }
     
 }
-
+*/
 
 int
 IOTypeTable::setNewFreqValuesInLib()
@@ -886,8 +919,353 @@ IOTypeTable::emitValuesSlot()
   }
 
 
-
 }
 
 
+/** MR: Slot called when the user requests a context menu for this table
+ *  NO LONGER USED
+ */
+/*
+void IOTypeTable::contextMenuSlot(int row, int column, const QPoint &pnt){
+  if (!mChkPtTypeFlag)
+    return;
+  // Pop up a context menu which will allow the user to view a graph
+  // of the current variable / parameter's history
+  QPopupMenu popupMenu;
+  int createID = popupMenu.insertItem(QString("Create Checkpoint"), 0, 0);
+  int restartID = popupMenu.insertItem(QString("Restart Checkpoint"), 1, 1);
+  popupMenu.setItemParameter(createID, row);
+  popupMenu.setItemParameter(restartID, row);
+  popupMenu.connectItem(createID, this, SLOT(createCheckpointSlot(int)));
+  popupMenu.connectItem(restartID, this, SLOT(restartCheckpointSlot(int)));
+  popupMenu.exec(pnt);
+
+  // Do daft things in order to avoid daft compiler warnings....
+  row++; column++;
+}
+*/
+/** MR: Slot called when the user selects the "Create Checkpoint" option
+ *      from the popup menu
+ */
+/*
+void IOTypeTable::createCheckpointSlot(int row){
+  printf("\nCreate at %d\n\n", row);
+}
+*/
+/** MR: Slot called when the user selects the "Restart Checkpoint" option
+ *      from the popup menu
+ */
+/*
+void IOTypeTable::restartCheckpointSlot(int row){
+  printf("\nRestart at %d\n\n", row);
+  // Check to see if we've a checkbox in the restart column
+  // and hence have a QCheckTableItem class instance
+  if (item(row, kIO_RESTART_COLUMN)->rtti() == 2){
+    if ( ( (QCheckTableItem*)item(row, kIO_RESTART_COLUMN) )->isChecked() ){
+      printf("\nIt's checked!\n\n");
+        emitRestartSlot();
+    }
+  }
+}
+*/
+
+/** Method is called whenever the user changes the selection in the table
+ *  Only deal with the checkpoint table
+ */
+void IOTypeTable::selectionChangedSlot(){
+    printf("\nIOTypeTable::selectionChanged called\n\n");
+    if (!mChkPtTypeFlag)
+      return;
+    if (!getAppAttached())
+      return;
+
+    setRestartButtonState();
+}
+
+/** Unfortunately this method is required as well to catch all the possible
+ *  events from the table
+ */
+void IOTypeTable::currentChangedSlot(int row, int column){
+    printf("\nIOTypeTable::currentChangedSlot\n\n");
+    if (!mChkPtTypeFlag)
+      return;
+    if (!getAppAttached())
+      return;
+
+    setRestartButtonState();
+}
+
+
+/** Unfortunatley this is called on a double click too - at which point
+ *  the isRowSelected() method reports that nothing is selected!??!?!
+ */
+void IOTypeTable::setRestartButtonState(){
+    int firstSelectedRestartRow = -1;
+    int firstSelectedCreateRow = -1;
+    int numValidRestartRowsSelected = 0;
+    int numValidCreateRowsSelected = 0;
+    int numTotalRowsSelected = 0;
+
+    for (int i=0; i<numRows(); i++){
+      if (isRowSelected(i)){// && item(i, kIO_RESTART_COLUMN)->rtti() == 2){
+        // Use the mIOTypeList object to determine if we can restart this checkpoint or not
+        IOType *tmpIOType = mIOTypeList.at(i);
+        if (tmpIOType->getType() == REG_IO_INOUT){
+          if (firstSelectedRestartRow == -1)
+            firstSelectedRestartRow = i;
+          if (firstSelectedCreateRow == -1)
+            firstSelectedCreateRow = i;
+          numValidRestartRowsSelected++;
+          numValidCreateRowsSelected++;
+        }
+        else if (tmpIOType->getType() == REG_IO_IN){
+          if (firstSelectedRestartRow == -1)
+            firstSelectedRestartRow = i;
+          numValidRestartRowsSelected++;
+        }
+        else if (tmpIOType->getType() == REG_IO_OUT){
+          if (firstSelectedCreateRow == -1)
+            firstSelectedCreateRow = i;
+          numValidCreateRowsSelected++;
+        }
+
+        numTotalRowsSelected++;
+      }
+    }
+
+    // Check to see if the user has selected more than one row,
+    // and if so, disable the restart button
+    if (numValidRestartRowsSelected == 1 && numTotalRowsSelected == 1){
+      emit enableRestartButtonSignal();
+    }
+    else {
+      emit disableRestartButtonSignal();
+    }
+
+    if (numValidCreateRowsSelected != numTotalRowsSelected){
+      emit disableCreateButtonSignal();
+    }
+    else {
+      emit enableCreateButtonSignal();
+    }
+
+    mRestartRowIndexNew = firstSelectedRestartRow;
+
+    //printf("\nThere are %d rows selected\nThere are %d valid rows selected\nThe first valid row selected is %d\n\n", numTotalRowsSelected, numValidRowsSelected, firstSelectedRow);
+}
+
+
+/** MR: replaces the getCommandReqestCount method
+ */
+int IOTypeTable::getCommandRequestsCountNew(){
+  int lCount = 0;
+  
+  for (int i=0; i<numRows(); i++){
+    if (isRowSelected(i))
+      lCount++;
+  }
+
+  return lCount;
+}
+
+/** MR: this slot will replace the current emitCommandsSlot
+ */
+void IOTypeTable::createButtonPressedSlot(){
+  // this slot will get called for the SampleIOTypes table "Tell Req"
+  // button as well, so ignore those events
+  if (!mChkPtTypeFlag)
+    return;
+
+  int lCount = 0;
+  int *lCommandArray = kNULL;
+  char **lCmdParamArray = kNULL;
+
+  try {
+    lCount = getCommandRequestsCountNew();
+
+    if (lCount > 0){
+      // populate the array of commands of command parameters
+      lCommandArray = new int[lCount];
+      lCmdParamArray = new char*[lCount];
+      for (int i=0; i<lCount; i++){
+        lCmdParamArray[i] = new char[kCHKPT_PARAM_LEN];
+        strcpy(lCmdParamArray[i], " ");
+      }
+
+      int lNumAdded = populateCommandRequestArrayNew(lCommandArray, lCmdParamArray, lCount, 0);
+
+      // library call to emit application
+      if (lNumAdded >0){
+        if (Emit_control(getSimHandle(), lNumAdded, lCommandArray, lCmdParamArray) != REG_SUCCESS){
+          THROWEXCEPTION("Emit_control");
+        }
+      }
+      DBGMSG1("Sent Sample Commands", lCount);
+
+      // clean up
+      delete[] lCommandArray;
+      for (int i=0; i<lCount; i++)
+        delete[] lCmdParamArray[i];
+      delete [] lCmdParamArray;
+
+    } // if lcount > 0
+  } // try
+  catch (SteererException StEx){
+    StEx.print();
+
+    // clean up
+    delete[] lCommandArray;
+    for (int i=0; i<lCount; i++)
+      delete[] lCmdParamArray[i];
+    delete [] lCmdParamArray;
+
+    emit detachFromApplicationForErrorSignal();
+    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);    
+  }
+}
+
+/** MR: this slot will replace the current emitRestartSlot
+ */
+void IOTypeTable::restartButtonPressedSlot(){
+  // this slot will only get called for the Create button form, so no need to worry about the other table
+  int *lCommandArray = kNULL;
+  char **lCmdParamArray = kNULL;
+  ChkPtForm *lChkPtForm = kNULL;
+
+  try {
+    DBGMSG1("populate: mRestartrowIndex is", mRestartRowIndexNew);
+
+    if (mRestartRowIndexNew > kNULL_INDX){
+      // populate the array of commands and array of command parameters
+      lCommandArray = new int[1];
+      lCmdParamArray = new char*[1];
+      lCmdParamArray[0] = new char[kCHKPT_PARAM_LEN];
+      strcpy(lCmdParamArray[0], " ");
+
+      bool lOk = false;
+
+      // actually need to be a little smarter here - need to check that the particular row is restartable...
+      if (isRowSelected(mRestartRowIndexNew)){
+        // find the cmdid for this row
+        int lCmdId = this->text(mRestartRowIndexNew, kIO_ID_COLUMN).toInt(&lOk);
+        if (lOk){
+          lCommandArray[0] = lCmdId;
+
+          // Get number log entries for this checkpoint
+          int lNumEntries = 0;
+          qApp->lock();
+          if (Get_chk_log_number(getSimHandle(), lCmdId, &lNumEntries) != REG_SUCCESS)
+            THROWEXCEPTION("Get_chk_log_number");
+          qApp->unlock();
+
+          if (lNumEntries > 0){
+            // get list of ChkTags from log
+            lChkPtForm = new ChkPtForm(lNumEntries, getSimHandle(), lCmdId, this);
+
+            if (lChkPtForm->getLibReturnStatus() == REG_SUCCESS){
+              if (lChkPtForm->exec() == QDialog::Accepted){
+                DBGMSG1("ChkPt accepted, tag = ", lChkPtForm->getChkTagSelected());
+                sprintf(lCmdParamArray[0], "IN %s", lChkPtForm->getChkTagSelected());
+
+                if (Emit_control(getSimHandle(), 1, lCommandArray, lCmdParamArray) != REG_SUCCESS){
+                  THROWEXCEPTION("Emit_control");
+                }
+                DBGMSG("Sent Restart Commands");
+              } // QDialog::Accepted
+              else {
+                DBGMSG("Cancelled restart chktag selector");
+              }
+            } // lChkPtForm->getLibReturnStatus() == REG_SUCCESS
+            else {
+              THROWEXCEPTION("Get_chk_log_entries");
+            }
+
+            delete lChkPtForm;
+            
+          } // if lNumEntries > 0
+          else {
+            QMessageBox::information(0, "CheckPoint Restart", "No checkpoints found in log", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+          }
+        } // if (lOk)
+
+        else
+          THROWEXCEPTION("Failed to get iotype ID from row in table");
+          
+      } // if isRowSelected(mRestartRowIndexNew)
+      else {
+        DBGMSG("mRestartRowIndexNew row not selected - resetting");
+      }
+
+      // reset regardless of errors
+     //if (lCheckItem != NULL){
+      //  lCheckItem->setChecked(false)
+      mRestartRowIndexNew = kNULL_INDX;
+
+      // clean up
+      delete[] lCommandArray;
+      delete[] lCmdParamArray[0];
+      delete[] lCmdParamArray;
+      
+    } // if mRestartRowIndexNew > kNULL_INDX
+    else {
+      QMessageBox::information(0, "Steerer Restart Functionality", "Please select checkpoint IOType for application to use for restart",
+                               QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+    }
+
+  } // try
+  catch (SteererException StEx){
+    StEx.print();
+
+    // clean up
+    delete[] lCommandArray;
+    delete[] lCmdParamArray[0];
+    delete[] lCmdParamArray;
+    delete lChkPtForm;
+
+    emit detachFromApplicationForErrorSignal();
+    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+  }  
+  
+}
+
+/** Replaces the original populateCommandRequestArray method with a version
+ *  that doesn't rely on the checkboxes...
+ */
+int IOTypeTable::populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex)
+{
+  // populate the array aCmdIds with the commands to be send starting at array index aStartIndex
+  // there should be exactly aMaxCmds to add - do not add any more as array not sized to hold an more
+  // note any not added will remain checked on GUI indicating that not been sent so no need to throw excp.
+  // As Commands (IOTypes) are added uncheck "Request" column on the GUI
+
+  //QCheckTableItem *lCheckItem;
+  IOType *lIOTypePtr;
+  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
+
+  int lNumAdded = 0;
+  int lIndex = aStartIndex;
+
+  mIOTypeIterator.toFirst();
+  while ( ((lIOTypePtr = mIOTypeIterator.current()) != 0) && (lNumAdded  <= aMaxCmds)){
+    if (!(mChkPtTypeFlag && lIOTypePtr->getType() == REG_IO_IN)){
+
+      //lCheckItem = (QCheckTableItem *) this->item(lIOTypePtr->getRowIndex(), kIO_REQUEST_COLUMN);
+      if (isRowSelected(lIOTypePtr->getRowIndex())){
+        aCmdArray[lIndex] = lIOTypePtr->getId();
+        if (mChkPtTypeFlag) // this should always be the case
+          strcpy(aCmdParamArray[lIndex], "OUT 1");
+        lIndex++;
+        lNumAdded++;
+      }
+    }
+    ++mIOTypeIterator;
+  }
+
+  if (aMaxCmds != lNumAdded)
+    DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
+
+  // return the actual number of commands added
+  return lNumAdded;
+
+}
 
