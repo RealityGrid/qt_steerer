@@ -79,8 +79,9 @@ ParameterTable::initTable()
 
   ///SMRXXX  setMinimumSize(QSize(900,900));
 
-  setNumInitRows(kINIT_ROWS);
-  setNumRows(kINIT_ROWS);
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //setNumInitRows(kINIT_ROWS);
+  //setNumRows(kINIT_ROWS);
   setNumCols(kNUM_MON_COLUMNS);
   setReadOnly(TRUE);
  
@@ -151,7 +152,8 @@ ParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, 
 
   int lRowIndex = getMaxRowIndex();
 
-  if (lRowIndex >= getNumInitRows())
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //if (lRowIndex >= getNumInitRows())
     insertRows(lRowIndex);
 
   Parameter *lParamPtr = new Parameter(lHandle, lType, false);
@@ -363,14 +365,16 @@ SteeredParameterTable::initTable()
 {  
   // set up the steered parameters table - columns headings, readonly status of columns etc.
 
-  setNumInitRows(kINIT_ROWS);
-  setNumRows(kINIT_ROWS);
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //setNumInitRows(kINIT_ROWS);
+  //setNumRows(kINIT_ROWS);
   setNumCols(kNUM_STEER_COLUMNS);
 
+  // MR: removed - was causing problems, and giving no noticeable benefit
   // initially set all rows read only as all empty 
   // SMR XXX all this init rows stuff hopefully will be improved
-  for (int i=0; i<kINIT_ROWS; i++)
-    setRowReadOnly(i, TRUE);
+  //for (int i=0; i<kINIT_ROWS; i++)
+  //  setRowReadOnly(i, TRUE);
  
   setShowGrid(FALSE);
   verticalHeader()->hide();
@@ -562,10 +566,11 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
   if (lRowIndex==0)
     emit enableButtonsSignal();
 
-  if (lRowIndex >= getNumInitRows())
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //if (lRowIndex >= getNumInitRows())
     insertRows(lRowIndex);
-  else
-    setRowReadOnly(lRowIndex, FALSE);  // set true in initTable SMR XXX rm when initRows goes
+  //else
+  //  setRowReadOnly(lRowIndex, FALSE);  // set true in initTable SMR XXX rm when initRows goes
 
   Parameter *lParamPtr = new Parameter(lHandle, lType, true);
   lParamPtr->setMinMaxStrings(lMinVal, lMaxVal);
@@ -709,8 +714,7 @@ SteeredParameterTable::setNewParamValuesInLib()
 
 } // ::setNewParamValuesInLib()
 
-void
-SteeredParameterTable::emitValuesSlot()
+void SteeredParameterTable::emitValuesSlot()
 {
   // set the new parameter values in the library as per set in the GUI
   // and "emit" these to the steered application
@@ -871,7 +875,29 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   if (minStr.compare(QString("--")) == 0){
     if (maxStr.compare(QString("--")) == 0){
       // then they're both untested so let the user know they can add anything
-      string = QString("Any string...");
+      switch(lParamPtr->getType())
+      {
+          case REG_INT:
+          {
+            string = QString("Any integer...");
+            break;
+          }
+          case REG_FLOAT:
+          {
+            string = QString("Any float...");
+            break;
+          }
+          case REG_DBL:
+          {
+            string = QString("Any double...");
+            break;
+          }
+          case REG_CHAR:
+          {
+            string = QString("Any string...");
+            break;
+          }
+      }
     }
     else {
       // then theres no upper bounds

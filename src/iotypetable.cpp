@@ -101,20 +101,20 @@ IOTypeTable::~IOTypeTable()
 void
 IOTypeTable::initTable()
 {
-
-  setNumInitRows(kIO_INIT_ROWS);
-  setNumRows(kIO_INIT_ROWS);
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //setNumInitRows(kIO_INIT_ROWS);
+  //setNumRows(kIO_INIT_ROWS);
 
   if (mChkPtTypeFlag)
     setNumCols(kNUM_IO_COLUMNS-1);
   else
      setNumCols(kNUM_IO_COLUMNS);
   
-
+  // MR: removed - was causing problems, and giving no noticeable benefit
   // initially set all rows read only as all empty 
   // SMR XXX all this init rows stuff hopefully will be improved
-  for (int i=0; i<kIO_INIT_ROWS; i++)
-    setRowReadOnly(i, TRUE);
+  //for (int i=0; i<kIO_INIT_ROWS; i++)
+  //  setRowReadOnly(i, TRUE);
 
 
   setShowGrid(FALSE);
@@ -256,10 +256,11 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
       emit enableSampleButtonsSignal();
   }  
 
-  if (lRowIndex >= getNumInitRows())
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //if (lRowIndex >= getNumInitRows())
     insertRows(lRowIndex);
-  else
-    setRowReadOnly(lRowIndex, FALSE);  // set true in initTable  SMR XXX rm when initRows goes
+  //else
+  //  setRowReadOnly(lRowIndex, FALSE);  // set true in initTable  SMR XXX rm when initRows goes
 
 
   IOType	*lIOTypePtr;
@@ -318,7 +319,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
   incrementRowIndex();
   
   DBGMSG1("mMaxRowIndexPtr", getMaxRowIndex());
-  DBGMSG1("NUmInitRows", getNumInitRows());
+  //DBGMSG1("NUmInitRows", getNumInitRows());
 }
 
 void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
@@ -921,53 +922,6 @@ IOTypeTable::emitValuesSlot()
 
 }
 
-
-/** MR: Slot called when the user requests a context menu for this table
- *  NO LONGER USED
- */
-/*
-void IOTypeTable::contextMenuSlot(int row, int column, const QPoint &pnt){
-  if (!mChkPtTypeFlag)
-    return;
-  // Pop up a context menu which will allow the user to view a graph
-  // of the current variable / parameter's history
-  QPopupMenu popupMenu;
-  int createID = popupMenu.insertItem(QString("Create Checkpoint"), 0, 0);
-  int restartID = popupMenu.insertItem(QString("Restart Checkpoint"), 1, 1);
-  popupMenu.setItemParameter(createID, row);
-  popupMenu.setItemParameter(restartID, row);
-  popupMenu.connectItem(createID, this, SLOT(createCheckpointSlot(int)));
-  popupMenu.connectItem(restartID, this, SLOT(restartCheckpointSlot(int)));
-  popupMenu.exec(pnt);
-
-  // Do daft things in order to avoid daft compiler warnings....
-  row++; column++;
-}
-*/
-/** MR: Slot called when the user selects the "Create Checkpoint" option
- *      from the popup menu
- */
-/*
-void IOTypeTable::createCheckpointSlot(int row){
-  printf("\nCreate at %d\n\n", row);
-}
-*/
-/** MR: Slot called when the user selects the "Restart Checkpoint" option
- *      from the popup menu
- */
-/*
-void IOTypeTable::restartCheckpointSlot(int row){
-  printf("\nRestart at %d\n\n", row);
-  // Check to see if we've a checkbox in the restart column
-  // and hence have a QCheckTableItem class instance
-  if (item(row, kIO_RESTART_COLUMN)->rtti() == 2){
-    if ( ( (QCheckTableItem*)item(row, kIO_RESTART_COLUMN) )->isChecked() ){
-      printf("\nIt's checked!\n\n");
-        emitRestartSlot();
-    }
-  }
-}
-*/
 
 /** Method is called whenever the user changes the selection in the table
  *  Only deal with the checkpoint table

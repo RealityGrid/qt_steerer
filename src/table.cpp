@@ -71,11 +71,14 @@ Table::setAppDetached()
 }
 
 
+// MR: removed - was causing problems, and giving no noticeable benefit
+/*
 void
 Table::setNumInitRows(int aNumInitRows)
 {
   mInitNumRows = aNumInitRows;
 }
+*/
 
 void
 Table::incrementRowIndex()
@@ -90,11 +93,14 @@ Table::getAppAttached() const
   return mAppAttached;
 }
 
+// MR: removed - was causing problems, and giving no noticeable benefit
+/*
 int 
 Table::getNumInitRows() const
 {
   return mInitNumRows;
 }
+*/
 
 int 
 Table::getMaxRowIndex() const
