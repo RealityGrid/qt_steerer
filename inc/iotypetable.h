@@ -86,9 +86,6 @@ protected slots:
   void createButtonPressedSlot();
   void restartButtonPressedSlot();
   
-  //void contextMenuSlot(int row, int column, const QPoint &pnt);
-  //void createCheckpointSlot(int row);
-  //void restartCheckpointSlot(int row);
   void selectionChangedSlot();
   void currentChangedSlot(int row, int column);
 

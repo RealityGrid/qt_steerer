@@ -54,11 +54,13 @@ public:
   virtual void clearAndDisableForDetach(const bool aUnRegister = true) = 0;
 
   void setAppDetached();
-  void setNumInitRows(int aNumInitRows);
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //void setNumInitRows(int aNumInitRows);
   void incrementRowIndex();
 
   bool getAppAttached() const;
-  int getNumInitRows() const;
+  // MR: removed - was causing problems, and giving no noticeable benefit
+  //int getNumInitRows() const;
   int getMaxRowIndex() const;
   int getSimHandle() const;
 
