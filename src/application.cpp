@@ -556,6 +556,17 @@ Application::processNextMessage(REG_MsgType aMsgType)
       }
       break;
       
+
+    case STEER_LOG: 
+      DBGMSG("Got steer_log message");
+
+      if(Consume_log(mSimHandle) != REG_SUCCESS)	//ReG library 
+      {
+	THROWEXCEPTION("Consume_log failed");
+      }
+
+      break;
+
     case MSG_NOTSET:
       DBGMSG("No msg to process");
       break;
@@ -563,7 +574,11 @@ Application::processNextMessage(REG_MsgType aMsgType)
     case CONTROL:
       DBGMSG("Got control message");
       break;
-	
+	    
+    case SUPP_CMDS:
+      DBGMSG("Got supp_cmds message");
+      break;
+
     default:
       DBGMSG("Unrecognised msg returned by Get_next_message");
       break;

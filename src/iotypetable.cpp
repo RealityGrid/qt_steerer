@@ -39,8 +39,9 @@
 
 #include "types.h"
 #include "debug.h"
-#include "ReG_Steer_Steerside.h"
+//#include "ReG_Steer_Steerside.h"
 
+#include "chkptform.h"
 #include "exception.h"
 #include "iotypetable.h"
 
@@ -606,9 +607,10 @@ IOTypeTable::emitCommandsSlot()
 void 
 IOTypeTable::emitRestartSlot()
 { 
-  QCheckTableItem *lCheckItem;
-  int *lCommandArray = kNULL;
-  char **lCmdParamArray = kNULL;
+  QCheckTableItem	*lCheckItem;
+  int			*lCommandArray = kNULL;
+  char			**lCmdParamArray = kNULL;
+  ChkPtForm		*lChkPtForm = kNULL;
 
   try 
   {
@@ -636,29 +638,61 @@ IOTypeTable::emitRestartSlot()
 	  {
 	    lCommandArray[0] = lCmdId;
 	  
-	    QMessageBox::information(0, "Steerer info", 
-				     "restart functionality not yet complete, need file list selector here...",
-				     QMessageBox::Ok,
-				     QMessageBox::NoButton, 
-				     QMessageBox::NoButton);
+	    // Get number log entries for this checkpoint
+	    int lNumEntries = 0;
+	    qApp->lock();
+	    if (Get_chk_log_number(getSimHandle(), 
+				   lCmdId, 
+				   &lNumEntries) != REG_SUCCESS)
+	      THROWEXCEPTION("Get_chk_log_number");
+	    qApp->unlock();
 	    
-	    strcpy(lCmdParamArray[0], "IN 1");  // this will have filename SMR XXXn
-	    if (Emit_control(getSimHandle(),			//ReG library
-			     1,
-			     lCommandArray,
-			     lCmdParamArray) != REG_SUCCESS)
-	      THROWEXCEPTION("Emit_contol");
-	    
-	    DBGMSG("Sent Restart Commands");
-	    
+	    if (lNumEntries > 0)
+	    { 
+	      // get list of ChkTags from log 
+	      
+	      lChkPtForm = new ChkPtForm(lNumEntries, getSimHandle(), lCmdId, this);
+     
+	      if (lChkPtForm->getLibReturnStatus() == REG_SUCCESS)
+	      {
+  
+		if ( lChkPtForm->exec() == QDialog::Accepted ) 
+	        {
+		  DBGMSG1("ChkPt accepted, tag = ",  lChkPtForm->getChkTagSelected());
+		  sprintf(lCmdParamArray[0], "IN %s", lChkPtForm->getChkTagSelected() );
+
+		  if (Emit_control(getSimHandle(),			//ReG library
+				   1,
+				   lCommandArray,
+				   lCmdParamArray) != REG_SUCCESS)
+		    THROWEXCEPTION("Emit_contol");
+		  
+		  DBGMSG("Sent Restart Commands");
+		}
+		else
+		  DBGMSG("Cancelled restart chktag selector");
+
+	      } 
+	      else 
+		THROWEXCEPTION("Get_chk_log_entries");
+
+	      delete lChkPtForm;		
+	    }
+	    else
+	    {	      
+	      QMessageBox::information(0, "CheckPoint Restart", 
+				       "No checkpoints found in log",
+				       QMessageBox::Ok,
+				       QMessageBox::NoButton, 
+				       QMessageBox::NoButton);
+
+	    }
+    
 	  }
 	  else
 	    THROWEXCEPTION("Failed to get iotype ID from row in table");
 	  
-	  
-	  
-	  
-	}
+	} 
 	else
 	  DBGMSG("mRestartRowIndex not checked - resetting");  //log this SMR XXX
 	
@@ -688,7 +722,8 @@ IOTypeTable::emitRestartSlot()
     delete [] lCommandArray;
     delete [] lCmdParamArray[1];
     delete [] lCmdParamArray;
-    
+    delete lChkPtForm;
+ 
     emit detachFromApplicationForErrorSignal();
     QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
 			 QMessageBox::Ok,
