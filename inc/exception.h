@@ -48,7 +48,7 @@ public:
 
   ~SteererException();
 
-  const char* const getErrorMsg() const;
+  const char* getErrorMsg() const;
 
   void print () const;
 

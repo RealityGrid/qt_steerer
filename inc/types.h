@@ -39,11 +39,6 @@
 #define REG_STR_CPP 1
 #include "ReG_Steer_types.h"
 
-// debug mode - see debug.h
-#define DBG_VERSION 1
-//#define DBG_CONS 1
-
-
 #define kNULL				  0
 
 //SMR XXX move these to table class files??
