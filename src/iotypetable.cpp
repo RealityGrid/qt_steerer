@@ -692,7 +692,7 @@ IOTypeTable::emitRestartSlot()
 	  else
 	    THROWEXCEPTION("Failed to get iotype ID from row in table");
 	  
-	} 
+	}
 	else
 	  DBGMSG("mRestartRowIndex not checked - resetting");  //log this SMR XXX
 	
@@ -700,6 +700,11 @@ IOTypeTable::emitRestartSlot()
 	lCheckItem->setChecked(FALSE);
 	mRestartRowIndex = kNULL_INDX;
 	
+	// clean up
+	delete [] lCommandArray;
+	delete [] lCmdParamArray[0];
+	delete [] lCmdParamArray;
+
       }
       else
       {
@@ -720,7 +725,7 @@ IOTypeTable::emitRestartSlot()
 
     // clean up
     delete [] lCommandArray;
-    delete [] lCmdParamArray[1];
+    delete [] lCmdParamArray[0];
     delete [] lCmdParamArray;
     delete lChkPtForm;
  

@@ -79,7 +79,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     
     // create the layouts for the form
     QHBoxLayout *lFormLayout = new QHBoxLayout(this, 10, 10, "chkptformlayout");
-    QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
+    //    QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
     QVBoxLayout *lListLayout = new QVBoxLayout(6, "chkptlistlayout");
     QVBoxLayout *lButtonLayout = new QVBoxLayout(6, "chkptbuttonlayout");
     QSpacerItem* lSpacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
