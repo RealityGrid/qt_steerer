@@ -102,6 +102,7 @@ public slots:
     void updateSlot(ParameterHistory *mYParamHist, const int yparamID);
     void filePrint();
     void fileSave();
+    void fileDataSave();
     void fileQuit();
     void graphYUpperBoundSlot();
     void graphYLowerBoundSlot();

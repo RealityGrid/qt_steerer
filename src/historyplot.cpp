@@ -42,6 +42,9 @@
 #include "qprinter.h"
 #include "qinputdialog.h"
 #include "qwt_symbol.h"
+#include "qfiledialog.h"
+#include "qtextstream.h"
+#include <qmessagebox.h>
 #include "iostream.h"
 
 /** Constructor
@@ -61,7 +64,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     strcpy(lLabely, _lLabely);
 
     // Set the caption to be something descriptive
-    setCaption(QString(lLabely)+QString(" over time"));
+    setCaption(QString(lLabely)+QString(" vs. SEQUENCE_NUM"));
     
     // Create a plotter widget
     mPlotter = new HistoryPlotter(this);
@@ -69,7 +72,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mPlotter->setTitle("Parameter History");
 
     // Set axis titles
-    mPlotter->setAxisTitle(mPlotter->xBottom, "Timestep");
+    mPlotter->setAxisTitle(mPlotter->xBottom, "SEQUENCE_NUM");
     mPlotter->setAxisTitle(mPlotter->yLeft, lLabely);
 
     QVBoxLayout *tBL = new QVBoxLayout(this);
@@ -78,8 +81,10 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mFileMenu = new QPopupMenu(this, "filePopup");
     mFileMenu->insertItem("&Print", this, SLOT(filePrint()), CTRL+Key_P);
     mFileMenu->insertItem("&Save", this, SLOT(fileSave()), CTRL+Key_S);
+    mFileMenu->insertItem("Save da&ta", this, SLOT(fileDataSave()), 
+			  CTRL+Key_T);
     mFileMenu->insertSeparator();
-    mFileMenu->insertItem("&Quit", this, SLOT(fileQuit()), CTRL+Key_Q);
+    mFileMenu->insertItem("&Close", this, SLOT(fileQuit()), CTRL+Key_C);
 
     mGraphMenu = new QPopupMenu(this, "graphPopup");
     autoAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
@@ -138,6 +143,48 @@ void HistoryPlot::fileSave(){
   }
 }
 
+void HistoryPlot::fileDataSave(){
+
+  QString lFileName = QFileDialog::getSaveFileName(".", "Data (*.dat)", 0, "save file dialog", "Choose a name for the data file");
+
+  // ensure the user gave us a sensible file
+  if (!lFileName.isNull()){
+
+    // ensure the file has a .jpg extension
+    if (!lFileName.endsWith(".dat"))
+      lFileName.append(".dat");
+
+    QFile file(lFileName);
+
+    if( !file.open( IO_WriteOnly ) ){
+      QMessageBox::warning( this, "Saving", "Failed to save file." );
+      return;
+    }
+
+    // Work out how many points we've got - compare the no. available
+    // for each ordinate and use the smaller of the two.
+    int lNumPts = mYParamHist->mArrayPos;
+    if(mXParamHist->mArrayPos < lNumPts) lNumPts = mXParamHist->mArrayPos;
+
+    double *lX = mXParamHist->ptrToArray();
+    double *lY = mYParamHist->ptrToArray();
+    int     i;
+
+    QTextStream ts( &file );
+
+    // Header for data
+    ts << "# Data exported from RealityGrid Qt Steering Client" << endl;
+    ts << "# for " << this->caption() << endl;
+
+    // The data itself
+    for(i=0; i<lNumPts; i++){
+      ts << lX[i] << QString("  %1").arg(lY[i], 0, 'e', 8) << endl;
+    }
+
+    file.close();
+  }
+}
+
 void HistoryPlot::fileQuit(){
   close();
 }
@@ -186,7 +233,12 @@ void HistoryPlot::doPlot(){
       int ltmp = (int)((float)this->contentsRect().width()/(float)((nPoints + 1)*3));
       if(ltmp > 0){
 	// Min. symbol size of 3 looks best
-	if(ltmp < 3)ltmp = 3;
+	if(ltmp < 3){
+	  ltmp = 3;
+	}
+	else if(ltmp > 15){
+	  ltmp = 15;
+	}
 	QwtSymbol lPlotSymbol;
 	lPlotSymbol.setSize(ltmp);
 	lPlotSymbol.setStyle(QwtSymbol::Diamond);
