@@ -107,9 +107,14 @@ CommsThread::CommsThread(SteererMainWindow *aSteerer, int aCheckInterval)
 {
   DBGCON("CommsThread");
   gCommsThreadPtr = this; 
-  mUseAutoPollInterval = 0;
+  // Set polling interval automatically
+  mUseAutoPollInterval = 1;
   mPollCount = 0;
   mMsgCount = 0;
+  // How many polls to average over in order to decide whether
+  // or not to adjust the polling interval
+  mPollAdjustInterval = 4; 
+  mMinPollAdjustInterval = 4;
 
   signal(SIGINT, threadSignalHandler);	//ctrl-c
   signal(SIGTERM, threadSignalHandler);	//kill (note cannot (and should not) catch kill -9)  
@@ -117,8 +122,6 @@ CommsThread::CommsThread(SteererMainWindow *aSteerer, int aCheckInterval)
   signal(SIGILL, threadSignalHandler);
   signal(SIGABRT, threadSignalHandler);
   signal(SIGFPE, threadSignalHandler);
-
-
 }
 
 CommsThread::~CommsThread()
@@ -184,9 +187,6 @@ CommsThread::run()
   Application *lApp;
   int	lSimHandle = REG_SIM_HANDLE_NOTSET ;
   int   lMsgType = MSG_NOTSET;
-  // How many polls to average over in order to decide whether
-  // or not to adjust the polling interval
-  int   lPollAdjustInterval = 10; 
   float lPollRatio;
   DBGMSG("CommsThread starting");
   
@@ -200,7 +200,7 @@ CommsThread::run()
 
     // This section automatically adjusts the polling interval
     // to keep up with the attached application(s)
-    if(mUseAutoPollInterval && (mPollCount == lPollAdjustInterval)){
+    if(mUseAutoPollInterval && (mPollCount == mPollAdjustInterval)){
 
       lPollRatio = (float)mMsgCount/(float)mPollCount;
       DBGMSG1("CommsThread: poll ratio = ", lPollRatio);
@@ -211,6 +211,13 @@ CommsThread::run()
 	  // Reduce polling interval faster than we increase it
 	  mCheckInterval -= (int)(0.66*mCheckInterval);
 	  DBGMSG1("CommsThread: reducing poll interval to ", mCheckInterval);
+	  // Adjust how many calls we average over to try and ensure
+	  // we check about every 2 seconds
+	  mPollAdjustInterval = (int)(1500.0/(float)mCheckInterval);
+	  if(mPollAdjustInterval < mMinPollAdjustInterval){
+	    mPollAdjustInterval = mMinPollAdjustInterval;
+	  }
+	  DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
 	}
       }
       else if(lPollRatio < 0.5){
@@ -220,6 +227,13 @@ CommsThread::run()
 	  // between polls
 	  mCheckInterval += (int)(0.5*mCheckInterval);
 	  DBGMSG1("CommsThread: increasing poll interval to ", mCheckInterval);
+	  // Adjust how many calls we average over to try and ensure
+	  // we check about every 2 seconds
+	  mPollAdjustInterval = (int)(1500.0/(float)mCheckInterval);
+	  if(mPollAdjustInterval < mMinPollAdjustInterval){
+	    mPollAdjustInterval = mMinPollAdjustInterval;
+	  }
+	  DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
 	}
       }
       mPollCount = 0;

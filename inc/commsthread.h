@@ -67,6 +67,10 @@ private:
     int                 mUseAutoPollInterval;
     int                 mPollCount;
     int                 mMsgCount;
+    // How many polls to average over in order to decide whether
+    // or not to adjust the polling interval
+    int                 mPollAdjustInterval; 
+    int                 mMinPollAdjustInterval;
 
 };
 

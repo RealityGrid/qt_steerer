@@ -84,7 +84,7 @@
 
 // minimum polling interval (milliseconds)from commsthread Get_next_message
 #define kMIN_POLLING_INT	50
-#define kMAX_POLLING_INT        2000
+#define kMAX_POLLING_INT        1000
 
 // Unique numbers to make QCustomEvent IDs for postEvent from  CommsThread.cpp
 #define kMSG_EVENT		100
