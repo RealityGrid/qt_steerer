@@ -187,6 +187,8 @@ void HistoryPlot::fileSave(){
 
 void HistoryPlot::fileDataSave(){
 
+  int     i;
+
   QString lFileName = QFileDialog::getSaveFileName(".", "Data (*.dat)", 0, 
 						   "save file dialog", 
 						   "Choose a name for the data file");
@@ -204,20 +206,33 @@ void HistoryPlot::fileDataSave(){
       return;
     }
 
-    // Work out how many points we've got - compare the no. available
-    // for each ordinate and use the smaller of the two.
-    int lNumPts = mYParamHist->mArrayPos;
-    if(mXParamHist->mArrayPos < lNumPts) lNumPts = mXParamHist->mArrayPos;
-
-    double *lX = mXParamHist->ptrToArray();
-    double *lY = mYParamHist->ptrToArray();
-    int     i;
-
     QTextStream ts( &file );
 
     // Header for data
     ts << "# Data exported from RealityGrid Qt Steering Client" << endl;
     ts << "# for " << this->caption() << endl;
+
+    // Work out how many points we've got of 'historical data' - compare 
+    // the no. available for each ordinate and use the smaller of the two.
+    int lNumPts = mYParamHist->mPreviousHistArraySize;
+    if(mXParamHist->mPreviousHistArraySize < lNumPts){
+      lNumPts = mXParamHist->mPreviousHistArraySize;
+    }
+    double *lX = mXParamHist->mPtrPreviousHistArray;
+    double *lY = mYParamHist->mPtrPreviousHistArray;
+
+    // The 'historical' data itself
+    for(i=0; i<lNumPts; i++){
+      ts << lX[i] << QString("  %1").arg(lY[i], 0, 'e', 8) << endl;
+    }
+
+    // Now do the data we've collected whilst we've been attached
+    lNumPts = mYParamHist->mArrayPos;
+    if(mXParamHist->mArrayPos < lNumPts){
+      lNumPts = mXParamHist->mArrayPos;
+    }
+    lX = mXParamHist->ptrToArray();
+    lY = mYParamHist->ptrToArray();
 
     // The data itself
     for(i=0; i<lNumPts; i++){
@@ -241,9 +256,6 @@ void HistoryPlot::doPlot(){
 
   mForceHistRedraw = false;
   mPreviousLogSize = mYParamHist->mPreviousHistArraySize;
-
-  cout << "ARPDBG lReplotHistory = " << lReplotHistory << endl;
-  cout << "ARPDBG mForceHistRedraw = "<< mForceHistRedraw << endl;
 
   if(mCurveID != CURVE_UNSET)mPlotter->removeCurve(mCurveID);
   if(lReplotHistory && 
@@ -341,11 +353,11 @@ void HistoryPlot::doPlot(){
 				  mXParamHist->mPtrPreviousHistArray, 
 				  mYParamHist->mPtrPreviousHistArray, nPoints);
 
-	cout << "ARPDBG: doPlot no. of logged points = " << nPoints << endl;
-	for(int i=0; i<nPoints; i++){
-	  cout << mXParamHist->mPtrPreviousHistArray[i] << " " <<
-	    mYParamHist->mPtrPreviousHistArray[i] << endl;
-	}
+	//	cout << "ARPDBG: doPlot no. of logged points = " << nPoints << endl;
+	//	for(int i=0; i<nPoints; i++){
+	//	  cout << mXParamHist->mPtrPreviousHistArray[i] << " " <<
+	//	    mYParamHist->mPtrPreviousHistArray[i] << endl;
+	//	}
       }
     }
     // Insert markers
