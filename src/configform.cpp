@@ -65,7 +65,7 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *n
   QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "configbuttonlayout");
 
   //SMR XXX replace with constants for range throughout -to do
-  lFormLayout->addWidget(new QLabel("Enter interval value (seconds) \nValid range: 0.5 - 10 (1d.p)", this));
+  lFormLayout->addWidget(new QLabel("Enter interval value (seconds) \nValid range: 0.1 - 10 (1d.p)", this));
 
   mLineEdit = new QLineEdit( this );
 
@@ -119,7 +119,7 @@ ConfigForm::applySlot()
     lValue = mLineEdit->text().toDouble(&lOk);
     if (lOk)
     {
-      if (lValue >= 0.5 && lValue <= 10)
+      if (lValue >= 0.1 && lValue <= 10)
       {
 	// keep only one d.p; add 0.001 to for .9999 representation problem
 	lValue += 0.001;
@@ -136,7 +136,7 @@ ConfigForm::applySlot()
     if (!lOk)
     { 
       //value is out of range
-      QMessageBox::information(0, "Invalid entry", "Please enter a value between 0.5 and 10",
+      QMessageBox::information(0, "Invalid entry", "Please enter a value between 0.1 and 10",
 			       QMessageBox::Ok,
 			       QMessageBox::NoButton, 
 			       QMessageBox::NoButton);
