@@ -42,7 +42,7 @@
 #include "qprinter.h"
 #include "qinputdialog.h"
 #include "qwt_symbol.h"
-
+#include "iostream.h"
 
 /** Constructor
  *  ParameterHistory* contains the data to plot
@@ -50,14 +50,18 @@
  *  const int is the unique parameter ID so that we don't draw graphs
  *    for the wrong parameter signals
  */
-HistoryPlot::HistoryPlot(ParameterHistory *_mParamHist, const char *_lLabel, const int _paramID){
+HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist, 
+			 ParameterHistory *_mYParamHist, const char *_lLabely, 
+			 const int _xparamID, const int _yparamID){
     // Local copies of passed parameters
-    mParamHist = _mParamHist;
-    paramID = _paramID;
-    strcpy(lLabel, _lLabel);
+    mXParamHist = _mXParamHist;
+    mYParamHist = _mYParamHist;
+    xparamID = _xparamID;
+    yparamID = _yparamID;
+    strcpy(lLabely, _lLabely);
 
     // Set the caption to be something descriptive
-    setCaption(QString(lLabel)+QString(" over time"));
+    setCaption(QString(lLabely)+QString(" over time"));
     
     // Create a plotter widget
     mPlotter = new HistoryPlotter(this);
@@ -66,7 +70,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mParamHist, const char *_lLabel, con
 
     // Set axis titles
     mPlotter->setAxisTitle(mPlotter->xBottom, "Timestep");
-    mPlotter->setAxisTitle(mPlotter->yLeft, lLabel);
+    mPlotter->setAxisTitle(mPlotter->yLeft, lLabely);
 
     QVBoxLayout *tBL = new QVBoxLayout(this);
     mMenuBar = new QMenuBar(this, "menuBar");
@@ -78,13 +82,22 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mParamHist, const char *_lLabel, con
     mFileMenu->insertItem("&Quit", this, SLOT(fileQuit()), CTRL+Key_Q);
 
     mGraphMenu = new QPopupMenu(this, "graphPopup");
-    autoAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, SLOT(autoYAxisSlot()), CTRL+Key_A);
-    upperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, SLOT(graphYUpperBoundSlot()), CTRL+Key_U);
-    lowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, SLOT(graphYLowerBoundSlot()), CTRL+Key_L);
+    autoAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
+					SLOT(autoYAxisSlot()), CTRL+Key_A);
+    upperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, 
+					  SLOT(graphYUpperBoundSlot()), 
+					  CTRL+Key_U);
+    lowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
+					  SLOT(graphYLowerBoundSlot()), 
+					  CTRL+Key_L);
+    showSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
+					   SLOT(graphDisplaySymbolsSlot()),
+					   CTRL+Key_D);
 
     mGraphMenu->setItemChecked(autoAxisId, true);
     mGraphMenu->setItemEnabled(upperBoundId, false);
     mGraphMenu->setItemEnabled(lowerBoundId, false);
+    mGraphMenu->setItemChecked(showSymbolsId, true);
     
     mMenuBar->insertItem("&File", mFileMenu);
     mMenuBar->insertItem("&Graph", mGraphMenu);
@@ -97,13 +110,10 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mParamHist, const char *_lLabel, con
     lowerBound = upperBound = 0;
     autoAxisSet = true;
 
-    doPlot();
-}
+    // Default to displaying symbols
+    displaySymbolsSet = true;
 
-HistoryPlot::~HistoryPlot(){
-    delete mPlotter;
-    delete mFileMenu;
-    delete mMenuBar;
+    doPlot();
 }
 
 /** Menu handling slots
@@ -138,15 +148,10 @@ void HistoryPlot::doPlot(){
     mPlotter->removeCurves();
 
     // Insert new curves
-    long cSin = mPlotter->insertCurve(lLabel);
+    long cSin = mPlotter->insertCurve(lLabely);
 
     // Set curve styles
     mPlotter->setCurvePen(cSin, QPen(red));
-    //cout << mPlotter->setCurveStyle(cSin, QwtCurve::Dots) << endl;
-    //QwtSymbol sym;
-    //sym.setStyle(QwtSymbol::DTriangle);
-    //sym.setSize(20);
-    //mPlotter->setCurveSymbol(cSin, sym);
 
     // allow the user to define the Y axis dims if desired
     if (!autoAxisSet){
@@ -155,30 +160,45 @@ void HistoryPlot::doPlot(){
     else{
       mPlotter->setAxisAutoScale(0);
 
-      // also want to update the manual upper and lower bounds to something sensible at this point
+      // also want to update the manual upper and lower bounds to 
+      // something sensible at this point
       const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
       lowerBound = autoScaleDiv->lBound();
       upperBound = autoScaleDiv->hBound();
     }
 
-    //
-    //  Calculate some values
-    //
-    const int nPoints = mParamHist->size;
-    double *x = new double[nPoints];
-    double *y = new double[nPoints];
+    // Work out how many points we've got - compare the no. available
+    // for each ordinate and use the smaller of the two.
+    int nPoints = mYParamHist->mArrayPos;
+    if(mXParamHist->mArrayPos < nPoints) nPoints = mXParamHist->mArrayPos;
 
-    for (int i = 0; i < nPoints; i++){
-        x[i] = double(i);
-        y[i] = atof(mParamHist->elementAt(i));
+    // Add symbols - scale their size appropriately.  This code only
+    // takes account of the TOTAL no. of points to be plotted and the
+    // WIDTH of the plot window.  It does not allow for the fact that
+    // y-axis limits may mean that only a subset of the points are plotted.
+    if(displaySymbolsSet){
+      // |   x    x    x   |
+      // |<     width     >| with npoints = 3.
+      // Code below works out average spacing of data points
+      // as width/(npoints + 1) and then takes a third of that
+      // to be the symbol size.  I don't know what units the
+      // symbol size is in so this is empirical.
+      int ltmp = (int)((float)this->contentsRect().width()/(float)((nPoints + 1)*3));
+      if(ltmp > 0){
+	// Min. symbol size of 3 looks best
+	if(ltmp < 3)ltmp = 3;
+	QwtSymbol lPlotSymbol;
+	lPlotSymbol.setSize(ltmp);
+	lPlotSymbol.setStyle(QwtSymbol::Diamond);
+
+	mPlotter->setCurveSymbol(cSin, lPlotSymbol);
+      }
     }
 
-    // Copy the data
-    mPlotter->setCurveData(cSin, x, y, nPoints);
+    // Shallow copy of data for plot
 
-    // delete the arrays
-    delete[] x;
-    delete[] y;
+    mPlotter->setCurveRawData(cSin, mXParamHist->ptrToArray(), 
+			      mYParamHist->ptrToArray(), nPoints);
 
     // Insert markers
 
@@ -211,8 +231,8 @@ void HistoryPlot::graphYUpperBoundSlot(){
   
   double upperBoundTmp = tempStr.toDouble(&conversionOk);
 
-  // potentially a user could make enough mistakes to reach the stack limit on the machine,
-  // but it's unlikely ;p
+  // potentially a user could make enough mistakes to reach the stack limit 
+  // on the machine, but it's unlikely ;p
   if (!conversionOk){
     graphYUpperBoundSlot();
   }
@@ -243,19 +263,38 @@ void HistoryPlot::graphYLowerBoundSlot(){
     lowerBound = lowerBoundTmp;
 }
 
+/** Toggle display of data points on graph on/off
+ */
+void HistoryPlot::graphDisplaySymbolsSlot(){
+
+  displaySymbolsSet = !displaySymbolsSet;
+  mGraphMenu->setItemChecked(showSymbolsId, displaySymbolsSet);
+  // redraw the plot
+  doPlot();
+}
+
 
 /** Update the graph with new data
  */
-void HistoryPlot::updateSlot(ParameterHistory *_mParamHist, const int _paramID){
+void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist, const int _yparamID){
     // check we're the right graph for this data
-    if (_paramID != paramID)
+    if (_yparamID != yparamID)
       return;
 
     // update the data
-    mParamHist = _mParamHist;
+    mYParamHist = _mYParamHist;
 
     // do the plot
     doPlot();
 }
 
+/** Override QWidget::closeEvent to catch the user clicking the close button
+ *  in the window bar as well as them selecting Quit from the File menu.
+ */
+void HistoryPlot::closeEvent(QCloseEvent *e){
+  // Accept the event to close the widget
+  e->accept();
+  // Emit a SIGNAL to tell parametertable object we can be deleted
+  emit plotClosedSignal(this);
+}
 

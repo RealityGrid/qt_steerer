@@ -41,6 +41,7 @@
 #define __PARAMETER_H__
 
 #include "parameterhistory.h"
+#include <qstring.h>
 
 class QTable;
 
@@ -72,7 +73,7 @@ public:
   QString getMinString();
   QString getMaxString();
 
-  ParameterHistory  mParamHist;
+  ParameterHistory  *mParamHist;
   
 private:
   const	bool	mSteerable;

@@ -67,7 +67,6 @@ class HistoryPlotter : public QwtPlot
 private:
 public:
   HistoryPlotter(QWidget *p=0, const char *name=0):QwtPlot(p, name){}
-  ~HistoryPlotter(){}
 };
 
 /** The history plot class is the main window for the
@@ -81,30 +80,40 @@ private:
     QMenuBar *mMenuBar;
     QPopupMenu *mFileMenu;
     QPopupMenu *mGraphMenu;
-    ParameterHistory *mParamHist;
+    ParameterHistory *mXParamHist;
+    ParameterHistory *mYParamHist;
     HistoryPlotter *mPlotter;
-    char lLabel[kCHKPT_PARAM_LEN];
-    int paramID;
-    
+    char llabelx[kCHKPT_PARAM_LEN];
+    char lLabely[kCHKPT_PARAM_LEN];
+    int xparamID;
+    int yparamID;
+
     double upperBound, lowerBound;
-    int upperBoundId, lowerBoundId, autoAxisId;
-    bool autoAxisSet;
+    int    upperBoundId, lowerBoundId, autoAxisId, showSymbolsId;
+    bool   autoAxisSet;
+    bool   displaySymbolsSet;
         
     void doPlot();
 
+protected:
+    void closeEvent(QCloseEvent *e);
+
 public slots:
-    void updateSlot(ParameterHistory *mParamHist, const int paramID);
+    void updateSlot(ParameterHistory *mYParamHist, const int yparamID);
     void filePrint();
     void fileSave();
     void fileQuit();
     void graphYUpperBoundSlot();
     void graphYLowerBoundSlot();
     void autoYAxisSlot();
+    void graphDisplaySymbolsSlot();
+
+signals:
+    void plotClosedSignal(HistoryPlot *ptr);
 
 public:
-    HistoryPlot(ParameterHistory *mParamHist, const char *lLabel, const int paramID);
-    ~HistoryPlot();
-
+    HistoryPlot(ParameterHistory *mXParamHist, ParameterHistory *mYParamHist, 
+		const char *lLabely, const int xparamID, const int yparamID);
 };
 
 /////////////////////////////////////////////////////////

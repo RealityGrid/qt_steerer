@@ -66,11 +66,12 @@ public slots:
   // MR: Slot for the context menu
   virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
   void drawGraphSlot(int popupMenuID);
+  void plotClosedSlot(HistoryPlot *ptr);
 
 signals:
   // MR: Signal to tell the HistoryPlot to update
   void paramUpdateSignal(ParameterHistory *mParamHist, const int paramID);
- 
+
 protected:
 
   int getNumParameters() const;
@@ -80,8 +81,8 @@ protected:
   Parameter *findParameterHandleFromRow(int row);
 
 protected:
-  QPtrList<Parameter> mParamList;
   QPtrList<HistoryPlot> mHistoryPlotList;
+  QPtrList<Parameter> mParamList;
   HistoryPlot *mQwtPlot;
 
 };

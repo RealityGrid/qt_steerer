@@ -38,26 +38,49 @@
 
 #include "parameterhistory.h"
 #include <stdio.h>
-
+#include <stdlib.h>
 
 ParameterHistory::ParameterHistory(){
-  size = 0;
+  mArrayChunkSize = 1024;
+  mArraySize = mArrayChunkSize;
+  mArrayPos = 0;
+  mParamHistArray = (double *)malloc(mArraySize*sizeof(double));
 }
 
 ParameterHistory::~ParameterHistory(){
+  if(mParamHistArray)free(mParamHistArray);
 }
 
 // Bear in mind that the current implementation will just sit
 // eating up memory until the job is over... need to do something
 // a bit better and spool to file
 void ParameterHistory::updateParameter(const char* lVal){
-  QString temp(lVal);
-  mParamHistList.append(temp);
-  size++;
+  if(mArrayPos < mArraySize){
+    mParamHistArray[mArrayPos++] = (double)atof(lVal);
+  }
+  else{
+    void *dum = realloc((void *)mParamHistArray, 
+			(size_t)(mArraySize+mArrayChunkSize)*sizeof(double));
+    if(dum){
+      mParamHistArray = (double *)dum;
+      mArraySize += mArrayChunkSize;
+      mParamHistArray[mArrayPos++] = (double)atof(lVal);
+    }
+  }
 }
 
-const char* ParameterHistory::elementAt(int index){
-  return (mParamHistList[index].latin1());
+const float ParameterHistory::elementAt(int index){
+
+  if(index > 0 && index < mArrayPos){
+    return (float)mParamHistArray[index];
+  }
+  else{
+    return 0.0;
+  }
+}
+
+double* ParameterHistory::ptrToArray(){
+  return mParamHistArray;
 }
 
 

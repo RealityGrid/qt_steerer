@@ -76,7 +76,22 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHand
 
 ParameterTable::~ParameterTable()
 {
+  unsigned int i;
   DBGDST("~ParameterTable");
+
+  // Delete plot list first because the QwtPlotter objects have references to 
+  // data in the Parameter objects.  Auto delete means associated objects
+  // are deleted by Qt.
+  for(i=0; i<mHistoryPlotList.count(); i++){
+    mHistoryPlotList.remove(i);
+  }
+  
+  // Delete parameter list.  Auto delete set in constuctor so the Parameter 
+  // objects are deleted by Qt
+  for(i=0; i<mParamList.count(); i++){
+    mParamList.remove(i);
+  }
+
 }
 
 void
@@ -108,7 +123,8 @@ ParameterTable::initTable()
   setColumnWidth(kVALUE_COLUMN, 95);
 
   // MR: add a context menu so that we can right click on a cell to draw a graph of that parameter's history
-  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), this, SLOT(contextMenuSlot(int, int, const QPoint &)));
+  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), 
+	  this, SLOT(contextMenuSlot(int, int, const QPoint &)));
 
   
 }
@@ -139,12 +155,16 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
 
     updateCell(lParamPtr->getRowIndex(),kVALUE_COLUMN);
 
-    // MR: add the string value to the parameter's history
-    lParamPtr->mParamHist.updateParameter(lVal);
+    // ARP: Only log (and plot) monitored parameters
+    if(!(lParamPtr->isSteerable())){
 
-    // MR: emit a SIGNAL so that any HistoryPlots can update
-    emit paramUpdateSignal(&(lParamPtr->mParamHist), lParamPtr->getId());
-    
+      // MR: add the string value to the parameter's history
+      lParamPtr->mParamHist->updateParameter(lVal);
+
+      // MR: emit a SIGNAL so that any HistoryPlots can update
+      emit paramUpdateSignal(lParamPtr->mParamHist, lParamPtr->getId());
+    }
+
     return true;
   }
   else
@@ -161,7 +181,7 @@ ParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, 
 
   // MR: removed - was causing problems, and giving no noticeable benefit
   //if (lRowIndex >= getNumInitRows())
-    insertRows(lRowIndex);
+  insertRows(lRowIndex);
 
   Parameter *lParamPtr = new Parameter(lHandle, lType, false);
   
@@ -173,8 +193,11 @@ ParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, 
   setItem(lRowIndex, kVALUE_COLUMN, new QTableItem(this, QTableItem::Never,  QString( lVal)));
     
   lParamPtr->setIndex(lRowIndex);
-  // MR: add the string value to the parameter's history
-  lParamPtr->mParamHist.updateParameter(lVal);
+
+  // Don't store this initial value in the parameter's history because
+  // it's often meaningless since the library hasn't yet got an
+  // up-to-date value.
+
   mParamList.append(lParamPtr);
   incrementRowIndex();
   
@@ -291,26 +314,46 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
  *  the table's context menu
  */
 void ParameterTable::drawGraphSlot(int popupMenuID){
-  // First obtain the appropriate parameter (and therefore it's history)
+  // First obtain the appropriate parameter (and therefore its history)
   Parameter *tParameter = findParameterHandleFromRow(popupMenuID);
 
+  // ARP - Obtain the parameter to plot against.  Currently take the
+  // first one as that's the Sequence Number.
+  // TODO - add option to let user choose this...
+  Parameter *txParameter = findParameterHandleFromRow(0);
+
   // Then call our whizzo graphing method to draw the graph
-  // need to keep a reference to the plotter so that it's cancelled when we quit the main window
-  mQwtPlot = new HistoryPlot(&(tParameter->mParamHist), text(popupMenuID, kNAME_COLUMN).latin1(), tParameter->getId());
+  // need to keep a reference to the plotter so that it's cancelled when 
+  // we quit the main window
+  mQwtPlot = new HistoryPlot(txParameter->mParamHist, tParameter->mParamHist, 
+			     text(popupMenuID, kNAME_COLUMN).latin1(), txParameter->getId(), tParameter->getId());
   mHistoryPlotList.append(mQwtPlot);
   mQwtPlot->show();
 
   // And make the connection to ensure that the graph updates
-  connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), mQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
+  connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), 
+	  mQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
+
+  // Make connection so that the graph can tell us when it has been closed
+  connect(mQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
+	  SLOT(plotClosedSlot(HistoryPlot*)));
 }
 
+/** Slot called when the user quits a parameter history plot
+ *
+ */
+void ParameterTable::plotClosedSlot(HistoryPlot *ptr){
 
+  // Plot closed so remove from list (Auto delete means Qt will then destroy 
+  // the associated HistoryPlot object)
+  mHistoryPlotList.removeRef(ptr);
+}
 
 /*************************************************************/
 /* DynamicTip Class                                          */
 /*                                                           */
 /* MR - In order to have the tool tips respond to changes    */
-/* in the steerable paramater table we need to subclass      */
+/* in the steerable parameter table we need to subclass      */
 /* qtooltip. This is strongly associated with the steerable  */
 /* parameter table, so will remain in this file with it.     */
 /*************************************************************/
@@ -597,13 +640,6 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
   mParamList.append(lParamPtr);
   incrementRowIndex();
 	     
-  // SMR XXX - code duplication in this func - rewrite ParameterTable func so can call that
-  // and just deal with new value column here
-  ///  ParameterTable::addRow(lHandle, lLabel, lVal, lType);
-  ///setItem(lRowIndex, kNEWVALUE_COLUMN,
-  ///	  new QTableItem(this, QTableItem::WhenCurrent,  QString::null));
-	   
-
   DBGMSG1("Steer MaxRowIndex Ptr", getMaxRowIndex());
    
 }

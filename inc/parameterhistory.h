@@ -39,22 +39,23 @@
 #ifndef __PARAMETERHISTORY_H__
 #define __PARAMETERHISTORY_H__
 
-#include "qvaluelist.h"
-
 class ParameterHistory {
   public:
     ParameterHistory();
     ~ParameterHistory();
   
-    void updateParameter(const char* lVal);
-    const char* elementAt(int index);
-    void graphParameter();
+    void          updateParameter(const char* lVal);
+    const float   elementAt(int index);
+    double*       ptrToArray();
+    void          graphParameter();
 
-    int size;
+    int     mArraySize;
+    int     mArrayPos;
 
-//  private:
-    typedef QValueList<const QString> ParamHistListType;
-    ParamHistListType mParamHistList;
+ private:
+    int     mArrayChunkSize;
+    double *mParamHistArray;
+
 };
 
 #endif
