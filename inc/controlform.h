@@ -73,6 +73,13 @@ public:
   void setEnabledPause(const bool aEnable);
   void setEnabledResume(const bool aEnable);
   void setEnabledClose(const bool aEnable);
+  /**
+   * getter method for the Application being controlled by
+   * this form
+   *
+   * @return        pointer to Application object.
+   */
+  Application *application();
 
 private:
   void updateParameters(bool aSteeredFlag);

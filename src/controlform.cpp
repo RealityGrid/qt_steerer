@@ -783,7 +783,13 @@ ControlForm::emitAllValuesSlot()
 			 QMessageBox::NoButton);
     
   }
-    
-
 }
 
+/**
+  * getter method for a ptr to the Application that this controlform
+  * is controlling.
+  */
+Application *ControlForm::application()
+{
+  return mApplication;
+}
