@@ -65,8 +65,13 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *n
   lFormLayout->addWidget(new QLabel("Enter interval value (0.5 - 10 secs)", this));
 
   mLineEdit = new QLineEdit( this );
-  mLineEdit->setText(QString::number(aCurrentIntervalValue/1000, 'g', 1));
-  mLineEdit->setValidator( new QDoubleValidator( 0.5, 10.0, 1,
+
+  double lVal = (double) aCurrentIntervalValue/1000;
+  DBGMSG1("curr int", aCurrentIntervalValue);
+  DBGMSG1("curr dbl", lVal);
+
+  mLineEdit->setText(QString::number(lVal, 'g', 3));
+  mLineEdit->setValidator( new QDoubleValidator( 0.5, 10.0, 3,
 						    mLineEdit ) );
 
   lFormLayout->addWidget( mLineEdit);
@@ -114,8 +119,10 @@ ConfigForm::applySlot()
     lValue = mLineEdit->text().toDouble();
     if (lValue >= 0.5 && lValue <= 10)
     {
+      DBGMSG1("val", lValue);
       // convert to milliseconds
-      mIntervalValue = lValue*1000;
+      mIntervalValue = (int) (lValue*1000);
+      DBGMSG1("int", mIntervalValue);
       QDialog::accept();
     }
     else
