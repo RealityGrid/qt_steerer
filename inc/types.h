@@ -74,6 +74,9 @@
 #define kNULL_FREQ		-1
 
 
+// minimum poling interval (milliseconds)from commsthread Get_next_message
+#define kMIN_POLING_INT		100
+
 
 #endif
 
