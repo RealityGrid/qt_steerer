@@ -50,8 +50,12 @@
  *    for the wrong parameter signals
  */
 HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist, 
-			 ParameterHistory *_mYParamHist, const char *_lLabely, 
-			 const int _xparamID, const int _yparamID){
+			 ParameterHistory *_mYParamHist, 
+			 const char *_lLabely, 
+			 const int _xparamID, 
+			 const int _yparamID,
+			 const char *_lComponentName)
+{
     // Local copies of passed parameters
     mXParamHist = _mXParamHist;
     mYParamHist = _mYParamHist;
@@ -59,13 +63,16 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     yparamID = _yparamID;
     strcpy(lLabely, _lLabely);
 
-    // Set the caption to be something descriptive
-    setCaption(QString(lLabely)+QString(" vs. SEQUENCE_NUM"));
+    // Set the caption to be something descriptive - include
+    // name of the component being steered (same as the tab
+    // title and set in SteererMainWindow::editTabTitleSlot)
+    setCaption(QString(lLabely)+" of "+QString(_lComponentName));
     
     // Create a plotter widget
     mPlotter = new HistoryPlotter(this);
 
-    mPlotter->setTitle("Parameter History");
+    // Don't bother with a plot title in order to save space
+    //mPlotter->setTitle(QString(lLabely)+QString(" vs. SEQUENCE_NUM"));
 
     // Set axis titles
     mPlotter->setAxisTitle(mPlotter->xBottom, "SEQUENCE_NUM");

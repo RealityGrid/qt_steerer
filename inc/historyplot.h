@@ -116,7 +116,8 @@ signals:
 
 public:
     HistoryPlot(ParameterHistory *mXParamHist, ParameterHistory *mYParamHist, 
-		const char *lLabely, const int xparamID, const int yparamID);
+		const char *lLabely, const int xparamID, const int yparamID,
+		const char *_lComponentName);
 };
 
 /////////////////////////////////////////////////////////
