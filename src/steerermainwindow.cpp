@@ -462,6 +462,10 @@ SteererMainWindow::editTabTitleSlot()
   if ( ok && !newLabel.isEmpty() ) {
     // user entered something and pressed OK
     mAppTabs->setTabLabel(mAppTabs->currentPage(), newLabel);
+    // Use this label as the name of the Application widget too
+    // - we pick this up in the ParameterTable class to pass to
+    // HistoryPlot.
+    mAppTabs->currentPage()->setName(newLabel);
   } 
 }
 
