@@ -116,7 +116,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
       //mListBox->insertItem( lListItem );
       mTable->insertRows(mTable->numRows(),1);
       mTable->setItem(mTable->numRows()-1, 0, new QTableItem(mTable, QTableItem::Never, QString(mSimName[i])));
-      mTable->setItem(mTable->numRows()-1, 1, new QTableItem(mTable, QTableItem::OnTyping, QString(mSimGSH[i])));
+      mTable->setItem(mTable->numRows()-1, 1, new QTableItem(mTable, QTableItem::WhenCurrent, QString(mSimGSH[i])));
     }
     
     // filter to do SMR XXX
