@@ -39,6 +39,8 @@
 
 #include "exception.h"
 #include "parametertable.h"
+#include "application.h"
+#include "controlform.h"
 
 #include <qapplication.h>
 #include <qmessagebox.h>
@@ -317,7 +319,8 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   // we quit the main window
   mQwtPlot = new HistoryPlot(txParameter->mParamHist, tParameter->mParamHist, 
 			     text(popupMenuID, kNAME_COLUMN).latin1(), 
-			     txParameter->getId(), tParameter->getId());
+			     txParameter->getId(), tParameter->getId(),
+			     ((ControlForm*)(parent()))->application()->name());
   mHistoryPlotList.append(mQwtPlot);
   mQwtPlot->show();
 
