@@ -62,7 +62,7 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *n
   QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, "configformlayout");
   QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "configbuttonlayout");
 
-  lFormLayout->addWidget(new TableLabel("Enter interval value (0.1 - 10 secs)", this));
+  lFormLayout->addWidget(new QLabel("Enter interval value (0.1 - 10 secs)", this));
 
   mLineEdit = new QLineEdit( this );
   mLineEdit->setText(QString::number(aCurrentIntervalValue/1000, 'g', 1));
