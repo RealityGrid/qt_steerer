@@ -56,6 +56,9 @@
 #include <X11/Xlib.h>
 #endif
 
+/** @file steerer.cpp
+    @brief The main source file for the steering client */
+
 //file scope global pointer pointing at this SteererMainWindow object; need this to
 //perform clean up.  
 SteererMainWindow* gSteererMainWindowSelfPtr;
@@ -184,11 +187,14 @@ int main( int argc, char ** argv )
   {
     QApplication lApp( argc, argv );
     lApp.setFont(QFont("Times", 10));  //SMR XXX default is Helvetica on errol
+
+    /* Don't set the window style explicitly - use system default
 #ifndef WIN32
     lApp.setStyle(new QMotifPlusStyle);
 #else
-	lApp.setStyle(new QWindowsStyle);
+    lApp.setStyle(new QWindowsStyle);
 #endif
+    */
 
     // MR Check to see if we were supplied with an SGS as a command line arg
     // if so - we've been started from the QT launcher, so go directly to the
