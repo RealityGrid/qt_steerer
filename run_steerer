@@ -41,16 +41,16 @@
 
 # set up environment variables needed to run steerer
 # these should be edited for your environment
+STEERER=steerer.irix
 STEERER_PATH=$PWD
 export REG_STEER_HOME=/home/bezier1/zzcgurp/projects/reg_steer_lib
 export REG_STEER_DIRECTORY=/scratch/zzcgurp/steering/
 
 echo ""
-echo "Steerer path is:" $STEERER_PATH
-echo "REG_STEER_HOME is:" $REG_STEER_HOME
-echo "REG_STEER_DIRECTORY is:" $REG_STEER_DIRECTORY
-echo "run_steerer starting steerer..."
+echo "REG_STEER_HOME is: $REG_STEER_HOME"
+echo "REG_STEER_DIRECTORY is: $REG_STEER_DIRECTORY"
+echo "run_steerer starting steerer: $STEERER_PATH/$STEERER"
 echo ""
 
 # run the QT steerer
-$STEERER_PATH/steerer
+$STEERER_PATH/$STEERER
