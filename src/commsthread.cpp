@@ -219,7 +219,7 @@ CommsThread::run()
       // SMR XXX make this member of COmmsThread and resue rather than 
       // new each time - chk when QT dlete ?
       CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
-      postEvent(mSteerer->getApplication(), lEvent);
+      postEvent(mSteerer->getApplication(lSimHandle), lEvent);
     }
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
 

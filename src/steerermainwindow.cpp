@@ -68,7 +68,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
     mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
     mSetCheckIntervalAction(kNULL), mAttachAction(kNULL), mGridAttachAction(kNULL), 
-    mQuitAction(kNULL), mCommsThread(kNULL), mApplication(kNULL)
+    mQuitAction(kNULL), mCommsThread(kNULL)
 {
   DBGCON("SteererMainWindow");
   setCaption( "ReG" );
@@ -78,30 +78,33 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   setCentralWidget(mCentralWgt);
    
   // set up actions for configure check interval, attach and quit
-  mSetCheckIntervalAction =  new QAction("Set polling interval","Set Polling Interval",
-						  CTRL+Key_P, this, "setcheckaction");
-  //mSetCheckIntervalAction->setStatusTip("Set polling interval");
+  mSetCheckIntervalAction =  new QAction("Set polling interval",
+					 "Set Polling Interval",
+					 CTRL+Key_P, this, "setcheckaction");
   mSetCheckIntervalAction->setToolTip(QString("Set polling interval"));
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
 
 
   mAttachAction = new QAction("Attach to local application", "Local &Attach",
 			      CTRL+Key_A, this, "attachaction");
-  //mAttachAction->setStatusTip("Attach to local app");
   mAttachAction->setToolTip(QString("Attach to local app"));
   connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
 
 
   mGridAttachAction = new QAction("Attach to app on Grid", "&Grid Attach",
 			      CTRL+Key_G, this, "gridattachaction");
-  //mGridAttachAction->setStatusTip("Attach to Grid app");
   mGridAttachAction->setToolTip(QString("Attach to Grid app"));
-  connect( mGridAttachAction, SIGNAL(activated()), this, SLOT(attachGridAppSlot()) );
+  connect( mGridAttachAction, SIGNAL(activated()), this, 
+	   SLOT(attachGridAppSlot()) );
 
+  mSetTabTitleAction = new QAction("Set title of current tab", "&Edit tab title",
+				   CTRL+Key_E, this, "settabtitleaction");
+  mSetTabTitleAction->setToolTip(QString("Set title of current tab"));
+  connect( mSetTabTitleAction, SIGNAL(activated()), this,
+	   SLOT(editTabTitleSlot()) );
 
   mQuitAction =  new QAction("Quit (& detach)", "&Quit",
 			      CTRL+Key_Q, this, "quitaction");
-  //mQuitAction->setStatusTip("Quit (& detach)");
   mQuitAction->setToolTip(QString("Quit (& detach)"));
   connect( mQuitAction, SIGNAL(activated()), this, SLOT(quitSlot()) );
 
@@ -111,11 +114,13 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mAttachAction->addTo(lConfigMenu);
   mGridAttachAction->addTo(lConfigMenu);
   mSetCheckIntervalAction->addTo(lConfigMenu);
+  mSetTabTitleAction->addTo(lConfigMenu);
   mQuitAction->addTo(lConfigMenu);
 
   mSetCheckIntervalAction->setEnabled(FALSE);
   mAttachAction->setEnabled(TRUE);
   mGridAttachAction->setEnabled(TRUE);
+  mSetTabTitleAction->setEnabled(TRUE);
   mQuitAction->setEnabled(TRUE);
 
 
@@ -146,12 +151,15 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mStack->addWidget(mStackLogoLabel);
   mStack->raiseWidget(mStackLogoLabel);
 
+  // Catch tab changes so we can keep the status bar relevant
+  connect(mAppTabs, SIGNAL(currentChanged(QWidget *)), this, 
+	  SLOT(tabChangedSlot(QWidget *)));
+
   //mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
 
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
 
-  ///statusBar()->message( "Steerer Initialized", 2000 );
   statusBar()->message( "www.realitygrid.org");
 
   // create commsthread so can set checkinterval 
@@ -168,6 +176,8 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     simAttachApp((char*)aSGS);
     cmdLineSGS = aSGS;
   }
+
+  mAppList.setAutoDelete(TRUE);
   
 }
 
@@ -186,10 +196,9 @@ SteererMainWindow::cleanUp()
   delete mCommsThread;
   mCommsThread = kNULL;
 
-  // detach and delete application // SMR XXX do for list
-  delete mApplication;
-  mApplication = kNULL;
-  
+  // ARP - List of applications uses autodelete so automatically 
+  // cleaned up when list object deleted
+
   delete mStackLogoPixMap;
   mStackLogoPixMap = kNULL;
 
@@ -197,9 +206,17 @@ SteererMainWindow::cleanUp()
 
 
 Application * 
-SteererMainWindow::getApplication() const
+SteererMainWindow::getApplication(int aSimHandle)
 { 
-  return mApplication; 
+  unsigned int i;
+
+  for(i=0; i<mAppList.count(); i++){
+    if(aSimHandle == (mAppList.at(i))->getHandle()){
+      return mAppList.at(i);
+      break;
+    }
+  }
+  return NULL;
 }
 
 
@@ -345,33 +362,25 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
     {
       DBGMSG1("Attached: mSimHandle = ",lSimHandle);
       
-      mApplication = new Application(this, aSimID, lSimHandle, aIsLocal);
+      mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal));
 
       // get supported command list from library and enable buttons appropriately
-      mApplication->enableCmdButtons();
+      mAppList.current()->enableCmdButtons();
 
-      if (aIsLocal)     
-        mAppTabs->addTab(mApplication, QString("Local Application"));
-      else
-        mAppTabs->addTab(mApplication, QString(aSimID));
-      
+      if (aIsLocal){    
+        mAppTabs->addTab(mAppList.current(), QString("Local Application"));
+      }
+      else{
+        mAppTabs->addTab(mAppList.current(), QString(aSimID));      
+      }
 
-      //need showpage otherwise only shown on first attach - why? SMR XXX
-      mAppTabs->showPage(mApplication); 
+      // Need showpage otherwise only shown on first attach - why? SMR XXX
+      mAppTabs->showPage(mAppList.current()); 
+
       mStack->raiseWidget(mAppTabs);
       
-      // code for posting in new window - future SMR XXX
-      ///SMR	   ApplicationWindow *lNewWindow = new ApplicationWindow(lText, lSimHandle); //SMR XXX member/deletion?
-      ///SMR	   lNewWindow->setCaption("New Appl Window");
-      ///SMR	   lNewWindow->show();
-      ///SMR	   mApplication = lNewWindow->getApplication();
-      
-      // SMR XXX disable attach buttons as currently only attach to one application
-      mAttachAction->setEnabled(FALSE);
-      mGridAttachAction->setEnabled(FALSE);
-      
-      // resize - only do for first app attached? SMR XXX future concern
-      resize(540, 700);
+      // resize - only do for first app attached
+      if(mAppList.count() == 1)resize(540, 700);
 
       // set minimum size so all gui visible, if remove this can 
       // shrink gui, but no scrollbars
@@ -379,7 +388,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       //statusBar()->clear();
 
       DBGMSG("posted now start commsthread");
-      // set off comms thread iff it's not already running
+      // set off comms thread if it's not already running
       // process messages form all steered applications	
       if (!isThreadRunning())
       {
@@ -411,9 +420,8 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
     mSetCheckIntervalAction->setEnabled(FALSE);
     delete mCommsThread;
     mCommsThread = kNULL;
-    delete mApplication;
-    mApplication = kNULL;
-    
+    mAppList.remove();
+
     QMessageBox::warning(0, "Steerer Error", "Internal error - attach failed",
 			 QMessageBox::Ok,
 			 QMessageBox::NoButton, 
@@ -428,32 +436,48 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 void 
 SteererMainWindow::closeApplicationSlot(int aSimHandle)
 {
+  int i;
   // close the window for the application
-  // this can only be done when detached form application
+  // this can only be done when detached from application
 
   DBGMSG1("Close button hit and signalled to main window...", aSimHandle);
-  // SMR XXX - future use aSimHandle to find correct mApplicationPtr
-  // SMR XXX -rewrite when >1 application being steered - future
-  
-  // SMR XXX if last application being steered, stop the CommsThread
-  if (isThreadRunning())
-    mCommsThread->stop();
 
-  mAppTabs->removePage(mApplication);
- 
-  delete mApplication;
-  mApplication = kNULL;
+  for(i=0; i<mAppList.count(); i++){
+    if(aSimHandle == mAppList.at(i)->getHandle()){
 
-  // re-enable attach button SMR XXX
-  mAttachAction->setEnabled(TRUE);
-  mGridAttachAction->setEnabled(TRUE);
+      mAppTabs->removePage(mAppList.at(i));
+      // Autodelete takes care of deleting this object - we just
+      // have to remove it from the list
+      mAppList.remove(i);
+      break;
+    }
+  }
 
-  // SMR XXX  if last application being steered,resize the window
-  resizeForNoAttached();
-  statusBar()->message( "www.realitygrid.org");
 
+  // If this was last application being steered, resize the window...
+  if(mAppList.count() == 0){
+
+    resizeForNoAttached();
+    statusBar()->message( "www.realitygrid.org");
+
+    // ...and stop the CommsThread
+    if (isThreadRunning()){
+      mCommsThread->stop();
+    }
+  }
 }
 
+void
+SteererMainWindow::editTabTitleSlot()
+{
+  DBGMSG("In edit tab title slot");
+  //QDialog *dlg = new QDialog();
+  //dlg->setCaption(QString("Tab title"));
+  //dlg->exec();
+  //QString newLabel;
+
+  //mAppTabs->setTabLabel(mAppTabs->currentPage(), &newLabel)
+}
 
 void
 SteererMainWindow::quitSlot()
@@ -466,6 +490,7 @@ SteererMainWindow::quitSlot()
 
 }
 
+/*
 void 
 SteererMainWindow::readMsgSlot()
 {
@@ -488,6 +513,7 @@ SteererMainWindow::readMsgSlot()
   }
   
 }
+*/
 
 void
 SteererMainWindow::configureSteererSlot()
@@ -508,21 +534,22 @@ SteererMainWindow::configureSteererSlot()
 
 }
 
-void SteererMainWindow::statusBarMessageSlot(QString &message){
-  statusBar()->message(message);
+void SteererMainWindow::statusBarMessageSlot(Application *aApp, 
+					     QString &message){
+
+  if(mAppTabs->currentPage() == aApp){
+    statusBar()->message(message);
+  }
+
+  aApp->setCurrentStatus(message);
 }
 
-//SMRXXXfutue - new window posting for appl
-
-///SMRApplicationWindow::ApplicationWindow(const char *aText, int aSimHandle)
-///SMR	: QMainWindow( 0, 0, WDestructiveClose )
-///SMR{
-///SMR
-///SMR	mApplication = new Application(this, aText, aSimHandle);
-///SMR	setCentralWidget(mApplication);
-///SMR	resize(900,800);
-///SMR
-///SMR}
-
-
-
+/* Change statusBar message to the current status of the selected
+ * application
+ */
+void 
+SteererMainWindow::tabChangedSlot(QWidget *aWidget)
+{
+  DBGMSG("Tab changed");
+  statusBar()->message( ((Application *)aWidget)->getCurrentStatus() );
+}

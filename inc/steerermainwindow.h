@@ -58,7 +58,7 @@ public:
   SteererMainWindow(bool autoConnect = false, const char *aSGS = NULL);
   ~SteererMainWindow();
 
-  Application * getApplication() const;  //SMR XXX const?
+  Application * getApplication(int aSimHandle);
   void customEvent(QCustomEvent *);
 
 private:
@@ -71,12 +71,15 @@ protected slots:
   void attachAppSlot();
   void attachGridAppSlot();
   void quitSlot(); 
-  void readMsgSlot();
+  // Replaced by thead to get messages
+  //void readMsgSlot();
   void closeApplicationSlot(int aSimHandle);
   void configureSteererSlot();
+  void tabChangedSlot(QWidget *aWidget);
+  void editTabTitleSlot();
 
 public slots:
-  void statusBarMessageSlot(QString &message);
+  void statusBarMessageSlot(Application *aApp, QString &message);
 
 private:
   void simAttachApp(char *aSimID, bool aIsLocal = false);
@@ -97,13 +100,12 @@ private:
   QAction	*mSetCheckIntervalAction;
   QAction	*mAttachAction;
   QAction	*mGridAttachAction;
+  QAction       *mSetTabTitleAction;
   QAction	*mQuitAction;
 
   CommsThread	*mCommsThread;
 
-  Application	*mApplication; //SMR XXX will be list - future when attach to more than one app
-				
-				
+  QPtrList<Application> mAppList;
 };
 
 /// SMR XXX - future for posting app in new window rather than new tab

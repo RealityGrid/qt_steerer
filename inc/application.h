@@ -61,6 +61,9 @@ public:
   void enableCmdButtons();
 
   bool isLocal(){return mIsLocal;}
+  int  getHandle();
+  void setCurrentStatus(QString &msg);
+  QString getCurrentStatus();
 
 private:
   void detachFromApplication();
@@ -89,7 +92,7 @@ private:
   bool		mPauseSupported;
   bool		mResumeSupported;
   bool		mDetachedFlag;
-
+  QString       mStatusTxt;
   ControlForm	*mControlForm;
   QGroupBox	*mControlBox;
   SteererMainWindow *mSteerer;
