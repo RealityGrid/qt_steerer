@@ -270,8 +270,11 @@ Application::emitResumeCmdSlot()
   if (mPauseSupported)
     mControlForm->setEnabledPause(TRUE);
 
-  //enable IOtype commands
+  // enable IOtype commands
   mControlForm->enableIOCmdButtons();
+
+  // enable detach now that app. is running again
+  mControlForm->setEnabledDetach(TRUE);
 
   emitSingleCmd(REG_STR_RESUME);
   
@@ -290,6 +293,10 @@ Application::emitPauseCmdSlot()
 
   // disable IOtype commands
   mControlForm->disableIOCmdButtons();
+
+  // disable detach - don't think it makes sense to let user pause
+  // application and then detach from it
+  mControlForm->setEnabledDetach(FALSE);
 
   emitSingleCmd(REG_STR_PAUSE);
 
