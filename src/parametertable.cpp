@@ -303,8 +303,8 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 
   QPopupMenu popupMenu;
 
-  popupMenu.insertItem(QString("Request full &history from app."), this, 
-  		       SLOT(requestParamHistorySlot()), CTRL+Key_H, row, 0);
+  popupMenu.insertItem(QString("Request &history of this parameter from app."), this, 
+  		       SLOT(requestParamHistorySlot(int)), CTRL+Key_H, row, 0);
 
   popupMenu.insertItem(QString("&Draw history graph"), this, 
 		       SLOT(drawGraphSlot(int)), CTRL+Key_D, row, 0);
@@ -325,8 +325,14 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 /** Slot called when the user requests that the full parameter history
  *  be pulled back from the application
  */
-void ParameterTable::requestParamHistorySlot(){
-  Emit_retrieve_param_log_cmd( this->getSimHandle() );	//ReG library
+void ParameterTable::requestParamHistorySlot(int row){
+  // First obtain the appropriate parameter (and therefore its history)
+  Parameter *tParameter = findParameterHandleFromRow(row);
+
+  Emit_retrieve_param_log_cmd( this->getSimHandle() ,
+			       tParameter->getId());	//ReG library
+
+  this->updateParameterLog();
 }
 
 /** Slot called when the user selects the "Draw Graph" option from
@@ -393,6 +399,9 @@ void ParameterTable::updateParameterLog(){
 		  lParamPtr->getId(),
 		  &(lParamPtr->mParamHist->mPtrPreviousHistArray),
 		  &(lParamPtr->mParamHist->mPreviousHistArraySize));
+
+    cout << "ARPDBG: handle, size of history: " << lParamPtr->getId() <<
+      lParamPtr->mParamHist->mPreviousHistArraySize << endl;
 
     // This allows user to see that we're receiving data but
     // slows things down so left out for the minute.

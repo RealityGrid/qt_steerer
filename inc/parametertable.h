@@ -62,7 +62,7 @@ public:
 public slots:
   // MR: Slot for the context menu
   virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
-  void requestParamHistorySlot();
+  void requestParamHistorySlot(int row);
   void drawGraphSlot(int popupMenuID);
   void plotClosedSlot(HistoryPlot *ptr);
 
