@@ -67,6 +67,11 @@ public:
   void setIsPresent();
   void unRegister();
 
+  // MR:
+  void setMinMaxStrings(const char *min, const char *max);
+  QString getMinString();
+  QString getMaxString();
+
   ParameterHistory  mParamHist;
   
 private:
@@ -77,6 +82,12 @@ private:
   int		mRowIndex;
   const int	mId;
   const int	mType;
+
+  // MR: Store these as strings since we don't know the type,
+  //     and also since we'll be using them as strings at some
+  //     point anyhow
+  QString mMinStr;
+  QString mMaxStr;
 
 };
 
