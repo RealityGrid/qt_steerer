@@ -254,16 +254,19 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mRestartChkPtButton->setMaximumSize(mRestartChkPtButton->sizeHint());
   QToolTip::add(mRestartChkPtButton, "Tell application to restart "
 		"using requested checkpoint");
-  connect( mRestartChkPtButton, SIGNAL( clicked() ), 
-	   mIOTypeChkPtTable, SLOT( emitRestartSlot()));
+//  connect( mRestartChkPtButton, SIGNAL( clicked() ), 
+//	   mIOTypeChkPtTable, SLOT( emitRestartSlot()));
+  connect( mRestartChkPtButton, SIGNAL(clicked()), mIOTypeChkPtTable, SLOT(restartButtonPressedSlot()));
 
   mSndChkPtButton = new QPushButton( "Create", this, "sndchkpt" );
   mSndChkPtButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
   mSndChkPtButton->setMaximumSize(mSndChkPtButton->sizeHint());
   QToolTip::add(mSndChkPtButton, "Tell application to create "
 		"requested checkpoint iotypes");
-  connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, 
-	   SLOT( emitCommandsSlot()));
+//  connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, 
+//	   SLOT( emitCommandsSlot()));
+  connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( createButtonPressedSlot()));
+
  
 
   lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, 
@@ -419,10 +422,22 @@ ControlForm::updateParameters(bool aSteeredFlag)
 				     lParamDetails[i].value)))
 	  {
 	    // mus be new parameter so add it
-	    lTablePtr->addRow(lParamDetails[i].handle, 
-			      lParamDetails[i].label, 
-			      lParamDetails[i].value, 
-			      lParamDetails[i].type);
+      // MR: changes to add the min and max values to the steerable parameter table
+      if (aSteeredFlag){
+        ((SteeredParameterTable*)lTablePtr)->addRow(lParamDetails[i].handle,
+                          lParamDetails[i].label, 
+                          lParamDetails[i].value, 
+                          lParamDetails[i].type,
+                          lParamDetails[i].min_val,
+                          lParamDetails[i].max_val);
+      }
+      else{
+        lTablePtr->addRow(lParamDetails[i].handle,
+                          lParamDetails[i].label,
+                          lParamDetails[i].value,
+                          lParamDetails[i].type);
+      }
+      
 	  } 
 	} //for lNumParams
 	
@@ -717,6 +732,30 @@ ControlForm::enableChkPtButtonsSlot()
   mEmitAllIOCommandsButton->setEnabled(TRUE);
   mEmitAllButton->setEnabled(TRUE);
 
+}
+
+// MR:
+void ControlForm::disableRestartButtonSlot(){
+  if (mRestartChkPtButton != NULL)
+    mRestartChkPtButton->setEnabled(FALSE);
+}
+
+// MR:
+void ControlForm::enableRestartButtonSlot(){
+  if (mRestartChkPtButton != NULL)
+    mRestartChkPtButton->setEnabled(TRUE);
+}
+
+// MR:
+void ControlForm::disableCreateButtonSlot(){
+  if (mSndChkPtButton != NULL)
+    mSndChkPtButton->setEnabled(FALSE);
+}
+
+// MR:
+void ControlForm::enableCreateButtonSlot(){
+  if (mSndChkPtButton != NULL)
+    mSndChkPtButton->setEnabled(TRUE);
 }
 
 
