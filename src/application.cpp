@@ -121,7 +121,6 @@ void Application::detachFromApplication()
 
   // flag as detached so destructor knows not to detach
   mDetachedFlag = true;
-
 }
 
 void
@@ -130,6 +129,15 @@ Application::disableForDetach(const bool aUnRegister)
   mControlForm->disableAll(aUnRegister);  
 }  
 
+/** As for disableForDetach but called when an error condition
+  * has occurred - leaves the 'close' button enabled
+  */
+void
+Application::disableForDetachOnError()
+{
+  mControlForm->disableAll(true);
+  mControlForm->setEnabledClose(true);
+}  
 
 void 
 Application::enableCmdButtons() 
@@ -239,11 +247,9 @@ void
 Application::detachFromApplicationForErrorSlot()
 {
   detachFromApplication();
-  disableForDetach(true);
-//  mControlForm->setStatusLabel("Detached from application due to internal error");
+  disableForDetachOnError();
   QString message = QString("Detached from application due to internal error");
   mSteerer->statusBarMessageSlot(this, message);
-    
 }
 
 
@@ -524,7 +530,6 @@ Application::processNextMessage(int aMsgType)
 
 	      // make GUI form for this application read only
 	      disableForDetach(true);
-//	      mControlForm->setStatusLabel("Application has detached");
 	      QString message = QString("Application has detached");
 	      mSteerer->statusBarMessageSlot(this, message);
 
@@ -543,7 +548,6 @@ Application::processNextMessage(int aMsgType)
 
 	      // make GUI form for this application read only
 	      disableForDetach(true);
-//	      mControlForm->setStatusLabel("Detached as application has stopped");
 	      QString message = QString("Detached as application has stopped");
 	      mSteerer->statusBarMessageSlot(this, message);
 
@@ -589,6 +593,11 @@ Application::processNextMessage(int aMsgType)
       DBGMSG("Got supp_cmds message");
       break;
 
+    case MSG_ERROR:
+      DBGMSG("Got error when attempting to get next message");
+      THROWEXCEPTION("Attempt to get next message failed");
+      break;
+
     default:
       DBGMSG("Unrecognised msg returned by Get_next_message");
       break;
@@ -605,13 +614,13 @@ Application::processNextMessage(int aMsgType)
     // make from read only and update status 
 
     detachFromApplication();
-    disableForDetach(true);
+    //disableForDetach(true); ARP - replaced by below
+    disableForDetachOnError();
     QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
 			 QMessageBox::Ok,
 			 QMessageBox::NoButton, 
 			 QMessageBox::NoButton);
     
-//    mControlForm->setStatusLabel("Detached from application due to internal error");
     QString message = QString("Detached from application due to internal error");
     mSteerer->statusBarMessageSlot(this, message);
 

@@ -68,6 +68,7 @@ public:
 private:
   void detachFromApplication();
   void disableForDetach(const bool aUnRegister = true);
+  void disableForDetachOnError();
   void emitSingleCmd(int aCmdId);
 
 protected slots:
