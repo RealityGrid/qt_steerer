@@ -53,6 +53,9 @@
 #include <qtooltip.h>
 #include <qvbox.h>
 
+
+
+
 ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
 		     QWidget *parent, const char *name,
 		     bool modal, WFlags f)
@@ -82,8 +85,8 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
     QTableItem *lTableItem2 = NULL;
     for (int i=0; i<outputLogStruct->num_param; i++)
     {      
-      lTableItem = new QTableItem(mTable, QTableItem::Never, QString(outputLogStruct->param_labels[i]));
-      lTableItem2 = new QTableItem(mTable, QTableItem::Never, QString(outputLogStruct->param_values[i]));
+      lTableItem = new ChkPtVarTableItem(mTable, QTableItem::Never, QString(outputLogStruct->param_labels[i]));
+      lTableItem2 = new ChkPtVarTableItem(mTable, QTableItem::Never, QString(outputLogStruct->param_values[i]));
       mTable->insertRows(mTable->numRows());
       mTable->setItem(mTable->numRows()-1, 0, lTableItem );
       mTable->setItem(mTable->numRows()-1, 1, lTableItem2 );

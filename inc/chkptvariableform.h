@@ -73,9 +73,49 @@ private:
   QPushButton		*mCancelButton;
 
 };
+/*
+class DQLeftAlignTableItem : public QTableItem
+{
+public:
+  DQLeftAlignTableItem( QTable *table, EditType et, const QString &text )
+    : QTableItem(table, et, text)
+  { myAlignment = Qt::AlignLeft | Qt::AlignVCenter; }
+  DQLeftAlignTableItem( QTable *table, EditType et, const QString &text, const QPixmap &p )
+    : QTableItem(table, et, text, p)
+  { myAlignment = Qt::AlignLeft | Qt::AlignVCenter; }
 
+  int alignment() const {return Qt::AlignLeft | Qt::AlignVCenter;	} // Here is the align change done.
+  void setAlignment(int newAlignment){
+    myAlignment = newAlignment;
+  }
 
+private:
+  int myAlignment;
+};
+*/
 
+/** Subclass of QTableItem, so that we can set the justification
+ *  of each table item to be non-default
+ */
+
+class ChkPtVarTableItem : public QTableItem
+{
+protected:
+  int myAlignment;
+public:
+  ChkPtVarTableItem(QTable *table, EditType et, const QString & text): QTableItem(table, et, text){
+    myAlignment = Qt::AlignLeft;
+  }
+  ChkPtVarTableItem( QTable *table, EditType et, const QString &text, const QPixmap &p )
+    : QTableItem(table, et, text, p)
+  {}
+  void setAlignment(int newAlignment){
+    myAlignment = newAlignment;
+  }
+  int alignment() const {
+    return myAlignment;
+  }
+};
 
 
 #endif
