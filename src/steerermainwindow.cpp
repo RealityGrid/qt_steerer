@@ -41,13 +41,19 @@
 #include "commsthread.h"
 #include "application.h"
 #include "attachform.h"
+#include "configform.h"
 
+#include <qaction.h>
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qinputdialog.h>
+#include <qlabel.h>
 #include <qlayout.h>
 #include <qlineedit.h>
+#include <qmenubar.h>
 #include <qmessagebox.h>
+#include <qpixmap.h> 
+#include <qpopupmenu.h>
 #include <qpushbutton.h>
 #include <qstatusbar.h>
 #include <qstring.h>
@@ -60,17 +66,30 @@
 SteererMainWindow::SteererMainWindow()
   : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL), mTopLayout(kNULL),  
     mLeftLayout(kNULL), mRightLayout(kNULL), mAttachButton(kNULL), mGridAttachButton(kNULL), 
-    mQuitButton(kNULL), mReadMsgButton(kNULL), mStack(kNULL), mAppTabs(kNULL), 
+    mQuitButton(kNULL), mReadMsgButton(kNULL), mStack(kNULL), mAppTabs(kNULL), mLogoLabel(kNULL),
+    mLogoPixMap(kNULL), mSetCheckIntervalAction(kNULL),
     mCommsThread(kNULL), mApplication(kNULL)
 {
   DBGCON("SteererMainWindow");
-  setCaption( "Steerer - test GUI" );
+  setCaption( "ReG Steerer" );
 
   //make a central widget to contain the other widgets
   mCentralWgt = new QWidget( this );
   setCentralWidget(mCentralWgt);
-  
-  // Create layouts to position the widgets
+
+   
+  // set up action for configure check interval
+  mSetCheckIntervalAction =  new QAction("Set status poling interval","&Set Check Interval",
+						  CTRL+Key_C, this, "setcheckaction");
+
+  connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
+
+  QPopupMenu *lConfigMenu = new QPopupMenu( this );
+  menuBar()->insertItem( "Configure Steerer", lConfigMenu );
+  mSetCheckIntervalAction->addTo(lConfigMenu);
+  mSetCheckIntervalAction->setEnabled(FALSE);
+
+ // Create layouts to position the widgets
   mTopLayout = new QHBoxLayout( mCentralWgt, 10 );
   mLeftLayout = new QVBoxLayout(-1, "hb1" );
   mRightLayout = new QVBoxLayout(-1, "hb2");
@@ -79,8 +98,18 @@ SteererMainWindow::SteererMainWindow()
   mTopLayout->addLayout(mRightLayout);
   mLeftLayout->setMargin(10);
 
+
+  // set up the ReG logo
+  mLogoLabel = new QLabel(mCentralWgt);
+  mLogoPixMap = new QPixmap();
+  if (mLogoPixMap->load("logo-sm.bmp"))
+    mLogoLabel->setPixmap(*mLogoPixMap);
+  else 
+    mLogoLabel->setText("");
+  mLeftLayout->addWidget(mLogoLabel);
+
   // set up all buttons
-  mAttachButton = new QPushButton( "Local Attach", mCentralWgt, "attachbutton" );
+  mAttachButton = new QPushButton( "Local &Attach", mCentralWgt, "attachbutton" );
   mAttachButton->setMinimumSize(mAttachButton->sizeHint());
   mAttachButton->setMaximumSize(mAttachButton->sizeHint());
   mAttachButton->setEnabled(TRUE);
@@ -89,7 +118,7 @@ SteererMainWindow::SteererMainWindow()
 	   this, SLOT(attachAppSlot()) );
   mLeftLayout->addWidget(mAttachButton); 
 
-  mGridAttachButton= new QPushButton( "Grid Attach", mCentralWgt, "gridattachbutton" );
+  mGridAttachButton= new QPushButton( "&Grid Attach", mCentralWgt, "gridattachbutton" );
   mGridAttachButton->setMinimumSize(mGridAttachButton->sizeHint());
   mGridAttachButton->setMaximumSize(mGridAttachButton->sizeHint());
   mGridAttachButton->setEnabled(TRUE);
@@ -123,9 +152,8 @@ SteererMainWindow::SteererMainWindow()
 
   // tab widget - each tab will be form for one steered application
   mAppTabs = new QTabWidget();
-
-  mStack->addWidget(mAppTabs, 1);
-
+ 
+  mStack->addWidget(mAppTabs);
   mRightLayout->addWidget(mStack);
   
   // Initial size of main GUI form when no applications being steered
@@ -133,6 +161,11 @@ SteererMainWindow::SteererMainWindow()
 
   statusBar()->message( "Steerer Initialized", 2000 );
 
+  // create commsthread so can set checkinterval 
+  // - thread is started on first attach
+  mCommsThread = new CommsThread(this);
+  if (mCommsThread != kNULL)
+    mSetCheckIntervalAction->setEnabled(TRUE);
 }
 
 
@@ -166,7 +199,7 @@ SteererMainWindow::getApplication() const
 bool
 SteererMainWindow::isThreadRunning() const
 {
-  if (mCommsThread != 0)
+  if (mCommsThread != kNULL)
   {
     if (mCommsThread->running())
       return true;
@@ -179,7 +212,9 @@ SteererMainWindow::isThreadRunning() const
 void 
 SteererMainWindow::resizeForNoAttached()
 {
-  resize(150, 120);
+  resize(150, 120); 
+  //  mLogoLabel->hide();
+
 }
 
 
@@ -281,7 +316,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       
 
       //need showpage otherwise only shown on first attach - why? SMR XXX
-      mAppTabs->showPage(mApplication);
+      mAppTabs->showPage(mApplication); 
       mStack->raiseWidget(mAppTabs);
       
       // code for posting in new window - future SMR XXX
@@ -299,8 +334,11 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       if (!isThreadRunning())
       {
 	if (mCommsThread == kNULL)
-	  mCommsThread = new CommsThread(this, 3);
-	
+	  mCommsThread = new CommsThread(this);
+
+	if (mCommsThread == kNULL)
+	  THROWEXCEPTION("Thread not instantiated");
+
 	mCommsThread->start();  // calls the run method
 	
 	if (!mCommsThread->running())
@@ -312,8 +350,9 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       
       
       // resize - only do for first app attached? SMR XXX
-      resize(985, 800);   
-      
+      resize(985, 800);     
+      mLogoLabel->show();
+
       statusBar()->clear();
       
       
@@ -328,6 +367,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 
   catch (SteererException StEx)
   {
+    mSetCheckIntervalAction->setEnabled(FALSE);
     delete mCommsThread;
     mCommsThread = kNULL;
     delete mApplication;
@@ -359,7 +399,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
     mCommsThread->stop();
 
   mAppTabs->removePage(mApplication);
-
+ 
   delete mApplication;
   mApplication = kNULL;
 
@@ -405,7 +445,24 @@ SteererMainWindow::readMsgSlot()
   
 }
 
+void
+SteererMainWindow::configureSteererSlot()
+{
 
+  ConfigForm *lConfigForm = new ConfigForm(mCommsThread->getCheckInterval(), this);
+
+  if ( lConfigForm->exec() == QDialog::Accepted ) 
+  {
+    DBGMSG1("config applied, interval= ", lConfigForm->getIntervalValue());
+     mCommsThread->setCheckInterval(lConfigForm->getIntervalValue());
+   
+  }
+  else
+    DBGMSG("Config cancelled");
+  
+  delete lConfigForm;
+
+}
 
 
 //SMRXXXfutue - new window posting for appl

@@ -36,7 +36,10 @@
 
 #include <qmainwindow.h>
 
+class QAction;
+class QLabel;
 class QLayout;
+class QPixMap;
 class QPushButton;
 class QTabWidget;
 class QWidget;
@@ -67,7 +70,7 @@ protected slots:
   void quitSlot(); 
   void readMsgSlot();
   void closeApplicationSlot(int aSimHandle);
-
+  void configureSteererSlot();
 
 private:
   void simAttachApp(char *aSimID, bool aIsLocal = false);
@@ -89,6 +92,11 @@ private:
   QWidgetStack  *mStack;
   QTabWidget	*mAppTabs;
 
+  //SMR XXX not sure what copting going on here so done 2 to be safe for demo
+  QLabel	*mLogoLabel;
+  QPixmap	*mLogoPixMap;
+
+  QAction	*mSetCheckIntervalAction;
   CommsThread	*mCommsThread;
 
   Application	*mApplication; //SMR XXX will be list - future
