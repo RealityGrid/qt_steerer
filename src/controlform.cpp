@@ -163,7 +163,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mMonParamTable->initTable();
 
   // ARP - set-up all tables first so we know their widths
-  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", aSimHandle);
+  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", mMonParamTable, aSimHandle);
   mSteerParamTable->initTable();
 
   mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable",aSimHandle);

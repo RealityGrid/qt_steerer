@@ -70,6 +70,7 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHand
   setMinimumHeight(70);
   setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
+  mMonParamTable = NULL;
 }  
 
 ParameterTable::~ParameterTable()
@@ -147,15 +148,19 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
 
     updateCell(lParamPtr->getRowIndex(),kVALUE_COLUMN);
 
-    // ARP: Only log (and plot) monitored parameters
-    if(!(lParamPtr->isSteerable())){
-
-      // MR: add the string value to the parameter's history
-      lParamPtr->mParamHist->updateParameter(lVal);
-
-      // MR: emit a SIGNAL so that any HistoryPlots can update
-      emit paramUpdateSignal(lParamPtr->mParamHist, lParamPtr->getId());
+    // Log values of all parameters except those that are strings
+    if( lParamPtr->getType() != REG_CHAR){
+      if( lParamPtr->isSteerable() ){
+	lParamPtr->mParamHist->updateParameter(lVal);
+      }
+      else {
+	// MR: add the string value to the parameter's history
+	lParamPtr->mParamHist->updateParameter(lVal);
+      }
     }
+
+    // MR: emit a SIGNAL so that any HistoryPlots can update
+    emit paramUpdateSignal(lParamPtr->mParamHist, lParamPtr->getId());
 
     return true;
   }
@@ -293,9 +298,21 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
   // Pop up a context menu which will allow the user to view a graph
   // of the current variable / parameter's history
+
+  // No history plot if the parameter is of type REG_CHAR
+  if(findParameterHandleFromRow(row)->getType() == REG_CHAR)return;
+
   QPopupMenu popupMenu;
-  popupMenu.insertItem(QString("Draw History Graph"), row, 0);
-  connect(&popupMenu, SIGNAL(activated(int)), this, SLOT(drawGraphSlot(int)));
+  popupMenu.insertItem(QString("Draw History Graph"), this, 
+		       SLOT(drawGraphSlot(int)), CTRL+Key_N, row, 0);
+
+  // ARPDBG - work to allow user to add to a current plot goes here...
+  //if( mHistoryPlotList.count() > 0 || 
+  //   (mMonParamTable && (mMonParamTable->mHistoryPlotList.count() > 0)) ){
+  //  popupMenu.insertItem(QString("Add to History Graph"), this, 
+  //		       SLOT(drawGraphSlot(int)), CTRL+Key_M, row, 0);
+  //}
+
   popupMenu.exec(pnt);
 
   // Do daft things in order to avoid daft compiler warnings....
@@ -312,7 +329,15 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   // ARP - Obtain the parameter to plot against.  Currently take the
   // first one as that's the Sequence Number.
   // TODO - add option to let user choose this...
-  Parameter *txParameter = findParameterHandleFromRow(0);
+  Parameter *txParameter;
+  if( tParameter->isSteerable() ){
+    // If this is a steered parameter then we need to get the first row
+    // of the monitored parameter table, not this one.
+    txParameter = mMonParamTable->findParameterHandleFromRow(0);
+  }
+  else{
+    txParameter = this->findParameterHandleFromRow(0);
+  }
 
   // Then call our whizzo graphing method to draw the graph
   // need to keep a reference to the plotter so that it's cancelled when 
@@ -391,10 +416,13 @@ void DynamicTip::maybeTip( const QPoint &pos )
 
 
 
-SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName, int aSimHandle)
+SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName, 
+					     ParameterTable *aTable, int aSimHandle)
   : ParameterTable(aParent, aName, aSimHandle)
 {
   DBGCON("SteeredParameterTable");
+
+  mMonParamTable = aTable;
 
   // set up signal/slot to enable buttons when table has some data
   connect(this, SIGNAL(enableButtonsSignal()), aParent, SLOT(enableParamButtonsSlot()));
@@ -443,6 +471,11 @@ SteeredParameterTable::initTable()
 
   // Create a DynamicTip object for this table
   new DynamicTip(this, frameRect());
+
+  // ARP: add a context menu so that we can right click on a cell to 
+  // draw a graph of that (steerable) parameter's history
+  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), 
+	  this, SLOT(contextMenuSlot(int, int, const QPoint &)));
 }
 
 
@@ -962,11 +995,11 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
 
 /** Method is specific to the SteeredParameterTable, and implemented
  *  to prevent the version in the ParamaterTable parent being inherited
- */
+ *
 void SteeredParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
   // don't implement this unless we need to
 
   // Do daft things in order to avoid daft compiler warnings....
   row++; column+=pnt.x();
 }
-
+ARPDBG LOGGING */

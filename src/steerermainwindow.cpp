@@ -435,6 +435,8 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
     }
   }
 
+  DBGMSG("closeApplicationSlot: Applications deleted...");
+  DBGMSG1("closeApplicationSlot: no. of apps = ", mAppList.count());
 
   // If this was last application being steered, resize the window...
   if(mAppList.count() == 0){

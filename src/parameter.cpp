@@ -60,17 +60,17 @@ Parameter::Parameter(int aId, int aType, bool aSteerable)
   // it has previously registered - mRegisteredFlag holds this state 
   // mPresentFlag is used to identify unregistered parameters
   
-  if(!mSteerable){
+  //ARPDBG LOGGING if(!mSteerable){
     mParamHist = new ParameterHistory;
-  }
+  //ARPDBG LOGGING}
 }
 
 Parameter::~Parameter()
 {
   DBGDST("Parameter");
-  if(!mSteerable){
+  //ARPDBG LOGGING if(!mSteerable){
     delete mParamHist;
-  }
+  //ARPDBG LOGGING}
 
 }
 

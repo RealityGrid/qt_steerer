@@ -80,6 +80,7 @@ protected:
   QPtrList<HistoryPlot> mHistoryPlotList;
   QPtrList<Parameter> mParamList;
   HistoryPlot *mQwtPlot;
+  ParameterTable *mMonParamTable;
 
 };
 
@@ -89,7 +90,8 @@ class SteeredParameterTable : public ParameterTable
   Q_OBJECT
 
 public:
-  SteeredParameterTable(QWidget *aParent, const char *aName, int aSimHandle);
+  SteeredParameterTable(QWidget *aParent, const char *aName, 
+			ParameterTable *aTable, int aSimHandle);
   virtual ~SteeredParameterTable();
 
   virtual void initTable();
@@ -109,10 +111,10 @@ protected slots:
   void validateValueSlot(int aRow, int aCol);
   void emitValuesSlot();
 
-public slots:
+  // ARPDBG LOGGING
+  //public slots:
   // MR: Slot for the context menu (don't currently have one in this table)
-  virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
-
+  //virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
 
 signals:
   void enableButtonsSignal();
