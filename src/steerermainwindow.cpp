@@ -358,10 +358,11 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       mGridAttachAction->setEnabled(FALSE);
       
       // resize - only do for first app attached? SMR XXX future concern
-      resize(600, 730);
+      resize(560, 730);
 
-      // set minimum size so all giu visible, if rmove this can shrink gui, but no scrollbars
-      this->setMinimumSize(600, 730);
+      // set minimum size so all gui visible, if remove this can 
+      // shrink gui, but no scrollbars
+      //this->setMinimumSize(600, 730);
       statusBar()->clear();
 
       DBGMSG("posted now start commsthread");
@@ -434,8 +435,9 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   mAttachAction->setEnabled(TRUE);
   mGridAttachAction->setEnabled(TRUE);
 
-  // SMR XXX  if last application being steered,resie the window
+  // SMR XXX  if last application being steered,resize the window
   resizeForNoAttached();
+  statusBar()->message( "www.realitygrid.org");
 }
 
 

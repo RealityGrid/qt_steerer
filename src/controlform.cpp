@@ -157,13 +157,14 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   // Chkpt table is widest.  Fix widths of tables now 'cos otherwise 
   // the 'Cmds' frame causes the MonParam table to be narrower than 
   // the others.
-  mIOTypeChkPtTable->setMaximumWidth(430);
-  mIOTypeSampleTable->setMinimumWidth(430);
-  mIOTypeSampleTable->setMaximumWidth(430);
-  mSteerParamTable->setMinimumWidth(430);
-  mSteerParamTable->setMaximumWidth(430);
-  mMonParamTable->setMinimumWidth(430);
-  mMonParamTable->setMaximumWidth(430);
+  int lTableWidth = 410;
+  mIOTypeChkPtTable->setMaximumWidth(lTableWidth);
+  mIOTypeSampleTable->setMinimumWidth(lTableWidth);
+  mIOTypeSampleTable->setMaximumWidth(lTableWidth);
+  mSteerParamTable->setMinimumWidth(lTableWidth);
+  mSteerParamTable->setMaximumWidth(lTableWidth);
+  mMonParamTable->setMinimumWidth(lTableWidth);
+  mMonParamTable->setMaximumWidth(lTableWidth);
 
   // Once table objects created, we can get on with creating layouts...
   lMonLayout->addWidget(mMonParamTable);
