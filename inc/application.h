@@ -49,6 +49,7 @@ class QPushButton;
 class QString;
 
 class ControlForm;
+class SteererMainWindow;
 
 class Application : public QWidget
 {
@@ -62,7 +63,6 @@ public:
   void customEvent(QCustomEvent *);
   void processNextMessage(REG_MsgType aMsgType);
   void enableCmdButtons();
-
 
 private:
   void detachFromApplication();
@@ -92,7 +92,8 @@ private:
   bool		mDetachedFlag;
 
   ControlForm	*mControlForm;
-  QGroupBox	*mControlBox; 
+  QGroupBox	*mControlBox;
+  SteererMainWindow *mSteerer;
 
 
 };
