@@ -43,8 +43,8 @@
 #include <qtable.h>
 
 
-IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle)
-  : Table(aParent, aName, aSimHandle)
+IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bool aChkPtType)
+  : Table(aParent, aName, aSimHandle), mRestartRowIndex(kNULL_INDX), mChkPtTypeFlag(aChkPtType)
 {
   DBGCON("IOTypeTable constructor");
 
@@ -81,7 +81,12 @@ IOTypeTable::initTable()
 
   setNumInitRows(kIO_INIT_ROWS);
   setNumRows(kIO_INIT_ROWS);
-  setNumCols(kNUM_IO_COLUMNS);
+
+  if (mChkPtTypeFlag)
+    setNumCols(kNUM_IO_COLUMNS+1);
+  else
+     setNumCols(kNUM_IO_COLUMNS);
+  
 
   // initially set all rows read only as all empty 
   // SMR XXX all this init rows stuff hopefully will be improved
@@ -100,20 +105,29 @@ IOTypeTable::initTable()
   horizontalHeader()->setLabel(kIO_NEWVALUE_COLUMN, "New Frequency");
   horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "Request");
   horizontalHeader()->setLabel(kIO_SPLIT, "");
+
+  if (mChkPtTypeFlag)
+  {
+    horizontalHeader()->setLabel(kIO_RESTART_COLUMN, "Request");
+    setColumnWidth(kIO_REQUEST_COLUMN, 65);
+    setColumnWidth(kIO_RESTART_COLUMN, 65);
+  }
+
   
   setColumnReadOnly(kIO_ID_COLUMN, TRUE);
   setColumnReadOnly(kIO_NAME_COLUMN, TRUE);
   setColumnReadOnly(kIO_AUTO_COLUMN, TRUE);
   setColumnReadOnly(kIO_VALUE_COLUMN, TRUE);
   setColumnReadOnly(kIO_SPLIT, TRUE);
-
+  
 
   hideColumn(kIO_ID_COLUMN);
   setColumnWidth(kIO_NAME_COLUMN, 200);
   setColumnWidth(kIO_AUTO_COLUMN, 50);
   setColumnWidth(kIO_VALUE_COLUMN, 80);
-  setColumnWidth(kIO_NEWVALUE_COLUMN, 120);
+  setColumnWidth(kIO_NEWVALUE_COLUMN, 117);
   setColumnWidth(kIO_SPLIT, 10);
+
   
   // set up signal/slot to handle data entered by user
   connect (this, SIGNAL( valueChanged(int,int) ),
@@ -254,8 +268,12 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
       setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, "Consume"));
       break;
     case REG_IO_OUT:
+      setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, "Emit"));
+      break;
     case REG_IO_CHKPT:
       setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, "Emit"));
+      setItem(lRowIndex, kIO_RESTART_COLUMN, new QCheckTableItem(this, "Restart"));
+      break;
   }
 
   lIOTypePtr->setIndex(lRowIndex);
@@ -294,6 +312,9 @@ void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
     updateCell(lRowIndex, kIO_NEWVALUE_COLUMN);
 
     ((QCheckTableItem *)item(lRowIndex, kIO_REQUEST_COLUMN))->setChecked(FALSE);
+    
+    if (mChkPtTypeFlag)
+      ((QCheckTableItem *)item(lRowIndex, kIO_RESTART_COLUMN))->setChecked(FALSE);
 
     ++mIOTypeIterator;
   }
@@ -333,10 +354,23 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
   // only care about new value column and autotoggle column
   // only care is app is still attached
 
+  if (aCol == kIO_REQUEST_COLUMN || aCol == kIO_RESTART_COLUMN )
+  {
+    DBGMSG("\n\n  ");
+    DBGMSG1("*** validate row:" , aRow);
+    DBGMSG1("*** validate col:" , aCol);
+    DBGMSG1("mRestartrowIndex b4 ", mRestartRowIndex);
+  }
+
+
+
   try
   {
+    
+    if (getAppAttached())
+    {
 
-    if (aCol == kIO_NEWVALUE_COLUMN && getAppAttached())
+    if (aCol == kIO_NEWVALUE_COLUMN)
     {
       bool lOk = true;
       
@@ -369,8 +403,31 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 	setText( aRow, aCol, QString::null );
 	// SMR XXX make that cell the selected one -  to do setCurrentCell not work
       }
-      
     }
+    else if (aCol == kIO_RESTART_COLUMN)
+    {      
+      if (((QCheckTableItem *) this->item(aRow, aCol))->isChecked())
+      {
+	int lOldRestartRowIndex = mRestartRowIndex;
+	mRestartRowIndex = aRow;
+	// uncheck existing row (actually calls slot again)
+	if (mRestartRowIndex != lOldRestartRowIndex && lOldRestartRowIndex != kNULL_INDX)
+	  ((QCheckTableItem *)item(lOldRestartRowIndex, kIO_RESTART_COLUMN))->setChecked(FALSE);
+	    
+      }
+      else
+      {
+	// check if unchecking mRestartRowIndex
+	if (mRestartRowIndex == aRow)
+	  mRestartRowIndex = kNULL_INDX;
+      }
+      DBGMSG1("mRestartrowIndex after ", mRestartRowIndex);
+      DBGMSG("\n \n ");
+
+    }
+
+    } //getAppAttached
+
 
   } //try
 
@@ -416,12 +473,17 @@ IOTypeTable::getCommandRequestsCount()
     ++mIOTypeIterator;
   }
 
+  // add checkpoint restart command (at most one of these)
+  if (mChkPtTypeFlag && mRestartRowIndex > kNULL_INDX)
+    lCount++;
+
+
   return lCount;
 }
 
 
 int
-IOTypeTable::populateCommandRequestArray(int *aCmdArray, const int aMaxCmds, const int aStartIndex)
+IOTypeTable::populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex)
 {
   // populate the array aCmdIds with the commands to be send starting at array index aStartIndex
   // there should be exactly aMaxCmds to add - do not add any more as array not sized to hold an more
@@ -445,11 +507,44 @@ IOTypeTable::populateCommandRequestArray(int *aCmdArray, const int aMaxCmds, con
       // recheck box in table... 
       lCheckItem->setChecked(FALSE);
       aCmdArray[lIndex] = lIOTypePtr->getId();
+      if (mChkPtTypeFlag)
+     	strcpy(aCmdParamArray[lIndex], "OUT 1");
       lIndex++;
       lNumAdded++;
     }
     ++mIOTypeIterator;
   }
+
+
+  // now add restart command if there is one
+  if (mChkPtTypeFlag && mRestartRowIndex > kNULL_INDX)
+  {
+    bool lOk = false;
+    lCheckItem = (QCheckTableItem *) this->item(mRestartRowIndex, kIO_RESTART_COLUMN);
+    
+    if (lCheckItem->isChecked())
+    {
+      // find the cmdid for this row
+      int lCmdId = this->text(mRestartRowIndex, kIO_ID_COLUMN).toInt(&lOk);
+      if (lOk)
+      {
+	aCmdArray[lIndex] = lCmdId;
+	strcpy(aCmdParamArray[lIndex], "IN 1");
+	lIndex++;
+	lNumAdded++;
+      }
+      else
+	THROWEXCEPTION("Failed to get iotype ID from row in table");
+    }
+    else
+      DBGMSG("mRestartRowIndex not checked - resetting");  //log this SMR XXX
+
+    // reset regardless of errors
+    lCheckItem->setChecked(FALSE);
+    mRestartRowIndex = kNULL_INDX;
+
+  }
+
 
   if (aMaxCmds != lNumAdded)
     DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
@@ -465,23 +560,35 @@ IOTypeTable::emitCommandsSlot()
   // emit any iotype-command the user has flagged as ("request" checkbox on gui)
   // and clear checkboxes
 
+  int lCount;
+  int *lCommandArray = kNULL;
+  char **lCmdParamArray = kNULL;
+
   try
   {
 
-    int lCount = getCommandRequestsCount();
+    lCount = getCommandRequestsCount();
     
     if (lCount > 0)
     {
-      // populate the array of commands    
-      int *lCommandArray = new int[lCount];
-      int lNumAdded = populateCommandRequestArray(lCommandArray, lCount, 0);
+      // populate the array of commands and array of command parameters  
+      lCommandArray = new int[lCount];
+      lCmdParamArray = new char *[lCount];
+      for (int i=0; i<lCount; i++)
+      { 
+	lCmdParamArray[i] = new char [kCHKPT_PARAM_LEN]; //SMR XXX
+	strcpy(lCmdParamArray[i], " ");
+      }
+
+      int lNumAdded = populateCommandRequestArray(lCommandArray, lCmdParamArray, lCount, 0);
       
       // library call to emit to application
       if (lNumAdded >0)
       {
-	if (Emit_control(getSimHandle(),			//ReH library
+	if (Emit_control(getSimHandle(),			//ReG library
 			 lNumAdded,
-			 lCommandArray) != REG_SUCCESS)
+			 lCommandArray,
+			 lCmdParamArray) != REG_SUCCESS)
 	  THROWEXCEPTION("Emit_contol");
       }
       
@@ -489,7 +596,10 @@ IOTypeTable::emitCommandsSlot()
       
       // clean up
       delete [] lCommandArray;
-      
+      for (int i=0; i<lCount; i++)
+	delete [] lCmdParamArray[i];
+      delete [] lCmdParamArray;
+ 
     } // if lCount>0  
     
   } //try
@@ -497,6 +607,13 @@ IOTypeTable::emitCommandsSlot()
   catch (SteererException StEx)
   {
     StEx.print();
+
+    // clean up
+    delete [] lCommandArray;
+    for (int i=0; i<lCount; i++)
+      delete [] lCmdParamArray[i];
+    delete [] lCmdParamArray;
+    
     emit detachFromApplicationForErrorSignal();
     QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
 			 QMessageBox::Ok,
@@ -621,6 +738,7 @@ IOTypeTable::emitValuesSlot()
       // "emit" values to steered application
       lReGStatus = Emit_control(getSimHandle(),				//ReG library
 				0,
+				NULL,
 				NULL);
       qApp->unlock();
 
