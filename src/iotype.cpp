@@ -120,14 +120,16 @@ IOType::validateAndSetFrequency(const int aFreq)
   // a null freqency is valid and indicates that no new frequency has been specifed for this IOType
   if (aFreq >= kNULL_FREQ)
   {
+
     // for in-samples can only have freq 0 or 1
-    if (mType == REG_IO_IN && aFreq > 1)
-      lValid = false;
-    else
-    {
+    //SMR commetn out this restriction as cannot now see benefit of it
+//SMR    if (mType == REG_IO_IN && aFreq > 1)
+//SMR      lValid = false;
+//SMR    else
+//SMR    {
       mNewFrequency = aFreq;
       lValid = true;
-    }
+//SMR    }
   }
   
   return lValid;
