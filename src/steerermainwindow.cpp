@@ -436,7 +436,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 void 
 SteererMainWindow::closeApplicationSlot(int aSimHandle)
 {
-  int i;
+  unsigned int i;
   // close the window for the application
   // this can only be done when detached from application
 
@@ -470,13 +470,17 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
 void
 SteererMainWindow::editTabTitleSlot()
 {
-  DBGMSG("In edit tab title slot");
-  //QDialog *dlg = new QDialog();
-  //dlg->setCaption(QString("Tab title"));
-  //dlg->exec();
-  //QString newLabel;
+  bool ok;
 
-  //mAppTabs->setTabLabel(mAppTabs->currentPage(), &newLabel)
+  QString newLabel = QInputDialog::getText("Edit tab title",
+					   "Enter new tab title:",
+					   QLineEdit::Normal,
+					   mAppTabs->tabLabel(mAppTabs->currentPage()),
+					   &ok, this );
+  if ( ok && !newLabel.isEmpty() ) {
+    // user entered something and pressed OK
+    mAppTabs->setTabLabel(mAppTabs->currentPage(), newLabel);
+  } 
 }
 
 void
