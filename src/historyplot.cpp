@@ -106,7 +106,7 @@ void HistoryPlot::fileSave(){
 
     // spawn off a thread to take the screenshot, giving QT enough time
     // to redraw the graph
-    ScreenGrabThread *lScreenGrabThread = new ScreenGrabThread(this, lFileName);
+    ScreenGrabThread *lScreenGrabThread = new ScreenGrabThread(this, lFileName, mMenuBar);
     lScreenGrabThread->start();
   }
 }
