@@ -126,11 +126,12 @@ int main( int argc, char ** argv )
   ///signal( SIGINT, SIG_IGN );
   ///signal( SIGTERM, SIG_IGN );
 
-  cout << argc << endl;
-  for (int i=0; i<argc; i++){
-    cout << argv[i] << " ";
-  }
-  cout << endl;
+  // Print out command-line arguments
+  //cout << argc << endl;
+  //for (int i=0; i<argc; i++){
+  //  cout << argv[i] << " ";
+  //}
+  //cout << endl;
 
   SteererMainWindow *lSteererMainWindow = kNULL;
   gSteererMainWindowSelfPtr = kNULL;
