@@ -155,3 +155,19 @@ Parameter::setIsPresent()
   // set this as used later to identify unRegistered parameter
   mPresentFlag = true;
 }
+
+// MR:
+void Parameter::setMinMaxStrings(const char *min, const char *max){
+  // Make deep copy of the passed strings
+  mMinStr = min;
+  mMaxStr = max;
+}
+
+QString Parameter::getMinString(){
+  return mMinStr;
+}
+
+QString Parameter::getMaxString(){
+  return mMaxStr;
+}
+
