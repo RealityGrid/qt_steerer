@@ -71,6 +71,11 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHand
   setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
   mMonParamTable = NULL;
+
+  // Flag that says whether or not we've retrieved the full history of 
+  // the sequence number parameter.  Important because we currently plot 
+  // all parameter histories against this.
+  mFetchedSeqNumHistory = false;
 }  
 
 ParameterTable::~ParameterTable()
@@ -303,7 +308,7 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 
   QPopupMenu popupMenu;
 
-  popupMenu.insertItem(QString("Request &history of this parameter from app."), this, 
+  popupMenu.insertItem(QString("Fetch full &history of this parameter"), this, 
   		       SLOT(requestParamHistorySlot(int)), CTRL+Key_H, row, 0);
 
   popupMenu.insertItem(QString("&Draw history graph"), this, 
@@ -328,6 +333,28 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 void ParameterTable::requestParamHistorySlot(int row){
   // First obtain the appropriate parameter (and therefore its history)
   Parameter *tParameter = findParameterHandleFromRow(row);
+
+
+  // Check to see whether or not we have fetched the history of the
+  // sequence number.  If not then fetch it now 'cos we'll probably
+  // need it for history plots.
+  if(!mFetchedSeqNumHistory){
+
+    Parameter *lSeqParameter;
+    if( tParameter->isSteerable() ){
+      // If this is a steered parameter then we need to get the first row
+      // of the monitored parameter table, not this one.
+      lSeqParameter = mMonParamTable->findParameterHandleFromRow(0);
+    }
+    else{
+      lSeqParameter = this->findParameterHandleFromRow(0);
+    }
+
+    Emit_retrieve_param_log_cmd( this->getSimHandle() ,
+				 lSeqParameter->getId());  //ReG library
+
+    mFetchedSeqNumHistory = true;
+  }
 
   Emit_retrieve_param_log_cmd( this->getSimHandle() ,
 			       tParameter->getId());	//ReG library
@@ -400,7 +427,8 @@ void ParameterTable::updateParameterLog(){
 		  &(lParamPtr->mParamHist->mPtrPreviousHistArray),
 		  &(lParamPtr->mParamHist->mPreviousHistArraySize));
 
-    cout << "ARPDBG: handle, size of history: " << lParamPtr->getId() <<
+    cout << "ARPDBG: handle = "<< lParamPtr->getId() << 
+      ", size of history = "  <<
       lParamPtr->mParamHist->mPreviousHistArraySize << endl;
 
     // This allows user to see that we're receiving data but

@@ -83,7 +83,7 @@ protected:
   QPtrList<Parameter> mParamList;
   HistoryPlot *mQwtPlot;
   ParameterTable *mMonParamTable;
-
+  bool mFetchedSeqNumHistory;
 };
 
 
