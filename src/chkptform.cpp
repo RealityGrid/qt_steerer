@@ -117,7 +117,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     mParametersButton->setAutoDefault(FALSE);
     QToolTip::add(mParametersButton, "View Parameters for selected checkpoint");
     connect(mParametersButton, SIGNAL(clicked()), this, SLOT(viewChkPtParametersSlot()));
-    connect(mListBox, SIGNAL(doubleClicked()), this, SLOT(viewChkPtParametersSlot()));
+    connect(mListBox, SIGNAL(doubleClicked(QListBoxItem*)), this, SLOT(viewChkPtParametersDblClkSlot(QListBoxItem*)));
 
     mRestartButton = new QPushButton("Restart", this, "restartbutton"); 
     mRestartButton->setAutoDefault(FALSE);
@@ -265,6 +265,12 @@ void ChkPtForm::viewChkPtParametersSlot(){
   ChkPtVariableForm *lChkPtVariableForm = new ChkPtVariableForm(tmp, this);
   lChkPtVariableForm->show();
 
+}
+
+/** MR: When the user selects a checkpoint, show the variables
+ */
+void ChkPtForm::viewChkPtParametersDblClkSlot(QListBoxItem *t){
+  viewChkPtParametersSlot();
 }
 
 

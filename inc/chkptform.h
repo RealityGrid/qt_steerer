@@ -46,6 +46,7 @@
 
 class QLineEdit;
 class QPushButton;
+class QListBoxItem;
 
 class ChkPtForm: public QDialog
 {
@@ -64,6 +65,7 @@ protected slots:
   void restartSlot();
   void filterSlot();
   void viewChkPtParametersSlot();
+  void viewChkPtParametersDblClkSlot(QListBoxItem *);
 
 private:
   void cleanUp();
