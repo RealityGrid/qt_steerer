@@ -419,19 +419,26 @@ void ParameterTable::plotClosedSlot(HistoryPlot *ptr){
 void ParameterTable::updateParameterLog(){
 
   Parameter *lParamPtr;
-  int lhandle = getSimHandle();
+  int        lhandle = getSimHandle();
+  int        dum_int;
+  double    *dum_ptr;
+  int        status;
 
   QPtrListIterator<Parameter> lParamIterator( mParamList );
   lParamIterator.toFirst();
   while ( (lParamPtr = lParamIterator.current()) != 0){
 
-    Get_param_log(lhandle,		//ReG library
+    status = Get_param_log(lhandle,		//ReG library
 		  lParamPtr->getId(),
-		  &(lParamPtr->mParamHist->mPtrPreviousHistArray),
-		  &(lParamPtr->mParamHist->mPreviousHistArraySize));
+		  &(dum_ptr),
+		  &(dum_int));
 
-    cout << "ARPDBG: handle = "<< lParamPtr->getId() << 
-      ", size of history = "  <<
+    if(status == REG_SUCCESS){
+      lParamPtr->mParamHist->mPtrPreviousHistArray = dum_ptr;
+      lParamPtr->mParamHist->mPreviousHistArraySize = dum_int;
+    }
+    //cout << "ARPDBG: handle = "<< lParamPtr->getId() << 
+    //  ", size of history = "  <<
       lParamPtr->mParamHist->mPreviousHistArraySize << endl;
 
     // This allows user to see that we're receiving data but
