@@ -87,6 +87,8 @@ public:
   int setNewParamValuesInLib();
   void clearNewValues();
 
+  int getTip(const QPoint &pos, QRect &rect, QString &string);
+
 protected slots:
   void validateValueSlot(int aRow, int aCol);
   void emitValuesSlot();

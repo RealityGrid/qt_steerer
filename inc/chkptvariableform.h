@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
-    Header file for IOTypeTable class for QT steerer GUI.
+    ChkPtForm class header file for QT steerer GUI. 
 
     (C)Copyright 2002 The University of Manchester, United Kingdom,
     all rights reserved.
@@ -32,63 +32,49 @@
     Tel:    +44 161 275 6095
     Fax:    +44 161 275 6800    
 
-    Initial version by: S Ramsden, 03.10.2002
+    Initial version by: M Riding, 09.06.2003
     
 ---------------------------------------------------------------------------*/
 
+#ifndef __CHKPT_VARIABLE_FORM_H__
+#define __CHKPT_VARIABLE_FORM_H__
 
-#ifndef __IOTYPE_TABLE_H__
-#define __IOTYPE_TABLE_H__
+#include <qdialog.h>
+#include <qlistbox.h>
+#include <qtable.h>
+#include "ReG_Steer_Steerside.h"
 
-#include "iotype.h"
-#include "table.h"
+class QLineEdit;
+class QPushButton;
 
-#include <qpoint.h>
-
-class IOTypeTable : public Table
+class ChkPtVariableForm: public QDialog
 {
   Q_OBJECT
-    
+       
 public:
-  IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bool aChkPtType = false);
-  ~IOTypeTable();
+  ChkPtVariableForm(const Output_log_struct *tmp,
+	    QWidget *parent = 0, const char *name = "chkptvariableform",
+	    bool modal = FALSE, WFlags f = WGroupLeader );
+// MR: The WGroupLeader flag is very important, without it this _modeless_ dialog would be unable
+//     to do any event handling. The parent _modal_ dialog would instead get exclusive focus.
+  ~ChkPtVariableForm();
 
-  virtual void initTable();
-  virtual void clearAndDisableForDetach(const bool aUnRegister = true);
-
-  bool updateRow(const int lHandle, const int lVal);
-  void addRow(const int lHandle, const char *lLabel, const int lVal, const int lType);
-  int getNumIOTypes() const;
-
-  int getCommandRequestsCount();
-  int populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
-  int setNewFreqValuesInLib();
-
-private:
-  void clearNewValues();
-
-  int findIOTypeRowIndex(int aId);
-  IOType *findIOType(int aId);
+  void run();
 
 protected slots:
 
-  void validateValueSlot( int row, int col );
-  void emitCommandsSlot();
-  void emitValuesSlot();
-  void emitRestartSlot();
-
-signals:
-  void enableSampleButtonsSignal();
-  void enableChkPtButtonsSignal();
-
+private:
+  void cleanUp();
 
 private:
-  QPtrList<IOType> mIOTypeList;
 
-  bool		mChkPtTypeFlag;
-  int		mRestartRowIndex;
+  QTable		*mTable;
+
+  QPushButton		*mCancelButton;
 
 };
+
+
 
 
 

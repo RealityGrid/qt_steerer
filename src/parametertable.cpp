@@ -46,8 +46,10 @@
 
 #include <qapplication.h>
 #include <qmessagebox.h>
+#include <qtooltip.h>
 
 
+  
 ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHandle)
   : Table(aParent, aName, aSimHandle)
 {
@@ -149,9 +151,8 @@ ParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, 
   setText(lRowIndex, kNAME_COLUMN, lLabel);
   setText(lRowIndex, kREG_COLUMN, "Yes");
   
-  setItem(lRowIndex, kVALUE_COLUMN, 
-	  new QTableItem(this, QTableItem::Never,  QString( lVal)));
-  
+  setItem(lRowIndex, kVALUE_COLUMN, new QTableItem(this, QTableItem::Never,  QString( lVal)));
+    
   lParamPtr->setIndex(lRowIndex);
   mParamList.append(lParamPtr);
   incrementRowIndex();
@@ -230,6 +231,56 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 
 }
 
+
+/*************************************************************/
+/* DynamicTip Class                                          */
+/*                                                           */
+/* MR - In order to have the tool tips respond to changes    */
+/* in the steerable paramater table we need to subclass      */
+/* qtooltip. This is strongly associated with the steerable  */
+/* parameter table, so will remain in this file with it.     */
+/*************************************************************/
+
+
+class DynamicTip: public QToolTip{
+private:
+    QRect rect;
+public:
+    DynamicTip( QWidget * parent, QRect rect );
+    static void add(QWidget *widget, const QRect &rect, const QString &text);
+
+protected:
+    void maybeTip( const QPoint & );
+};
+
+DynamicTip::DynamicTip( QWidget * parent, QRect _rect )
+    : QToolTip( parent )
+{
+  rect = _rect;
+    // no explicit initialization needed
+}
+
+void DynamicTip::maybeTip( const QPoint &pos )
+{
+    if ( !parentWidget()->inherits( "SteeredParameterTable" ) )
+        return;
+
+    QRect tmp;
+    QString str;
+    int tipOK = ((SteeredParameterTable*)parentWidget())->getTip(pos, tmp, str);
+    if (tipOK == 0)
+      tip(tmp, str);
+}
+
+
+/*************************************************************/
+/* End of DynamicTip Class                                   */
+/*************************************************************/
+
+
+
+
+
 SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName, int aSimHandle)
   : ParameterTable(aParent, aName, aSimHandle)
 {
@@ -287,6 +338,10 @@ SteeredParameterTable::initTable()
   // set up signal/slot to handle data entered by user (new parameter value)
   connect (this, SIGNAL( valueChanged(int,int) ),
 	   this, SLOT( validateValueSlot(int,int) ) );
+
+  // Create a DynamicTip object for this table
+  // In fact don't bother until Andrew P is ready for it
+  //new DynamicTip(this, frameRect());
 
 }
 
@@ -406,7 +461,6 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
 	     new QTableItem(this, QTableItem::Never,  QString( lVal)));
   setItem(lRowIndex, kNEWVALUE_COLUMN,
 	     new QTableItem(this, QTableItem::OnTyping,  QString::null));
-	   
 
   lParamPtr->setIndex(lRowIndex);
   mParamList.append(lParamPtr);
@@ -645,4 +699,48 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 
 }
 
+
+/** This method is called by the DynamicTip class to find which String to use for a
+ *  tooltip, and how big a rectangle to make it for
+ *
+ *  TODO - how on earth do we get the vertical size of the horizontal QHeader, surely
+ *  this is implementation / windowing system dependant. Redhat 7.3 & KDE it's 25...
+ */
+int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &string){
+  // Check that we're in the correct column
+  if (columnAt(pnt.x()) != 4)
+    return -1;
+
+  // Get the rows and columns
+  int singleRowHeight = verticalHeader()->sectionSize(0); // They're all the same
+  int scrolled = contentsY();
+    
+  // Check that we're not in the title bar
+  if (pnt.y() < singleRowHeight)
+    return -1;
+    
+  // adjustedPos is the mouse coordinate moved from the table coordinate system to the scroll window coordinate system
+  int adjustedPos = scrolled + (pnt.y() - 25); // The 25 here is the height of the horizontal header, need to get programmatically
+  // actualRow contains the index to the proper row in the scrollview
+  int actualRow = adjustedPos / singleRowHeight;
+
+  // We now want to determine the actual rectangle for the tooltip
+  int top, bottom, left, right;
+  top = (actualRow * singleRowHeight) - scrolled + 25; // the 25 again....
+  bottom = top + singleRowHeight;
+  left = horizontalHeader()->sectionPos(4); // constant
+  right = left + horizontalHeader()->sectionSize(4);
+
+  // Set the rectangle
+  rect.setTop(top);
+  rect.setBottom(bottom);
+  rect.setLeft(left);
+  rect.setRight(right);
+
+  // And grab the text from some data structure and send it back to the tooltip
+  string = QString::number(actualRow);
+
+  // Return success!
+  return 0;
+}
 

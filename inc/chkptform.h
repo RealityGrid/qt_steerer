@@ -63,6 +63,7 @@ public:
 protected slots:
   void restartSlot();
   void filterSlot();
+  void viewChkPtParametersSlot();
 
 private:
   void cleanUp();
@@ -77,6 +78,9 @@ private:
   QListBox		*mListBox;
   QLineEdit		*mFilterLineEdit;
 
+  // MR: button to bring up the chkptvariableform
+  QPushButton		*mParametersButton;
+  
   QPushButton		*mRestartButton;
   QPushButton		*mCancelButton;
 

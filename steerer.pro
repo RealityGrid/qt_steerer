@@ -55,6 +55,7 @@ OBJECTS_DIR  = obj
 HEADERS += inc/application.h \	
            inc/attachform.h \
            inc/chkptform.h \
+           inc/chkptvariableform.h \
            inc/commsthread.h \
            inc/configform.h \
            inc/controlform.h \
@@ -71,6 +72,7 @@ HEADERS += inc/application.h \
 SOURCES += src/application.cpp \
            src/attachform.cpp \
            src/chkptform.cpp \
+           src/chkptvariableform.cpp \
            src/commsthread.cpp \
            src/configform.cpp \
            src/controlform.cpp \

@@ -38,6 +38,7 @@
 
  
 #include "chkptform.h"
+#include "chkptvariableform.h"
 #include "utility.h"
 #include "types.h"
 #include "debug.h"
@@ -63,7 +64,6 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
   DBGCON("ChkPtForm");
 
   //  set up arrays for ReG lib call
-
   mLogEntries = new Output_log_struct[mNumEntries];
 
   // get the log entries from library
@@ -86,8 +86,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("CheckPoint Tags", this));
     mListBox = new QListBox(this);
-    mListBox->setSelectionMode( QListBox::Single );
-    
+    mListBox->setSelectionMode( QListBox::Single ); 
      
     // populate the list box - each listboxitem holds array index information - this is what 
     // is used by the calling code (via  aSimIndexSelected) to identify the aSimGSH selected
@@ -100,6 +99,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
       lListItem = new ChkPtListItem(i, QString( mLogEntries[i].chk_tag));
       mListBox->insertItem( lListItem );
     }
+
     
     // filter to do SMR XXX
 ///    mFilterLineEdit = new QLineEdit(this, "containsfilter");
@@ -112,6 +112,13 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     lListLayout->addWidget(mListBox);
     ///    lListLayout->addLayout(lFilterLayout);
     
+    // MR: setup a button to deal with the view checkpoint parameters functionality
+    mParametersButton = new QPushButton("Parameters", this, "parametersbutton");
+    mParametersButton->setAutoDefault(FALSE);
+    QToolTip::add(mParametersButton, "View Parameters for selected checkpoint");
+    connect(mParametersButton, SIGNAL(clicked()), this, SLOT(viewChkPtParametersSlot()));
+    connect(mListBox, SIGNAL(doubleClicked()), this, SLOT(viewChkPtParametersSlot()));
+
     mRestartButton = new QPushButton("Restart", this, "restartbutton"); 
     mRestartButton->setAutoDefault(FALSE);
     QToolTip::add(mRestartButton, "Restart using selected checkpoint");
@@ -121,12 +128,15 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     mCancelButton->setAutoDefault(FALSE);
     connect(mCancelButton,  SIGNAL(clicked()), this, SLOT( reject()));
 
-    mRestartButton->setMinimumSize(mRestartButton->sizeHint());
+    mParametersButton->setMinimumSize(mParametersButton->sizeHint());
+    mParametersButton->setMaximumSize(mParametersButton->sizeHint());
+    mRestartButton->setMinimumSize(mParametersButton->sizeHint());
     mRestartButton->setMaximumSize(mRestartButton->sizeHint());
-    mCancelButton->setMinimumSize(mRestartButton->sizeHint());
+    mCancelButton->setMinimumSize(mParametersButton->sizeHint());
     mCancelButton->setMaximumSize(mCancelButton->sizeHint());
 
     lButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding ));
+    lButtonLayout->addWidget(mParametersButton);
     lButtonLayout->addWidget(mRestartButton);
     lButtonLayout->addWidget(mCancelButton);
     
@@ -238,7 +248,24 @@ ChkPtForm::filterSlot()
 #endif
 }
 
+/** MR: When the user selects a checkpoint, show the variables
+ */
+void ChkPtForm::viewChkPtParametersSlot(){
+  // We need to pass the relevant Output_log_struct to the new form,
+  // so that it can populate it's own list appropiately
+  int selectedIndex = mListBox->currentItem();
 
+  Output_log_struct *tmp = &mLogEntries[selectedIndex];
+  if (tmp==NULL){
+    printf("Error - can't find any parameter log entries for this checkpoint");
+    return;
+  }
+
+  // Create a modeless chkptvariableform and show it
+  ChkPtVariableForm *lChkPtVariableForm = new ChkPtVariableForm(tmp, this);
+  lChkPtVariableForm->show();
+
+}
 
 
 ChkPtListItem::ChkPtListItem(int aEntryIndex, const QString &text)

@@ -250,12 +250,13 @@ SteererMainWindow::attachAppSlot()
 
   statusBar()->clear();
 
-  if (QMessageBox::information(0, "Local Attach", 
+  // MR: requested that this MessageBox be turned off for now
+  if (1)/*QMessageBox::information(0, "Local Attach", 
 			       "Attach using ReG environment variables?",
 			       QMessageBox::Ok,
 			       QMessageBox::Cancel, 
 			       QMessageBox::NoButton) == QMessageBox::Ok)
-  
+*/  
   {
     /* Attempt to attach simulation */
     simAttachApp("DEFAULT", true);
