@@ -113,7 +113,7 @@ CommsThread::run()
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
-    DBGMSG("Check now\n");
+    DBGMSG("Poling now");
     // Get_next_message always returns  REG_SUCCESS currently
     if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)	//ReG library
       DBGEXCP("Get_next_message error");
