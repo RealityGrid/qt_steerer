@@ -326,7 +326,8 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   // need to keep a reference to the plotter so that it's cancelled when 
   // we quit the main window
   mQwtPlot = new HistoryPlot(txParameter->mParamHist, tParameter->mParamHist, 
-			     text(popupMenuID, kNAME_COLUMN).latin1(), txParameter->getId(), tParameter->getId());
+			     text(popupMenuID, kNAME_COLUMN).latin1(), 
+			     txParameter->getId(), tParameter->getId());
   mHistoryPlotList.append(mQwtPlot);
   mQwtPlot->show();
 
