@@ -40,6 +40,8 @@
 #ifndef __PARAMETER_H__
 #define __PARAMETER_H__
 
+#include "parameterhistory.h"
+
 class QTable;
 
 class Parameter
@@ -65,6 +67,8 @@ public:
   void setIsPresent();
   void unRegister();
 
+  ParameterHistory  mParamHist;
+  
 private:
   const	bool	mSteerable;
   bool		mRegisteredFlag;
