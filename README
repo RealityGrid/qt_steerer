@@ -22,6 +22,14 @@ steerer
 (Note: environment variables as for steering library are required)
 
 
+NOTE:
+
+The QT steerer GUI is still under development.
+The current version has only been compiled and executed on an SSGI O2.
+
+
+
+
 Any comments, enquiries or pleas for explanation should be sent to:
 
 Sue Ramsden                Sue.Ramsden@man.ac.uk
