@@ -58,7 +58,8 @@
 //parameter tables sizes
 #define kNUM_MON_COLUMNS	4
 #define kNUM_STEER_COLUMNS	5 
-#define kINIT_ROWS		3
+// MR: removed - was causing problems, and giving no noticeable benefit
+//#define kINIT_ROWS		0//3
 
 
 //iotype table constants
@@ -72,7 +73,8 @@
 
 //iotype tables sizes
 #define kNUM_IO_COLUMNS		5  // not include kIO_RESTART_COLUMN
-#define kIO_INIT_ROWS		2
+// MR: removed - was causing problems, and giving no noticeable benefit
+//#define kIO_INIT_ROWS		0//2
 
 // iotype new frequency not set indicator
 #define kNULL_FREQ		-1
