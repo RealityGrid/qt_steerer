@@ -211,8 +211,9 @@ Application::closeApplicationSlot()
   // user has hit close button
   // so get rid of form for this application
 
-  // tell steering lib we're detaching if not already 
-  // may not be detached if still waiting for application to act on Stop/detach command
+  // Tell steering lib we're detaching if not already.
+  // May not be detached if still waiting for application to act on 
+  // Stop/detach command.
   if (!mDetachedFlag)
     detachFromApplication();
 
@@ -263,7 +264,8 @@ void
 Application::emitResumeCmdSlot()
 {
 
-  // disable resume and enable pause  if supported (should be forced to support both in library)
+  // disable resume and enable pause  if supported (should be forced 
+  // to support both in library)
   mControlForm->setEnabledResume(FALSE);
   if (mPauseSupported)
     mControlForm->setEnabledPause(TRUE);
@@ -304,16 +306,39 @@ Application::emitSingleCmd(int aCmdId)
   DBGMSG1("Send Cmd id ",aCmdId);
   int lReGStatus = REG_FAILURE;
 
-  int lCommandArray[1];
-  lCommandArray[0] = aCmdId;
+  //  int lCommandArray[1];
+  //  lCommandArray[0] = aCmdId;
  
   try 
   {
     qApp->lock();
-    lReGStatus = Emit_control(mSimHandle,			//ReG library 
-			      1,
-			      lCommandArray,
-			      NULL);
+    //lReGStatus = Emit_control(mSimHandle,		//ReG library 
+    //			      1,
+    //			      lCommandArray,
+    //			      NULL);
+    switch(aCmdId){
+
+    case REG_STR_STOP:
+      lReGStatus = Emit_stop_cmd(mSimHandle);		//ReG library 
+      break;
+
+    case REG_STR_PAUSE:
+      lReGStatus = Emit_pause_cmd(mSimHandle);		//ReG library 
+      break;
+
+    case REG_STR_RESUME:
+      lReGStatus = Emit_resume_cmd(mSimHandle);		//ReG library 
+      break;
+
+    case REG_STR_DETACH:
+      lReGStatus = Emit_detach_cmd(mSimHandle);		//ReG library 
+      break;
+
+    default:
+      break;
+
+    }
+
     qApp->unlock();
 
     if (lReGStatus != REG_SUCCESS)

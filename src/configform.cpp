@@ -63,7 +63,7 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *n
 
   // note aCurrentIntervalValue is in milliseconds - convert to seconds for GUI entry
 
-  this->setCaption( "Configure Poling" );
+  this->setCaption( "Configure Polling" );
   resize( 150, 150 );
     
   // create the layouts for the form

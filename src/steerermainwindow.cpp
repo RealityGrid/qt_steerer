@@ -82,9 +82,9 @@ SteererMainWindow::SteererMainWindow()
   setCentralWidget(mCentralWgt);
    
   // set up actions for configure check interval, attach and quit
-  mSetCheckIntervalAction =  new QAction("Set poling interval","Set Poling Interval",
+  mSetCheckIntervalAction =  new QAction("Set polling interval","Set Polling Interval",
 						  CTRL+Key_P, this, "setcheckaction");
-  mSetCheckIntervalAction->setStatusTip("Set poling interval");
+  mSetCheckIntervalAction->setStatusTip("Set polling interval");
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
 
 
@@ -115,7 +115,7 @@ SteererMainWindow::SteererMainWindow()
 
   mSetCheckIntervalAction->setEnabled(FALSE);
   mAttachAction->setEnabled(TRUE);
-  mGridAttachAction->setEnabled(FALSE);
+  mGridAttachAction->setEnabled(TRUE);
   mQuitAction->setEnabled(TRUE);
 
 
@@ -329,7 +329,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 
     if (lReGStatus == REG_SUCCESS)
     {
-      DBGMSG1("Wooohoooo - Attached: mSimHandle = ",lSimHandle);
+      DBGMSG1("Attached: mSimHandle = ",lSimHandle);
       
       mApplication = new Application(this, aSimID, lSimHandle);
 
@@ -431,7 +431,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
 
   // re-enable attach button SMR XXX
   mAttachAction->setEnabled(TRUE);
-  //  mGridAttachAction->setEnabled(TRUE);
+  mGridAttachAction->setEnabled(TRUE);
 
   // SMR XXX  if last application being steered,resie the window
   resizeForNoAttached();

@@ -198,7 +198,7 @@ CommsThread::run()
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
-    DBGMSG("CommsThread Poling now");
+    DBGMSG("CommsThread Polling now");
 
     // reset lMsgType
     lMsgType = MSG_NOTSET;
@@ -207,7 +207,7 @@ CommsThread::run()
     qApp->lock();
 
     // Get_next_message always returns  REG_SUCCESS currently
-    if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)	//ReG library
+    if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)  //ReG library
       DBGEXCP("Get_next_message error");
 
     qApp->unlock();
@@ -217,10 +217,12 @@ CommsThread::run()
       //SMR XXX  future: find Application in list that matches lSimHandle
       //SMR XXX  validate lMsgType SMR XXX to do
 
-      // create event and post it - posting means the main GUI thread will process the event and not this commsthread.
+      // create event and post it - posting means the main GUI thread will 
+      // process the event and not this commsthread.
       // this avoids any locking issues around GUI funcs (i think)
       
-      /// SMR XXX make this member of COmmsThread and resue rather than new each time - chk when QT dlete ?
+      // SMR XXX make this member of COmmsThread and resue rather than 
+      // new each time - chk when QT dlete ?
       CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
       postEvent(mSteerer->getApplication(), lEvent);
     }

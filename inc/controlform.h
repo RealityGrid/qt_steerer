@@ -119,16 +119,16 @@ private:
   QPushButton		*mEmitAllIOCommandsButton;
   QPushButton		*mEmitAllButton;
 
+  ParameterTable	*mMonParamTable;
+  SteeredParameterTable	*mSteerParamTable;
+  IOTypeTable		*mIOTypeSampleTable;
+  IOTypeTable		*mIOTypeChkPtTable;
+
   QPushButton		*mCloseButton;
   QPushButton		*mDetachButton;
   QPushButton		*mStopButton;
   QPushButton		*mPauseButton;
   QPushButton		*mResumeButton;
-
-  ParameterTable	*mMonParamTable;
-  SteeredParameterTable	*mSteerParamTable;
-  IOTypeTable		*mIOTypeSampleTable;
-  IOTypeTable		*mIOTypeChkPtTable;
 
 };
 
