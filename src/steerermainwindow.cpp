@@ -364,7 +364,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       
       mLogoLabel->show();
       // resize - only do for first app attached? SMR XXX
-      resize(985, 800);     
+      resize(985, 820);     
      
       statusBar()->clear();
       
