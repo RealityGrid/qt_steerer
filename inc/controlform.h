@@ -53,6 +53,7 @@ class ParameterTable;
 class SteeredParameterTable;
 class IOTypeTable;
 class TableLabel;
+class SteererMainWindow;
 
 class ControlForm : public QWidget 
 {
@@ -77,7 +78,7 @@ public:
   void setEnabledResume(const bool aEnable);
   void setEnabledClose(const bool aEnable);
 
-  void setStatusLabel(const char *aStatusText);
+//  void setStatusLabel(const char *aStatusText);
 
 private:
   void updateParameters(bool aSteeredFlag);

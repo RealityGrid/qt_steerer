@@ -47,6 +47,7 @@
 #include "iotypetable.h"
 #include "utility.h"
 #include "exception.h"
+#include "steerermainwindow.h"
 
 #include <qapplication.h>
 #include <qhbox.h>
@@ -57,10 +58,12 @@
 #include <qtooltip.h> 
 #include <qvbox.h>
 #include <qvgroupbox.h>
+#include <qhbuttongroup.h>
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Application *aApplication)
   : QWidget(aParent, aName), mSimHandle(aSimHandle), 
-    mStatusLabel(kNULL), mEmitButton(kNULL), 
+    //mStatusLabel(kNULL),
+    mEmitButton(kNULL), 
     mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), 
     mRestartChkPtButton(kNULL), 
     mSndChkPtButton(kNULL), mSetChkPtFreqButton(kNULL), 
@@ -81,62 +84,76 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   QVBoxLayout *lEditLayout = new QVBoxLayout(this, 6, 6, "editlayout");
 
-  QHBoxLayout *lStatusLayout = new QHBoxLayout(6, "statuslayout");
+  //QHBoxLayout *lStatusLayout = new QHBoxLayout(6, "statuslayout");
   QHBoxLayout *lBottomButtonLayout = new QHBoxLayout(6, "bottombuttonlayout");
 
-  mStatusLabel = new TableLabel("Attached to application", this);
-  lStatusLayout->addWidget(new TableLabel("Steering Status: ", this));
-  lStatusLayout->addWidget(mStatusLabel);
-  lStatusLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, 
-					  QSizePolicy::Minimum ));
+  //mStatusLabel = new TableLabel("Attached to application", this);
+  //lStatusLayout->addWidget(new TableLabel("Steering Status: ", this));
+  //lStatusLayout->addWidget(mStatusLabel);
+  //lStatusLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum ));
 
-  QVGroupBox *lCmdGrpBox = new QVGroupBox("Cmds",this, "cmdbuttonbox");
-  lCmdGrpBox->setAlignment(Qt::AlignHCenter);
+  //QVGroupBox *lCmdGrpBox = new QVGroupBox("Cmds",this, "cmdbuttonbox");
+  QHButtonGroup *lCmdGrpBox = new QHButtonGroup("Commands", this, "cmdbuttons");
+  //lCmdGrpBox->setAlignment(Qt::AlignHCenter);
  
   // set up main command buttons
   // we use Resume button sizeHint to size all buttons to this size
-  mResumeButton = new QPushButton( "Resume", lCmdGrpBox, 
-				   "resume" );  //SMR XXXn
+  mResumeButton = new QPushButton( "Resume", lCmdGrpBox, "resume" );  //SMR XXXn
+//  mResumeButton = new QPushButton( "Resume", this, "resume" );  //SMR XXXn
   mResumeButton->setMinimumSize(mResumeButton->sizeHint());
   mResumeButton->setMaximumSize(mResumeButton->sizeHint());
   QToolTip::add(mResumeButton, "Tell the attached application "
 		"to resume");
   connect( mResumeButton, SIGNAL( clicked() ), aApplication, 
 	   SLOT( emitResumeCmdSlot() ));
+  //lCmdGrpBox->addWidget(mResumeButton);
+  lCmdGrpBox->insert(mResumeButton);
   
   mPauseButton = new QPushButton( "Pause", lCmdGrpBox, "pause" );
+//  mPauseButton = new QPushButton( "Pause", this, "pause" );
   mPauseButton->setMinimumSize(mResumeButton->sizeHint());
   mPauseButton->setMaximumSize(mPauseButton->sizeHint());
   QToolTip::add(mPauseButton, "Tell the attached application"
 		" to pause");
   connect( mPauseButton, SIGNAL( clicked() ), aApplication, 
 	   SLOT( emitPauseCmdSlot() ));
+  //lCmdGrpBox->addWidget(mPauseButton);
+  lCmdGrpBox->insert(mPauseButton);
 
   mDetachButton = new QPushButton( "Detach", lCmdGrpBox, "detach" );
+//  mDetachButton = new QPushButton( "Detach", this, "detach" );
   mDetachButton->setMinimumSize(mResumeButton->sizeHint());
   mDetachButton->setMaximumSize(mDetachButton->sizeHint());
   QToolTip::add(mDetachButton, "Tell the attached application to detach");
   connect( mDetachButton, SIGNAL( clicked() ), aApplication, 
 	   SLOT( emitDetachCmdSlot() ));
+  //lCmdGrpBox->addWidget(mDetachButton);
+  lCmdGrpBox->insert(mDetachButton);
     
   // button to allow user to get rid of this application form when detached
   mCloseButton = new QPushButton( "Close", lCmdGrpBox, "close" );
+//  mCloseButton = new QPushButton( "Close", this, "close" );
   mCloseButton->setMinimumSize(mResumeButton->sizeHint());
   mCloseButton->setMaximumSize(mCloseButton->sizeHint());
   QToolTip::add( mCloseButton, "Close form to allow another attach");
   connect(mCloseButton, SIGNAL( clicked() ), aApplication, 
 	  SLOT(closeApplicationSlot()) );
+  //lCmdGrpBox->addWidget(mCloseButton);
+  lCmdGrpBox->insert(mCloseButton);
 
   mStopButton = new QPushButton( "Stop", lCmdGrpBox, "stop" );
+//  mStopButton = new QPushButton( "Stop", this, "stop" );
   mStopButton->setMinimumSize(mResumeButton->sizeHint());
   mStopButton->setMaximumSize(mStopButton->sizeHint());
   QToolTip::add(mStopButton, "Tell the attached application to stop");
   connect( mStopButton, SIGNAL( clicked() ), aApplication, 
 	   SLOT( emitStopCmdSlot() ));
+  //lCmdGrpBox->addWidget(mStopButton);
+  lCmdGrpBox->insert(mStopButton);
 
 
   // set up table for monitored parameters
-  QHBoxLayout *lMonLayout = new QHBoxLayout(6, "montablayout");
+  QVBoxLayout *lMonLayout = new QVBoxLayout(6, "montablayout");
   mMonParamTable = new ParameterTable(this, "monparamtable", 
 				      aSimHandle);
   mMonParamTable->initTable();
@@ -157,14 +174,14 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   // Chkpt table is widest.  Fix widths of tables now 'cos otherwise 
   // the 'Cmds' frame causes the MonParam table to be narrower than 
   // the others.
-  int lTableWidth = 410;
-  mIOTypeChkPtTable->setMaximumWidth(lTableWidth);
+  int lTableWidth = 300;
+  //mIOTypeChkPtTable->setMaximumWidth(lTableWidth);
   mIOTypeSampleTable->setMinimumWidth(lTableWidth);
-  mIOTypeSampleTable->setMaximumWidth(lTableWidth);
+  //mIOTypeSampleTable->setMaximumWidth(lTableWidth);
   mSteerParamTable->setMinimumWidth(lTableWidth);
-  mSteerParamTable->setMaximumWidth(lTableWidth);
+  //mSteerParamTable->setMaximumWidth(lTableWidth);
   mMonParamTable->setMinimumWidth(lTableWidth);
-  mMonParamTable->setMaximumWidth(lTableWidth);
+  //mMonParamTable->setMaximumWidth(lTableWidth);
 
   // Once table objects created, we can get on with creating layouts...
   lMonLayout->addWidget(mMonParamTable);
@@ -173,14 +190,16 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   QVBoxLayout *lTopLeftLayout = new QVBoxLayout(6, "topleftlayout");
   QHBoxLayout *lTopLayout = new QHBoxLayout(6, "toplayout");
 
-  lTopLeftLayout->addLayout(lStatusLayout);
+  //lTopLeftLayout->addLayout(lStatusLayout);
+  lTopLeftLayout->addWidget(lCmdGrpBox);
   lTopLeftLayout->addWidget(new TableLabel("Monitored Parameters", this));
-  lTopLeftLayout->addLayout(lMonLayout);
+  //lTopLeftLayout->addLayout(lMonLayout);
   lTopLayout->addLayout(lTopLeftLayout);
 
-  /// lTopLayout->addSpacing(10);
+//  lTopLayout->addSpacing(mEmitButton->width());
   //  lTopLayout->addLayout(lCmdButtonLayout);
-  lTopLayout->addWidget(lCmdGrpBox);
+//  lTopLayout->addWidget(lCmdGrpBox);
+//  lTopLayout->addLayout(lCmdGrpBox);
 
   // set up table and buttons for steered parameters
   QHBoxLayout *lSteerLayout = new QHBoxLayout(6, "steertablayout");
@@ -195,11 +214,17 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   QToolTip::add(mEmitButton, "Tell application new parameter values");
   connect( mEmitButton, SIGNAL( clicked() ), mSteerParamTable, 
 	   SLOT( emitValuesSlot() ) );
-    
+               
   // layout steered parameters
   lSteerButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
   lSteerButtonLayout->addWidget(mEmitButton);
-  lSteerLayout->addWidget(mSteerParamTable);  
+
+  // MR
+  // This table needs to be in the same layout as the "Steered Parameters" tag and Monitored Parameters table
+  lMonLayout->addWidget(new TableLabel("Steered Parameters", this));
+  lMonLayout->addWidget(mSteerParamTable);
+  lSteerLayout->addLayout(lMonLayout);
+  //lSteerLayout->addWidget(mSteerParamTable);
   lSteerLayout->addLayout(lSteerButtonLayout);
   //  lSteerLayout->addSpacing(30);
 
@@ -321,16 +346,26 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   ///n lEditLayout->addLayout(lMonLayout);
  
 
-  lEditLayout->addWidget(new TableLabel("Steered Parameters", this));
+//  lEditLayout->addWidget(new TableLabel("Steered Parameters", this));
   lEditLayout->addLayout(lSteerLayout);
  
-
+/*
   lEditLayout->addWidget(new TableLabel("Sample IOTypes", this));
   lEditLayout->addLayout(lSampleLayout);
  
 
   lEditLayout->addWidget(new TableLabel("CheckPoint IOTypes", this));
   lEditLayout->addLayout(lChkPtLayout);
+*/
+  QVBoxLayout *lExtraLayout = new QVBoxLayout(6, "bottom tables");
+  lExtraLayout->addWidget(new TableLabel("Sample IOTypes", this));
+  lExtraLayout->addLayout(lSampleLayout);
+
+
+  lExtraLayout->addWidget(new TableLabel("CheckPoint IOTypes", this));
+  lExtraLayout->addLayout(lChkPtLayout);
+
+  lEditLayout->addLayout(lExtraLayout);
  
   lEditLayout->addLayout(lBottomButtonLayout);
 
@@ -342,7 +377,6 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   // Close button only becomes enabled when detach from application
   mCloseButton->setEnabled(FALSE);
-  
 
 } 
 
@@ -694,13 +728,13 @@ ControlForm::setEnabledClose(const bool aEnable)
   mCloseButton->setEnabled(aEnable);
 }
 
-
+/*
 void 
 ControlForm::setStatusLabel(const char *aStatusText)
 {
   mStatusLabel->setText(aStatusText);
 }
-
+*/
 
 void 
 ControlForm::enableParamButtonsSlot()
