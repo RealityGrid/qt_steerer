@@ -42,6 +42,7 @@
 #include <qlineedit.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
+#include <qtooltip.h>
 #include <qvbox.h>
 
 AttachForm::AttachForm(QWidget *parent, const char *name,
@@ -115,6 +116,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mAttachButton->setMinimumSize(mAttachButton->sizeHint());
     mAttachButton->setMaximumSize(mAttachButton->sizeHint());
     mAttachButton->setAutoDefault(FALSE);
+    QToolTip::add(mAttachButton, "Attach to selected application");
     connect(mAttachButton, SIGNAL(clicked()), this, SLOT(attachSlot()));
     
     

@@ -75,8 +75,8 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   mCloseButton->setMaximumSize(mCloseButton->sizeHint());
   // this only becomes enabled when detach from application
   mCloseButton->setEnabled(FALSE);
-  QToolTip::add( mCloseButton, "Close Control Monitor" );
-  connect( mCloseButton, SIGNAL( clicked() ), this, SLOT(closeApplicationSlot()) );
+  QToolTip::add( mCloseButton, "Close Control Monitor");
+  connect(mCloseButton, SIGNAL( clicked() ), this, SLOT(closeApplicationSlot()) );
   connect (this, SIGNAL(closeApplicationSignal(int)), aParent, SLOT(closeApplicationSlot(int)) );
 
   //create Tell&Detach button
@@ -90,21 +90,25 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   mStopButton = new QPushButton( "Stop", this, "stop" );
   mStopButton->setMinimumSize(mStopButton->sizeHint());
   mStopButton->setMaximumSize(mStopButton->sizeHint());
+  QToolTip::add(mStopButton, "Tell the attached application to stop");
   connect( mStopButton, SIGNAL( clicked() ), this, SLOT( emitStopCmdSlot() ));
 
   mDetachButton = new QPushButton( "Detach", this, "detach" );
   mDetachButton->setMinimumSize(mDetachButton->sizeHint());
   mDetachButton->setMaximumSize(mDetachButton->sizeHint());
+  QToolTip::add(mDetachButton, "Tell the attached application to detach");
   connect( mDetachButton, SIGNAL( clicked() ), this, SLOT( emitDetachCmdSlot() ));
   
   mPauseButton = new QPushButton( "Pause", this, "pause" );
   mPauseButton->setMinimumSize(mPauseButton->sizeHint());
   mPauseButton->setMaximumSize(mPauseButton->sizeHint());
+  QToolTip::add(mPauseButton, "Tell the attached application to pause");
   connect( mPauseButton, SIGNAL( clicked() ), this, SLOT( emitPauseCmdSlot() ));
   
   mResumeButton = new QPushButton( "Resume", this, "resume" );
   mResumeButton->setMinimumSize(mResumeButton->sizeHint());
   mResumeButton->setMaximumSize(mResumeButton->sizeHint());
+  QToolTip::add(mResumeButton, "Tell the attached application to resume");
   connect( mResumeButton, SIGNAL( clicked() ), this, SLOT( emitResumeCmdSlot() ));
 
 
@@ -119,8 +123,6 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   lButtonLayout->addWidget(mPauseButton);
   lButtonLayout->addWidget(mResumeButton);
   lFormLayout->addLayout(lButtonLayout);
-
-
 
 } 
 

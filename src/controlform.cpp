@@ -47,6 +47,7 @@
 #include <qlabel.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
+#include <qtooltip.h> 
 #include <qvbox.h>
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Application *aApplication)
@@ -89,6 +90,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mEmitButton = new QPushButton( "Tell Values", this, "tellvalue" );
   mEmitButton->setMinimumSize(mEmitButton->sizeHint());
   mEmitButton->setMaximumSize(mEmitButton->sizeHint());
+  QToolTip::add(mEmitButton, "Tell application new parameter values");
   connect( mEmitButton, SIGNAL( clicked() ), mSteerParamTable, SLOT( emitValuesSlot() ) );
     
   // layout steered parameters
@@ -109,11 +111,13 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mSndSampleButton = new QPushButton( "Tell Requests", this, "SndSample" );
   mSndSampleButton->setMinimumSize(mSndSampleButton->sizeHint());
   mSndSampleButton->setMaximumSize(mSndSampleButton->sizeHint());
-  connect( mSndSampleButton, SIGNAL( clicked() ), mIOTypeSampleTable, SLOT( emitCommandsSlot()));
+  QToolTip::add(mSndSampleButton, "Tell application to emit/consume requested sample iotypes");
+  connect(mSndSampleButton, SIGNAL( clicked() ), mIOTypeSampleTable, SLOT( emitCommandsSlot()));
 
   mSetSampleFreqButton = new QPushButton( "Tell Frequencies", this, "TellFreq" );
   mSetSampleFreqButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
   mSetSampleFreqButton->setMaximumSize(mSetSampleFreqButton->sizeHint());
+  QToolTip::add(mSetSampleFreqButton, "Tell application new frequency values for sample iotypes");
   connect(mSetSampleFreqButton, SIGNAL( clicked() ), mIOTypeSampleTable, SLOT( emitValuesSlot()));
 
 
@@ -135,11 +139,13 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mSndChkPtButton = new QPushButton( "Tell Requests", this, "sndchkpt" );
   mSndChkPtButton->setMinimumSize(mSndChkPtButton->sizeHint());
   mSndChkPtButton->setMaximumSize(mSndChkPtButton->sizeHint());
+  QToolTip::add(mSndChkPtButton, "Tell application to emit requested checkpoint iotypes");
   connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( emitCommandsSlot()));
  
   mSetChkPtFreqButton = new QPushButton( "Tell Frequencies", this, "tellfreq" );
   mSetChkPtFreqButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
   mSetChkPtFreqButton->setMaximumSize(mSetChkPtFreqButton->sizeHint());
+  QToolTip::add(mSetChkPtFreqButton, "Tell application new frequency values for checkpoint iotypes");  
   connect(mSetChkPtFreqButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( emitValuesSlot()));
 
   lChkPtButtonLayout->addItem(new QSpacerItem( 0, 48, QSizePolicy::Minimum, QSizePolicy::Expanding));
@@ -153,16 +159,19 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mEmitAllValuesButton = new QPushButton("Tell All Values", this, "tellallvals");
   mEmitAllValuesButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
   mEmitAllValuesButton->setMaximumSize(mEmitAllValuesButton->sizeHint());
+  QToolTip::add(mEmitAllValuesButton, "Tell application all new parameter and frequency values");
   connect(mEmitAllValuesButton, SIGNAL(clicked()), this, SLOT(emitAllValuesSlot()));
   
   mEmitAllIOCommandsButton = new QPushButton("Tell All Requests", this, "sendallrequests");
   mEmitAllIOCommandsButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
   mEmitAllIOCommandsButton->setMaximumSize(mEmitAllIOCommandsButton->sizeHint());
+  QToolTip::add(mEmitAllIOCommandsButton, "Tell application all emit/consume requests");
   connect(mEmitAllIOCommandsButton, SIGNAL(clicked()), this, SLOT(emitAllIOCommandsSlot()));
 
   mEmitAllButton = new QPushButton("Tell All", this, "sendall");
   mEmitAllButton->setMinimumSize(mEmitAllButton->sizeHint());
   mEmitAllButton->setMaximumSize(mEmitAllButton->sizeHint());
+  QToolTip::add(mEmitAllButton, "Tell application all new values and all emit/consume requests");
   connect(mEmitAllButton, SIGNAL(clicked()), this, SLOT(emitAllSlot()));
 
   lBottomButtonLayout->addWidget(mEmitAllValuesButton);

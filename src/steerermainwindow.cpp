@@ -113,7 +113,7 @@ SteererMainWindow::SteererMainWindow()
   mQuitButton = new QPushButton("&Quit", mCentralWgt, "quitbutton"); 
   mQuitButton->setMinimumSize(mQuitButton->sizeHint());
   mQuitButton->setMaximumSize(mQuitButton->sizeHint());
-  QToolTip::add( mQuitButton, "Quit steerer" );
+  QToolTip::add( mQuitButton, "Quit steerer (and detach from any attached applications)" );
   connect( mQuitButton, SIGNAL(clicked()),
 	   this, SLOT(quitSlot()) );
   mLeftLayout->addWidget(mQuitButton); 
