@@ -381,33 +381,22 @@ SteeredParameterTable::initTable()
   horizontalHeader()->setLabel(kREG_COLUMN, "Registered?");
   horizontalHeader()->setLabel(kVALUE_COLUMN, "Value");
   horizontalHeader()->setLabel(kNEWVALUE_COLUMN, "New Value");
-  // MR: For now add the min_max string in as a hidden column,
-  //     this is rather lazy, but removes the need for explicit memory management
-  horizontalHeader()->setLabel(kMINMAXSTRING_COLUMN, "Min Max");
 
   setColumnReadOnly(kID_COLUMN, TRUE);
   setColumnReadOnly(kNAME_COLUMN, TRUE);
   setColumnReadOnly(kREG_COLUMN, TRUE);
   setColumnReadOnly(kVALUE_COLUMN, TRUE);
 
-  // MR:
-  setColumnReadOnly(kMINMAXSTRING_COLUMN, TRUE);
-
   // id column used internally only, therefore not show on gui
   hideColumn(kID_COLUMN);
   // unregister functionality not implemented in lib therefore no point in showing kREG_COLUMN
   hideColumn(kREG_COLUMN);
-
-  // MR:
-  hideColumn(kMINMAXSTRING_COLUMN);
 
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
   setColumnWidth(kVALUE_COLUMN, 95);
   setColumnWidth(kNEWVALUE_COLUMN, 95);
 
-  // MR:
-  setColumnWidth(kMINMAXSTRING_COLUMN, 10);
   // set up signal/slot to handle data entered by user (new parameter value)
   connect (this, SIGNAL( valueChanged(int,int) ),
 	   this, SLOT( validateValueSlot(int,int) ) );
@@ -428,6 +417,9 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
   // the value to the library in order to emit to application we simply get the value from
   // the table and send it - any validation is done on entering the value, and the value is sent
   // as a char* so no advantage to storing in parameter class
+
+  // MR:
+  QString newVal = text(aRow, aCol);
  
   try
   {
@@ -453,24 +445,56 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
     if (lOk)
     {
       // always allow empty entry - means user is clearing the cell.
-      if (!this->text( aRow, aCol ).isEmpty())
+      if (!newVal.isEmpty())
       {
-	switch(lParamPtr->getType())
-	{
-          case REG_INT:
-	    this->text( aRow, aCol ).toInt( &lOk );
-	    break;
-          case REG_FLOAT:
-	    this->text( aRow, aCol ).toFloat( &lOk );
-	    break;
-          case REG_DBL:
-	    this->text( aRow, aCol ).toDouble( &lOk );
-	    break;
-          case REG_CHAR:
-	    break;
-          default:
-	    THROWEXCEPTION("Unknown parameter type");
-	}
+        // MR: contains tests to check if the new values are legal
+        switch(lParamPtr->getType())
+        {
+            case REG_INT:
+            {
+              int newInt = newVal.toInt( &lOk );
+              // Now check to see if the values the user's entered are legal
+              if (lOk){
+                int min = atoi(lParamPtr->getMinString());
+                int max = atoi(lParamPtr->getMaxString());
+                if (newInt < min || newInt > max)
+                  lOk = false;
+              }
+              break;
+            }
+              
+            case REG_FLOAT:
+            {
+              float newFloat = newVal.toFloat( &lOk );
+                // Now check to see if the values the user's entered are legal
+              if (lOk){
+                float min = float(atof(lParamPtr->getMinString()));
+                float max = float(atof(lParamPtr->getMaxString()));
+                if (newFloat < min || newFloat > max)
+                  lOk = false;
+              }
+              break;
+            }
+              
+            case REG_DBL:
+            {
+              double newDouble = newVal.toDouble( &lOk );
+              // Now check to see if the values the user's entered are legal
+              if (lOk){
+                double min = atof(lParamPtr->getMinString());
+                double max = atof(lParamPtr->getMaxString());
+                if (newDouble < min || newDouble > max)
+                  lOk = false;
+              }
+              break;
+            }
+            
+            case REG_CHAR:
+              break;
+              
+            default:
+              THROWEXCEPTION("Unknown parameter type");
+        }
       }
 
       if (!lOk)
@@ -523,6 +547,7 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
     setRowReadOnly(lRowIndex, FALSE);  // set true in initTable SMR XXX rm when initRows goes
 
   Parameter *lParamPtr = new Parameter(lHandle, lType, true);
+  lParamPtr->setMinMaxStrings(lMinVal, lMaxVal);
 	     
   setText(lRowIndex, kID_COLUMN, 
 	     QString::number(lHandle) );
@@ -533,9 +558,6 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
 	     new QTableItem(this, QTableItem::Never,  QString( lVal)));
   setItem(lRowIndex, kNEWVALUE_COLUMN,
 	     new QTableItem(this, QTableItem::OnTyping,  QString::null));
-
-  // MR:
-  setItem(lRowIndex, kMINMAXSTRING_COLUMN, new QTableItem(this, QTableItem::Never, QString(lMinVal)+QString(" >= ? <= ")+QString(lMaxVal)));
 
   lParamPtr->setIndex(lRowIndex);
   mParamList.append(lParamPtr);
@@ -811,9 +833,18 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   rect.setLeft(left);
   rect.setRight(right);
 
-  // And grab the text from some data structure and send it back to the tooltip
-  //string = QString::number(actualRow);
-  string = text(actualRow, kMINMAXSTRING_COLUMN);
+  // And grab the text from the Paramter object and send it back to the tooltip
+  // get parameter ID from hidden column and use this get parameter from the list
+  bool lOk;
+  int lId = this->text( actualRow, kID_COLUMN ).toInt(&lOk);
+  if (!lOk)
+    THROWEXCEPTION("Failed to get parameter ID from row in table");
+
+  Parameter *lParamPtr = findParameter(lId);
+  if  (lParamPtr == kNULL)
+    THROWEXCEPTION("Failed to find parameter in list");
+
+  string = QString(lParamPtr->getMinString()+" <= ? <= "+lParamPtr->getMaxString());
  
   // Return success!
   return 0;
