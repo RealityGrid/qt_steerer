@@ -79,7 +79,7 @@ SteererMainWindow::SteererMainWindow()
 
    
   // set up action for configure check interval
-  mSetCheckIntervalAction =  new QAction("Set status poling interval","&Set Check Interval",
+  mSetCheckIntervalAction =  new QAction("Set poling interval","&Set Poling Interval",
 						  CTRL+Key_C, this, "setcheckaction");
 
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
