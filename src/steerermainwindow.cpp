@@ -198,6 +198,12 @@ SteererMainWindow::cleanUp()
   delete mApplication;
   mApplication = kNULL;
   
+  delete mLogoPixMap;
+  mLogoPixMap = kNULL;
+  
+  delete mStackLogoPixMap;
+  mStackLogoPixMap = kNULL;
+
 }
 
 
