@@ -44,6 +44,7 @@
 #include "commsthread.h"
 #include "ReG_Steer_Steerside.h"
 #include "exception.h"
+#include "steerermainwindow.h"
 
 #include <qapplication.h>
 #include <qgroupbox.h>
@@ -75,6 +76,17 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
 
   // connect up signaL/slot for close
   connect (this, SIGNAL(closeApplicationSignal(int)), aParent, SLOT(closeApplicationSlot(int)) );
+
+  // MR
+  // keep a reference to the SteererMainWindow object, so as we can change it's
+  // status bar text as and when necessary
+  mSteerer = (SteererMainWindow*)aParent;
+
+  // MR
+  // This message was originally automatically added to the
+  // old style status text on app creation. Do it  here instead
+  QString message = QString("Attached to application");
+  mSteerer->statusBarMessageSlot(message);
 } 
 
 Application::~Application()
@@ -226,7 +238,9 @@ Application::detachFromApplicationForErrorSlot()
 {
   detachFromApplication();
   disableForDetach(true);
-  mControlForm->setStatusLabel("Detached from application due to internal error");
+//  mControlForm->setStatusLabel("Detached from application due to internal error");
+  QString message = QString("Detached from application due to internal error");
+  mSteerer->statusBarMessageSlot(message);
     
 }
 
@@ -238,7 +252,9 @@ Application::emitDetachCmdSlot()
 
   // make gui read only except for close button
   disableForDetach(false);
-  mControlForm->setStatusLabel("Attached - awaiting user requested detach");
+//  mControlForm->setStatusLabel("Attached - awaiting user requested detach");
+  QString message = QString("Attached - awaiting user requested detach");
+  mSteerer->statusBarMessageSlot(message);
 }
 
 void 
@@ -256,7 +272,9 @@ Application::emitStopCmdSlot()
 
   // make gui read only 
   disableForDetach(false);
-  mControlForm->setStatusLabel("Attached - awaiting user requested stop");
+//  mControlForm->setStatusLabel("Attached - awaiting user requested stop");
+  QString message = QString("Attached - awaiting user requested stop");
+  mSteerer->statusBarMessageSlot(message);
   /// }
 }
 
@@ -278,7 +296,9 @@ Application::emitResumeCmdSlot()
 
   emitSingleCmd(REG_STR_RESUME);
   
-  mControlForm->setStatusLabel("Attached to application");
+//  mControlForm->setStatusLabel("Attached to application");
+  QString message = QString("Attached to application");
+  mSteerer->statusBarMessageSlot(message);
 
 }
 
@@ -300,7 +320,9 @@ Application::emitPauseCmdSlot()
 
   emitSingleCmd(REG_STR_PAUSE);
 
-  mControlForm->setStatusLabel("Attached - user requested pause");
+//  mControlForm->setStatusLabel("Attached - user requested pause");
+  QString message = QString("Attached - user requested pause");
+  mSteerer->statusBarMessageSlot(message);
  
 
 }
@@ -493,34 +515,42 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	  switch(commands[i])
 	  {
 	    case REG_STR_DETACH:
+      {
 	      DBGMSG("Received detach command from application");
 	      detached = true;
 	      Delete_sim_table_entry(&lSimHandle);		//ReG library 
 
 	      // make GUI form for this application read only
 	      disableForDetach(true);
-	      mControlForm->setStatusLabel("Application has detached");
+//	      mControlForm->setStatusLabel("Application has detached");
+        QString message = QString("Application has detached");
+        mSteerer->statusBarMessageSlot(message);
 
 	      // enable Close button
 	      mControlForm->setEnabledClose(TRUE);
 
 	      mDetachedFlag = true;
 	      break;
+      }
 	    
 	  case REG_STR_STOP:
+    {
 	    DBGMSG("Received stop command from application");
 	      detached = true;
 	      Delete_sim_table_entry(&lSimHandle);		//ReG library 
 
 	      // make GUI form for this application read only
 	      disableForDetach(true);
-	      mControlForm->setStatusLabel("Detached as application has stopped");
+//	      mControlForm->setStatusLabel("Detached as application has stopped");
+        QString message = QString("Detached as application has stopped");
+        mSteerer->statusBarMessageSlot(message);
 
 	      // enable Close button
 	      mControlForm->setEnabledClose(TRUE);
 
 	      mDetachedFlag = true;
 	      break;
+     }
 
 	    default:
 	      break;
@@ -579,10 +609,14 @@ Application::processNextMessage(REG_MsgType aMsgType)
 			 QMessageBox::NoButton, 
 			 QMessageBox::NoButton);
     
-    mControlForm->setStatusLabel("Detached from application due to internal  error");
+//    mControlForm->setStatusLabel("Detached from application due to internal error");
+    QString message = QString("Detached from application due to internal error");
+    mSteerer->statusBarMessageSlot(message);
 
 
   }
 
 
 } // ::processNextMessage
+
+
