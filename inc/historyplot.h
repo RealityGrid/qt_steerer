@@ -90,6 +90,17 @@ private:
     bool   displaySymbolsSet;
     bool   mUseLogXAxis, mUseLogYAxis;
 
+    // The Qwt identifiers for the two curves that we
+    // might be plotting - one for the history of the parameter
+    // prior to the time the steerer connected and one for the
+    // history we've collected since connecting.
+    long mHistCurveID;
+    long mCurveID;
+    int  mPreviousLogSize;
+    // Flag set when display options are changed by user - forces
+    // both curves to be redrawn.
+    bool mForceHistRedraw;
+
     void doPlot();
 
 protected:

@@ -453,6 +453,16 @@ ControlForm::updateParameters(bool aSteeredFlag)
     
 } // ::updateParameters
 
+//--------------------------------------------------------------------
+
+void
+ControlForm::updateParameterLog()
+{
+  mMonParamTable->updateParameterLog();
+  mSteerParamTable->updateParameterLog();
+}
+
+//--------------------------------------------------------------------
 
 void
 ControlForm::updateIOTypes(bool aChkPtType)

@@ -290,7 +290,6 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
     setText(lParamPtr->getRowIndex(), kREG_COLUMN, "No");
     ++mParamIterator;
   }
-
 }
 
 /** Slot called when the user requests a context menu for this table
@@ -303,8 +302,12 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
   if(findParameterHandleFromRow(row)->getType() == REG_CHAR)return;
 
   QPopupMenu popupMenu;
-  popupMenu.insertItem(QString("Draw History Graph"), this, 
-		       SLOT(drawGraphSlot(int)), CTRL+Key_N, row, 0);
+
+  popupMenu.insertItem(QString("Request full &history from app."), this, 
+  		       SLOT(requestParamHistorySlot()), CTRL+Key_H, row, 0);
+
+  popupMenu.insertItem(QString("&Draw history graph"), this, 
+		       SLOT(drawGraphSlot(int)), CTRL+Key_D, row, 0);
 
   // ARPDBG - work to allow user to add to a current plot goes here...
   //if( mHistoryPlotList.count() > 0 || 
@@ -317,6 +320,13 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 
   // Do daft things in order to avoid daft compiler warnings....
   row++; column++;
+}
+
+/** Slot called when the user requests that the full parameter history
+ *  be pulled back from the application
+ */
+void ParameterTable::requestParamHistorySlot(){
+  Emit_retrieve_param_log_cmd( this->getSimHandle() );	//ReG library
 }
 
 /** Slot called when the user selects the "Draw Graph" option from
@@ -366,6 +376,33 @@ void ParameterTable::plotClosedSlot(HistoryPlot *ptr){
   // Plot closed so remove from list (Auto delete means Qt will then destroy 
   // the associated HistoryPlot object)
   mHistoryPlotList.removeRef(ptr);
+}
+
+/** Called when application object receives a log message
+ */
+void ParameterTable::updateParameterLog(){
+
+  Parameter *lParamPtr;
+  int lhandle = getSimHandle();
+
+  QPtrListIterator<Parameter> lParamIterator( mParamList );
+  lParamIterator.toFirst();
+  while ( (lParamPtr = lParamIterator.current()) != 0){
+
+    Get_param_log(lhandle,		//ReG library
+		  lParamPtr->getId(),
+		  &(lParamPtr->mParamHist->mPtrPreviousHistArray),
+		  &(lParamPtr->mParamHist->mPreviousHistArraySize));
+
+    // This allows user to see that we're receiving data but
+    // slows things down so left out for the minute.
+    //if(lParamPtr->mParamHist->mPreviousHistArraySize){
+    //  emit paramUpdateSignal(lParamPtr->mParamHist, lParamPtr->getId());
+    //}
+
+    ++lParamIterator;
+  }
+
 }
 
 /*************************************************************/

@@ -62,6 +62,7 @@ public:
 
   void updateParameters();
   void updateIOTypes(bool aChkPtType = false);
+  void updateParameterLog();
 
   void disableAll(const bool aUnRegister = true);
   void disableIOCmdButtons();

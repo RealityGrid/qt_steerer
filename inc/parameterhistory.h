@@ -47,6 +47,8 @@ class ParameterHistory {
 
     int     mArraySize;
     int     mArrayPos;
+    double *mPtrPreviousHistArray;
+    int     mPreviousHistArraySize;
 
  private:
     int     mArrayChunkSize;

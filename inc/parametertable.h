@@ -57,10 +57,12 @@ public:
   
   virtual bool updateRow(const int lHandle, const char *lVal);
   virtual void addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType);
+  void updateParameterLog();
 
 public slots:
   // MR: Slot for the context menu
   virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
+  void requestParamHistorySlot();
   void drawGraphSlot(int popupMenuID);
   void plotClosedSlot(HistoryPlot *ptr);
 

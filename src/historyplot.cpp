@@ -43,6 +43,8 @@
 #include <qmessagebox.h>
 #include "iostream.h"
 
+#define CURVE_UNSET 1000
+
 /** Constructor
  *  ParameterHistory* contains the data to plot
  *  const char* is the label for the data
@@ -151,6 +153,11 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     // Default to displaying symbols
     displaySymbolsSet = true;
 
+    mCurveID         = CURVE_UNSET;
+    mHistCurveID     = CURVE_UNSET;
+    mPreviousLogSize = 0;
+    mForceHistRedraw = false;
+
     doPlot();
 }
 
@@ -228,13 +235,27 @@ void HistoryPlot::fileQuit(){
 /** Draw the curve on the graph
  */
 void HistoryPlot::doPlot(){
-    mPlotter->removeCurves();
 
-    // Insert new curves
-    long cSin = mPlotter->insertCurve(lLabely);
+  bool lReplotHistory = mForceHistRedraw || 
+    (mYParamHist->mPreviousHistArraySize != mPreviousLogSize);
+
+  mForceHistRedraw = false;
+  mPreviousLogSize = mYParamHist->mPreviousHistArraySize;
+
+  cout << "ARPDBG lReplotHistory = " << lReplotHistory << endl;
+  cout << "ARPDBG mForceHistRedraw = "<< mForceHistRedraw << endl;
+
+  if(mCurveID != CURVE_UNSET)mPlotter->removeCurve(mCurveID);
+  if(lReplotHistory && 
+     (mHistCurveID != CURVE_UNSET))mPlotter->removeCurve(mHistCurveID);
+
+  // Insert new curves
+  mCurveID = mPlotter->insertCurve(lLabely);
+  if(lReplotHistory)mHistCurveID = mPlotter->insertCurve(lLabely);
 
     // Set curve styles
-    mPlotter->setCurvePen(cSin, QPen(red));
+    mPlotter->setCurvePen(mCurveID, QPen(red));
+    mPlotter->setCurvePen(mHistCurveID, QPen(red));
 
     // allow the user to define the Y axis dims if desired
     if (!mAutoYAxisSet){
@@ -267,8 +288,10 @@ void HistoryPlot::doPlot(){
 
     // Work out how many points we've got - compare the no. available
     // for each ordinate and use the smaller of the two.
-    int nPoints = mYParamHist->mArrayPos;
-    if(mXParamHist->mArrayPos < nPoints) nPoints = mXParamHist->mArrayPos;
+    int nPoints = mYParamHist->mArrayPos +  mYParamHist->mPreviousHistArraySize;
+    if((mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize) < nPoints){
+      nPoints = mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize;
+    }
 
     // Add symbols - scale their size appropriately.  This code only
     // takes account of the TOTAL no. of points to be plotted and the
@@ -294,15 +317,37 @@ void HistoryPlot::doPlot(){
 	lPlotSymbol.setSize(ltmp);
 	lPlotSymbol.setStyle(QwtSymbol::Diamond);
 
-	mPlotter->setCurveSymbol(cSin, lPlotSymbol);
+	mPlotter->setCurveSymbol(mCurveID, lPlotSymbol);
+	mPlotter->setCurveSymbol(mHistCurveID, lPlotSymbol);
       }
     }
 
     // Shallow copy of data for plot
+    nPoints = mYParamHist->mArrayPos;
+    if(mXParamHist->mArrayPos < nPoints){
+      nPoints = mXParamHist->mArrayPos;
+    }
 
-    mPlotter->setCurveRawData(cSin, mXParamHist->ptrToArray(), 
+    mPlotter->setCurveRawData(mCurveID, mXParamHist->ptrToArray(), 
 			      mYParamHist->ptrToArray(), nPoints);
 
+    if(lReplotHistory){
+      nPoints = mYParamHist->mPreviousHistArraySize;
+      if(mXParamHist->mPreviousHistArraySize < nPoints){
+	nPoints = mXParamHist->mPreviousHistArraySize;
+      }
+      if(nPoints){
+	mPlotter->setCurveRawData(mHistCurveID, 
+				  mXParamHist->mPtrPreviousHistArray, 
+				  mYParamHist->mPtrPreviousHistArray, nPoints);
+
+	cout << "ARPDBG: doPlot no. of logged points = " << nPoints << endl;
+	for(int i=0; i<nPoints; i++){
+	  cout << mXParamHist->mPtrPreviousHistArray[i] << " " <<
+	    mYParamHist->mPtrPreviousHistArray[i] << endl;
+	}
+      }
+    }
     // Insert markers
 
     //  ...a horizontal line at y = 0...
@@ -312,26 +357,37 @@ void HistoryPlot::doPlot(){
     mPlotter->replot();
 }
 
+/** Slot to allow user to switch-on autoscaling for the y-axis
+ *
+ */
 void HistoryPlot::autoYAxisSlot(){
   mAutoYAxisSet = !mAutoYAxisSet;
 
   mGraphMenu->setItemChecked(mAutoYAxisId, mAutoYAxisSet);
   mGraphMenu->setItemEnabled(mYLowerBoundId, !mAutoYAxisSet);
   mGraphMenu->setItemEnabled(mYUpperBoundId, !mAutoYAxisSet);
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
 
+/** Slot to allow user to switch-on autoscaling for the x-axis
+ *
+ */
 void HistoryPlot::autoXAxisSlot(){
   mAutoXAxisSet = !mAutoXAxisSet;
 
   mGraphMenu->setItemChecked(mAutoXAxisId, mAutoXAxisSet);
   mGraphMenu->setItemEnabled(mXLowerBoundId, !mAutoXAxisSet);
   mGraphMenu->setItemEnabled(mXUpperBoundId, !mAutoXAxisSet);
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
 
+/** Slot to allow user to set the upper bound on the y axis.
+ *
+ */
 void HistoryPlot::graphYUpperBoundSlot(){
   // using the default double dialog box is a pain, since we have to 
   // worry about the number of decimal points
@@ -356,6 +412,7 @@ void HistoryPlot::graphYUpperBoundSlot(){
   else{
     mYUpperBound = upperBoundTmp;
   }
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
@@ -384,6 +441,7 @@ void HistoryPlot::graphXUpperBoundSlot(){
   else{
     mXUpperBound = upperBoundTmp;
   }
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
@@ -412,6 +470,7 @@ void HistoryPlot::graphYLowerBoundSlot(){
   else{
     mYLowerBound = lowerBoundTmp;
   }
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
@@ -440,6 +499,7 @@ void HistoryPlot::graphXLowerBoundSlot(){
   else{
     mXLowerBound = lowerBoundTmp;
   }
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
@@ -450,6 +510,7 @@ void HistoryPlot::graphDisplaySymbolsSlot(){
 
   displaySymbolsSet = !displaySymbolsSet;
   mGraphMenu->setItemChecked(showSymbolsId, displaySymbolsSet);
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
@@ -471,6 +532,7 @@ void HistoryPlot::toggleLogAxisXSlot(){
 
   mPlotter->changeAxisOptions(mPlotter->xBottom, 
 			      QwtAutoScale::Logarithmic, mUseLogXAxis);
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
@@ -492,6 +554,7 @@ void HistoryPlot::toggleLogAxisYSlot(){
 
   mPlotter->changeAxisOptions(mPlotter->yLeft, 
 			      QwtAutoScale::Logarithmic, mUseLogYAxis);
+  mForceHistRedraw = true;
   // redraw the plot
   doPlot();
 }
@@ -508,6 +571,7 @@ void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist,
     // update the data
     mYParamHist = _mYParamHist;
 
+    mForceHistRedraw = true;
     // do the plot
     doPlot();
 }

@@ -41,6 +41,8 @@ ParameterHistory::ParameterHistory(){
   mArraySize = mArrayChunkSize;
   mArrayPos = 0;
   mParamHistArray = (double *)malloc(mArraySize*sizeof(double));
+  mPtrPreviousHistArray = NULL;
+  mPreviousHistArraySize = 0;
 }
 
 ParameterHistory::~ParameterHistory(){

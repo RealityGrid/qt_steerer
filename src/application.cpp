@@ -575,10 +575,13 @@ Application::processNextMessage(int aMsgType)
 
       if(Consume_log(mSimHandle) != REG_SUCCESS)	//ReG library 
       {
-	// THROWEXCEPTION("Consume_log failed"); - don't throw - just log that this has happened
+	// THROWEXCEPTION("Consume_log failed"); - don't throw - just log 
+	// that this has happened
 	DBGLOG("Consume_log library call failed");
       }
-
+      else{
+	mControlForm->updateParameterLog();
+      }
       break;
 
     case MSG_NOTSET:
