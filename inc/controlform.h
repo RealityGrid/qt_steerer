@@ -60,7 +60,7 @@ public:
   void updateParameters();
   void updateIOTypes();
 
-  void disableAll();
+  void disableAll(const bool aUnRegister = true);
   void disableIOCmdButtons();
   void enableIOCmdButtons();
 

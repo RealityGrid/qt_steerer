@@ -265,7 +265,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
 
 }
 
-void IOTypeTable::clearAndDisableForDetach()
+void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
 {
 
   // clear all the editable cells in the table

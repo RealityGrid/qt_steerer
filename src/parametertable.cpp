@@ -206,7 +206,7 @@ ParameterTable::findParameter(int aId)
 }
 
 void
-ParameterTable::clearAndDisableForDetach()
+ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 {
 
   // set all values in "Register?" column to "No" as application has detached
@@ -215,7 +215,8 @@ ParameterTable::clearAndDisableForDetach()
     
   QPtrListIterator<Parameter> mParamIterator( mParamList );	    
   mParamIterator.toFirst();
-  while ( (lParamPtr = mParamIterator.current()) != 0)
+
+  while ( aUnRegister && (lParamPtr = mParamIterator.current()) != 0)
   {
     setText(lParamPtr->getRowIndex(), kREG_COLUMN, "No");
     ++mParamIterator;
@@ -586,7 +587,7 @@ SteeredParameterTable::clearNewValues()
 }
 
 void 
-SteeredParameterTable::clearAndDisableForDetach()
+SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 {
   // clear all the (editable) new value cells in the table
   // and make them readonly
@@ -604,7 +605,8 @@ SteeredParameterTable::clearAndDisableForDetach()
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
     int lRowIndex = lParamPtr->getRowIndex();
-    setText(lRowIndex, kREG_COLUMN, "No");
+    if (aUnRegister)
+      setText(lRowIndex, kREG_COLUMN, "No");
 
     // reset focus of table to top left cell if this cell is currently selected
     // if do not do this the setItem statement does not work

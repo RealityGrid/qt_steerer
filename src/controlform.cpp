@@ -468,12 +468,12 @@ ControlForm::updateIOTypes()
 
 
 void 
-ControlForm::disableAll()
+ControlForm::disableAll(const bool aUnRegister)
 {
   // clear and disable all parts of form as application has detached
  
-  mSteerParamTable->clearAndDisableForDetach();
-  mMonParamTable->clearAndDisableForDetach();
+  mSteerParamTable->clearAndDisableForDetach(aUnRegister);
+  mMonParamTable->clearAndDisableForDetach(aUnRegister);
   mIOTypeSampleTable->clearAndDisableForDetach();
   mIOTypeChkPtTable->clearAndDisableForDetach();
 

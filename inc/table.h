@@ -46,7 +46,7 @@ public:
   virtual ~Table();
 
   virtual void initTable() = 0;
-  virtual void clearAndDisableForDetach() = 0;
+  virtual void clearAndDisableForDetach(const bool aUnRegister = true) = 0;
 
   void setAppDetached();
   void setNumInitRows(int aNumInitRows);

@@ -61,7 +61,7 @@ public:
 
 private:
   void detachFromApplication();
-  void disableForDetach();
+  void disableForDetach(const bool aUnRegister = true);
   void disableCmdButtons();
   void emitSingleCmd(int aCmdId);
 

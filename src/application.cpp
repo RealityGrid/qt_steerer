@@ -155,9 +155,9 @@ void Application::detachFromApplication()
 }
 
 void
-Application::disableForDetach()
+Application::disableForDetach(const bool aUnRegister)
 {
-  mControlForm->disableAll();
+  mControlForm->disableAll(aUnRegister);
   disableCmdButtons();
   
   // enable Close button
@@ -274,7 +274,7 @@ void
 Application::detachFromApplicationForErrorSlot()
 {
   detachFromApplication();
-  disableForDetach();
+  disableForDetach(true);
   mControlForm->setStatusLabel("Detached from application due to internal error");
     
 }
@@ -286,7 +286,7 @@ Application::emitDetachCmdSlot()
   emitSingleCmd(REG_STR_DETACH);
 
   // make gui read only except for close button
-  disableForDetach();
+  disableForDetach(false);
   mControlForm->setStatusLabel("Attached - awaiting user requested detach");
 }
 
@@ -296,7 +296,7 @@ Application::emitStopCmdSlot()
   emitSingleCmd(REG_STR_STOP);
 
   // make gui read only except for close button
-  disableForDetach();
+  disableForDetach(false);
   mControlForm->setStatusLabel("Attached - awaiting user requested stop");
 
 }
@@ -476,7 +476,7 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	      Delete_sim_table_entry(&lSimHandle);		//ReG library 
 
 	      // make GUI form for this application read only
-	      disableForDetach();
+	      disableForDetach(true);
 	      mControlForm->setStatusLabel("Application has detached");
 
 	      mDetachedFlag = true;
@@ -488,7 +488,7 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	      Delete_sim_table_entry(&lSimHandle);		//ReG library 
 
 	      // make GUI form for this application read only
-	      disableForDetach();
+	      disableForDetach(true);
 	      mControlForm->setStatusLabel("Detached as application has stopped");
 
 	      mDetachedFlag = true;
@@ -529,7 +529,7 @@ Application::processNextMessage(REG_MsgType aMsgType)
     // make from read only and update status 
 
     detachFromApplication();
-    disableForDetach();
+    disableForDetach(true);
     QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
 			 QMessageBox::Ok,
 			 QMessageBox::NoButton, 

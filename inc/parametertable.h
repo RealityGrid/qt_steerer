@@ -46,7 +46,7 @@ public:
   virtual ~ParameterTable();
 
   virtual void initTable();
-  virtual void clearAndDisableForDetach();
+  virtual void clearAndDisableForDetach(const bool aUnRegister = true);
   
   virtual bool updateRow(const int lHandle, const char *lVal);
   virtual void addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType);
@@ -72,7 +72,7 @@ public:
   virtual ~SteeredParameterTable();
 
   virtual void initTable();
-  virtual void clearAndDisableForDetach();
+  virtual void clearAndDisableForDetach(const bool aUnRegister = true);
 
   ////  virtual bool updateRow no redefinition required
   virtual void addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType);
