@@ -39,30 +39,95 @@
 #ifndef HISTORYPLOT_H
 #define HISTORYPLOT_H
 
+#include "qlayout.h"
+#include "qframe.h"
+#include "qmenubar.h"
+#include "qfiledialog.h"
+#include "qthread.h"
+#include "qpixmap.h"
+
 #include <qwt_plot.h>
 #include "types.h"
 
 
+
+
 class ParameterHistory;
-  
-class HistoryPlot : public QwtPlot
+class QMenuBar;
+class QPopupMenu;
+
+/** The plotter class is the extended qwt widget.
+ *  This deals with the drawing of the graph.
+ */
+
+class HistoryPlotter : public QwtPlot
+{
+  Q_OBJECT
+
+private:
+public:
+  HistoryPlotter(QWidget *p=0, const char *name=0):QwtPlot(p, name){}
+  ~HistoryPlotter(){}
+};
+
+/** The history plot class is the main window for the
+ *  graph, with the extra functionality of menus etc.
+ */
+class HistoryPlot : public QFrame
 {
   Q_OBJECT
   
 private:
+    QMenuBar *mMenuBar;
+    QPopupMenu *mFileMenu;
     ParameterHistory *mParamHist;
+    HistoryPlotter *mPlotter;
     char lLabel[kCHKPT_PARAM_LEN];
     int paramID;
-
+        
     void doPlot();
 
 public slots:
     void updateSlot(ParameterHistory *mParamHist, const int paramID);
+    void filePrint();
+    void fileSave();
+    void fileQuit();
 
 public:
     HistoryPlot(ParameterHistory *mParamHist, const char *lLabel, const int paramID);
+    ~HistoryPlot();
 
 };
+
+/////////////////////////////////////////////////////////
+
+/** This class is necessary to give QT time to update the widget properly before
+ *  taking a screenshot. Seemingly, standard calls to refresh() redraw() update()
+ *  and the like only cause a refresh after all current events have been dealt with.
+ *  Hence this class.
+ */
+ 
+class ScreenGrabThread: public QThread
+{
+  private:
+    QWidget *mWidget;
+    QString mFileName;
+  public:
+    ScreenGrabThread(QWidget *lWidget, QString &lFileName){
+      mWidget = lWidget;
+      mFileName = lFileName;
+    }
+    virtual void run(){
+      wait(500);
+
+      // Grab the window contents rather than the widget
+      // since we seemingly can't force a refresh immediately - spawn a thread to do this
+      QPixmap lPixmap = QPixmap::grabWindow(mWidget->winId());
+      lPixmap.save(mFileName, "JPEG");
+    }
+};
+
+/////////////////////////////////////////////////////////
   
 
 #endif

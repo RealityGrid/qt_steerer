@@ -39,6 +39,8 @@
 #include "historyplot.h"
 #include "parameterhistory.h"
 
+#include "qprinter.h"
+
 
 /** Constructor
  *  ParameterHistory* contains the data to plot
@@ -47,39 +49,89 @@
  *    for the wrong parameter signals
  */
 HistoryPlot::HistoryPlot(ParameterHistory *_mParamHist, const char *_lLabel, const int _paramID){
+    // Local copies of passed parameters
     mParamHist = _mParamHist;
     paramID = _paramID;
     strcpy(lLabel, _lLabel);
 
-    setTitle("Parameter History");
-    setAutoLegend(TRUE); // We want a legend
-    setLegendPos(Qwt::Right);
+    // Set the caption to be something descriptive
+    setCaption(QString(lLabel)+QString(" over time"));
+    
+    // Create a plotter widget
+    mPlotter = new HistoryPlotter(this);
+
+    mPlotter->setTitle("Parameter History");
 
     // Set axis titles
-    setAxisTitle(xBottom, "Timestep");
-    setAxisTitle(yLeft, lLabel);
+    mPlotter->setAxisTitle(mPlotter->xBottom, "Timestep");
+    mPlotter->setAxisTitle(mPlotter->yLeft, lLabel);
+
+    QVBoxLayout *tBL = new QVBoxLayout(this);
+    mMenuBar = new QMenuBar(this, "menuBar");
+    mFileMenu = new QPopupMenu(this, "filePopup");
+    mFileMenu->insertItem("&Print", this, SLOT(filePrint()), CTRL+Key_P);
+    mFileMenu->insertItem("&Save", this, SLOT(fileSave()), CTRL+Key_S);
+    mFileMenu->insertSeparator();
+    mFileMenu->insertItem("&Quit", this, SLOT(fileQuit()), CTRL+Key_Q);
+    mMenuBar->insertItem("&File", mFileMenu);
+
+    tBL->setMenuBar(mMenuBar);
+    tBL->addWidget(mPlotter);
+
+    resize(300, 300);
 
     doPlot();
+}
+
+HistoryPlot::~HistoryPlot(){
+    delete mPlotter;
+    delete mFileMenu;
+    delete mMenuBar;
+}
+
+/** Menu handling slots
+ */
+void HistoryPlot::filePrint(){
+  QPrinter lPrinter;
+  mPlotter->print(lPrinter, QwtPlotPrintFilter());
+}
+
+void HistoryPlot::fileSave(){
+  QString lFileName = QFileDialog::getSaveFileName(".", "Images (*.jpg)", 0, "save file dialog", "Choose a filename to save the image as");
+  // ensure the user gave us a sensible file
+  if (!lFileName.isNull()){
+    // ensure the file has a .jpg extension
+    if (!lFileName.endsWith(".jpg"))
+      lFileName.append(".jpg");
+
+    // spawn off a thread to take the screenshot, giving QT enough time
+    // to redraw the graph
+    ScreenGrabThread *lScreenGrabThread = new ScreenGrabThread(this, lFileName);
+    lScreenGrabThread->start();
+  }
+}
+
+void HistoryPlot::fileQuit(){
+  close();
 }
 
 /** Draw the curve on the graph
  */
 void HistoryPlot::doPlot(){
-    removeCurves();
+    mPlotter->removeCurves();
 
     // Insert new curves
-    long cSin = insertCurve(lLabel);
+    long cSin = mPlotter->insertCurve(lLabel);
 
     // Set curve styles
-    setCurvePen(cSin, QPen(red));
+    mPlotter->setCurvePen(cSin, QPen(red));
 
     //
     //  Calculate some values
     //
-    int nPoints = mParamHist->size;
+    const int nPoints = mParamHist->size;
     double *x = new double[nPoints];
     double *y = new double[nPoints];
-
 
     for (int i = 0; i < nPoints; i++){
         x[i] = double(i);
@@ -87,19 +139,21 @@ void HistoryPlot::doPlot(){
     }
 
     // Copy the data
-    setCurveData(cSin, x, y, nPoints);
+    mPlotter->setCurveData(cSin, x, y, nPoints);
+
+    // delete the arrays
+    delete[] x;
+    delete[] y;
 
     // Insert markers
 
     //  ...a horizontal line at y = 0...
-    long mY = insertLineMarker("y = 0", QwtPlot::yLeft);
-    setMarkerYPos(mY, 0.0);
+    long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
+    mPlotter->setMarkerYPos(mY, 0.0);
 
-    replot();
-
-    delete [] x;
-    delete [] y;
+    mPlotter->replot();
 }
+
 
 /** Update the graph with new data
  */
@@ -114,4 +168,5 @@ void HistoryPlot::updateSlot(ParameterHistory *_mParamHist, const int _paramID){
     // do the plot
     doPlot();
 }
+
 
