@@ -50,7 +50,7 @@
 
 
 IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bool aChkPtType)
-  : Table(aParent, aName, aSimHandle), mRestartRowIndex(kNULL_INDX), mChkPtTypeFlag(aChkPtType)
+  : Table(aParent, aName, aSimHandle), mChkPtTypeFlag(aChkPtType), mRestartRowIndex(kNULL_INDX)
 {
   DBGCON("IOTypeTable constructor");
 
@@ -116,7 +116,7 @@ IOTypeTable::initTable()
   {
     horizontalHeader()->setLabel(kIO_RESTART_COLUMN, "Request");
     setColumnWidth(kIO_REQUEST_COLUMN, 65);
-    setColumnWidth(kIO_RESTART_COLUMN, 65);
+    setColumnWidth(kIO_RESTART_COLUMN, 70);
   }
 
   
@@ -360,78 +360,65 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
   // only care about new value column and autotoggle column
   // only care is app is still attached
 
-  if (aCol == kIO_REQUEST_COLUMN || aCol == kIO_RESTART_COLUMN )
-  {
-    DBGMSG("\n\n  ");
-    DBGMSG1("*** validate row:" , aRow);
-    DBGMSG1("*** validate col:" , aCol);
-    DBGMSG1("mRestartrowIndex b4 ", mRestartRowIndex);
-  }
-
-
-
   try
   {
     
     if (getAppAttached())
     {
 
-    if (aCol == kIO_NEWVALUE_COLUMN)
-    {
-      bool lOk = true;
-      
-      //always allow empty in which case frequency set to kNULL_REQ , otherwise validate int
-      int lFreq = kNULL_FREQ;
-      if (!this->text( aRow, aCol ).isEmpty())      
-	lFreq = this->text( aRow, aCol ).toInt( &lOk );
-      
-      if (lOk)
+      if (aCol == kIO_NEWVALUE_COLUMN)
       {
-	// get iotype ID from hidden column and use this get iotype from the list
-	int lId = this->text( aRow, kIO_ID_COLUMN ).toInt(&lOk);
+	bool lOk = true;
+	
+	//always allow empty in which case frequency set to kNULL_REQ , otherwise validate int
+	int lFreq = kNULL_FREQ;
+	if (!this->text( aRow, aCol ).isEmpty())      
+	  lFreq = this->text( aRow, aCol ).toInt( &lOk );
+	
+	if (lOk)
+	{
+	  // get iotype ID from hidden column and use this get iotype from the list
+	  int lId = this->text( aRow, kIO_ID_COLUMN ).toInt(&lOk);
+	  if (!lOk)
+	    THROWEXCEPTION("Failed to get iotype ID from row in table");
+	  
+	  IOType *lIOTypePtr = findIOType(lId);
+	  if  (lIOTypePtr == kNULL)
+	    THROWEXCEPTION("Failed to find iotype in list");
+	
+	  // validate freq and return whether or not valid
+	  lOk = lIOTypePtr->validateAndSetFrequency(lFreq);
+	}
+	
 	if (!lOk)
-	  THROWEXCEPTION("Failed to get iotype ID from row in table");
-	
-	IOType *lIOTypePtr = findIOType(lId);
-	if  (lIOTypePtr == kNULL)
-	  THROWEXCEPTION("Failed to find iotype in list");
-	
-	// validate freq and return whether or not valid
-	lOk = lIOTypePtr->validateAndSetFrequency(lFreq);
+	{
+	  QMessageBox::information(0, "Invalid Frequency", "The entered value is not valid",
+				   QMessageBox::Ok,
+				   QMessageBox::NoButton, 
+				   QMessageBox::NoButton);
+	  setText( aRow, aCol, QString::null );
+	  // SMR XXX make that cell the selected one -  to do setCurrentCell not work
+	}
+      }
+      else if (aCol == kIO_RESTART_COLUMN)
+      {      
+	if (((QCheckTableItem *) this->item(aRow, aCol))->isChecked())
+        {
+	  int lOldRestartRowIndex = mRestartRowIndex;
+	  mRestartRowIndex = aRow;
+	  // uncheck existing row (actually calls slot again)
+	  if (mRestartRowIndex != lOldRestartRowIndex && lOldRestartRowIndex != kNULL_INDX)
+	    ((QCheckTableItem *)item(lOldRestartRowIndex, kIO_RESTART_COLUMN))->setChecked(FALSE);
+	  
+	}
+	else
+	{
+	  // check if unchecking mRestartRowIndex
+	  if (mRestartRowIndex == aRow)
+	    mRestartRowIndex = kNULL_INDX;
+	}	
       }
       
-      if (!lOk)
-      {
-	QMessageBox::information(0, "Invalid Frequency", "The entered value is not valid",
-				 QMessageBox::Ok,
-				 QMessageBox::NoButton, 
-				 QMessageBox::NoButton);
-	setText( aRow, aCol, QString::null );
-	// SMR XXX make that cell the selected one -  to do setCurrentCell not work
-      }
-    }
-    else if (aCol == kIO_RESTART_COLUMN)
-    {      
-      if (((QCheckTableItem *) this->item(aRow, aCol))->isChecked())
-      {
-	int lOldRestartRowIndex = mRestartRowIndex;
-	mRestartRowIndex = aRow;
-	// uncheck existing row (actually calls slot again)
-	if (mRestartRowIndex != lOldRestartRowIndex && lOldRestartRowIndex != kNULL_INDX)
-	  ((QCheckTableItem *)item(lOldRestartRowIndex, kIO_RESTART_COLUMN))->setChecked(FALSE);
-	    
-      }
-      else
-      {
-	// check if unchecking mRestartRowIndex
-	if (mRestartRowIndex == aRow)
-	  mRestartRowIndex = kNULL_INDX;
-      }
-      DBGMSG1("mRestartrowIndex after ", mRestartRowIndex);
-      DBGMSG("\n \n ");
-
-    }
-
     } //getAppAttached
 
 
@@ -521,7 +508,7 @@ IOTypeTable::populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, 
     ++mIOTypeIterator;
   }
 
-
+  DBGMSG1("populate: mRestartrowIndex is ", mRestartRowIndex);
   // now add restart command if there is one
   if (mChkPtTypeFlag && mRestartRowIndex > kNULL_INDX)
   {
@@ -566,7 +553,7 @@ IOTypeTable::emitCommandsSlot()
   // emit any iotype-command the user has flagged as ("request" checkbox on gui)
   // and clear checkboxes
 
-  int lCount;
+  int lCount=0;
   int *lCommandArray = kNULL;
   char **lCmdParamArray = kNULL;
 
