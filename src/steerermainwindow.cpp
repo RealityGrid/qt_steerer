@@ -444,6 +444,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   // SMR XXX  if last application being steered,resize the window
   resizeForNoAttached();
   statusBar()->message( "www.realitygrid.org");
+
 }
 
 

@@ -74,9 +74,9 @@
   #define DBGCON(x)
   #define DBGDST(x)
 
-  #define DBGEXCP(x) cerr << "DBG: EXCP: " << x << endl;
-  #define DBGLOG(x) cerr << "DBGLOG: " << x << endl;
-  #define DBGLOG1(x, n) cerr << "DBGLOG:": << x << " " << n << endl;
+  #define DBGEXCP(x) 
+  #define DBGLOG(x) 
+  #define DBGLOG1(x, n) 
 
 #endif
 

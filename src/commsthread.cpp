@@ -177,7 +177,6 @@ CommsThread::stop()
   // reset flag for next run()
   setKeepRunning(true);
 
-
 }
 
 

@@ -834,6 +834,7 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
  *  tooltip, and how big a rectangle to make it for
  */
 int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &string){
+
   // Check that we're in the correct column
   if (columnAt(pnt.x()) != kNEWVALUE_COLUMN)
     return -1;
@@ -848,10 +849,16 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
 
   // headerHeight is the vertical size of the horizontal table header
   int headerHeight = horizontalHeader()->height();
-  // adjustedPos is the mouse coordinate moved from the table coordinate system to the scroll window coordinate system
+  // adjustedPos is the mouse coordinate moved from the table 
+  // coordinate system to the scroll window coordinate system
   int adjustedPos = scrolled + (pnt.y() - headerHeight);
   // actualRow contains the index to the proper row in the scrollview
   int actualRow = adjustedPos / singleRowHeight;
+
+  // Check that we're not below last row (actualRow is zero-indexed
+  // but getMaxRowIndex() returns actual no. of populated rows)
+  if (actualRow >= getMaxRowIndex()) 
+    return -1;
 
   // We now want to determine the actual rectangle for the tooltip
   int top, bottom, left, right;
