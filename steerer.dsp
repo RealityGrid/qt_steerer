@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "obj"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD CPP /nologo /MD /W3 /GX /O1 /I "C:\work\ReG\cvsreg\reg_steer_lib\include" /I "inc" /I "C:\work\ReG\cvsreg\reg_steer_lib\win32\include" /I "C:\work\ReG\qwt-0.4.1\include" /I "$(QTDIR)\include" /I "C:\work\ReG\cvsreg\reg_qt_steerer" /I "moc\\" /I "C:\Qt\3.3.3\mkspecs\win32-msvc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "UNICODE" /D "DBG_VERSION" /D "QT_THREAD_SUPPORT" /D "QT_DLL" /D "QT_NO_DEBUG" /FD -Zm200 /c
+# ADD CPP /nologo /MD /W3 /GX /O1 /I "C:\work\ReG\cvsreg\reg_steer_lib\include" /I "inc" /I "C:\work\ReG\cvsreg\reg_steer_lib\win32\include" /I "C:\work\ReG\qwt-0.4.1\include" /I "$(QTDIR)\include" /I "C:\work\ReG\cvsreg\reg_qt_steerer" /I "moc\\" /I "C:\Qt\3.3.3\mkspecs\win32-msvc" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "UNICODE" /D "DBG_VERSION" /D "QT_THREAD_SUPPORT" /D "QT_NO_DEBUG" /FD -Zm200 /c
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x809
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /machine:IX86
-# ADD LINK32 libxml2_a.lib iconv_a.lib oncrpcms.lib reg_steer_lib.lib "qt-mt333.lib" "qtmain.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "imm32.lib" "winmm.lib" "wsock32.lib" "winspool.lib" "C:\work\RealityGrid\qwt-0.4.1\Release\qwt.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "imm32.lib" "winmm.lib" "wsock32.lib" "winspool.lib" "opengl32.lib" "glu32.lib" "delayimp.lib" delayimp.lib /nologo /subsystem:windows /machine:IX86 /libpath:"C:\work\ReG\cvsreg\reg_steer_lib\release" /libpath:"C:\work\ReG\qwt-0.4.1\Release" /libpath:"C:\work\ReG\cvsreg\reg_steer_lib\win32\rpc\bin" /libpath:"$(QTDIR)\lib" /libpath:"C:\work\ReG\cvsreg\reg_steer_lib\win32\lib" /DELAYLOAD:comdlg32.dll /DELAYLOAD:oleaut32.dll /DELAYLOAD:winmm.dll /DELAYLOAD:wsock32.dll /DELAYLOAD:winspool.dll
+# ADD LINK32 libxml2_a.lib iconv_a.lib oncrpcms.lib reg_steer_lib.lib "qt-mt.lib" "qtmain.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "imm32.lib" "winmm.lib" "wsock32.lib" "winspool.lib" "C:\work\RealityGrid\qwt-0.4.1\Release\qwt.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "imm32.lib" "winmm.lib" "wsock32.lib" "winspool.lib" "opengl32.lib" "glu32.lib" "delayimp.lib" delayimp.lib /nologo /subsystem:windows /machine:IX86 /libpath:"C:\work\ReG\cvsreg\reg_steer_lib\release" /libpath:"C:\work\ReG\qwt-0.4.1\Release" /libpath:"C:\work\ReG\cvsreg\reg_steer_lib\win32\rpc\bin" /libpath:"$(QTDIR)\lib" /libpath:"C:\work\ReG\cvsreg\reg_steer_lib\win32\lib" /DELAYLOAD:comdlg32.dll /DELAYLOAD:oleaut32.dll /DELAYLOAD:winmm.dll /DELAYLOAD:wsock32.dll /DELAYLOAD:winspool.dll
 
 !ELSEIF  "$(CFG)" == "steerer - Win32 Debug"
 
