@@ -1,0 +1,33 @@
+[check]
+QMAKE_CACHE_VERSION = 1.03a
+QMAKE_ABSOLUTE_SOURCE_PATH = 
+MOC_DIR = 
+UI_DIR = 
+UI_HEADERS_DIR = 
+UI_SOURCES_DIR = 
+[depend]
+application.cpp = 
+commsthread.cpp = 
+controlform.cpp = 
+exception.cpp = 
+iotype.cpp = 
+iotypetable.cpp = 
+parameter.cpp = 
+parametertable.cpp = 
+steerer.cpp = 
+steerermainwindow.cpp = 
+table.cpp = 
+utility.cpp = 
+[mocable]
+application.cpp = *qmake_ignore*
+commsthread.cpp = *qmake_ignore*
+controlform.cpp = *qmake_ignore*
+exception.cpp = *qmake_ignore*
+iotype.cpp = *qmake_ignore*
+iotypetable.cpp = *qmake_ignore*
+parameter.cpp = *qmake_ignore*
+parametertable.cpp = *qmake_ignore*
+steerer.cpp = *qmake_ignore*
+steerermainwindow.cpp = *qmake_ignore*
+table.cpp = *qmake_ignore*
+utility.cpp = *qmake_ignore*

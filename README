@@ -1,0 +1,30 @@
+This software is an IN PROGRESS implementation of a generic steerer
+using QT for the RealityGrid project, produced by the Supercomputing,
+Visualization & e-Science Group, Manchester Computing, University of
+Manchester.  It uses the steering API for the RealityGrid project,
+produced by the Supercomputing, Visualization & e-Science Group,
+Manchester Computing, University of Manchester.
+
+How to install:
+
+1. Install steering library (reg_steer_lib under CVS)
+
+2. In top level directory type :
+qmake -o Makefile steerer.pro
+
+This will produce the Makefiles
+
+3. In top level directory type :
+make
+
+4. To run type:
+steerer
+(Note: environment variables as for steering library are required)
+
+
+Any comments, enquiries or pleas for explanation should be sent to:
+
+Sue Ramsden                Sue.Ramsden@man.ac.uk
+SVE Group
+Manchester Computing
+University of Manchester
