@@ -50,8 +50,11 @@
 #include <qvbox.h>
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Application *aApplication)
-  : QWidget(aParent, aName), mSimHandle(aSimHandle),
-    mEmitButton(kNULL), mSteerParamTable(kNULL), mMonParamTable(kNULL), mIOTypeSampleTable(kNULL), mIOTypeChkPtTable(kNULL)
+  : QWidget(aParent, aName), mSimHandle(aSimHandle), mStatusLabel(kNULL), mEmitButton(kNULL), 
+    mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), mSndChkPtButton(kNULL), 
+    mSetChkPtFreqButton(kNULL), mEmitAllValuesButton(kNULL),
+    mEmitAllIOCommandsButton(kNULL), mEmitAllButton(kNULL), mMonParamTable(kNULL),
+    mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), mIOTypeChkPtTable(kNULL)
 { 
   DBGCON("ControlForm");
   // create widget which holds all steering data (some dynamic) for one steered application

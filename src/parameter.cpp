@@ -40,8 +40,8 @@
 
 
 Parameter::Parameter(int aId, int aType, bool aSteerable)
-  : mId(aId), mType(aType), mSteerable(aSteerable), mRowIndex(-1), 
-    mRegisteredFlag(true), mPresentFlag(true)
+  : mSteerable(aSteerable), mRegisteredFlag(true), mPresentFlag(true), 
+    mRowIndex(-1), mId(aId), mType(aType)
 {
   DBGCON("Parameter");
   // Create a parameter object - this holds information about a steered or monitored parameter

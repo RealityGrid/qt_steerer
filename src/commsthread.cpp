@@ -46,7 +46,7 @@
 
 
 CommsThread::CommsThread(SteererMainWindow *aSteerer, int aCheckInterval)
-  : mSteerer(aSteerer), mCheckInterval(aCheckInterval), mKeepRunningFlag(true)
+  : mSteerer(aSteerer), mKeepRunningFlag(true), mCheckInterval(aCheckInterval)
 {
   DBGCON("CommsThread");
   

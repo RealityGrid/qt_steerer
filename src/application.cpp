@@ -49,10 +49,11 @@
 #include <qwidget.h>
 
 Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
-  : QWidget(aParent, aName), mSimHandle(aSimHandle), mTellAndDetachButton(kNULL),
-    mDetachButton(kNULL), mStopButton(kNULL), mPauseButton(kNULL), mResumeButton(kNULL), mControlForm(kNULL),
-    mControlBox(kNULL),  mDetachSupported(false), mStopSupported(false), mPauseSupported(false), 
-    mResumeSupported(false), mDetachedFlag(false)
+  : QWidget(aParent, aName), mSimHandle(aSimHandle), mNumCommands(0), 
+    mDetachSupported(false), mStopSupported(false), mPauseSupported(false), 
+    mResumeSupported(false), mDetachedFlag(false), mCloseButton(kNULL),
+    mDetachButton(kNULL), mStopButton(kNULL), mPauseButton(kNULL), mResumeButton(kNULL), 
+    mTellAndDetachButton(kNULL), mControlForm(kNULL), mControlBox(kNULL)
 { 
   // construct form for steering one application
   DBGCON("Application");

@@ -36,7 +36,7 @@
 #include "iotype.h"
 
 IOType::IOType(int aId, int aIOTypeType, int aAutoFlag)
-  : mId(aId), mType(aIOTypeType), mAutoSupportedFlag(aAutoFlag), mNewFrequency(kNULL_FREQ)
+  : mId(aId), mType(aIOTypeType), mNewFrequency(kNULL_FREQ), mAutoSupportedFlag(aAutoFlag)
 {
   DBGCON("IOType");
   // Create an iotype object - this holds information about a sample or checkpont IOType.

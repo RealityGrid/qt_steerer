@@ -46,9 +46,9 @@
 
 AttachForm::AttachForm(QWidget *parent, const char *name,
 		       bool modal, WFlags f)
-  : QDialog( parent, name, modal, f ), mNumSims(0), mSimGSHSelected(kNULL),
-    mSimName(kNULL), mSimGSH(kNULL), mListBox(kNULL), mFilterLineEdit(kNULL),
-    mAttachButton(kNULL), mCancelButton(kNULL),  mLibReturnStatus(REG_SUCCESS)
+  : QDialog( parent, name, modal, f ), mNumSims(0), mLibReturnStatus(REG_SUCCESS),
+    mSimGSHSelected(kNULL), mSimName(kNULL), mSimGSH(kNULL), mListBox(kNULL), 
+    mFilterLineEdit(kNULL), mAttachButton(kNULL), mCancelButton(kNULL)
 {
 
   DBGCON("AttachForm");
