@@ -137,8 +137,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   // set up table for monitored parameters
   QVBoxLayout *lMonLayout = new QVBoxLayout(6, "montablayout");
-  mMonParamTable = new ParameterTable(this, "monparamtable", 
-				      aSimHandle);
+  mMonParamTable = new ParameterTable(this, "monparamtable", aSimHandle);
   mMonParamTable->initTable();
 
   // ARP - set-up all tables first so we know their widths

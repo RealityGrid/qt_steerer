@@ -47,6 +47,7 @@
 
 class HistoryPlot;
 
+
 class ParameterTable : public Table
 {
   Q_OBJECT
@@ -80,6 +81,7 @@ protected:
 
 protected:
   QPtrList<Parameter> mParamList;
+  QPtrList<HistoryPlot> mHistoryPlotList;
   HistoryPlot *mQwtPlot;
 
 };

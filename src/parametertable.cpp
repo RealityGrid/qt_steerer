@@ -58,6 +58,7 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHand
 
   // setAutoDelete so QT deletes each obj in list when the list is deleted
   mParamList.setAutoDelete( TRUE );
+  mHistoryPlotList.setAutoDelete( TRUE );
 
   // create table to display all monitored parameters
   // as well as displaying parameters in a table (one per row), a list of parameter objects
@@ -75,7 +76,7 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHand
 
 ParameterTable::~ParameterTable()
 {
-  DBGDST("ParameterTable");
+  DBGDST("~ParameterTable");
 }
 
 void
@@ -294,7 +295,9 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   Parameter *tParameter = findParameterHandleFromRow(popupMenuID);
 
   // Then call our whizzo graphing method to draw the graph
+  // need to keep a reference to the plotter so that it's cancelled when we quit the main window
   mQwtPlot = new HistoryPlot(&(tParameter->mParamHist), text(popupMenuID, kNAME_COLUMN).latin1(), tParameter->getId());
+  mHistoryPlotList.append(mQwtPlot);
   mQwtPlot->show();
 
   // And make the connection to ensure that the graph updates

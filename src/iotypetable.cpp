@@ -124,7 +124,8 @@ IOTypeTable::initTable()
   if (!mChkPtTypeFlag)
   {
     horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "IO Type");
-    setColumnWidth(kIO_REQUEST_COLUMN, 50);
+    setColumnWidth(kIO_REQUEST_COLUMN, 60);
+    setColumnReadOnly(kIO_REQUEST_COLUMN, TRUE);
   }
 
 
