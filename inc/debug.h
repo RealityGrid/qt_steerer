@@ -43,8 +43,8 @@
   #define DBGMSG1(x,n) cerr << "DBG: " << x <<  n << endl;
   #define DBGMSG2(x,n,m) cerr << "DBG: " << x <<  n << m << endl;
 
-  #define DBGCON(x) cerr << "DBG: CTOR: constructor - " << x << endl;
-  #define DBGDST(x) cerr << "DBG: DTOR: destructor -" << x << endl;
+  #define DBGCON(x)
+  #define DBGDST(x)
 
   #define DBGEXCP(x) cerr << "DBG: EXCP: " << x << endl;
 
