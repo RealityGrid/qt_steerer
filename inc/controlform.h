@@ -95,6 +95,11 @@ protected slots:
   void emitAllIOCommandsSlot();
   void emitAllSlot();
   void emitAllAndDetachCmdSlot();
+  // MR:
+  void disableRestartButtonSlot();
+  void enableRestartButtonSlot();
+  void disableCreateButtonSlot();
+  void enableCreateButtonSlot();
 
 
 
