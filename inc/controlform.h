@@ -44,6 +44,7 @@
 #include <qvbox.h>
 #include <qwidget.h>
 
+class QPopupMenu;
 class QPushButton;
 class QString;
 class QHBoxLayout;
@@ -111,6 +112,10 @@ private:
   QPushButton		*mEmitAllValuesButton;
   QPushButton		*mEmitAllIOCommandsButton;
   QPushButton		*mEmitAllButton;
+
+///  QPushButton		*mCmdButton;
+///  QPopupMenu		*mCmdPopupMenu;
+
 
   ParameterTable	*mMonParamTable;
   SteeredParameterTable	*mSteerParamTable;

@@ -50,6 +50,7 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
+#include <qpopupmenu.h> //SMR XXXn
 #include <qpushbutton.h>
 #include <qtooltip.h>
 #include <qwidget.h>
@@ -59,7 +60,7 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
     mDetachSupported(false), mStopSupported(false), mPauseSupported(false), 
     mResumeSupported(false), mDetachedFlag(false), mCloseButton(kNULL),
     mDetachButton(kNULL), mStopButton(kNULL), mPauseButton(kNULL), mResumeButton(kNULL), 
-    mTellAndDetachButton(kNULL), mControlForm(kNULL), mControlBox(kNULL)
+    mControlForm(kNULL), mControlBox(kNULL)
 { 
   // construct form for steering one application
   DBGCON("Application");
@@ -68,11 +69,11 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   QHBoxLayout *lFormLayout = new QHBoxLayout(this, 6, 6);
   QVBoxLayout *lButtonLayout = new QVBoxLayout(-1, "hb1" );
 
-
   // create the form which contains all the (dynamic) steered data (parameters etc)
   mControlBox = new QGroupBox(1, Vertical, "", this, "editbox" );
   mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this);
   lFormLayout->addWidget(mControlBox);
+
 
   // create the main command buttons for steering the application
   // note we use Resume button sizeHint to size all buttons to this size
@@ -87,7 +88,7 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   mStopButton->setMaximumSize(mStopButton->sizeHint());
   QToolTip::add(mStopButton, "Tell the attached application to stop");
   connect( mStopButton, SIGNAL( clicked() ), this, SLOT( emitStopCmdSlot() ));
-
+  
   mDetachButton = new QPushButton( "Detach", this, "detach" );
   mDetachButton->setMinimumSize(mResumeButton->sizeHint());
   mDetachButton->setMaximumSize(mDetachButton->sizeHint());
@@ -110,16 +111,34 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   // Close button only becomes enabled when detach from application
   mCloseButton->setEnabled(FALSE);
 
+
+///  mCmdButton = new QPushButton("Cmds",  this, "blobby" );
+///  mCmdButton->setMinimumSize(mResumeButton->sizeHint());
+///  mCmdButton->setMaximumSize(mCmdButton->sizeHint());
+///  QToolTip::add( mCmdButton, tr( "Menu of app commands" ) );
+///  mCmdPopupMenu = new QPopupMenu( this );
+///  mCmdButton->setPopup( mCmdPopupMenu );
+///
+///  mCmdPopupMenu->insertItem(mPauseButton);
+///  mCmdPopupMenu->insertItem(mResumeButton);
+///  mCmdPopupMenu->insertItem(mDetachButton);
+///  mCmdPopupMenu->insertItem(mCloseButton);
+///  mCmdPopupMenu->insertItem(mStopButton);
+///
+
+
   // add buttons to layout
   QSpacerItem* spacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
+ 
   lButtonLayout->addWidget(mStopButton);
   lButtonLayout->addWidget(mCloseButton);
   lButtonLayout->addWidget(mDetachButton);
   lButtonLayout->addWidget(mPauseButton);
   lButtonLayout->addWidget(mResumeButton);
   lButtonLayout->addItem(spacer);
-
+  
   lFormLayout->addLayout(lButtonLayout);
+
 
 } 
 
@@ -300,12 +319,20 @@ Application::emitDetachCmdSlot()
 void 
 Application::emitStopCmdSlot()
 {
+
+///  if (QMessageBox::information(0, "Stop Application", 
+///				  "Are you sure?",
+///				  QMessageBox::Ok,
+///				  QMessageBox::Cancel, 
+///				  QMessageBox::NoButton) == QMessageBox::Ok)
+///    
+/// {
   emitSingleCmd(REG_STR_STOP);
 
-  // make gui read only except for close button
+  // make gui read only 
   disableForDetach(false);
   mControlForm->setStatusLabel("Attached - awaiting user requested stop");
-
+  /// }
 }
 
 void 

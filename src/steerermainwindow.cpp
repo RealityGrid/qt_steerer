@@ -86,22 +86,22 @@ SteererMainWindow::SteererMainWindow()
   // set up actions for configure check interval, attach and quit
   mSetCheckIntervalAction =  new QAction("Set poling interval","Set Poling Interval",
 						  CTRL+Key_P, this, "setcheckaction");
-
+  mSetCheckIntervalAction->setStatusTip("Set poling interval");
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
 
   mAttachAction = new QAction("Attach to local application", "Local &Attach",
 			      CTRL+Key_A, this, "attachaction");
-
+  mAttachAction->setStatusTip("Attach to local app");
   connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
 
   mGridAttachAction = new QAction("Attach to app on Grid", "&Grid Attach",
 			      CTRL+Key_G, this, "gridattachaction");
-
+  mGridAttachAction->setStatusTip("Attach to Grid app");
   connect( mGridAttachAction, SIGNAL(activated()), this, SLOT(attachGridAppSlot()) );
 
   mQuitAction =  new QAction("Quit (& detach)", "&Quit",
 			      CTRL+Key_Q, this, "quitaction");
-
+  mQuitAction->setStatusTip("Quit (& detach)");
   connect( mQuitAction, SIGNAL(activated()), this, SLOT(quitSlot()) );
 
   QPopupMenu *lConfigMenu = new QPopupMenu( this );
@@ -119,13 +119,14 @@ SteererMainWindow::SteererMainWindow()
 
  // Create layouts to position the widgets
   mTopLayout = new QHBoxLayout( mCentralWgt, 5);
-///  mLeftLayout = new QVBoxLayout(-1, "hb1" );
+  ///  mLeftLayout = new QVBoxLayout(-1, "hb1" );
 ///  mRightLayout = new QVBoxLayout(-1, "hb2");
 ///  
 ///  mTopLayout->addLayout(mLeftLayout);
 ///  mTopLayout->addLayout(mRightLayout);
-///  mLeftLayout->setMargin(10);
-///
+  
+  ///  mLeftLayout->setMargin(1);
+  /// mLeftLayout->setResizeMode(QLayout::Minimum);
 
   // set up the ReG logo
 ///  mLogoLabel = new QLabel(mCentralWgt);
@@ -139,10 +140,13 @@ SteererMainWindow::SteererMainWindow()
   mStackLogoPixMap = new QPixmap();
   if (mStackLogoPixMap->load("logo-sm.bmp"))
     mStackLogoLabel->setPixmap(*mStackLogoPixMap);
-  else 
-    mStackLogoLabel->setText("");
-  
-  ///  mLeftLayout->addWidget(mLogoLabel);
+  else
+  {
+    mStackLogoLabel->setText("RealityGrid");
+    mStackLogoLabel->setFont(QFont("Times", 9, QFont::DemiBold));
+  }
+   
+ ///  mLeftLayout->addWidget(mLogoLabel);
 
 
   // set up all buttons
@@ -152,16 +156,16 @@ SteererMainWindow::SteererMainWindow()
 ///  mAttachButton->setEnabled(TRUE);
 ///  QToolTip::add( mAttachButton, "Attach to local application" );
 ///  connect( mAttachButton, SIGNAL(clicked()),
-///	   this, SLOT(attachAppSlot()) );
+///	      this, SLOT(attachAppSlot()) );
 ///  mLeftLayout->addWidget(mAttachButton); 
 ///
 ///  mGridAttachButton= new QPushButton( "&Grid Attach", mCentralWgt, "gridattachbutton" );
-///  mGridAttachButton->setMinimumSize(mGridAttachButton->sizeHint());
+///  mGridAttachButton->setMinimumSize(mAttachButton->sizeHint());
 ///  mGridAttachButton->setMaximumSize(mGridAttachButton->sizeHint());
 ///  mGridAttachButton->setEnabled(TRUE);
 ///  QToolTip::add( mGridAttachButton, "Attach to application on grid" );
 ///  connect( mGridAttachButton, SIGNAL(clicked()),
-///	   this, SLOT(attachGridAppSlot()) );
+///	      this, SLOT(attachGridAppSlot()) );
 ///  mLeftLayout->addWidget(mGridAttachButton); 
 ///
 
@@ -175,15 +179,17 @@ SteererMainWindow::SteererMainWindow()
 
 ///  QSpacerItem* spacer = new QSpacerItem( 0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding );
 ///  mLeftLayout->addItem( spacer);
-///
+
 ///  mQuitButton = new QPushButton("&Quit", mCentralWgt, "quitbutton"); 
 ///  mQuitButton->setMinimumSize(mQuitButton->sizeHint());
 ///  mQuitButton->setMaximumSize(mQuitButton->sizeHint());
 ///  QToolTip::add( mQuitButton, "Quit steerer (and detach from any attached applications)" );
 ///  connect( mQuitButton, SIGNAL(clicked()),
-///	   this, SLOT(quitSlot()) );
-///  mLeftLayout->addWidget(mQuitButton); 
-///
+///	      this, SLOT(quitSlot()) );
+  ///  mLeftLayout->addWidget(mQuitButton); 
+
+
+  mTopLayout->addItem(new QSpacerItem( 14, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
 
   // SMR XXX - future add more widgets to stack for log viewing, for now only tabwidget
   mStack = new QWidgetStack(mCentralWgt);
@@ -195,11 +201,17 @@ SteererMainWindow::SteererMainWindow()
   mTopLayout->addWidget(mStack);
   mStack->addWidget(mStackLogoLabel);
   mStack->raiseWidget(mStackLogoLabel);
+  mTopLayout->addItem(new QSpacerItem( 14, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
+ 
+
+  //mTopLayout->addWidget(mQuitButton);
+  // mTopLayout->addLayout(mLeftLayout);
 
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
 
-  statusBar()->message( "Steerer Initialized", 2000 );
+  ///statusBar()->message( "Steerer Initialized", 2000 );
+  statusBar()->message( "www.realitygrid.org"); ///SMR XXXn
 
   // create commsthread so can set checkinterval 
   // - thread is started on first attach
@@ -401,9 +413,13 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       mAttachAction->setEnabled(FALSE);
       mGridAttachAction->setEnabled(FALSE);
       
+///	 mAttachButton->hide();
+///	 mGridAttachButton->hide();
+      ///	 mQuitButton->hide();
+
       //      mLogoLabel->show();
       // resize - only do for first app attached? SMR XXX
-      resize(645, 700);     
+      resize(650, 700);     
      
       statusBar()->clear();
 
@@ -430,7 +446,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
     }
     else
     {
-      statusBar()->message( "Failed to attach to application" );
+      statusBar()->message( "Failed to attach" );
       DBGMSG("Sim_attach failed");
     }
     
@@ -478,6 +494,9 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   mAttachAction->setEnabled(TRUE);
   //  mGridAttachAction->setEnabled(TRUE);
 
+///  mAttachButton->show();
+///  mGridAttachButton->show();
+  ///  mQuitButton->show();
  
   // SMR XXX  if last application being steered,resie the window
   resizeForNoAttached();
@@ -488,9 +507,10 @@ void
 SteererMainWindow::quitSlot()
 {
   DBGMSG("In quit slot");
-  // detach from all apps and exit
-  cleanUp();
-  qApp->exit(0);
+
+   // detach from all apps and exit
+   cleanUp();
+   qApp->exit(0);
 
 }
 

@@ -99,8 +99,6 @@ private:
   QPushButton	*mPauseButton;
   QPushButton	*mResumeButton;
 
-  QPushButton	*mTellAndDetachButton;
-
   ControlForm	*mControlForm;
   QGroupBox	*mControlBox; 
 

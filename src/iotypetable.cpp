@@ -109,7 +109,6 @@ IOTypeTable::initTable()
   horizontalHeader()->setLabel(kIO_NAME_COLUMN, "Name"); 
   horizontalHeader()->setLabel(kIO_VALUE_COLUMN, "Freq");
   horizontalHeader()->setLabel(kIO_NEWVALUE_COLUMN, "New Freq");
-  horizontalHeader()->setLabel(kIO_SPLIT, "");
 
   if (mChkPtTypeFlag)
   {
@@ -128,15 +127,12 @@ IOTypeTable::initTable()
   setColumnReadOnly(kIO_ID_COLUMN, TRUE);
   setColumnReadOnly(kIO_NAME_COLUMN, TRUE);
   setColumnReadOnly(kIO_VALUE_COLUMN, TRUE);
-  setColumnReadOnly(kIO_SPLIT, TRUE);
   
-
+  // id column used internally only, therefore not show on gui
   hideColumn(kIO_ID_COLUMN);
   setColumnWidth(kIO_NAME_COLUMN, 200);
   setColumnWidth(kIO_VALUE_COLUMN, 40);
   setColumnWidth(kIO_NEWVALUE_COLUMN, 70);
-  setColumnWidth(kIO_SPLIT, 10);
-
   
   // set up signal/slot to handle data entered by user
   connect (this, SIGNAL( valueChanged(int,int) ),
@@ -274,12 +270,12 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
 
 	break;
       case REG_IO_OUT:
-	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, ""));
+	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, QString::null));
 	setItem(lRowIndex, kIO_RESTART_COLUMN, new QTableItem(this, QTableItem::Never, QString::null));
 	break;
       case REG_IO_INOUT:
-	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, ""));
-	setItem(lRowIndex, kIO_RESTART_COLUMN, new QCheckTableItem(this, ""));
+	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, QString::null));
+	setItem(lRowIndex, kIO_RESTART_COLUMN, new QCheckTableItem(this, QString::null));
 	break;
     }
   }
@@ -629,7 +625,7 @@ IOTypeTable::emitRestartSlot()
 	// populate the array of commands and array of command parameters  
 	lCommandArray = new int[1];
 	lCmdParamArray = new char *[1];
-	lCmdParamArray[0] = new char [kCHKPT_PARAM_LEN]; //SMR XXX
+	lCmdParamArray[0] = new char [kCHKPT_PARAM_LEN];
 	strcpy(lCmdParamArray[0], " ");
 	
 	bool lOk = false;

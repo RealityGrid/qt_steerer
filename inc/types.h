@@ -53,12 +53,11 @@
 #define kNAME_COLUMN		1
 #define kREG_COLUMN		2
 #define kVALUE_COLUMN		3
-#define kSPLIT			4
-#define kNEWVALUE_COLUMN	5
+#define kNEWVALUE_COLUMN	4
 
 //parameter tables sizes
 #define kNUM_MON_COLUMNS	4
-#define kNUM_STEER_COLUMNS	6 
+#define kNUM_STEER_COLUMNS	5 
 #define kINIT_ROWS		3
 
 
@@ -66,14 +65,13 @@
 #define kIO_ID_COLUMN		0
 #define kIO_NAME_COLUMN		1
 #define kIO_VALUE_COLUMN	2
-#define kIO_SPLIT		3
-#define kIO_NEWVALUE_COLUMN	4
-#define kIO_REQUEST_COLUMN	5
-#define kIO_RESTART_COLUMN	6  // chkpoint only
+#define kIO_NEWVALUE_COLUMN	3
+#define kIO_REQUEST_COLUMN	4
+#define kIO_RESTART_COLUMN	5  // chkpoint only
 
 
 //iotype tables sizes
-#define kNUM_IO_COLUMNS		6  // not include kIO_RESTART_COLUMN
+#define kNUM_IO_COLUMNS		5  // not include kIO_RESTART_COLUMN
 #define kIO_INIT_ROWS		2
 
 // iotype new frequency not set indicator

@@ -53,6 +53,7 @@
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qmessagebox.h>
+///#include <qpopupmenu.h> 
 #include <qpushbutton.h>
 #include <qtooltip.h> 
 #include <qvbox.h>
@@ -78,6 +79,12 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   lStatusLayout->addWidget(mStatusLabel);
   lStatusLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum ));
 
+///  QPushButton *mCmdButton = new QPushButton("Cmds",  this, "cmddmenu" );
+///  QToolTip::add( mCmdButton, tr( "Menu of commands" ) );
+///  QPopupMenu * mCmdPopupMenu = new QPopupMenu( this );
+///  mCmdButton->setPopup( mCmdPopupMenu );
+///  lStatusLayout->addWidget(mCmdButton);
+///
   // set up table for monitored parameters
   QHBoxLayout *lMonLayout = new QHBoxLayout(6, "montablayout");
   mMonParamTable = new ParameterTable(this, "monparamtable", aSimHandle);
@@ -177,7 +184,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mEmitAllIOCommandsButton = new QPushButton("Tell All Requests", this, "sendallrequests");
   mEmitAllIOCommandsButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
   mEmitAllIOCommandsButton->setMaximumSize(mEmitAllIOCommandsButton->sizeHint());
-  QToolTip::add(mEmitAllIOCommandsButton, "Tell application all emit/consume requests");
+  QToolTip::add(mEmitAllIOCommandsButton, "Tell application all emit/consume/create requests");
   connect(mEmitAllIOCommandsButton, SIGNAL(clicked()), this, SLOT(emitAllIOCommandsSlot()));
 
 
@@ -191,7 +198,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mEmitAllButton = new QPushButton("Tell All", this, "sendall");
   mEmitAllButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
   mEmitAllButton->setMaximumSize(mEmitAllButton->sizeHint());
-  QToolTip::add(mEmitAllButton, "Tell application all new values and all emit/consume requests");
+  QToolTip::add(mEmitAllButton, "Tell application all new values and all emit/consume/create requests");
   connect(mEmitAllButton, SIGNAL(clicked()), this, SLOT(emitAllSlot()));
 
   lBottomButtonLayout->addWidget(mEmitAllValuesButton);
@@ -251,8 +258,6 @@ ControlForm::~ControlForm()
 ///SMR	mIOTypeChkPtTable = kNULL;
 ///SMR	 
 }
-
-
 
 void
 ControlForm::updateParameters()

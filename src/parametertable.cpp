@@ -268,21 +268,21 @@ SteeredParameterTable::initTable()
   horizontalHeader()->setLabel(kREG_COLUMN, "Registered?");
   horizontalHeader()->setLabel(kVALUE_COLUMN, "Value");
   horizontalHeader()->setLabel(kNEWVALUE_COLUMN, "New Value");
-  horizontalHeader()->setLabel(kSPLIT, "");
 
   setColumnReadOnly(kID_COLUMN, TRUE);
   setColumnReadOnly(kNAME_COLUMN, TRUE);
   setColumnReadOnly(kREG_COLUMN, TRUE);
   setColumnReadOnly(kVALUE_COLUMN, TRUE);
-  setColumnReadOnly(kSPLIT, TRUE);
 
+  // id column used internally only, therefore not show on gui
   hideColumn(kID_COLUMN);
-  hideColumn(kREG_COLUMN);
+  // unregister functionality not implemented in lib therefore no point in showing kREG_COLUMN
+  hideColumn(kREG_COLUMN); 
+
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
   setColumnWidth(kVALUE_COLUMN, 95);
   setColumnWidth(kNEWVALUE_COLUMN, 95);
-  setColumnWidth(kSPLIT, 10);
 
   // set up signal/slot to handle data entered by user (new parameter value)
   connect (this, SIGNAL( valueChanged(int,int) ),
