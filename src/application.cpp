@@ -116,11 +116,11 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   // add buttons to layout
   QSpacerItem* spacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
   lButtonLayout->addWidget(mCloseButton);
+  lButtonLayout->addWidget(mStopButton);
   lButtonLayout->addItem(spacer);
 
   ///  lButtonLayout->addWidget(mTellAndDetachButton);
   lButtonLayout->addWidget(mDetachButton);
-  lButtonLayout->addWidget(mStopButton);
   lButtonLayout->addWidget(mPauseButton);
   lButtonLayout->addWidget(mResumeButton);
   lFormLayout->addLayout(lButtonLayout);
