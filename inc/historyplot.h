@@ -41,12 +41,8 @@
 #include "qfiledialog.h"
 #include "qthread.h"
 #include "qpixmap.h"
-
 #include <qwt_plot.h>
 #include "types.h"
-
-
-
 
 class ParameterHistory;
 class QMenuBar;
@@ -89,9 +85,11 @@ private:
     int    mXUpperBoundId, mXLowerBoundId, mAutoXAxisId;
     int    mYUpperBoundId, mYLowerBoundId, mAutoYAxisId;
     int    showSymbolsId;
+    int    mToggleLogXId, mToggleLogYId;
     bool   mAutoYAxisSet, mAutoXAxisSet;
     bool   displaySymbolsSet;
-        
+    bool   mUseLogXAxis, mUseLogYAxis;
+
     void doPlot();
 
 protected:
@@ -110,6 +108,8 @@ public slots:
     void graphXLowerBoundSlot();
     void autoXAxisSlot();
     void graphDisplaySymbolsSlot();
+    void toggleLogAxisXSlot();
+    void toggleLogAxisYSlot();
 
 signals:
     void plotClosedSignal(HistoryPlot *ptr);

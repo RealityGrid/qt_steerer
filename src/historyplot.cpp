@@ -97,8 +97,13 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 					  SLOT(graphYUpperBoundSlot()), 
 					  CTRL+Key_U);
     mYLowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
-					  SLOT(graphYLowerBoundSlot()), 
-					  CTRL+Key_L);
+					  SLOT(graphYLowerBoundSlot()),
+ 					  CTRL+Key_L);
+    mToggleLogYId = mGraphMenu->insertItem("Toggle use of L&og Y axis", this, 
+					   SLOT(toggleLogAxisYSlot()), 
+					   CTRL+Key_O);
+
+    mGraphMenu->insertSeparator();
 
     mAutoXAxisId = mGraphMenu->insertItem("&Auto X Axis", this, 
 					SLOT(autoXAxisSlot()), ALT+Key_A);
@@ -108,6 +113,10 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mXLowerBoundId = mGraphMenu->insertItem("Define X &lower-bound", this, 
 					  SLOT(graphXLowerBoundSlot()), 
 					  ALT+Key_L);
+    mToggleLogXId = mGraphMenu->insertItem("Toggle use of L&og X axis", this, 
+					   SLOT(toggleLogAxisXSlot()), 
+					   ALT+Key_O);
+    mGraphMenu->insertSeparator();
 
     showSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
 					   SLOT(graphDisplaySymbolsSlot()),
@@ -120,6 +129,8 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mGraphMenu->setItemEnabled(mXUpperBoundId, false);
     mGraphMenu->setItemEnabled(mXLowerBoundId, false);
     mGraphMenu->setItemChecked(showSymbolsId, true);
+    mGraphMenu->setItemChecked(mToggleLogXId, false);
+    mGraphMenu->setItemChecked(mToggleLogYId, false);
     
     mMenuBar->insertItem("&File", mFileMenu);
     mMenuBar->insertItem("&Graph", mGraphMenu);
@@ -133,6 +144,8 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mXLowerBound = mXUpperBound = 0;
     mAutoYAxisSet = true;
     mAutoXAxisSet = true;
+    mUseLogXAxis = false;
+    mUseLogYAxis = false;
 
     // Default to displaying symbols
     displaySymbolsSet = true;
@@ -420,6 +433,48 @@ void HistoryPlot::graphDisplaySymbolsSlot(){
 
   displaySymbolsSet = !displaySymbolsSet;
   mGraphMenu->setItemChecked(showSymbolsId, displaySymbolsSet);
+  // redraw the plot
+  doPlot();
+}
+
+/** Toggle use of log X axis
+ */
+void HistoryPlot::toggleLogAxisXSlot(){
+
+  mUseLogXAxis = !mUseLogXAxis;
+  mGraphMenu->setItemChecked(mToggleLogXId, mUseLogXAxis);
+
+  // Can't set manual limits for log axis so turn manual
+  // limits off if we're currently using them
+  if(mUseLogXAxis && !mAutoXAxisSet){
+    autoXAxisSlot();
+  }
+  // Prevent them from being turned on too
+  mGraphMenu->setItemEnabled(mAutoXAxisId, !mUseLogXAxis);
+
+  mPlotter->changeAxisOptions(mPlotter->xBottom, 
+			      QwtAutoScale::Logarithmic, mUseLogXAxis);
+  // redraw the plot
+  doPlot();
+}
+
+/** Toggle use of log Y axis
+ */
+void HistoryPlot::toggleLogAxisYSlot(){
+
+  mUseLogYAxis = !mUseLogYAxis;
+  mGraphMenu->setItemChecked(mToggleLogYId, mUseLogYAxis);
+
+  // Can't set manual limits for log axis so turn manual
+  // limits off if we're currently using them
+  if(mUseLogYAxis && !mAutoYAxisSet){
+    autoYAxisSlot();
+  }
+  // Prevent them from being turned on too
+  mGraphMenu->setItemEnabled(mAutoYAxisId, !mUseLogYAxis);
+
+  mPlotter->changeAxisOptions(mPlotter->yLeft, 
+			      QwtAutoScale::Logarithmic, mUseLogYAxis);
   // redraw the plot
   doPlot();
 }
