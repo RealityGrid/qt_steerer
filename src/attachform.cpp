@@ -50,11 +50,12 @@
 #include <qpushbutton.h>
 #include <qtooltip.h>
 #include <qvbox.h>
+#include <qtable.h>
 
 AttachForm::AttachForm(QWidget *parent, const char *name,
 		       bool modal, WFlags f)
   : QDialog( parent, name, modal, f ), mNumSims(0), mLibReturnStatus(REG_SUCCESS),
-    mSimGSHSelected(kNULL), mSimName(kNULL), mSimGSH(kNULL), mListBox(kNULL), 
+    mSimGSHSelected(kNULL), mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL), 
     mFilterLineEdit(kNULL), mAttachButton(kNULL), mCancelButton(kNULL)
 {
 
@@ -90,21 +91,32 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("Steerable Applications", this));
-    mListBox = new QListBox(this);
-    mListBox->setSelectionMode( QListBox::Single );
-    
-     
+    mTable = new QTable(0, 2, this);
+    mTable->setSelectionMode( QTable::Single );
+    mTable->verticalHeader()->hide();
+    mTable->setLeftMargin(0);
+
+    mTable->horizontalHeader()->setLabel(0, "Application");
+    mTable->horizontalHeader()->setLabel(1, "Handle");
+
+    connect(mTable, SIGNAL(valueChanged(int, int)), this, SLOT(editHandleSlot(int, int)));
+
     // populate the list box - each listboxitem holds array index information - this is what 
     // is used by the calling code (via  aSimIndexSelected) to identify the aSimGSH selected
-    AttachListItem *lListItem;
+    //AttachListItem *lListItem;
+
+    //QTableItem *lTableItem;
     for (int i=0; i<mNumSims; i++)
     {      
       DBGMSG1("mSimName ", mSimName[i]);
       DBGMSG1("mSimGSH ", mSimGSH[i]);
 
       // QString(const char *) is deep copy
-      lListItem = new AttachListItem(i, QString( mSimName[i]));
-      mListBox->insertItem( lListItem );
+      //lListItem = new AttachListItem(i, QString( mSimName[i]));
+      //mListBox->insertItem( lListItem );
+      mTable->insertRows(mTable->numRows(),1);
+      mTable->setItem(mTable->numRows()-1, 0, new QTableItem(mTable, QTableItem::Never, QString(mSimName[i])));
+      mTable->setItem(mTable->numRows()-1, 1, new QTableItem(mTable, QTableItem::OnTyping, QString(mSimGSH[i])));
     }
     
     // filter to do SMR XXX
@@ -115,7 +127,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     lFilterLayout->addWidget(mFilterLineEdit);
     
     
-    lListLayout->addWidget(mListBox);
+    lListLayout->addWidget(mTable);
     lListLayout->addLayout(lFilterLayout);
     
     mAttachButton = new QPushButton("Attach", this, "attachbutton"); 
@@ -190,20 +202,25 @@ AttachForm::attachSlot()
 {
 
   DBGMSG1("Slot: mNumSims: ", mNumSims);
-  AttachListItem *lTmpPtr;
-  int lCurrentItem = mListBox->currentItem();
+  //AttachListItem *lTmpPtr;
+  //int lCurrentItem = mListBox->currentItem();
+  int lCurrentItem = mTable->currentSelection();
+  DBGMSG1("currentSelection ", lCurrentItem); 
   bool lSelected = false;
 
   if (lCurrentItem >= 0)
   {
-    if (mListBox->isSelected(lCurrentItem))
+//    if (mListBox->isSelected(lCurrentItem))
+      if (mTable->isRowSelected(lCurrentItem))
     { 
       lSelected = true;
-      lTmpPtr = (AttachListItem *)mListBox->item(lCurrentItem);
+//      lTmpPtr = (AttachListItem *)mListBox->item(lCurrentItem);
+   
+//      DBGMSG1("selected app index: ",lTmpPtr->getSimIndex());
       
-      DBGMSG1("selected app index: ",lTmpPtr->getSimIndex());
-      
-      mSimGSHSelected = mSimGSH[lTmpPtr->getSimIndex()];
+//      mSimGSHSelected = mSimGSH[lTmpPtr->getSimIndex()];
+      mSimGSHSelected = mSimGSH[lCurrentItem];
+
       DBGMSG1("selected app GSH: ",mSimGSHSelected);
 
       QDialog::accept();
@@ -231,11 +248,15 @@ AttachForm::filterSlot()
   DBGMSG1("FSLot: mNumSims: ", mNumSims);
 
   // remove list and start again applying filter
-  mListBox->clear();
+  //mListBox->clear();
+  for (int i=0; i<mTable->numRows(); i++){
+    mTable->clearCell(i,1);
+    mTable->clearCell(i,0);
+  }
 
   int lLen = mFilterLineEdit->text().length();
 
-  AttachListItem *lListItem;
+  //AttachListItem *lListItem;
   
   if (lLen > 0)
   {
@@ -244,8 +265,11 @@ AttachForm::filterSlot()
       DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
       if (strstr(mSimName[i], mFilterLineEdit->text().latin1()) != kNULL)
       {
-	lListItem = new AttachListItem(i, QString(mSimName[i]));
-	mListBox->insertItem( lListItem );
+	//lListItem = new AttachListItem(i, QString(mSimName[i]));
+  //mListBox->insertItem( lListItem );
+        mTable->insertRows(mTable->numRows(),1);
+        mTable->setItem(mTable->numRows()-1, 0, new QTableItem(mTable, QTableItem::Never, QString(mSimName[i])));
+        mTable->setItem(mTable->numRows()-1, 1, new QTableItem(mTable, QTableItem::OnTyping, QString(mSimGSH[i])));
       }      
     }
   }
@@ -254,11 +278,23 @@ AttachForm::filterSlot()
     // no filter specified so just show all sim names
     for (int i=0; i<mNumSims; i++)
     {
-      lListItem = new AttachListItem(i, QString(mSimName[i]));
-      mListBox->insertItem( lListItem );
+      //lListItem = new AttachListItem(i, QString(mSimName[i]));
+      //mListBox->insertItem( lListItem );
+        mTable->insertRows(mTable->numRows(),1);
+        mTable->setItem(mTable->numRows()-1, 0, new QTableItem(mTable, QTableItem::Never, QString(mSimName[i])));
+        mTable->setItem(mTable->numRows()-1, 1, new QTableItem(mTable, QTableItem::OnTyping, QString(mSimGSH[i])));
     }
   }
 
 }
 
+/** Slot to update the copy of the handle as obtained from the
+ *  appropriate environment variable. Do we want to update the
+ *  environment variable itself too?
+ */
+void AttachForm::editHandleSlot(int row, int col){
+      DBGMSG2("", row, col);
 
+      const char *temp = mTable->text(row, col).latin1();
+      strcpy(mSimGSH[row], temp);
+}

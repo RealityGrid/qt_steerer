@@ -43,7 +43,7 @@
 #include <qdialog.h>
 
 class QLineEdit;
-class QListBox;
+class QTable;
 class QPushButton;
 
 class AttachForm: public QDialog
@@ -62,6 +62,7 @@ public:
 protected slots:
   void attachSlot();
   void filterSlot();
+  void editHandleSlot(int row, int col);
 
 private:
   void cleanUp();
@@ -74,7 +75,7 @@ private:
   char  	**mSimName;
   char		**mSimGSH;
 
-  QListBox	*mListBox;
+  QTable	*mTable;
   QLineEdit	*mFilterLineEdit;
 
   QPushButton	*mAttachButton;
