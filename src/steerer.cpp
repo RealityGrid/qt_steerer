@@ -64,6 +64,15 @@ void failedNewHandler()
 extern "C" void signalHandler(int aSignal)
 {
   
+  // caught one signal - ignore all others now as going to quit and do not
+  // want the quit process to be interrupted and restarted...
+  signal(SIGINT, SIG_IGN);	//ctrl-c
+  signal(SIGTERM, SIG_IGN);	//kill (note cannot (and should not) catch kill -9)  
+  signal(SIGSEGV, SIG_IGN);
+  signal(SIGILL, SIG_IGN);
+  signal(SIGABRT, SIG_IGN);
+  signal(SIGFPE, SIG_IGN);
+
   switch(aSignal)
   {
     case SIGINT:
@@ -118,7 +127,10 @@ int main( int argc, char ** argv )
   signal(SIGINT, signalHandler);	//ctrl-c
   signal(SIGTERM, signalHandler);	//kill (note cannot (and should not) catch kill -9)  
   signal(SIGSEGV, signalHandler);
-
+  signal(SIGILL, signalHandler);
+  signal(SIGABRT, signalHandler);
+  signal(SIGFPE, signalHandler);
+  
   set_new_handler( failedNewHandler );
 
   int result = 1;
