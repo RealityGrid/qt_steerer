@@ -60,16 +60,16 @@ SteererException::~SteererException()
 }
 
 // the essential copy constructor
-SteererException::SteererException(SteererException& aCopyEx)
+SteererException::SteererException(const SteererException& aCopyEx)
 : mFilenamePtr(aCopyEx.mFilenamePtr), mLineNumber(aCopyEx.mLineNumber)
 {
-  const char* lMsgPtr = aCopyEx.getErrorMsg();
-  mMsgPtr = new char [ strlen(lMsgPtr)+1 ];
-  strcpy(mMsgPtr, lMsgPtr);
+  mMsgPtr = new char [ strlen(aCopyEx.getErrorMsg())+1 ];
+  strcpy(mMsgPtr, aCopyEx.getErrorMsg());
 }
 
-const char*
-SteererException::getErrorMsg()
+
+const char* const
+SteererException::getErrorMsg() const
 {
   return mMsgPtr;
 }

@@ -44,11 +44,11 @@ class SteererException
 public:
   SteererException(const char * const aMsgPtr);
   SteererException(const char * const aMsgPtr, const char* const aFilenamePtr, const int aLineNumber);
-  SteererException(SteererException& aCopyEx);
+  SteererException(const SteererException & aCopyEx);
 
   ~SteererException();
 
-  const char* getErrorMsg();
+  const char* const getErrorMsg() const;
 
   void print () const;
 
