@@ -289,7 +289,6 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
 
   // Then call our whizzo graphing method to draw the graph
   mQwtPlot = new HistoryPlot(&(tParameter->mParamHist), text(popupMenuID, kNAME_COLUMN).latin1(), tParameter->getId());
-  mQwtPlot->resize(300, 300);
   mQwtPlot->show();
 
   // And make the connection to ensure that the graph updates
