@@ -53,17 +53,19 @@
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qmessagebox.h>
-///#include <qpopupmenu.h> 
 #include <qpushbutton.h>
 #include <qtooltip.h> 
 #include <qvbox.h>
+#include <qvgroupbox.h>
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Application *aApplication)
   : QWidget(aParent, aName), mSimHandle(aSimHandle), mStatusLabel(kNULL), mEmitButton(kNULL), 
     mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), mRestartChkPtButton(kNULL), 
     mSndChkPtButton(kNULL), mSetChkPtFreqButton(kNULL), mEmitAllValuesButton(kNULL),
     mEmitAllIOCommandsButton(kNULL), mEmitAllButton(kNULL), mMonParamTable(kNULL),
-    mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), mIOTypeChkPtTable(kNULL)
+    mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), mIOTypeChkPtTable(kNULL),
+    mCloseButton(kNULL), mDetachButton(kNULL), mStopButton(kNULL), 
+    mPauseButton(kNULL), mResumeButton(kNULL)
 { 
   DBGCON("ControlForm");
   // create widget which holds all steering data (some dynamic) for one steered application
@@ -71,6 +73,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   // samples iotypes and checkpoint iotypes, plus buttons associated with the tables
 
   QVBoxLayout *lEditLayout = new QVBoxLayout(this, 6, 6, "editlayout");
+
   QHBoxLayout *lStatusLayout = new QHBoxLayout(6, "statuslayout");
   QHBoxLayout *lBottomButtonLayout = new QHBoxLayout(6, "bottombuttonlayout");
 
@@ -79,18 +82,61 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   lStatusLayout->addWidget(mStatusLabel);
   lStatusLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum ));
 
-///  QPushButton *mCmdButton = new QPushButton("Cmds",  this, "cmddmenu" );
-///  QToolTip::add( mCmdButton, tr( "Menu of commands" ) );
-///  QPopupMenu * mCmdPopupMenu = new QPopupMenu( this );
-///  mCmdButton->setPopup( mCmdPopupMenu );
-///  lStatusLayout->addWidget(mCmdButton);
-///
+  QVGroupBox *lCmdGrpBox = new QVGroupBox("Cmds",this, "cmdbuttonbox");
+  lCmdGrpBox->setAlignment(Qt::AlignHCenter);
+ 
+  // set up main command buttons
+  // note we use Resume button sizeHint to size all buttons to this size
+  mResumeButton = new QPushButton( "Resume", lCmdGrpBox, "resume" );  //SMR XXXn
+  mResumeButton->setMinimumSize(mResumeButton->sizeHint());
+  mResumeButton->setMaximumSize(mResumeButton->sizeHint());
+  QToolTip::add(mResumeButton, "Tell the attached application to resume");
+  connect( mResumeButton, SIGNAL( clicked() ), aApplication, SLOT( emitResumeCmdSlot() ));
+  
+  mPauseButton = new QPushButton( "Pause", lCmdGrpBox, "pause" );
+  mPauseButton->setMinimumSize(mResumeButton->sizeHint());
+  mPauseButton->setMaximumSize(mPauseButton->sizeHint());
+  QToolTip::add(mPauseButton, "Tell the attached application to pause");
+  connect( mPauseButton, SIGNAL( clicked() ), aApplication, SLOT( emitPauseCmdSlot() ));
+
+  mDetachButton = new QPushButton( "Detach", lCmdGrpBox, "detach" );
+  mDetachButton->setMinimumSize(mResumeButton->sizeHint());
+  mDetachButton->setMaximumSize(mDetachButton->sizeHint());
+  QToolTip::add(mDetachButton, "Tell the attached application to detach");
+  connect( mDetachButton, SIGNAL( clicked() ), aApplication, SLOT( emitDetachCmdSlot() ));
+    
+  // button to allow user to get rid of this application form when detached
+  mCloseButton = new QPushButton( "Close", lCmdGrpBox, "close" );
+  mCloseButton->setMinimumSize(mResumeButton->sizeHint());
+  mCloseButton->setMaximumSize(mCloseButton->sizeHint());
+  QToolTip::add( mCloseButton, "Close form to allow another attach");
+  connect(mCloseButton, SIGNAL( clicked() ), aApplication, SLOT(closeApplicationSlot()) );
+
+  mStopButton = new QPushButton( "Stop", lCmdGrpBox, "stop" );
+  mStopButton->setMinimumSize(mResumeButton->sizeHint());
+  mStopButton->setMaximumSize(mStopButton->sizeHint());
+  QToolTip::add(mStopButton, "Tell the attached application to stop");
+  connect( mStopButton, SIGNAL( clicked() ), aApplication, SLOT( emitStopCmdSlot() ));
+
+
   // set up table for monitored parameters
   QHBoxLayout *lMonLayout = new QHBoxLayout(6, "montablayout");
   mMonParamTable = new ParameterTable(this, "monparamtable", aSimHandle);
   mMonParamTable->initTable();
   lMonLayout->addWidget(mMonParamTable);
-  lMonLayout->addSpacing(80);
+
+  // layout status, cmd buttons and paramtable
+  QVBoxLayout *lTopLeftLayout = new QVBoxLayout(6, "topleftlayout");
+  QHBoxLayout *lTopLayout = new QHBoxLayout(6, "toplayout");
+
+  lTopLeftLayout->addLayout(lStatusLayout);
+  lTopLeftLayout->addWidget(new TableLabel("Monitored Parameters", this));
+  lTopLeftLayout->addLayout(lMonLayout);
+  lTopLayout->addLayout(lTopLeftLayout);
+
+  /// lTopLayout->addSpacing(10);
+  //  lTopLayout->addLayout(lCmdButtonLayout);
+  lTopLayout->addWidget(lCmdGrpBox);
 
   // set up table and buttons for steered parameters
   QHBoxLayout *lSteerLayout = new QHBoxLayout(6, "steertablayout");
@@ -211,33 +257,35 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
 
   // the overall layout
-  lEditLayout->addLayout(lStatusLayout);
-  ///s  lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
+  ///lEditLayout->addLayout(lStatusLayout);
+  lEditLayout->addLayout(lTopLayout);
 
-  lEditLayout->addWidget(new TableLabel("Monitored Parameters", this));
-  lEditLayout->addLayout(lMonLayout);
-  ///s lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
+  ///n lEditLayout->addWidget(new TableLabel("Monitored Parameters", this));
+  ///n lEditLayout->addLayout(lMonLayout);
+ 
 
   lEditLayout->addWidget(new TableLabel("Steered Parameters", this));
   lEditLayout->addLayout(lSteerLayout);
-  ///s lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
+ 
 
   lEditLayout->addWidget(new TableLabel("Sample IOTypes", this));
   lEditLayout->addLayout(lSampleLayout);
-  ///s lEditLayout->addItem(new QSpacerItem( 0, 64 QSizePolicy::Minimum, QSizePolicy::Expanding));
-
+ 
 
   lEditLayout->addWidget(new TableLabel("CheckPoint IOTypes", this));
   lEditLayout->addLayout(lChkPtLayout);
-  ///s lEditLayout->addItem(new QSpacerItem( 0, 64, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-
+ 
   lEditLayout->addLayout(lBottomButtonLayout);
 
-  // disable buttons - they are enabled when table has some data
+  // disable buttons - they are enabled when tables have some data
   disableButtons();
+
+  // disable app command buttons - enabled when know what commands are supported
+  disableAppCmdButtons();
+
+  // Close button only becomes enabled when detach from application
+  mCloseButton->setEnabled(FALSE);
+  
 
 } 
 
@@ -518,6 +566,7 @@ ControlForm::disableAll(const bool aUnRegister)
   mIOTypeChkPtTable->clearAndDisableForDetach();
 
   disableButtons();
+  disableAppCmdButtons();
 
 }
 
@@ -530,12 +579,14 @@ ControlForm::disableIOCmdButtons()
   mEmitAllIOCommandsButton->setEnabled(FALSE);
   mEmitAllButton->setEnabled(FALSE);
 }
+
 void
 ControlForm::enableIOCmdButtons()
 {
   // for each only do if are some rows populated
   if (mIOTypeSampleTable->getNumIOTypes() > 0)
-    mSndSampleButton->setEnabled(TRUE); 
+    mSndSampleButton->setEnabled(TRUE);
+
   if (mIOTypeChkPtTable->getNumIOTypes() > 0)
   {
     mSndChkPtButton->setEnabled(TRUE); 
@@ -553,7 +604,6 @@ ControlForm::enableIOCmdButtons()
 void 
 ControlForm::disableButtons()
 {
-
   mEmitButton->setEnabled(FALSE); 
   mSndSampleButton->setEnabled(FALSE); 
   mSetSampleFreqButton->setEnabled(FALSE); 
@@ -563,7 +613,45 @@ ControlForm::disableButtons()
   mEmitAllValuesButton->setEnabled(FALSE); 
   mEmitAllIOCommandsButton->setEnabled(FALSE); 
   mEmitAllButton->setEnabled(FALSE); 
+}
 
+void 
+ControlForm::disableAppCmdButtons()
+{
+  mDetachButton->setEnabled(FALSE);
+  mStopButton->setEnabled(FALSE);
+  mPauseButton->setEnabled(FALSE);
+  mResumeButton->setEnabled(FALSE);
+}
+
+void 
+ControlForm::setEnabledDetach(const bool aEnable)
+{
+  mDetachButton->setEnabled(aEnable);
+}
+
+void  
+ControlForm::setEnabledStop(const bool aEnable)
+{
+  mStopButton->setEnabled(aEnable);
+}
+
+void  
+ControlForm::setEnabledPause(const bool aEnable)
+{
+  mPauseButton->setEnabled(aEnable);
+}
+
+void  
+ControlForm::setEnabledResume(const bool aEnable)
+{
+  mResumeButton->setEnabled(aEnable);
+}
+
+void  
+ControlForm::setEnabledClose(const bool aEnable)
+{
+  mCloseButton->setEnabled(aEnable);
 }
 
 

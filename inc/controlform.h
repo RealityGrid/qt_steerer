@@ -44,7 +44,6 @@
 #include <qvbox.h>
 #include <qwidget.h>
 
-class QPopupMenu;
 class QPushButton;
 class QString;
 class QHBoxLayout;
@@ -70,6 +69,13 @@ public:
   void disableAll(const bool aUnRegister = true);
   void disableIOCmdButtons();
   void enableIOCmdButtons();
+
+  void disableAppCmdButtons();
+  void setEnabledDetach(const bool aEnable);
+  void setEnabledStop(const bool aEnable);
+  void setEnabledPause(const bool aEnable);
+  void setEnabledResume(const bool aEnable);
+  void setEnabledClose(const bool aEnable);
 
   void setStatusLabel(const char *aStatusText);
 
@@ -113,9 +119,11 @@ private:
   QPushButton		*mEmitAllIOCommandsButton;
   QPushButton		*mEmitAllButton;
 
-///  QPushButton		*mCmdButton;
-///  QPopupMenu		*mCmdPopupMenu;
-
+  QPushButton		*mCloseButton;
+  QPushButton		*mDetachButton;
+  QPushButton		*mStopButton;
+  QPushButton		*mPauseButton;
+  QPushButton		*mResumeButton;
 
   ParameterTable	*mMonParamTable;
   SteeredParameterTable	*mSteerParamTable;

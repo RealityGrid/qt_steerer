@@ -67,7 +67,6 @@ public:
 private:
   void detachFromApplication();
   void disableForDetach(const bool aUnRegister = true);
-  void disableCmdButtons();
   void emitSingleCmd(int aCmdId);
 
 protected slots:
@@ -91,13 +90,6 @@ private:
   bool		mPauseSupported;
   bool		mResumeSupported;
   bool		mDetachedFlag;
-
-  QPushButton	*mCloseButton;
-
-  QPushButton	*mDetachButton;
-  QPushButton	*mStopButton;
-  QPushButton	*mPauseButton;
-  QPushButton	*mResumeButton;
 
   ControlForm	*mControlForm;
   QGroupBox	*mControlBox; 

@@ -87,21 +87,9 @@ private:
   QWidget	*mCentralWgt;
   QHBoxLayout	*mTopLayout;
 
-  QVBoxLayout	*mLeftLayout;
-  QVBoxLayout	*mRightLayout;
-
-  QPushButton	*mAttachButton;
-  QPushButton	*mGridAttachButton;
-
-  QPushButton	*mQuitButton;
-  QPushButton	*mReadMsgButton;
-
   QWidgetStack  *mStack;
   QTabWidget	*mAppTabs;
 
-  //SMR XXX not sure what copting going on here so done 2 to be safe for demo
-  QLabel	*mLogoLabel;
-  QPixmap	*mLogoPixMap;
   QLabel	*mStackLogoLabel;
   QPixmap	*mStackLogoPixMap;
  
@@ -112,12 +100,12 @@ private:
 
   CommsThread	*mCommsThread;
 
-  Application	*mApplication; //SMR XXX will be list - future
+  Application	*mApplication; //SMR XXX will be list - future when attach to more than one app
 				
 				
 };
 
-/// SMR XXX - future for posting app in new window
+/// SMR XXX - future for posting app in new window rather than new tab
 ///SMR class ApplicationWindow : public QMainWindow
 ///SMR {
 ///SMR 	Q_OBJECT

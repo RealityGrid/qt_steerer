@@ -67,12 +67,10 @@
 #include <qwidget.h>
 #include <qwidgetstack.h>
 
-
 SteererMainWindow::SteererMainWindow()
-  : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL), mTopLayout(kNULL),  
-    mLeftLayout(kNULL), mRightLayout(kNULL), mAttachButton(kNULL), mGridAttachButton(kNULL), 
-    mQuitButton(kNULL), mReadMsgButton(kNULL), mStack(kNULL), mAppTabs(kNULL), mLogoLabel(kNULL),
-    mLogoPixMap(kNULL), mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
+  : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
+    mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
+    mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
     mSetCheckIntervalAction(kNULL), mAttachAction(kNULL), mGridAttachAction(kNULL), 
     mQuitAction(kNULL), mCommsThread(kNULL), mApplication(kNULL)
 {
@@ -89,21 +87,25 @@ SteererMainWindow::SteererMainWindow()
   mSetCheckIntervalAction->setStatusTip("Set poling interval");
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
 
+
   mAttachAction = new QAction("Attach to local application", "Local &Attach",
 			      CTRL+Key_A, this, "attachaction");
   mAttachAction->setStatusTip("Attach to local app");
   connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
+
 
   mGridAttachAction = new QAction("Attach to app on Grid", "&Grid Attach",
 			      CTRL+Key_G, this, "gridattachaction");
   mGridAttachAction->setStatusTip("Attach to Grid app");
   connect( mGridAttachAction, SIGNAL(activated()), this, SLOT(attachGridAppSlot()) );
 
+
   mQuitAction =  new QAction("Quit (& detach)", "&Quit",
 			      CTRL+Key_Q, this, "quitaction");
   mQuitAction->setStatusTip("Quit (& detach)");
   connect( mQuitAction, SIGNAL(activated()), this, SLOT(quitSlot()) );
 
+  // put actions in menu
   QPopupMenu *lConfigMenu = new QPopupMenu( this );
   menuBar()->insertItem( "Steerer", lConfigMenu );
   mAttachAction->addTo(lConfigMenu);
@@ -117,25 +119,10 @@ SteererMainWindow::SteererMainWindow()
   mQuitAction->setEnabled(TRUE);
 
 
- // Create layouts to position the widgets
+  // Create layouts to position the widgets
   mTopLayout = new QHBoxLayout( mCentralWgt, 5);
-  ///  mLeftLayout = new QVBoxLayout(-1, "hb1" );
-///  mRightLayout = new QVBoxLayout(-1, "hb2");
-///  
-///  mTopLayout->addLayout(mLeftLayout);
-///  mTopLayout->addLayout(mRightLayout);
   
-  ///  mLeftLayout->setMargin(1);
-  /// mLeftLayout->setResizeMode(QLayout::Minimum);
-
   // set up the ReG logo
-///  mLogoLabel = new QLabel(mCentralWgt);
-///  mLogoPixMap = new QPixmap();
-///  if (mLogoPixMap->load("logo-sm.bmp"))
-///    mLogoLabel->setPixmap(*mLogoPixMap);
-///  else 
-///    mLogoLabel->setText("");
-///  
   mStackLogoLabel = new QLabel(mCentralWgt);
   mStackLogoPixMap = new QPixmap();
   if (mStackLogoPixMap->load("logo-sm.bmp"))
@@ -146,50 +133,7 @@ SteererMainWindow::SteererMainWindow()
     mStackLogoLabel->setFont(QFont("Times", 9, QFont::DemiBold));
   }
    
- ///  mLeftLayout->addWidget(mLogoLabel);
-
-
-  // set up all buttons
-///  mAttachButton = new QPushButton( "Local &Attach", mCentralWgt, "attachbutton" );
-///  mAttachButton->setMinimumSize(mAttachButton->sizeHint());
-///  mAttachButton->setMaximumSize(mAttachButton->sizeHint());
-///  mAttachButton->setEnabled(TRUE);
-///  QToolTip::add( mAttachButton, "Attach to local application" );
-///  connect( mAttachButton, SIGNAL(clicked()),
-///	      this, SLOT(attachAppSlot()) );
-///  mLeftLayout->addWidget(mAttachButton); 
-///
-///  mGridAttachButton= new QPushButton( "&Grid Attach", mCentralWgt, "gridattachbutton" );
-///  mGridAttachButton->setMinimumSize(mAttachButton->sizeHint());
-///  mGridAttachButton->setMaximumSize(mGridAttachButton->sizeHint());
-///  mGridAttachButton->setEnabled(TRUE);
-///  QToolTip::add( mGridAttachButton, "Attach to application on grid" );
-///  connect( mGridAttachButton, SIGNAL(clicked()),
-///	      this, SLOT(attachGridAppSlot()) );
-///  mLeftLayout->addWidget(mGridAttachButton); 
-///
-
-  // SMR XXX tmp button to read steerer files - replaced with thread that poles for files
-///SMR	mReadMsgButton = new QPushButton( "&ReadMsg", mCentralWgt, "ReadMsgbutton" );
-///SMR	mReadMsgButton->setMinimumSize(mReadMsgButton->sizeHint());
-///SMR	mReadMsgButton->setMaximumSize(mReadMsgButton->sizeHint());
-///SMR	mReadMsgButton->setEnabled(FALSE);
-///SMR	connect( mReadMsgButton, SIGNAL(clicked()), this, SLOT(readMsgSlot()) );
-///SMR  mLeftLayout->addWidget(mReadMsgButton); 
-
-///  QSpacerItem* spacer = new QSpacerItem( 0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding );
-///  mLeftLayout->addItem( spacer);
-
-///  mQuitButton = new QPushButton("&Quit", mCentralWgt, "quitbutton"); 
-///  mQuitButton->setMinimumSize(mQuitButton->sizeHint());
-///  mQuitButton->setMaximumSize(mQuitButton->sizeHint());
-///  QToolTip::add( mQuitButton, "Quit steerer (and detach from any attached applications)" );
-///  connect( mQuitButton, SIGNAL(clicked()),
-///	      this, SLOT(quitSlot()) );
-  ///  mLeftLayout->addWidget(mQuitButton); 
-
-
-  mTopLayout->addItem(new QSpacerItem( 14, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
+  mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
 
   // SMR XXX - future add more widgets to stack for log viewing, for now only tabwidget
   mStack = new QWidgetStack(mCentralWgt);
@@ -201,23 +145,21 @@ SteererMainWindow::SteererMainWindow()
   mTopLayout->addWidget(mStack);
   mStack->addWidget(mStackLogoLabel);
   mStack->raiseWidget(mStackLogoLabel);
-  mTopLayout->addItem(new QSpacerItem( 14, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
- 
 
-  //mTopLayout->addWidget(mQuitButton);
-  // mTopLayout->addLayout(mLeftLayout);
+  mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
 
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
 
   ///statusBar()->message( "Steerer Initialized", 2000 );
-  statusBar()->message( "www.realitygrid.org"); ///SMR XXXn
+  statusBar()->message( "www.realitygrid.org");
 
   // create commsthread so can set checkinterval 
   // - thread is started on first attach
   mCommsThread = new CommsThread(this);
   if (mCommsThread != kNULL)
     mSetCheckIntervalAction->setEnabled(TRUE);
+
 }
 
 
@@ -291,8 +233,9 @@ void
 SteererMainWindow::resizeForNoAttached()
 {
   mStack->raiseWidget(mStackLogoLabel);
-  //  mLogoLabel->hide();
-  resize(150,120);
+  
+  resize(140,180);
+  this->setMinimumSize(140, 180);
   qApp->processEvents();
   this->adjustSize();
 
@@ -413,14 +356,11 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       mAttachAction->setEnabled(FALSE);
       mGridAttachAction->setEnabled(FALSE);
       
-///	 mAttachButton->hide();
-///	 mGridAttachButton->hide();
-      ///	 mQuitButton->hide();
+      // resize - only do for first app attached? SMR XXX future concern
+      resize(600, 730);
 
-      //      mLogoLabel->show();
-      // resize - only do for first app attached? SMR XXX
-      resize(650, 700);     
-     
+      // set minimum size so all giu visible, if rmove this can shrink gui, but no scrollbars
+      this->setMinimumSize(600, 730);
       statusBar()->clear();
 
       DBGMSG("posted now start commsthread");
@@ -439,7 +379,6 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 	if (!mCommsThread->running())
 	{
 	  THROWEXCEPTION("Thread creation failed");
-	  ///SMR mReadMsgButton->setEnabled(TRUE);
 	}
       }            
       
@@ -494,10 +433,6 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   mAttachAction->setEnabled(TRUE);
   //  mGridAttachAction->setEnabled(TRUE);
 
-///  mAttachButton->show();
-///  mGridAttachButton->show();
-  ///  mQuitButton->show();
- 
   // SMR XXX  if last application being steered,resie the window
   resizeForNoAttached();
 }

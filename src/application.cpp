@@ -50,7 +50,6 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
-#include <qpopupmenu.h> //SMR XXXn
 #include <qpushbutton.h>
 #include <qtooltip.h>
 #include <qwidget.h>
@@ -58,8 +57,7 @@
 Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   : QWidget(aParent, aName), mSimHandle(aSimHandle), mNumCommands(0), 
     mDetachSupported(false), mStopSupported(false), mPauseSupported(false), 
-    mResumeSupported(false), mDetachedFlag(false), mCloseButton(kNULL),
-    mDetachButton(kNULL), mStopButton(kNULL), mPauseButton(kNULL), mResumeButton(kNULL), 
+    mResumeSupported(false), mDetachedFlag(false),
     mControlForm(kNULL), mControlBox(kNULL)
 { 
   // construct form for steering one application
@@ -67,79 +65,16 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   
   // create some layouts for positioning
   QHBoxLayout *lFormLayout = new QHBoxLayout(this, 6, 6);
-  QVBoxLayout *lButtonLayout = new QVBoxLayout(-1, "hb1" );
+  ///  QVBoxLayout *lButtonLayout = new QVBoxLayout(-1, "hb1" );
 
   // create the form which contains all the (dynamic) steered data (parameters etc)
   mControlBox = new QGroupBox(1, Vertical, "", this, "editbox" );
   mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this);
   lFormLayout->addWidget(mControlBox);
+  //this->addChild(mControlBox);
 
-
-  // create the main command buttons for steering the application
-  // note we use Resume button sizeHint to size all buttons to this size
-  mResumeButton = new QPushButton( "Resume", this, "resume" );
-  mResumeButton->setMinimumSize(mResumeButton->sizeHint());
-  mResumeButton->setMaximumSize(mResumeButton->sizeHint());
-  QToolTip::add(mResumeButton, "Tell the attached application to resume");
-  connect( mResumeButton, SIGNAL( clicked() ), this, SLOT( emitResumeCmdSlot() ));
-
-  mStopButton = new QPushButton( "Stop", this, "stop" );
-  mStopButton->setMinimumSize(mResumeButton->sizeHint());
-  mStopButton->setMaximumSize(mStopButton->sizeHint());
-  QToolTip::add(mStopButton, "Tell the attached application to stop");
-  connect( mStopButton, SIGNAL( clicked() ), this, SLOT( emitStopCmdSlot() ));
-  
-  mDetachButton = new QPushButton( "Detach", this, "detach" );
-  mDetachButton->setMinimumSize(mResumeButton->sizeHint());
-  mDetachButton->setMaximumSize(mDetachButton->sizeHint());
-  QToolTip::add(mDetachButton, "Tell the attached application to detach");
-  connect( mDetachButton, SIGNAL( clicked() ), this, SLOT( emitDetachCmdSlot() ));
-  
-  mPauseButton = new QPushButton( "Pause", this, "pause" );
-  mPauseButton->setMinimumSize(mResumeButton->sizeHint());
-  mPauseButton->setMaximumSize(mPauseButton->sizeHint());
-  QToolTip::add(mPauseButton, "Tell the attached application to pause");
-  connect( mPauseButton, SIGNAL( clicked() ), this, SLOT( emitPauseCmdSlot() ));
-  
-  // button to allow user to get rid of this application form when detached
-  mCloseButton = new QPushButton( "Close", this, "close" );
-  mCloseButton->setMinimumSize(mResumeButton->sizeHint());
-  mCloseButton->setMaximumSize(mCloseButton->sizeHint());
-  QToolTip::add( mCloseButton, "Close Control Monitor");
-  connect(mCloseButton, SIGNAL( clicked() ), this, SLOT(closeApplicationSlot()) );
+  // connect up signaL/slot for close
   connect (this, SIGNAL(closeApplicationSignal(int)), aParent, SLOT(closeApplicationSlot(int)) );
-  // Close button only becomes enabled when detach from application
-  mCloseButton->setEnabled(FALSE);
-
-
-///  mCmdButton = new QPushButton("Cmds",  this, "blobby" );
-///  mCmdButton->setMinimumSize(mResumeButton->sizeHint());
-///  mCmdButton->setMaximumSize(mCmdButton->sizeHint());
-///  QToolTip::add( mCmdButton, tr( "Menu of app commands" ) );
-///  mCmdPopupMenu = new QPopupMenu( this );
-///  mCmdButton->setPopup( mCmdPopupMenu );
-///
-///  mCmdPopupMenu->insertItem(mPauseButton);
-///  mCmdPopupMenu->insertItem(mResumeButton);
-///  mCmdPopupMenu->insertItem(mDetachButton);
-///  mCmdPopupMenu->insertItem(mCloseButton);
-///  mCmdPopupMenu->insertItem(mStopButton);
-///
-
-
-  // add buttons to layout
-  QSpacerItem* spacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
- 
-  lButtonLayout->addWidget(mStopButton);
-  lButtonLayout->addWidget(mCloseButton);
-  lButtonLayout->addWidget(mDetachButton);
-  lButtonLayout->addWidget(mPauseButton);
-  lButtonLayout->addWidget(mResumeButton);
-  lButtonLayout->addItem(spacer);
-  
-  lFormLayout->addLayout(lButtonLayout);
-
-
 } 
 
 Application::~Application()
@@ -178,20 +113,9 @@ void Application::detachFromApplication()
 void
 Application::disableForDetach(const bool aUnRegister)
 {
-  mControlForm->disableAll(aUnRegister);
-  disableCmdButtons();
-  
+  mControlForm->disableAll(aUnRegister);  
 }  
 
-
-void
-Application::disableCmdButtons()
-{
-  mDetachButton->setEnabled(FALSE);
-  mStopButton->setEnabled(FALSE);
-  mPauseButton->setEnabled(FALSE);
-  mResumeButton->setEnabled(FALSE);  
-}
 
 void 
 Application::enableCmdButtons() 
@@ -203,7 +127,7 @@ Application::enableCmdButtons()
   // note that the supported cmds remain static for duration of steering application
 
   // disable all then appropriately enable those supported, set flags as to what is supported
-  disableCmdButtons();
+  mControlForm->disableAppCmdButtons();
 
   int	*lCmdIds = kNULL;
 
@@ -235,22 +159,22 @@ Application::enableCmdButtons()
       switch (lCmdIds[i])
       {    
         case REG_STR_STOP:
-	  mStopButton->setEnabled(TRUE);
+	  mControlForm->setEnabledStop(TRUE);
 	  mStopSupported = true;
 	  break;
 	  
         case REG_STR_PAUSE:
-	  mPauseButton->setEnabled(TRUE);
+	  mControlForm->setEnabledPause(TRUE);
 	  mPauseSupported = true;
 	  break;
 	  
         case REG_STR_RESUME:
-	  mResumeButton->setEnabled(FALSE);  // only enable when detach has been sent
+	  mControlForm->setEnabledResume(FALSE);  // only enable when detach has been sent
 	  mResumeSupported = true;
 	  break;
 	  
         case REG_STR_DETACH:
-	  mDetachButton->setEnabled(TRUE);
+	  mControlForm->setEnabledDetach(TRUE);
 	  mDetachSupported = true;
 	  break;
 	     
@@ -340,9 +264,9 @@ Application::emitResumeCmdSlot()
 {
 
   // disable resume and enable pause  if supported (should be forced to support both in library)
-  mResumeButton->setEnabled(FALSE);
+  mControlForm->setEnabledResume(FALSE);
   if (mPauseSupported)
-    mPauseButton->setEnabled(TRUE);
+    mControlForm->setEnabledPause(TRUE);
 
   //enable IOtype commands
   mControlForm->enableIOCmdButtons();
@@ -358,9 +282,9 @@ Application::emitPauseCmdSlot()
 {
   // disable Pause and enable resume if supported (should be forced to support both in library)
   
-  mPauseButton->setEnabled(FALSE);
+  mControlForm->setEnabledPause(FALSE);
   if (mResumeSupported)
-    mResumeButton->setEnabled(TRUE);
+    mControlForm->setEnabledResume(TRUE);
 
   // disable IOtype commands
   mControlForm->disableIOCmdButtons();
@@ -546,7 +470,7 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	      mControlForm->setStatusLabel("Application has detached");
 
 	      // enable Close button
-	      mCloseButton->setEnabled(TRUE);
+	      mControlForm->setEnabledClose(TRUE);
 
 	      mDetachedFlag = true;
 	      break;
@@ -561,7 +485,7 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	      mControlForm->setStatusLabel("Detached as application has stopped");
 
 	      // enable Close button
-	      mCloseButton->setEnabled(TRUE);
+	      mControlForm->setEnabledClose(TRUE);
 
 	      mDetachedFlag = true;
 	      break;
@@ -583,7 +507,8 @@ Application::processNextMessage(REG_MsgType aMsgType)
 
       if(Consume_log(mSimHandle) != REG_SUCCESS)	//ReG library 
       {
-	THROWEXCEPTION("Consume_log failed");
+	// THROWEXCEPTION("Consume_log failed"); - don't throw - just log that this has happened
+	DBGLOG("Consume_log library call failed");
       }
 
       break;
