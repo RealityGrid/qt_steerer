@@ -74,13 +74,13 @@ class CommsThreadEvent : public QCustomEvent
 {
 
 public:
-  CommsThreadEvent(REG_MsgType aMsgType);
+  CommsThreadEvent(int aMsgType);
   ~CommsThreadEvent();
   
-  REG_MsgType getMsgType() const;
+  int getMsgType() const;
     
 private:
-  REG_MsgType mMsgType;
+  int mMsgType;
   
 };
 

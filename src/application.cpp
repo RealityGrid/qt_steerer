@@ -421,7 +421,7 @@ Application::customEvent(QCustomEvent *aEvent)
 
 
 void
-Application::processNextMessage(REG_MsgType aMsgType)
+Application::processNextMessage(int aMsgType)
 {
   // the commsthread has found a file for this application - this
   // function calls ReG library routines to process that file

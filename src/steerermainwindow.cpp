@@ -477,7 +477,7 @@ SteererMainWindow::readMsgSlot()
   // code to read steering files when user requests via button
 
   int	lSimHandle = -1;
-  REG_MsgType lMsgType = 0;
+  int   lMsgType = 0;
 
   DBGMSG("In SteererMainWindow run");
     

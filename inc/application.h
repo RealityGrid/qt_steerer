@@ -61,7 +61,7 @@ public:
   ~Application();
 
   void customEvent(QCustomEvent *);
-  void processNextMessage(REG_MsgType aMsgType);
+  void processNextMessage(int aMsgType);
   void enableCmdButtons();
 
   bool isLocal(){return mIsLocal;}

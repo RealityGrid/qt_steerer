@@ -187,7 +187,7 @@ CommsThread::run()
   // this routine runs until flagged to stop
 
   int	lSimHandle = REG_SIM_HANDLE_NOTSET ;
-  REG_MsgType lMsgType = MSG_NOTSET;
+  int   lMsgType = MSG_NOTSET;
 
   DBGMSG("CommsThread starting");
   
@@ -239,7 +239,7 @@ CommsThread::setKeepRunning(const bool aFlag)
 }
 
 
-CommsThreadEvent::CommsThreadEvent(REG_MsgType aMsgType)
+CommsThreadEvent::CommsThreadEvent(int aMsgType)
   : QCustomEvent(QEvent::User + kMSG_EVENT), mMsgType(aMsgType)
 { 
   // class to extend QCustomEvent to hold mMsgType
@@ -250,7 +250,7 @@ CommsThreadEvent::~CommsThreadEvent()
   DBGDST("CommsThreadEvent");
 }
 
-REG_MsgType
+int
 CommsThreadEvent::getMsgType() const
 {
   return mMsgType;
