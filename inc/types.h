@@ -83,7 +83,7 @@
 #define kNULL_INDX		-1
 
 // checkpoint command parameter string length
-#define kCHKPT_PARAM_LEN	10	// SMR XXX update this when 2nd param implemented
+#define kCHKPT_PARAM_LEN	REG_MAX_STRING_LENGTH + 5
 
 
 // minimum poling interval (milliseconds)from commsthread Get_next_message
