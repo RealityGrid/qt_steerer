@@ -43,6 +43,9 @@
 
 #include "table.h"
 #include "parameter.h"
+#include "qpoint.h"
+
+class HistoryPlot;
 
 class ParameterTable : public Table
 {
@@ -57,15 +60,27 @@ public:
   
   virtual bool updateRow(const int lHandle, const char *lVal);
   virtual void addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType);
+
+public slots:
+  // MR: Slot for the context menu
+  virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
+  void drawGraphSlot(int popupMenuID);
+
+signals:
+  // MR: Signal to tell the HistoryPlot to update
+  void paramUpdateSignal(ParameterHistory *mParamHist, const int paramID);
  
 protected:
 
   int getNumParameters() const;
   int findParameterRowIndex(int aId);
   Parameter *findParameter(int aId);
+  // MR: reverse lookup of parameter ID
+  Parameter *findParameterHandleFromRow(int row);
 
 protected:
   QPtrList<Parameter> mParamList;
+  HistoryPlot *mQwtPlot;
 
 };
 
@@ -82,16 +97,23 @@ public:
   virtual void clearAndDisableForDetach(const bool aUnRegister = true);
 
   ////  virtual bool updateRow no redefinition required
-  virtual void addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType);
+  virtual void addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType, const char *lMinVal, const char *lMaxVal);
 
   int setNewParamValuesInLib();
   void clearNewValues();
 
+  // MR: Method called by the DynamicTip class in order to determine what tooltip (if any) to show
   int getTip(const QPoint &pos, QRect &rect, QString &string);
+
 
 protected slots:
   void validateValueSlot(int aRow, int aCol);
   void emitValuesSlot();
+
+public slots:
+  // MR: Slot for the context menu (don't currently have one in this table)
+  virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
+
 
 signals:
   void enableButtonsSignal();
