@@ -192,11 +192,49 @@ void HistoryPlot::autoYAxisSlot(){
 }
 
 void HistoryPlot::graphYUpperBoundSlot(){
-  upperBound = QInputDialog::getDouble("Enter Y-axis upper-bound", "Y Upper-bound Dialog");
+  // using the default double dialog box is a pain, since we have to worry about the
+  // number of decimal points
+  // upperBound = QInputDialog::getDouble("Enter Y-axis upper-bound", "Y Upper-bound Dialog", upperBound, -2147483647, 2147483647, 16);
+
+  bool conversionOk, dialogOk;
+  QString tempStr = QInputDialog::getText("Enter Y-axis upper-bound", "Y upper-bound Dialog", QLineEdit::Normal, QString::number(upperBound), &dialogOk);
+
+  // Check that user pressed Ok and not Cancel
+  if (!dialogOk)
+    return;
+  
+  double upperBoundTmp = tempStr.toDouble(&conversionOk);
+
+  // potentially a user could make enough mistakes to reach the stack limit on the machine,
+  // but it's unlikely ;p
+  if (!conversionOk){
+    graphYUpperBoundSlot();
+  }
+  else
+    upperBound = upperBoundTmp;
 }
 
 void HistoryPlot::graphYLowerBoundSlot(){
-  lowerBound = QInputDialog::getDouble("Enter Y-axis lower-bound", "Y Lower-bound Dialog");
+  // using the default double dialog box is a pain, since we have to worry about the
+  // number of decimal points
+  // lowerBound = QInputDialog::getDouble("Enter Y-axis lower-bound", "Y Lower-bound Dialog", lowerBound, -2147483647, 2147483647, 16);
+
+  bool conversionOk, dialogOk;
+  QString tempStr = QInputDialog::getText("Enter Y-axis upper-bound", "Y upper-bound Dialog", QLineEdit::Normal, QString::number(lowerBound), &dialogOk);
+
+  // Check that user pressed Ok and not Cancel
+  if (!dialogOk)
+    return;
+
+  double lowerBoundTmp = tempStr.toDouble(&conversionOk);
+
+  // potentially a user could make enough mistakes to reach the stack limit on the machine,
+  // but it's unlikely ;p
+  if (!conversionOk){
+    graphYLowerBoundSlot();
+  }
+  else
+    lowerBound = lowerBoundTmp;
 }
 
 
