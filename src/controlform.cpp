@@ -478,6 +478,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
   char		**lLabels = kNULL;
   bool		lCleanUpFlag = false;
   int		lStatus = REG_FAILURE;
+  int		i;
 
 
   // point to relevant table - sample or checkpoint
@@ -510,7 +511,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
       lTypes = new int[lNumTypes];
       lVals = new int[lNumTypes];
       lLabels = new char *[lNumTypes];   
-      for(int i=0; i<lNumTypes; i++)
+      for(i=0; i<lNumTypes; i++)
       {
 	lLabels[i] = new char[REG_MAX_STRING_LENGTH + 1];
       }
@@ -533,7 +534,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
 
       if (lStatus == REG_SUCCESS)
       {
-	for (int i=0; i<lNumTypes; i++)
+	for (i=0; i<lNumTypes; i++)
 	{	  
 	  //check if already exists - if so only update frequency value
 	  if (!(lIOTypeTablePtr->updateRow(lHandles[i], lVals[i])))
@@ -554,7 +555,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
       delete [] lHandles;
       delete [] lTypes;
       delete [] lVals;
-      for(int i=0; i<lNumTypes; i++)
+      for(i=0; i<lNumTypes; i++)
 	{
 	  delete [] lLabels[i];
 	}

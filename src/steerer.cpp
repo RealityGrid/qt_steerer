@@ -43,20 +43,29 @@
 #include "exception.h"
 #include "steerermainwindow.h"
 
+#ifndef WIN32
 #include <qmotifplusstyle.h>
+#else
+#include <qwindowsstyle.h>
+#endif
 
 #include <signal.h>
 #include <new.h>
 
+#ifndef WIN32
 #include <X11/Xlib.h>
-
+#endif
 
 //file scope global pointer pointing at this SteererMainWindow object; need this to
 //perform clean up.  
 SteererMainWindow* gSteererMainWindowSelfPtr;
 
 // exception handler function called when new fails
+#ifndef WIN32
 void failedNewHandler()
+#else
+int failedNewHandler(size_t size)
+#endif
 {
 	cerr << "Run out of memory - steerer quitting..." << endl;
 	delete gSteererMainWindowSelfPtr;
@@ -129,7 +138,9 @@ int main( int argc, char ** argv )
 
   // Was getting XSync errors when trying to save screenshots to file.
   // This seems to fix it.
+#ifndef WIN32
   XInitThreads();
+#endif
 
   SteererMainWindow *lSteererMainWindow = kNULL;
   gSteererMainWindowSelfPtr = kNULL;
@@ -140,8 +151,12 @@ int main( int argc, char ** argv )
   signal(SIGILL, signalHandler);
   signal(SIGABRT, signalHandler);
   signal(SIGFPE, signalHandler);
-  
+
+#ifndef WIN32
   set_new_handler( failedNewHandler );
+#else
+  _set_new_handler( failedNewHandler );
+#endif
 
   int result = 1;
 
@@ -169,7 +184,11 @@ int main( int argc, char ** argv )
   {
     QApplication lApp( argc, argv );
     lApp.setFont(QFont("Times", 10));  //SMR XXX default is Helvetica on errol
+#ifndef WIN32
     lApp.setStyle(new QMotifPlusStyle);
+#else
+	lApp.setStyle(new QWindowsStyle);
+#endif
 
     // MR Check to see if we were supplied with an SGS as a command line arg
     // if so - we've been started from the QT launcher, so go directly to the

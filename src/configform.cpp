@@ -57,8 +57,8 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
 {
   //  mMinVal_Sec = 0.001*kMIN_POLLING_INT;
   //  mMaxVal_Sec = 0.001*kMAX_POLLING_INT;
-  mMinVal_Sec = 0.05;
-  mMaxVal_Sec = 2.0;
+  mMinVal_Sec = 0.05f;
+  mMaxVal_Sec = 2.0f;
 
   DBGMSG1("ARPDBG: min val = ", mMinVal_Sec);
   DBGMSG1("ARPDBG: max val = ", mMaxVal_Sec);

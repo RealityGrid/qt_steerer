@@ -41,7 +41,8 @@
 #include "parameter.h"
 #include "qpoint.h"
 
-class HistoryPlot;
+#include "historyplot.h"
+//class HistoryPlot;
 
 
 class ParameterTable : public Table

@@ -43,6 +43,8 @@
 #include <qmessagebox.h>
 #include "iostream.h"
 
+#include "debug.h"
+
 #define CURVE_UNSET 1000
 
 /** Constructor
@@ -159,6 +161,11 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mForceHistRedraw = false;
 
     doPlot();
+}
+
+HistoryPlot::~HistoryPlot()
+{
+  DBGDST("HistoryPlot");
 }
 
 /** Menu handling slots

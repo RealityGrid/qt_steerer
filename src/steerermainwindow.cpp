@@ -64,7 +64,9 @@
 #include <qwidget.h>
 #include <qwidgetstack.h>
 
+#ifndef WIN32
 #include <unistd.h>
+#endif
 
 SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),

@@ -715,6 +715,8 @@ int IOTypeTable::getCommandRequestsCountOfType(const int aType){
 /** MR: this slot will replace the current emitCommandsSlot
  */
 void IOTypeTable::createButtonPressedSlot(){
+  int i;
+
   // this slot will get called for the SampleIOTypes table "Tell Req"
   // button as well, so ignore those events
   if (!mChkPtTypeFlag)
@@ -731,7 +733,7 @@ void IOTypeTable::createButtonPressedSlot(){
       // populate the array of commands of command parameters
       lCommandArray = new int[lCount];
       lCmdParamArray = new char*[lCount];
-      for (int i=0; i<lCount; i++){
+      for (i=0; i<lCount; i++){
         lCmdParamArray[i] = new char[kCHKPT_PARAM_LEN];
         strcpy(lCmdParamArray[i], " ");
       }
@@ -759,7 +761,7 @@ void IOTypeTable::createButtonPressedSlot(){
 
     // clean up
     delete[] lCommandArray;
-    for (int i=0; i<lCount; i++)
+    for (i=0; i<lCount; i++)
       delete[] lCmdParamArray[i];
     delete [] lCmdParamArray;
 
@@ -955,6 +957,8 @@ int IOTypeTable::populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdPa
 }
 
 void IOTypeTable::consumeButtonPressedSlot(){
+  int i;
+
   // search through the table and find any highlighted entries,
   // read in data for those
   DBGMSG("consumeButtonPressedSlot");
@@ -975,7 +979,7 @@ void IOTypeTable::consumeButtonPressedSlot(){
       lCommandArray = new int[lCount];
       lCmdParamArray = new char*[lCount];
 
-      for (int i=0; i<lCount; i++){
+      for (i=0; i<lCount; i++){
         lCmdParamArray[i] = new char[kCHKPT_PARAM_LEN];
         strcpy(lCmdParamArray[i], " ");
       }
@@ -1005,7 +1009,7 @@ void IOTypeTable::consumeButtonPressedSlot(){
 
     // clean up
     delete[] lCommandArray;
-    for (int i=0; i<lCount; i++){
+    for (i=0; i<lCount; i++){
       delete[] lCmdParamArray[i];
     }
     delete[] lCmdParamArray;
@@ -1018,6 +1022,8 @@ void IOTypeTable::consumeButtonPressedSlot(){
 }
 
 void IOTypeTable::emitButtonPressedSlot(){
+  int i;
+
   // search through the table and find any highlighted entries,
   // write data out for those
   DBGMSG("emitButtonPressedSlot");
@@ -1038,7 +1044,7 @@ void IOTypeTable::emitButtonPressedSlot(){
       lCommandArray = new int[lCount];
       lCmdParamArray = new char*[lCount];
 
-      for (int i=0; i<lCount; i++){
+      for (i=0; i<lCount; i++){
         lCmdParamArray[i] = new char[kCHKPT_PARAM_LEN];
         strcpy(lCmdParamArray[i], " ");
       }
@@ -1055,7 +1061,7 @@ void IOTypeTable::emitButtonPressedSlot(){
 
       // clean up
       delete[] lCommandArray;
-      for (int i=0; i<lCount; i++){
+      for (i=0; i<lCount; i++){
         delete[] lCmdParamArray[i];
       }
       delete[] lCmdParamArray;
@@ -1068,7 +1074,7 @@ void IOTypeTable::emitButtonPressedSlot(){
 
     // clean up
     delete[] lCommandArray;
-    for (int i=0; i<lCount; i++){
+    for (i=0; i<lCount; i++){
       delete[] lCmdParamArray[i];
     }
     delete[] lCmdParamArray;

@@ -47,7 +47,8 @@ class QTabWidget;
 class QWidget;
 class QWidgetStack;
 
-class Application;
+#include "application.h"
+//class Application;
 class CommsThread;
 
 class SteererMainWindow : public QMainWindow
