@@ -132,7 +132,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   // table and buttons for checkpoint iotypes
   QHBoxLayout *lChkPtLayout = new QHBoxLayout(6, "chktablayout");
   QVBoxLayout *lChkPtButtonLayout = new QVBoxLayout(6, "chkptbuttons");
-  mIOTypeChkPtTable = new IOTypeTable(this,"chkptparamtable", aSimHandle);
+  mIOTypeChkPtTable = new IOTypeTable(this,"chkptparamtable", aSimHandle, true);
   mIOTypeChkPtTable->initTable();
   connect(mIOTypeChkPtTable, SIGNAL(detachFromApplicationForErrorSignal()), 
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
@@ -583,6 +583,7 @@ ControlForm::emitAllValuesSlot()
       qApp->lock();
       lReGStatus = Emit_control(mSimHandle,		//ReG library
 				0,
+				NULL,
 				NULL);
       qApp->unlock();
 
@@ -618,6 +619,7 @@ void
 ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
 {
   int lReGStatus = REG_FAILURE;
+  int lTotalCount = 0;
   bool lAddCmdFlag = false;
 
   if (aAdditionalCmd == REG_STR_DETACH)
@@ -626,28 +628,38 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
   // emit sample and checkpoint requested commands
   
   int *lCommandArray = kNULL;
+  char **lCmdParamArray = kNULL;
 
   try
   {
     int lSampleCount = mIOTypeSampleTable->getCommandRequestsCount();
     int lChkPtCount = mIOTypeChkPtTable->getCommandRequestsCount();
         
-    int lTotalCount = lSampleCount + lChkPtCount;
+    lTotalCount = lSampleCount + lChkPtCount;
 
     if (lAddCmdFlag)
       lTotalCount++;
 
     
-    // populate the array of commands    
+    // populate the array of commands and array of parameters for commands   
     lCommandArray = new int[lTotalCount];
+    lCmdParamArray = new char *[lTotalCount];
+
+    // initialize array to blank strings
+    for (int i=0; i<lTotalCount; i++)
+    {
+      lCmdParamArray[i] = new char [kCHKPT_PARAM_LEN]; //SMR XXX
+      strcpy(lCmdParamArray[i], " ");
+    }
+   
     int lRealSampleCount = 0;
     int lRealChkPtCount = 0;
     
     if (lSampleCount > 0)
-      lRealSampleCount = mIOTypeSampleTable->populateCommandRequestArray(lCommandArray, lSampleCount, 0);
+      lRealSampleCount = mIOTypeSampleTable->populateCommandRequestArray(lCommandArray, lCmdParamArray, lSampleCount, 0);
   
     if (lChkPtCount>0)
-      lRealChkPtCount = mIOTypeChkPtTable->populateCommandRequestArray(lCommandArray, lChkPtCount, lRealSampleCount);
+      lRealChkPtCount = mIOTypeChkPtTable->populateCommandRequestArray(lCommandArray, lCmdParamArray, lChkPtCount, lRealSampleCount);
     
     int lRealTotalCount = lRealSampleCount + lRealChkPtCount;
 
@@ -660,10 +672,15 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
    
     if (lRealTotalCount > 0 || aForceEmitFlag == true)
     { 
+      //SMR XXX DBG
+      for (int i=0; i<lTotalCount; i++)
+	DBGMSG1("***CmsParam :", lCmdParamArray[i]);
+
       qApp->lock();
       lReGStatus = Emit_control(mSimHandle,			//ReG library
 				lRealTotalCount,
-				lCommandArray);
+				lCommandArray,
+				lCmdParamArray);
       
       qApp->unlock();
 
@@ -673,6 +690,10 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
     
     // clean up
     delete [] lCommandArray;
+    for (int i=0; i<lTotalCount; i++)
+      delete [] lCmdParamArray[i];
+    delete [] lCmdParamArray;
+
 
   } //try
 
@@ -681,6 +702,9 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
     StEx.print();
 
     delete [] lCommandArray;
+    for (int i=0; i<lTotalCount; i++)
+      delete [] lCmdParamArray[i];
+    delete [] lCmdParamArray;
 
     emit detachFromApplicationForErrorSignal();
     QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
