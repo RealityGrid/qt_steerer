@@ -79,6 +79,9 @@ protected slots:
   void closeApplicationSlot(int aSimHandle);
   void configureSteererSlot();
 
+public slots:
+  void statusBarMessageSlot(QString &message);
+
 private:
   void simAttachApp(char *aSimID, bool aIsLocal = false);
 
