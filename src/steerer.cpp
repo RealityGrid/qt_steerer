@@ -135,7 +135,24 @@ int main( int argc, char ** argv )
   set_new_handler( failedNewHandler );
 
   int result = 1;
- 
+
+  // output some ReG library constants
+  DBGLOG("ReG steering library info:");
+  DBGLOG1("REG_MAX_NUM_FILES", REG_MAX_NUM_FILES);
+  DBGLOG1("REG_MAX_NUM_STR_CMDS", REG_MAX_NUM_STR_CMDS);
+  DBGLOG1("REG_MAX_NUM_STR_PARAMS", REG_MAX_NUM_STR_PARAMS);
+  DBGLOG1("REG_MAX_STRING_LENGTH",REG_MAX_STRING_LENGTH);
+  DBGLOG1("REG_MAX_LINE_LEN ",REG_MAX_LINE_LEN );
+  DBGLOG1("REG_MAX_MSG_SIZE",REG_MAX_MSG_SIZE);
+
+  #ifdef UNICORE_DEMO
+    DBGLOG("UNICORE_DEMO defined");
+  #else
+    DBGLOG("UNICORE_DEMO not defined\n");
+  #endif
+
+  DBGLOG("Steerer starting...\n");
+
   // note no qApp->lock need here as commsthread not running
   
   // initialise steerer via library
