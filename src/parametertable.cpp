@@ -396,7 +396,7 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
   setItem(lRowIndex, kVALUE_COLUMN, 
 	     new QTableItem(this, QTableItem::Never,  QString( lVal)));
   setItem(lRowIndex, kNEWVALUE_COLUMN,
-	     new QTableItem(this, QTableItem::WhenCurrent,  QString::null));
+	     new QTableItem(this, QTableItem::OnTyping,  QString::null));
 	   
 
   lParamPtr->setIndex(lRowIndex);

@@ -235,7 +235,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
     setItem(lRowIndex, kIO_VALUE_COLUMN, 
 	    new QTableItem(this, QTableItem::Never, QString::number(lVal)));
     setItem(lRowIndex, kIO_NEWVALUE_COLUMN,
-	    new QTableItem(this, QTableItem::WhenCurrent, QString::null));
+	    new QTableItem(this, QTableItem::OnTyping, QString::null));
   }
   else			// the application does NOT support auto emit/consume
   {
