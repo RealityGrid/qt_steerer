@@ -45,6 +45,8 @@
 #include <qtooltip.h>
 #include <qvbox.h>
 
+#include <math.h>
+
 ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *name,
 		       bool modal, WFlags f)
   : QDialog( parent, name, modal, f ), 
@@ -55,24 +57,22 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *n
 
   // note aCurrentIntervalValue is in milliseconds - convert to seconds for GUI entry
 
-  this->setCaption( "Configure Steerer" );
+  this->setCaption( "Configure Poling" );
   resize( 150, 150 );
     
   // create the layouts for the form
   QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, "configformlayout");
   QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "configbuttonlayout");
 
-  lFormLayout->addWidget(new QLabel("Enter interval value (0.5 - 10 secs)", this));
+  //SMR XXX replace with constants for range throughout -to do
+  lFormLayout->addWidget(new QLabel("Enter interval value (seconds) \nValid range: 0.5 - 10 (1d.p)", this));
 
   mLineEdit = new QLineEdit( this );
 
   double lVal = (double) aCurrentIntervalValue/1000;
-  DBGMSG1("curr int", aCurrentIntervalValue);
-  DBGMSG1("curr dbl", lVal);
 
   mLineEdit->setText(QString::number(lVal, 'g', 3));
-  mLineEdit->setValidator( new QDoubleValidator( 0.5, 10.0, 3,
-						    mLineEdit ) );
+  mLineEdit->setValidator( new QDoubleValidator(mLineEdit, "dbleavlidator" ) );
 
   lFormLayout->addWidget( mLineEdit);
 
@@ -112,27 +112,36 @@ ConfigForm::getIntervalValue(void) const
 void
 ConfigForm::applySlot()
 {
- 
+  bool lOk = false;
   double lValue;
   if (!mLineEdit->text().isEmpty())
   {
-    lValue = mLineEdit->text().toDouble();
-    if (lValue >= 0.5 && lValue <= 10)
+    lValue = mLineEdit->text().toDouble(&lOk);
+    if (lOk)
     {
-      DBGMSG1("val", lValue);
-      // convert to milliseconds
-      mIntervalValue = (int) (lValue*1000);
-      DBGMSG1("int", mIntervalValue);
-      QDialog::accept();
+      if (lValue >= 0.5 && lValue <= 10)
+      {
+	// keep only one d.p; add 0.001 to for .9999 representation problem
+	lValue += 0.001;
+	lValue=floor(lValue*10);
+
+	//convert to int and miiliseconds
+	mIntervalValue = (int) (lValue*100);
+	QDialog::accept();
+      }
+      else
+	lOk=false;
     }
-    else
+
+    if (!lOk)
     { 
       //value is out of range
-      QMessageBox::information(0, "Out of range", "Please enter a value between 0.1 and 10",
+      QMessageBox::information(0, "Invalid entry", "Please enter a value between 0.5 and 10",
 			       QMessageBox::Ok,
 			       QMessageBox::NoButton, 
 			       QMessageBox::NoButton);
     }
+
   }
   else
   {
