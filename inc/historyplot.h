@@ -84,9 +84,12 @@ private:
     int xparamID;
     int yparamID;
 
-    double upperBound, lowerBound;
-    int    upperBoundId, lowerBoundId, autoAxisId, showSymbolsId;
-    bool   autoAxisSet;
+    double mYUpperBound, mYLowerBound;
+    double mXUpperBound, mXLowerBound;
+    int    mXUpperBoundId, mXLowerBoundId, mAutoXAxisId;
+    int    mYUpperBoundId, mYLowerBoundId, mAutoYAxisId;
+    int    showSymbolsId;
+    bool   mAutoYAxisSet, mAutoXAxisSet;
     bool   displaySymbolsSet;
         
     void doPlot();
@@ -103,6 +106,9 @@ public slots:
     void graphYUpperBoundSlot();
     void graphYLowerBoundSlot();
     void autoYAxisSlot();
+    void graphXUpperBoundSlot();
+    void graphXLowerBoundSlot();
+    void autoXAxisSlot();
     void graphDisplaySymbolsSlot();
 
 signals:

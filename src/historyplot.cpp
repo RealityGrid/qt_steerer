@@ -83,21 +83,35 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mFileMenu->insertItem("&Close", this, SLOT(fileQuit()), CTRL+Key_C);
 
     mGraphMenu = new QPopupMenu(this, "graphPopup");
-    autoAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
+
+    mAutoYAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
 					SLOT(autoYAxisSlot()), CTRL+Key_A);
-    upperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, 
+    mYUpperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, 
 					  SLOT(graphYUpperBoundSlot()), 
 					  CTRL+Key_U);
-    lowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
+    mYLowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
 					  SLOT(graphYLowerBoundSlot()), 
 					  CTRL+Key_L);
+
+    mAutoXAxisId = mGraphMenu->insertItem("&Auto X Axis", this, 
+					SLOT(autoXAxisSlot()), ALT+Key_A);
+    mXUpperBoundId = mGraphMenu->insertItem("Define X &upper-bound", this, 
+					  SLOT(graphXUpperBoundSlot()), 
+					  ALT+Key_U);
+    mXLowerBoundId = mGraphMenu->insertItem("Define X &lower-bound", this, 
+					  SLOT(graphXLowerBoundSlot()), 
+					  ALT+Key_L);
+
     showSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
 					   SLOT(graphDisplaySymbolsSlot()),
-					   CTRL+Key_D);
+					   ALT+Key_D);
 
-    mGraphMenu->setItemChecked(autoAxisId, true);
-    mGraphMenu->setItemEnabled(upperBoundId, false);
-    mGraphMenu->setItemEnabled(lowerBoundId, false);
+    mGraphMenu->setItemChecked(mAutoYAxisId, true);
+    mGraphMenu->setItemChecked(mAutoXAxisId, true);
+    mGraphMenu->setItemEnabled(mYUpperBoundId, false);
+    mGraphMenu->setItemEnabled(mYLowerBoundId, false);
+    mGraphMenu->setItemEnabled(mXUpperBoundId, false);
+    mGraphMenu->setItemEnabled(mXLowerBoundId, false);
     mGraphMenu->setItemChecked(showSymbolsId, true);
     
     mMenuBar->insertItem("&File", mFileMenu);
@@ -108,8 +122,10 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 
     resize(300, 300);
 
-    lowerBound = upperBound = 0;
-    autoAxisSet = true;
+    mYLowerBound = mYUpperBound = 0;
+    mXLowerBound = mXUpperBound = 0;
+    mAutoYAxisSet = true;
+    mAutoXAxisSet = true;
 
     // Default to displaying symbols
     displaySymbolsSet = true;
@@ -125,7 +141,9 @@ void HistoryPlot::filePrint(){
 }
 
 void HistoryPlot::fileSave(){
-  QString lFileName = QFileDialog::getSaveFileName(".", "Images (*.jpg)", 0, "save file dialog", "Choose a filename to save the image as");
+  QString lFileName = QFileDialog::getSaveFileName(".", "Images (*.jpg)", 0, 
+						   "save file dialog", 
+						   "Choose a filename to save the image as");
   // ensure the user gave us a sensible file
   if (!lFileName.isNull()){
     // ensure the file has a .jpg extension
@@ -141,8 +159,9 @@ void HistoryPlot::fileSave(){
 
 void HistoryPlot::fileDataSave(){
 
-  QString lFileName = QFileDialog::getSaveFileName(".", "Data (*.dat)", 0, "save file dialog", "Choose a name for the data file");
-
+  QString lFileName = QFileDialog::getSaveFileName(".", "Data (*.dat)", 0, 
+						   "save file dialog", 
+						   "Choose a name for the data file");
   // ensure the user gave us a sensible file
   if (!lFileName.isNull()){
 
@@ -197,8 +216,8 @@ void HistoryPlot::doPlot(){
     mPlotter->setCurvePen(cSin, QPen(red));
 
     // allow the user to define the Y axis dims if desired
-    if (!autoAxisSet){
-      mPlotter->setAxisScale(0, lowerBound, upperBound);
+    if (!mAutoYAxisSet){
+      mPlotter->setAxisScale(0, mYLowerBound, mYUpperBound);
     }
     else{
       mPlotter->setAxisAutoScale(0);
@@ -206,8 +225,23 @@ void HistoryPlot::doPlot(){
       // also want to update the manual upper and lower bounds to 
       // something sensible at this point
       const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
-      lowerBound = autoScaleDiv->lBound();
-      upperBound = autoScaleDiv->hBound();
+      mYLowerBound = autoScaleDiv->lBound();
+      mYUpperBound = autoScaleDiv->hBound();
+    }
+
+    // allow the user to define the X axis dims if desired
+    if (!mAutoXAxisSet){
+
+      mPlotter->setAxisScale(mPlotter->xBottom, mXLowerBound, mXUpperBound);
+    }
+    else{
+      mPlotter->setAxisAutoScale(mPlotter->xBottom);
+
+      // also want to update the manual upper and lower bounds to 
+      // something sensible at this point
+      const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(mPlotter->xBottom);
+      mXLowerBound = autoScaleDiv->lBound();
+      mXUpperBound = autoScaleDiv->hBound();
     }
 
     // Work out how many points we've got - compare the no. available
@@ -258,20 +292,30 @@ void HistoryPlot::doPlot(){
 }
 
 void HistoryPlot::autoYAxisSlot(){
-  autoAxisSet = !autoAxisSet;
+  mAutoYAxisSet = !mAutoYAxisSet;
 
-  mGraphMenu->setItemChecked(autoAxisId, autoAxisSet);
-  mGraphMenu->setItemEnabled(lowerBoundId, !autoAxisSet);
-  mGraphMenu->setItemEnabled(upperBoundId, !autoAxisSet);
+  mGraphMenu->setItemChecked(mAutoYAxisId, mAutoYAxisSet);
+  mGraphMenu->setItemEnabled(mYLowerBoundId, !mAutoYAxisSet);
+  mGraphMenu->setItemEnabled(mYUpperBoundId, !mAutoYAxisSet);
+}
+
+void HistoryPlot::autoXAxisSlot(){
+  mAutoXAxisSet = !mAutoXAxisSet;
+
+  mGraphMenu->setItemChecked(mAutoXAxisId, mAutoXAxisSet);
+  mGraphMenu->setItemEnabled(mXLowerBoundId, !mAutoXAxisSet);
+  mGraphMenu->setItemEnabled(mXUpperBoundId, !mAutoXAxisSet);
 }
 
 void HistoryPlot::graphYUpperBoundSlot(){
-  // using the default double dialog box is a pain, since we have to worry about the
-  // number of decimal points
-  // upperBound = QInputDialog::getDouble("Enter Y-axis upper-bound", "Y Upper-bound Dialog", upperBound, -2147483647, 2147483647, 16);
-
+  // using the default double dialog box is a pain, since we have to 
+  // worry about the number of decimal points
   bool conversionOk, dialogOk;
-  QString tempStr = QInputDialog::getText("Enter Y-axis upper-bound", "Y upper-bound Dialog", QLineEdit::Normal, QString::number(upperBound), &dialogOk);
+  QString tempStr = QInputDialog::getText("Enter Y-axis upper-bound", 
+					  "Y upper-bound Dialog", 
+					  QLineEdit::Normal, 
+					  QString::number(mYUpperBound), 
+					  &dialogOk);
 
   // Check that user pressed Ok and not Cancel
   if (!dialogOk)
@@ -285,16 +329,43 @@ void HistoryPlot::graphYUpperBoundSlot(){
     graphYUpperBoundSlot();
   }
   else
-    upperBound = upperBoundTmp;
+    mYUpperBound = upperBoundTmp;
+}
+
+void HistoryPlot::graphXUpperBoundSlot(){
+  // using the default double dialog box is a pain, since we have to 
+  // worry about the number of decimal points
+  bool conversionOk, dialogOk;
+  QString tempStr = QInputDialog::getText("Enter X-axis upper-bound", 
+					  "X upper-bound Dialog", 
+					  QLineEdit::Normal, 
+					  QString::number(mXUpperBound), 
+					  &dialogOk);
+
+  // Check that user pressed Ok and not Cancel
+  if (!dialogOk)
+    return;
+  
+  double upperBoundTmp = tempStr.toDouble(&conversionOk);
+
+  // potentially a user could make enough mistakes to reach the stack limit 
+  // on the machine, but it's unlikely ;p
+  if (!conversionOk){
+    graphXUpperBoundSlot();
+  }
+  else
+    mXUpperBound = upperBoundTmp;
 }
 
 void HistoryPlot::graphYLowerBoundSlot(){
-  // using the default double dialog box is a pain, since we have to worry about the
-  // number of decimal points
-  // lowerBound = QInputDialog::getDouble("Enter Y-axis lower-bound", "Y Lower-bound Dialog", lowerBound, -2147483647, 2147483647, 16);
-
+  // using the default double dialog box is a pain, since we have to 
+  // worry about the number of decimal points
   bool conversionOk, dialogOk;
-  QString tempStr = QInputDialog::getText("Enter Y-axis upper-bound", "Y upper-bound Dialog", QLineEdit::Normal, QString::number(lowerBound), &dialogOk);
+  QString tempStr = QInputDialog::getText("Enter Y-axis lower-bound", 
+					  "Y lower-bound Dialog", 
+					  QLineEdit::Normal, 
+					  QString::number(mYLowerBound), 
+					  &dialogOk);
 
   // Check that user pressed Ok and not Cancel
   if (!dialogOk)
@@ -302,13 +373,38 @@ void HistoryPlot::graphYLowerBoundSlot(){
 
   double lowerBoundTmp = tempStr.toDouble(&conversionOk);
 
-  // potentially a user could make enough mistakes to reach the stack limit on the machine,
-  // but it's unlikely ;p
+  // potentially a user could make enough mistakes to reach the 
+  // stack limit on the machine, but it's unlikely ;p
   if (!conversionOk){
     graphYLowerBoundSlot();
   }
   else
-    lowerBound = lowerBoundTmp;
+    mYLowerBound = lowerBoundTmp;
+}
+
+void HistoryPlot::graphXLowerBoundSlot(){
+  // using the default double dialog box is a pain, since we have to 
+  // worry about the number of decimal points
+  bool conversionOk, dialogOk;
+  QString tempStr = QInputDialog::getText("Enter X-axis lower-bound", 
+					  "X lower-bound Dialog", 
+					  QLineEdit::Normal, 
+					  QString::number(mXLowerBound), 
+					  &dialogOk);
+
+  // Check that user pressed Ok and not Cancel
+  if (!dialogOk)
+    return;
+
+  double lowerBoundTmp = tempStr.toDouble(&conversionOk);
+
+  // potentially a user could make enough mistakes to reach the 
+  // stack limit on the machine, but it's unlikely ;p
+  if (!conversionOk){
+    graphXLowerBoundSlot();
+  }
+  else
+    mXLowerBound = lowerBoundTmp;
 }
 
 /** Toggle display of data points on graph on/off
@@ -324,7 +420,8 @@ void HistoryPlot::graphDisplaySymbolsSlot(){
 
 /** Update the graph with new data
  */
-void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist, const int _yparamID){
+void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist, 
+			     const int _yparamID){
     // check we're the right graph for this data
     if (_yparamID != yparamID)
       return;
