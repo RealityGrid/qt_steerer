@@ -70,8 +70,12 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
     mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
     mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
-    mSetCheckIntervalAction(kNULL), mAttachAction(kNULL), mGridAttachAction(kNULL), 
-    mQuitAction(kNULL), mCommsThread(kNULL)
+    mCommsThread(kNULL), 
+    mSetCheckIntervalAction(kNULL), mToggleAutoPollAction(kNULL),
+    mAttachAction(kNULL), 
+    mGridAttachAction(kNULL), 
+    mQuitAction(kNULL) 
+    
 {
   DBGCON("SteererMainWindow");
   setCaption( "ReG Steerer" );
@@ -85,8 +89,15 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 					 "Set Polling Interval",
 					 CTRL+Key_P, this, "setcheckaction");
   mSetCheckIntervalAction->setToolTip(QString("Set polling interval"));
-  connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
+  connect(mSetCheckIntervalAction, SIGNAL(activated()), this, 
+	  SLOT(configureSteererSlot()));
 
+  mToggleAutoPollAction = new QAction("Toggle use of auto. polling interval",
+				      "Toggle use of auto. polling interval",
+				      ALT+Key_P, this, "toggleautopollaction");
+  mToggleAutoPollAction->setToolTip(QString("Toggle use of auto polling interval"));
+  connect(mToggleAutoPollAction, SIGNAL(activated()), this, 
+	  SLOT(toggleAutoPollSlot()));
 
   mAttachAction = new QAction("Attach to local application", "Local &Attach",
 			      CTRL+Key_A, this, "attachaction");
@@ -117,6 +128,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mAttachAction->addTo(lConfigMenu);
   mGridAttachAction->addTo(lConfigMenu);
   mSetCheckIntervalAction->addTo(lConfigMenu);
+  mToggleAutoPollAction->addTo(lConfigMenu);
   mSetTabTitleAction->addTo(lConfigMenu);
   mQuitAction->addTo(lConfigMenu);
 
@@ -274,7 +286,10 @@ SteererMainWindow::attachAppSlot()
 						     this,
 						     "get existing directory",
 						     "Choose a directory for steering connection",
-						     TRUE );
+						     TRUE,
+						     FALSE); // Don't resolve sym links
+  // User hit cancel
+  if(newDir.isNull())return;
 
   if ( !newDir.isEmpty() ) {
     // User entered something and pressed OK
@@ -514,7 +529,8 @@ void
 SteererMainWindow::configureSteererSlot()
 {
 
-  ConfigForm *lConfigForm = new ConfigForm(mCommsThread->getCheckInterval(), this);
+  ConfigForm *lConfigForm = new ConfigForm(mCommsThread->getCheckInterval(), 
+					   this);
 
   if ( lConfigForm->exec() == QDialog::Accepted ) 
   {
@@ -527,6 +543,34 @@ SteererMainWindow::configureSteererSlot()
   
   delete lConfigForm;
 
+}
+
+void SteererMainWindow::toggleAutoPollSlot()
+{
+  int lFlag;
+
+  lFlag = mCommsThread->getUseAutoPollFlag();
+
+  if(lFlag){
+
+    if(QMessageBox::information(this, QString("Toggle use of auto polling"), 
+				QString("Turn off auto polling?"), 
+				QMessageBox::Yes, 
+				QMessageBox::No, 0) == QMessageBox::Yes){
+
+        mCommsThread->setUseAutoPollFlag(0);
+    }
+  }
+  else{
+    if(QMessageBox::information(this, QString("Toggle use of auto polling"), 
+				QString("Turn on auto polling?"), 
+				QMessageBox::Yes, 
+				QMessageBox::No, 0) == QMessageBox::Yes){
+
+        mCommsThread->setUseAutoPollFlag(1);
+    }
+  }
+  return;
 }
 
 void SteererMainWindow::statusBarMessageSlot(Application *aApp, 

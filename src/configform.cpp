@@ -49,15 +49,24 @@
 
 #include <math.h>
 
-ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *name,
+ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, 
+		       const char *name,
 		       bool modal, WFlags f)
   : QDialog( parent, name, modal, f ), 
     mApplyButton(kNULL), mCancelButton(kNULL)
 {
+  //  mMinVal_Sec = 0.001*kMIN_POLLING_INT;
+  //  mMaxVal_Sec = 0.001*kMAX_POLLING_INT;
+  mMinVal_Sec = 0.05;
+  mMaxVal_Sec = 2.0;
+
+  DBGMSG1("ARPDBG: min val = ", mMinVal_Sec);
+  DBGMSG1("ARPDBG: max val = ", mMaxVal_Sec);
 
   DBGCON("ConfigForm");
 
-  // note aCurrentIntervalValue is in milliseconds - convert to seconds for GUI entry
+  // note aCurrentIntervalValue is in milliseconds - convert to 
+  // seconds for GUI entry
 
   this->setCaption( "Configure Polling" );
   resize( 150, 150 );
@@ -66,8 +75,11 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, const char *n
   QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, "configformlayout");
   QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "configbuttonlayout");
 
-  //SMR XXX replace with constants for range throughout -to do
-  lFormLayout->addWidget(new QLabel("Enter interval value (seconds) \nValid range: 0.1 - 10 (1d.p)", this));
+  lFormLayout->addWidget(new QLabel("Enter interval value (seconds) \n"
+				    "Valid range: "
+				    +QString::number(mMinVal_Sec)
+				    +" - "+QString::number(mMaxVal_Sec)
+				    +" (2 d.p.)", this));
 
   mLineEdit = new QLineEdit( this );
 
@@ -121,14 +133,14 @@ ConfigForm::applySlot()
     lValue = mLineEdit->text().toDouble(&lOk);
     if (lOk)
     {
-      if (lValue >= 0.1 && lValue <= 10)
+      if (lValue >= mMinVal_Sec && lValue <= mMaxVal_Sec)
       {
-	// keep only one d.p; add 0.001 to for .9999 representation problem
-	lValue += 0.001;
-	lValue=floor(lValue*10);
+	// keep only two d.p.; add 0.0001 to for .99999 representation problem
+	lValue += 0.0001;
+	lValue=floor(lValue*100);
 
-	//convert to int and miiliseconds
-	mIntervalValue = (int) (lValue*100);
+	//convert to int and milliseconds
+	mIntervalValue = (int) (lValue*10);
 	QDialog::accept();
       }
       else
@@ -138,7 +150,10 @@ ConfigForm::applySlot()
     if (!lOk)
     { 
       //value is out of range
-      QMessageBox::information(0, "Invalid entry", "Please enter a value between 0.1 and 10",
+      QMessageBox::information(0, "Invalid entry", 
+			       "Please enter a value between "+
+			       QString::number(mMinVal_Sec)+" and "+
+			       QString::number(mMaxVal_Sec),
 			       QMessageBox::Ok,
 			       QMessageBox::NoButton, 
 			       QMessageBox::NoButton);
@@ -155,8 +170,5 @@ ConfigForm::applySlot()
     
 
   }
-  
-    
-
 }
 

@@ -82,9 +82,9 @@
 #define kCHKPT_PARAM_LEN	REG_MAX_STRING_LENGTH + 5
 
 
-// minimum poling interval (milliseconds)from commsthread Get_next_message
-#define kMIN_POLING_INT		100
-
+// minimum polling interval (milliseconds)from commsthread Get_next_message
+#define kMIN_POLLING_INT	50
+#define kMAX_POLLING_INT        2000
 
 // Unique numbers to make QCustomEvent IDs for postEvent from  CommsThread.cpp
 #define kMSG_EVENT		100

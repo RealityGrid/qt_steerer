@@ -49,6 +49,8 @@ public:
 
     void setCheckInterval(const int aInterval);
     int getCheckInterval() const;
+    void setUseAutoPollFlag(const int aFlag);
+    int getUseAutoPollFlag() const;
     void stop();
     void handleSignal();
 
@@ -62,6 +64,9 @@ private:
     SteererMainWindow	*mSteerer;
     bool		mKeepRunningFlag;
     int			mCheckInterval;  //milliseconds
+    int                 mUseAutoPollInterval;
+    int                 mPollCount;
+    int                 mMsgCount;
 
 };
 

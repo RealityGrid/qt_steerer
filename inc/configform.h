@@ -61,6 +61,9 @@ private:
   QPushButton	*mApplyButton;
   QPushButton	*mCancelButton;
 
+  float mMinVal_Sec;
+  float mMaxVal_Sec;
+
 };
 
 #endif

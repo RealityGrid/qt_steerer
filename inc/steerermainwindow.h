@@ -75,6 +75,7 @@ protected slots:
   //void readMsgSlot();
   void closeApplicationSlot(int aSimHandle);
   void configureSteererSlot();
+  void toggleAutoPollSlot();
   void tabChangedSlot(QWidget *aWidget);
   void editTabTitleSlot();
 
@@ -96,14 +97,15 @@ private:
 
   QLabel	*mStackLogoLabel;
   QPixmap	*mStackLogoPixMap;
+
+  CommsThread	*mCommsThread;
  
   QAction	*mSetCheckIntervalAction;
+  QAction	*mToggleAutoPollAction;
   QAction	*mAttachAction;
   QAction	*mGridAttachAction;
   QAction       *mSetTabTitleAction;
   QAction	*mQuitAction;
-
-  CommsThread	*mCommsThread;
 
   QPtrList<Application> mAppList;
 };

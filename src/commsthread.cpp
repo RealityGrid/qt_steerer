@@ -102,12 +102,14 @@ extern "C" void threadSignalHandler(int aSignal)
 
 }
 
-
 CommsThread::CommsThread(SteererMainWindow *aSteerer, int aCheckInterval)
   : mSteerer(aSteerer), mKeepRunningFlag(true), mCheckInterval(aCheckInterval)
 {
   DBGCON("CommsThread");
   gCommsThreadPtr = this; 
+  mUseAutoPollInterval = 0;
+  mPollCount = 0;
+  mMsgCount = 0;
 
   signal(SIGINT, threadSignalHandler);	//ctrl-c
   signal(SIGTERM, threadSignalHandler);	//kill (note cannot (and should not) catch kill -9)  
@@ -143,10 +145,10 @@ CommsThread::setCheckInterval(const int aInterval)
 {
   // note value aInterval constrained on user entry also
 
-  if (aInterval > kMIN_POLING_INT)
+  if (aInterval > kMIN_POLLING_INT)
     mCheckInterval = aInterval;
   else
-    mCheckInterval = kMIN_POLING_INT;
+    mCheckInterval = kMIN_POLLING_INT;
 }
 
 int
@@ -182,7 +184,10 @@ CommsThread::run()
   Application *lApp;
   int	lSimHandle = REG_SIM_HANDLE_NOTSET ;
   int   lMsgType = MSG_NOTSET;
-
+  // How many polls to average over in order to decide whether
+  // or not to adjust the polling interval
+  int   lPollAdjustInterval = 10; 
+  float lPollRatio;
   DBGMSG("CommsThread starting");
   
   // add sleep to give GUI chance to finsh posting new form SMR XXX thread bug fix
@@ -191,7 +196,35 @@ CommsThread::run()
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
-    DBGMSG("CommsThread Polling now");
+    DBGMSG1("CommsThread Polling now, count = ", mPollCount);
+
+    // This section automatically adjusts the polling interval
+    // to keep up with the attached application(s)
+    if(mUseAutoPollInterval && (mPollCount == lPollAdjustInterval)){
+
+      lPollRatio = (float)mMsgCount/(float)mPollCount;
+      DBGMSG1("CommsThread: poll ratio = ", lPollRatio);
+
+      if(lPollRatio > 0.85){
+
+	if(mCheckInterval > kMIN_POLLING_INT){
+	  // Reduce polling interval faster than we increase it
+	  mCheckInterval -= (int)(0.66*mCheckInterval);
+	  DBGMSG1("CommsThread: reducing poll interval to ", mCheckInterval);
+	}
+      }
+      else if(lPollRatio < 0.5){
+
+	if(mCheckInterval < kMAX_POLLING_INT){
+	  // Not getting messages very often so increase the interval
+	  // between polls
+	  mCheckInterval += (int)(0.5*mCheckInterval);
+	  DBGMSG1("CommsThread: increasing poll interval to ", mCheckInterval);
+	}
+      }
+      mPollCount = 0;
+      mMsgCount = 0;
+    }
 
     // reset lMsgType
     lMsgType = MSG_NOTSET;
@@ -205,8 +238,15 @@ CommsThread::run()
 
     qApp->unlock();
 
-    if (lMsgType != MSG_NOTSET)
-    {
+    // Protect this count to prevent overflow when not using auto. poll interv.
+    if(mUseAutoPollInterval)mPollCount++;
+
+    if (lMsgType != MSG_NOTSET){
+
+      // Protect this count to prevent overflow when not using auto. 
+      // poll interval
+      if(mUseAutoPollInterval)mMsgCount++;
+
       //SMR XXX  validate lMsgType SMR XXX to do
 
       // create event and post it - posting means the main GUI thread will 
@@ -224,6 +264,7 @@ CommsThread::run()
         DBGMSG("CommsThread::run: NULL application pointer!");
       }
     }
+
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
 
   }
@@ -235,6 +276,21 @@ CommsThread::setKeepRunning(const bool aFlag)
 {
   // flag to get out of while loop in run()
   mKeepRunningFlag = aFlag;
+}
+
+int CommsThread::getUseAutoPollFlag() const
+{
+  return mUseAutoPollInterval;
+}
+
+void CommsThread::setUseAutoPollFlag(const int aFlag)
+{
+  if(aFlag){
+    mMsgCount = 0;
+    mPollCount = 0;
+  }
+  mUseAutoPollInterval = aFlag;
+  return;
 }
 
 
