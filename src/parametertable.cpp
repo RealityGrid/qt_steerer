@@ -47,8 +47,9 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qtooltip.h>
+#include <qpopupmenu.h>
 
-
+#include "historyplot.h"
   
 ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHandle)
   : Table(aParent, aName, aSimHandle)
@@ -98,6 +99,10 @@ ParameterTable::initTable()
   setColumnWidth(kNAME_COLUMN, 200);
   setColumnWidth(kVALUE_COLUMN, 95);
 
+  // MR: add a context menu so that we can right click on a cell to draw a graph of that parameter's history
+  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), this, SLOT(contextMenuSlot(int, int, const QPoint &)));
+
+  
 }
 
 int 
@@ -112,7 +117,6 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
   // Search list of existing parameters for this lHandle
   // If found update it now
   // Return value indicates whether or not row has been found and updated.
-
   Parameter *lParamPtr;
   if ((lParamPtr = findParameter(lHandle)) != kNULL)
   {
@@ -127,6 +131,12 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
 
     updateCell(lParamPtr->getRowIndex(),kVALUE_COLUMN);
 
+    // MR: add the string value to the parameter's history
+    lParamPtr->mParamHist.updateParameter(lVal);
+
+    // MR: emit a SIGNAL so that any HistoryPlots can update
+    emit paramUpdateSignal(&(lParamPtr->mParamHist), lParamPtr->getId());
+    
     return true;
   }
   else
@@ -154,12 +164,15 @@ ParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, 
   setItem(lRowIndex, kVALUE_COLUMN, new QTableItem(this, QTableItem::Never,  QString( lVal)));
     
   lParamPtr->setIndex(lRowIndex);
+  // MR: add the string value to the parameter's history
+  lParamPtr->mParamHist.updateParameter(lVal);
   mParamList.append(lParamPtr);
   incrementRowIndex();
   
   DBGMSG1("mMaxRowIndexPtr", getMaxRowIndex());
 	
 }
+
 
 
 int
@@ -193,7 +206,7 @@ ParameterTable::findParameter(int aId)
 {
   // search parameter list to find parameter with aId.
   // return pointer to that parameter
-  // return kNULL is parameter not in list
+  // return kNULL if parameter not in list
 
   Parameter *lParamPtr;
 
@@ -210,6 +223,26 @@ ParameterTable::findParameter(int aId)
 
   return kNULL;
 
+}
+
+// MR: reverse lookup of parameter ID
+Parameter* ParameterTable::findParameterHandleFromRow(int row){
+  // search through the parameter list for the parameter which has the given row index
+  // return the id of that parameter
+  // return kNULL if parameter is not in the list
+
+  Parameter *lParamPtr;
+
+  QPtrListIterator<Parameter> mParamIterator( mParamList );
+  mParamIterator.toFirst();
+  while ( (lParamPtr = mParamIterator.current()) != 0){
+    if (lParamPtr->getRowIndex() == row){
+      return lParamPtr;
+    }
+    ++mParamIterator;
+  }
+
+  return kNULL;
 }
 
 void
@@ -230,6 +263,37 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
   }
 
 }
+
+/** Slot called when the user requests a context menu for this table
+ */
+void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
+  // Pop up a context menu which will allow the user to view a graph
+  // of the current variable / parameter's history
+  QPopupMenu popupMenu;
+  popupMenu.insertItem(QString("Draw History Graph"), row, 0);
+  connect(&popupMenu, SIGNAL(activated(int)), this, SLOT(drawGraphSlot(int)));
+  popupMenu.exec(pnt);
+
+  // Do daft things in order to avoid daft compiler warnings....
+  row++; column++;
+}
+
+/** Slot called when the user selects the "Draw Graph" option from
+ *  the table's context menu
+ */
+void ParameterTable::drawGraphSlot(int popupMenuID){
+  // First obtain the appropriate parameter (and therefore it's history)
+  Parameter *tParameter = findParameterHandleFromRow(popupMenuID);
+
+  // Then call our whizzo graphing method to draw the graph
+  mQwtPlot = new HistoryPlot(&(tParameter->mParamHist), text(popupMenuID, kNAME_COLUMN).latin1(), tParameter->getId());
+  mQwtPlot->resize(300, 300);
+  mQwtPlot->show();
+
+  // And make the connection to ensure that the graph updates
+  connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), mQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
+}
+
 
 
 /*************************************************************/
@@ -280,7 +344,6 @@ void DynamicTip::maybeTip( const QPoint &pos )
 
 
 
-
 SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName, int aSimHandle)
   : ParameterTable(aParent, aName, aSimHandle)
 {
@@ -288,7 +351,6 @@ SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName
 
   // set up signal/slot to enable buttons when table has some data
   connect(this, SIGNAL(enableButtonsSignal()), aParent, SLOT(enableParamButtonsSlot()));
-
 }
 
 SteeredParameterTable::~SteeredParameterTable()
@@ -319,29 +381,39 @@ SteeredParameterTable::initTable()
   horizontalHeader()->setLabel(kREG_COLUMN, "Registered?");
   horizontalHeader()->setLabel(kVALUE_COLUMN, "Value");
   horizontalHeader()->setLabel(kNEWVALUE_COLUMN, "New Value");
+  // MR: For now add the min_max string in as a hidden column,
+  //     this is rather lazy, but removes the need for explicit memory management
+  horizontalHeader()->setLabel(kMINMAXSTRING_COLUMN, "Min Max");
 
   setColumnReadOnly(kID_COLUMN, TRUE);
   setColumnReadOnly(kNAME_COLUMN, TRUE);
   setColumnReadOnly(kREG_COLUMN, TRUE);
   setColumnReadOnly(kVALUE_COLUMN, TRUE);
 
+  // MR:
+  setColumnReadOnly(kMINMAXSTRING_COLUMN, TRUE);
+
   // id column used internally only, therefore not show on gui
   hideColumn(kID_COLUMN);
   // unregister functionality not implemented in lib therefore no point in showing kREG_COLUMN
-  hideColumn(kREG_COLUMN); 
+  hideColumn(kREG_COLUMN);
+
+  // MR:
+  hideColumn(kMINMAXSTRING_COLUMN);
 
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
   setColumnWidth(kVALUE_COLUMN, 95);
   setColumnWidth(kNEWVALUE_COLUMN, 95);
 
+  // MR:
+  setColumnWidth(kMINMAXSTRING_COLUMN, 10);
   // set up signal/slot to handle data entered by user (new parameter value)
   connect (this, SIGNAL( valueChanged(int,int) ),
 	   this, SLOT( validateValueSlot(int,int) ) );
 
   // Create a DynamicTip object for this table
-  // In fact don't bother until Andrew P is ready for it
-  //new DynamicTip(this, frameRect());
+  new DynamicTip(this, frameRect());
 
 }
 
@@ -435,7 +507,7 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 
 
 void 
-SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType)
+SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType, const char *lMinVal, const char *lMaxVal)
 {
 
   // add new steered parameter to table and list
@@ -461,6 +533,9 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
 	     new QTableItem(this, QTableItem::Never,  QString( lVal)));
   setItem(lRowIndex, kNEWVALUE_COLUMN,
 	     new QTableItem(this, QTableItem::OnTyping,  QString::null));
+
+  // MR:
+  setItem(lRowIndex, kMINMAXSTRING_COLUMN, new QTableItem(this, QTableItem::Never, QString(lMinVal)+QString(" >= ? <= ")+QString(lMaxVal)));
 
   lParamPtr->setIndex(lRowIndex);
   mParamList.append(lParamPtr);
@@ -702,13 +777,10 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 
 /** This method is called by the DynamicTip class to find which String to use for a
  *  tooltip, and how big a rectangle to make it for
- *
- *  TODO - how on earth do we get the vertical size of the horizontal QHeader, surely
- *  this is implementation / windowing system dependant. Redhat 7.3 & KDE it's 25...
  */
 int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &string){
   // Check that we're in the correct column
-  if (columnAt(pnt.x()) != 4)
+  if (columnAt(pnt.x()) != kNEWVALUE_COLUMN)
     return -1;
 
   // Get the rows and columns
@@ -718,18 +790,20 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   // Check that we're not in the title bar
   if (pnt.y() < singleRowHeight)
     return -1;
-    
+
+  // headerHeight is the vertical size of the horizontal table header
+  int headerHeight = horizontalHeader()->height();
   // adjustedPos is the mouse coordinate moved from the table coordinate system to the scroll window coordinate system
-  int adjustedPos = scrolled + (pnt.y() - 25); // The 25 here is the height of the horizontal header, need to get programmatically
+  int adjustedPos = scrolled + (pnt.y() - headerHeight);
   // actualRow contains the index to the proper row in the scrollview
   int actualRow = adjustedPos / singleRowHeight;
 
   // We now want to determine the actual rectangle for the tooltip
   int top, bottom, left, right;
-  top = (actualRow * singleRowHeight) - scrolled + 25; // the 25 again....
+  top = (actualRow * singleRowHeight) - scrolled + headerHeight;
   bottom = top + singleRowHeight;
-  left = horizontalHeader()->sectionPos(4); // constant
-  right = left + horizontalHeader()->sectionSize(4);
+  left = horizontalHeader()->sectionPos(kNEWVALUE_COLUMN); // constant
+  right = left + horizontalHeader()->sectionSize(kNEWVALUE_COLUMN);
 
   // Set the rectangle
   rect.setTop(top);
@@ -738,9 +812,20 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   rect.setRight(right);
 
   // And grab the text from some data structure and send it back to the tooltip
-  string = QString::number(actualRow);
-
+  //string = QString::number(actualRow);
+  string = text(actualRow, kMINMAXSTRING_COLUMN);
+ 
   // Return success!
   return 0;
+}
+
+/** Method is specific to the SteeredParameterTable, and implemented
+ *  to prevent the version in the ParamaterTable parent being inherited
+ */
+void SteeredParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
+  // don't implement this unless we need to
+
+  // Do daft things in order to avoid daft compiler warnings....
+  row++; column+=pnt.x();
 }
 
