@@ -57,7 +57,21 @@ CommsThread::~CommsThread()
   DBGDST("CommsThread");
 
   // must stop a thread running before it is deleted...
-  stop();
+  if (running())
+    stop();
+}
+
+
+void 
+CommsThread::setCheckInterval(const int aInterval)
+{
+  mCheckInterval = aInterval;
+}
+
+int
+CommsThread::getCheckInterval() const
+{
+ return mCheckInterval;
 }
 
 void
@@ -94,6 +108,7 @@ CommsThread::run()
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
+    DBGMSG("Check now\n");
     // Get_next_message always returns  REG_SUCCESS currently
     if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)	//ReG library
       DBGEXCP("Get_next_message error");
@@ -111,8 +126,8 @@ CommsThread::run()
       postEvent(mSteerer->getApplication(), lEvent);
 
     }
-    
-    sleep(mCheckInterval);  // SMR XXX make this sleep time configurable via GUI?
+
+    msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
   
   }
 
