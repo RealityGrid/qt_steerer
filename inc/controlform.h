@@ -78,24 +78,16 @@ public:
   void setEnabledResume(const bool aEnable);
   void setEnabledClose(const bool aEnable);
 
-//  void setStatusLabel(const char *aStatusText);
-
 private:
   void updateParameters(bool aSteeredFlag);
   void disableButtons();
   
-  // MR: void emitAllIOCommands(const int aAdditionalCmd = -1, bool aForceEmitFlag = false);
-  // MR: void emitAll(const int aAdditionalCmd = -1);
-
-
 protected slots:
   void enableParamButtonsSlot();    
   void enableSampleButtonsSlot();   
   void enableChkPtButtonsSlot();
   void emitAllValuesSlot();
-  // MR: void emitAllIOCommandsSlot();
-  // MR: void emitAllSlot();
-  // MR: void emitAllAndDetachCmdSlot();
+
   // MR:
   void setRestartButtonStateSlot(const bool aEnable);
   void setCreateButtonStateSlot(const bool aEnable);
@@ -109,8 +101,6 @@ signals:
 private:
   int			mSimHandle;		
 
-  TableLabel		*mStatusLabel;
-
   QPushButton		*mEmitButton;
 
   QPushButton		*mSndSampleButton;
@@ -121,8 +111,6 @@ private:
   QPushButton		*mSetChkPtFreqButton;
 
   QPushButton		*mEmitAllValuesButton;
-  //QPushButton		*mEmitAllIOCommandsButton;
-  //QPushButton		*mEmitAllButton;
 
   ParameterTable	*mMonParamTable;
   SteeredParameterTable	*mSteerParamTable;

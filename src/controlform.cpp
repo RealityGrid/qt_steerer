@@ -62,13 +62,11 @@
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Application *aApplication)
   : QWidget(aParent, aName), mSimHandle(aSimHandle), 
-    //mStatusLabel(kNULL),
     mEmitButton(kNULL), 
     mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), 
     mRestartChkPtButton(kNULL), 
     mSndChkPtButton(kNULL), mSetChkPtFreqButton(kNULL), 
     mEmitAllValuesButton(kNULL),
-    //mEmitAllIOCommandsButton(kNULL), mEmitAllButton(kNULL), 
     mMonParamTable(kNULL),
     mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), 
     mIOTypeChkPtTable(kNULL),
@@ -83,75 +81,59 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   // associated with the tables
 
   QVBoxLayout *lEditLayout = new QVBoxLayout(this, 6, 6, "editlayout");
-
-  //QHBoxLayout *lStatusLayout = new QHBoxLayout(6, "statuslayout");
-  //QHBoxLayout *lBottomButtonLayout = new QHBoxLayout(6, "bottombuttonlayout");
-
-  //mStatusLabel = new TableLabel("Attached to application", this);
-  //lStatusLayout->addWidget(new TableLabel("Steering Status: ", this));
-  //lStatusLayout->addWidget(mStatusLabel);
-  //lStatusLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum ));
-
-  //QVGroupBox *lCmdGrpBox = new QVGroupBox("Cmds",this, "cmdbuttonbox");
   QButtonGroup *lCmdGrpBox = new QButtonGroup(6, Qt::Horizontal, "Commands", this, "cmdbuttons");
-  //lCmdGrpBox->setAlignment(Qt::AlignHCenter);
  
   // set up main command buttons
   // we use Resume button sizeHint to size all buttons to this size
 
+  // first of all create all the buttons so that we can choose
+  // which to use for the size hint without having to reorder
+  // any code
   mPauseButton = new QPushButton( "Pause", lCmdGrpBox, "pause" );
-//  mPauseButton = new QPushButton( "Pause", this, "pause" );
-  mPauseButton->setMinimumSize(mPauseButton->sizeHint());
-  mPauseButton->setMaximumSize(mPauseButton->sizeHint());
-  QToolTip::add(mPauseButton, "Tell the attached application"
-		" to pause");
-  connect( mPauseButton, SIGNAL( clicked() ), aApplication,
-	   SLOT( emitPauseCmdSlot() ));
-  //lCmdGrpBox->addWidget(mPauseButton);
+  mResumeButton = new QPushButton( "Resume", lCmdGrpBox, "resume" );
+  mDetachButton = new QPushButton( "Detach", lCmdGrpBox, "detach" );
+  mCloseButton = new QPushButton( "Close", lCmdGrpBox, "close" );
+  mEmitAllValuesButton = new QPushButton("Tell All", lCmdGrpBox, "tellallvals");
+  mStopButton = new QPushButton( "Stop", lCmdGrpBox, "stop" );
+  
+  // then set up each button individually, never setting the maximum size
+  // so that each button stretches to fill the standard gap
+  
+  mPauseButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
+  //mPauseButton->setMaximumSize(mPauseButton->sizeHint());
+  QToolTip::add(mPauseButton, "Tell the attached application to pause");
+  connect( mPauseButton, SIGNAL( clicked() ), aApplication, SLOT( emitPauseCmdSlot() ));
   lCmdGrpBox->insert(mPauseButton);
   
-  mResumeButton = new QPushButton( "Resume", lCmdGrpBox, "resume" );  //SMR XXXn
-//  mResumeButton = new QPushButton( "Resume", this, "resume" );  //SMR XXXn
-  mResumeButton->setMinimumSize(mPauseButton->sizeHint());
-  mResumeButton->setMaximumSize(mResumeButton->sizeHint());
-  QToolTip::add(mResumeButton, "Tell the attached application "
-		"to resume");
-  connect( mResumeButton, SIGNAL( clicked() ), aApplication, 
-	   SLOT( emitResumeCmdSlot() ));
-  //lCmdGrpBox->addWidget(mResumeButton);
+  mResumeButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
+  //mResumeButton->setMaximumSize(mResumeButton->sizeHint());
+  QToolTip::add(mResumeButton, "Tell the attached application to resume");
+  connect( mResumeButton, SIGNAL( clicked() ), aApplication, SLOT( emitResumeCmdSlot() ));
   lCmdGrpBox->insert(mResumeButton);
-  
-  mDetachButton = new QPushButton( "Detach", lCmdGrpBox, "detach" );
-//  mDetachButton = new QPushButton( "Detach", this, "detach" );
-  mDetachButton->setMinimumSize(mPauseButton->sizeHint());
-  mDetachButton->setMaximumSize(mDetachButton->sizeHint());
+
+  mDetachButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
+  //mDetachButton->setMaximumSize(mDetachButton->sizeHint());
   QToolTip::add(mDetachButton, "Tell the attached application to detach");
-  connect( mDetachButton, SIGNAL( clicked() ), aApplication, 
-     SLOT( emitDetachCmdSlot() ));
-  //lCmdGrpBox->addWidget(mDetachButton);
+  connect( mDetachButton, SIGNAL( clicked() ), aApplication, SLOT( emitDetachCmdSlot() ));
   lCmdGrpBox->insert(mDetachButton);
-    
-  // button to allow user to get rid of this application form when detached
-  mCloseButton = new QPushButton( "Close", lCmdGrpBox, "close" );
-//  mCloseButton = new QPushButton( "Close", this, "close" );
-  mCloseButton->setMinimumSize(mPauseButton->sizeHint());
-  mCloseButton->setMaximumSize(mCloseButton->sizeHint());
+
+  mCloseButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
+  //mCloseButton->setMaximumSize(mCloseButton->sizeHint());
   QToolTip::add( mCloseButton, "Close form to allow another attach");
-  connect(mCloseButton, SIGNAL( clicked() ), aApplication, 
-	  SLOT(closeApplicationSlot()) );
-  //lCmdGrpBox->addWidget(mCloseButton);
+  connect(mCloseButton, SIGNAL( clicked() ), aApplication, SLOT(closeApplicationSlot()) );
   lCmdGrpBox->insert(mCloseButton);
 
-  mStopButton = new QPushButton( "Stop", lCmdGrpBox, "stop" );
-//  mStopButton = new QPushButton( "Stop", this, "stop" );
-  mStopButton->setMinimumSize(mPauseButton->sizeHint());
-  mStopButton->setMaximumSize(mStopButton->sizeHint());
-  QToolTip::add(mStopButton, "Tell the attached application to stop");
-  connect( mStopButton, SIGNAL( clicked() ), aApplication, 
-	   SLOT( emitStopCmdSlot() ));
-  //lCmdGrpBox->addWidget(mStopButton);
-  lCmdGrpBox->insert(mStopButton);
+  mEmitAllValuesButton->setMinimumSize(mEmitAllValuesButton->sizeHint());//IOCommandsButton->sizeHint());
+  //mEmitAllValuesButton->setMaximumSize(mEmitAllValuesButton->sizeHint());
+  QToolTip::add(mEmitAllValuesButton, "Tell application all new parameter and frequency values");
+  connect(mEmitAllValuesButton, SIGNAL(clicked()), this, SLOT(emitAllValuesSlot()));
+  lCmdGrpBox->insert(mEmitAllValuesButton);  
 
+  mStopButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
+  //mStopButton->setMaximumSize(mStopButton->sizeHint());
+  QToolTip::add(mStopButton, "Tell the attached application to stop");
+  connect( mStopButton, SIGNAL( clicked() ), aApplication, SLOT( emitStopCmdSlot() ));
+  lCmdGrpBox->insert(mStopButton);
 
   // set up table for monitored parameters
   QVBoxLayout *lMonLayout = new QVBoxLayout(6, "montablayout");
@@ -160,29 +142,21 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mMonParamTable->initTable();
 
   // ARP - set-up all tables first so we know their widths
-  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", 
-					       aSimHandle);
+  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", aSimHandle);
   mSteerParamTable->initTable();
 
-  mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable",
-				       aSimHandle);
+  mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable",aSimHandle);
   mIOTypeSampleTable->initTable();
 
-  mIOTypeChkPtTable = new IOTypeTable(this,"chkptparamtable", 
-				      aSimHandle, true);
+  mIOTypeChkPtTable = new IOTypeTable(this,"chkptparamtable", aSimHandle, true);
   mIOTypeChkPtTable->initTable();
 
-  // Chkpt table is widest.  Fix widths of tables now 'cos otherwise 
-  // the 'Cmds' frame causes the MonParam table to be narrower than 
-  // the others.
+  // Set the minimum table size. Don't bother with the maximum
+  // size since we want to be able to stretch the window
   int lTableWidth = 300;
-  //mIOTypeChkPtTable->setMaximumWidth(lTableWidth);
   mIOTypeSampleTable->setMinimumWidth(lTableWidth);
-  //mIOTypeSampleTable->setMaximumWidth(lTableWidth);
   mSteerParamTable->setMinimumWidth(lTableWidth);
-  //mSteerParamTable->setMaximumWidth(lTableWidth);
   mMonParamTable->setMinimumWidth(lTableWidth);
-  //mMonParamTable->setMaximumWidth(lTableWidth);
 
   // Once table objects created, we can get on with creating layouts...
   lMonLayout->addWidget(mMonParamTable);
@@ -191,16 +165,9 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   QVBoxLayout *lTopLeftLayout = new QVBoxLayout(6, "topleftlayout");
   QHBoxLayout *lTopLayout = new QHBoxLayout(6, "toplayout");
 
-  //lTopLeftLayout->addLayout(lStatusLayout);
   lTopLeftLayout->addWidget(lCmdGrpBox);
   lTopLeftLayout->addWidget(new TableLabel("Monitored Parameters", this));
-  //lTopLeftLayout->addLayout(lMonLayout);
   lTopLayout->addLayout(lTopLeftLayout);
-
-//  lTopLayout->addSpacing(mEmitButton->width());
-  //  lTopLayout->addLayout(lCmdButtonLayout);
-//  lTopLayout->addWidget(lCmdGrpBox);
-//  lTopLayout->addLayout(lCmdGrpBox);
 
   // set up table and buttons for steered parameters
   QHBoxLayout *lSteerLayout = new QHBoxLayout(6, "steertablayout");
@@ -239,18 +206,10 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 					  "TellFreq" );
   mSetSampleFreqButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
   mSetSampleFreqButton->setMaximumSize(mSetSampleFreqButton->sizeHint());
-  QToolTip::add(mSetSampleFreqButton, "Tell application new "
-		"frequency values for data IO");
+  QToolTip::add(mSetSampleFreqButton, "Tell application new frequency values for data IO");
   connect(mSetSampleFreqButton, SIGNAL( clicked() ), 
 	  mIOTypeSampleTable, SLOT( emitValuesSlot()));
-/*
-  mSndSampleButton = new QPushButton( "Tell Req's", this, "SndSample" );
-  mSndSampleButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
-  mSndSampleButton->setMaximumSize(mSndSampleButton->sizeHint());
-  QToolTip::add(mSndSampleButton, "Tell application to emit/consume requested data");
-  connect(mSndSampleButton, SIGNAL( clicked() ), mIOTypeSampleTable, 
-	  SLOT( emitCommandsSlot()));
-*/
+
   mConsumeDataButton = new QPushButton( "Consume", this, "ConsumeData" );
   mConsumeDataButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
   mConsumeDataButton->setMaximumSize(mConsumeDataButton->sizeHint());
@@ -265,7 +224,6 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
     
   lSampleButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-  //lSampleButtonLayout->addWidget(mSndSampleButton);
   lSampleButtonLayout->addWidget(mConsumeDataButton);
   lSampleButtonLayout->addWidget(mEmitDataButton);
   lSampleButtonLayout->addWidget(mSetSampleFreqButton);
@@ -284,33 +242,25 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 					 "tellfreq" );
   mSetChkPtFreqButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
   mSetChkPtFreqButton->setMaximumSize(mSetChkPtFreqButton->sizeHint());
-  QToolTip::add(mSetChkPtFreqButton, "Tell application new "
-		"frequency values for checkpoint iotypes");  
+  QToolTip::add(mSetChkPtFreqButton, "Tell application new frequency values for checkpoint iotypes");  
   connect(mSetChkPtFreqButton, SIGNAL( clicked() ), 
 	  mIOTypeChkPtTable, SLOT( emitValuesSlot()));
 
   mRestartChkPtButton = new QPushButton( "Restart", this, "restartchkpt" );
   mRestartChkPtButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
   mRestartChkPtButton->setMaximumSize(mRestartChkPtButton->sizeHint());
-  QToolTip::add(mRestartChkPtButton, "Tell application to restart "
-		"using requested checkpoint");
-//  connect( mRestartChkPtButton, SIGNAL( clicked() ), 
-//	   mIOTypeChkPtTable, SLOT( emitRestartSlot()));
+  QToolTip::add(mRestartChkPtButton, "Tell application to restart using requested checkpoint");
   connect( mRestartChkPtButton, SIGNAL(clicked()), mIOTypeChkPtTable, SLOT(restartButtonPressedSlot()));
 
   mSndChkPtButton = new QPushButton( "Create", this, "sndchkpt" );
   mSndChkPtButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
   mSndChkPtButton->setMaximumSize(mSndChkPtButton->sizeHint());
-  QToolTip::add(mSndChkPtButton, "Tell application to create "
-		"requested checkpoint iotypes");
-//  connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, 
-//	   SLOT( emitCommandsSlot()));
+  QToolTip::add(mSndChkPtButton, "Tell application to create requested checkpoint iotypes");
   connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( createButtonPressedSlot()));
 
  
 
-  lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, 
-					       QSizePolicy::Expanding));
+  lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
   lChkPtButtonLayout->addWidget(mRestartChkPtButton);
   lChkPtButtonLayout->addWidget(mSndChkPtButton);
   lChkPtButtonLayout->addWidget(mSetChkPtFreqButton);
@@ -319,63 +269,13 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   mEmitButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
   
-
-  // buttons for combined sends to application 
-/*
-  mEmitAllIOCommandsButton = new QPushButton("Tell All Requests", lCmdGrpBox, "sendallrequests");
-  mEmitAllIOCommandsButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
-  mEmitAllIOCommandsButton->setMaximumSize(mEmitAllIOCommandsButton->sizeHint());
-  QToolTip::add(mEmitAllIOCommandsButton, "Tell application all emit/consume/create requests");
-  connect(mEmitAllIOCommandsButton, SIGNAL(clicked()), this, SLOT(emitAllIOCommandsSlot()));
-*/
-
-  mEmitAllValuesButton = new QPushButton("Tell All Values", lCmdGrpBox, "tellallvals");
-  mEmitAllValuesButton->setMinimumSize(mEmitAllValuesButton->sizeHint());//IOCommandsButton->sizeHint());
-  mEmitAllValuesButton->setMaximumSize(mEmitAllValuesButton->sizeHint());
-  QToolTip::add(mEmitAllValuesButton, "Tell application all new parameter and frequency values");
-  connect(mEmitAllValuesButton, SIGNAL(clicked()), this, SLOT(emitAllValuesSlot()));
-  
-/*
-  mEmitAllButton = new QPushButton("Tell All", lCmdGrpBox, "sendall");
-  mEmitAllButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
-  mEmitAllButton->setMaximumSize(mEmitAllButton->sizeHint());
-  QToolTip::add(mEmitAllButton, "Tell application all new values and all emit/consume/create requests");
-  connect(mEmitAllButton, SIGNAL(clicked()), this, SLOT(emitAllSlot()));
-*/
-/*
-  lBottomButtonLayout->addWidget(mEmitAllValuesButton);
-  lBottomButtonLayout->addWidget(mEmitAllIOCommandsButton);
-  lBottomButtonLayout->addWidget(mEmitAllButton);
-  lBottomButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
-*/
-
-  lCmdGrpBox->insert(mEmitAllValuesButton);
-  //lCmdGrpBox->insert(mEmitAllIOCommandsButton);
-  //lCmdGrpBox->insert(mEmitAllButton);
-
   connect(this, SIGNAL(detachFromApplicationForErrorSignal()), 
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
 
 
   // the overall layout
-  ///lEditLayout->addLayout(lStatusLayout);
   lEditLayout->addLayout(lTopLayout);
-
-  ///n lEditLayout->addWidget(new TableLabel("Monitored Parameters", this));
-  ///n lEditLayout->addLayout(lMonLayout);
- 
-
-//  lEditLayout->addWidget(new TableLabel("Steered Parameters", this));
   lEditLayout->addLayout(lSteerLayout);
- 
-/*
-  lEditLayout->addWidget(new TableLabel("Sample IOTypes", this));
-  lEditLayout->addLayout(lSampleLayout);
- 
-
-  lEditLayout->addWidget(new TableLabel("CheckPoint IOTypes", this));
-  lEditLayout->addLayout(lChkPtLayout);
-*/
   QVBoxLayout *lExtraLayout = new QVBoxLayout(6, "bottom tables");
   lExtraLayout->addWidget(new TableLabel("Data IO", this));
   lExtraLayout->addLayout(lSampleLayout);
@@ -385,7 +285,6 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   lEditLayout->addLayout(lExtraLayout);
  
-  //lEditLayout->addLayout(lBottomButtonLayout);
 
   // disable buttons - they are enabled when tables have some data
   disableButtons();
@@ -666,10 +565,7 @@ void
 ControlForm::disableIOCmdButtons()
 {
   mRestartChkPtButton->setEnabled(FALSE);
-  //mSndSampleButton->setEnabled(FALSE); 
   mSndChkPtButton->setEnabled(FALSE); 
-  //mEmitAllIOCommandsButton->setEnabled(FALSE);
-  //mEmitAllButton->setEnabled(FALSE);
   mConsumeDataButton->setEnabled(FALSE);
   mEmitDataButton->setEnabled(FALSE);
 }
@@ -677,10 +573,6 @@ ControlForm::disableIOCmdButtons()
 void
 ControlForm::enableIOCmdButtons()
 {
-  // for each only do if are some rows populated
-  //if (mIOTypeSampleTable->getNumIOTypes() > 0)
-  //  mSndSampleButton->setEnabled(TRUE);
-
   if (mIOTypeChkPtTable->getNumIOTypes() > 0)
   {
     mSndChkPtButton->setEnabled(TRUE); 
@@ -690,8 +582,6 @@ ControlForm::enableIOCmdButtons()
   if (mIOTypeSampleTable->getNumIOTypes() > 0  ||
       mIOTypeChkPtTable->getNumIOTypes() > 0)
   {
-    //mEmitAllIOCommandsButton->setEnabled(TRUE);
-    //mEmitAllButton->setEnabled(TRUE);
     mConsumeDataButton->setEnabled(TRUE);
     mEmitDataButton->setEnabled(TRUE);
   }
@@ -701,14 +591,11 @@ void
 ControlForm::disableButtons()
 {
   mEmitButton->setEnabled(FALSE); 
-  //mSndSampleButton->setEnabled(FALSE); 
   mSetSampleFreqButton->setEnabled(FALSE); 
   mRestartChkPtButton->setEnabled(FALSE);
   mSndChkPtButton->setEnabled(FALSE); 
   mSetChkPtFreqButton->setEnabled(FALSE); 
   mEmitAllValuesButton->setEnabled(FALSE); 
-  //mEmitAllIOCommandsButton->setEnabled(FALSE); 
-  //mEmitAllButton->setEnabled(FALSE);
   mConsumeDataButton->setEnabled(FALSE);
   mEmitDataButton->setEnabled(FALSE);
 }
@@ -752,31 +639,19 @@ ControlForm::setEnabledClose(const bool aEnable)
   mCloseButton->setEnabled(aEnable);
 }
 
-/*
-void 
-ControlForm::setStatusLabel(const char *aStatusText)
-{
-  mStatusLabel->setText(aStatusText);
-}
-*/
-
 void 
 ControlForm::enableParamButtonsSlot()
 {
   mEmitButton->setEnabled(TRUE);
-
-  //mEmitAllValuesButton->setEnabled(TRUE);
 }
 
 void 
 ControlForm::enableSampleButtonsSlot()
 {
-  //mSndSampleButton->setEnabled(TRUE); 
   mSetSampleFreqButton->setEnabled(TRUE);
 
   mEmitAllValuesButton->setEnabled(TRUE);
-  //mEmitAllIOCommandsButton->setEnabled(TRUE);
-  //mEmitAllButton->setEnabled(TRUE);
+
   mConsumeDataButton->setEnabled(TRUE);
   mEmitDataButton->setEnabled(TRUE);
 
@@ -790,8 +665,6 @@ ControlForm::enableChkPtButtonsSlot()
   mSetChkPtFreqButton->setEnabled(TRUE);
 
   mEmitAllValuesButton->setEnabled(TRUE);
-  //mEmitAllIOCommandsButton->setEnabled(TRUE);
-  //mEmitAllButton->setEnabled(TRUE);
   mConsumeDataButton->setEnabled(TRUE);
   mEmitDataButton->setEnabled(TRUE);
 
@@ -864,153 +737,4 @@ ControlForm::emitAllValuesSlot()
     
 
 }
-/*
-void 
-ControlForm::emitAllIOCommandsSlot()
-{
-  emitAllIOCommands();
-}
 
-
-void 
-ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
-{
-  int lReGStatus = REG_FAILURE;
-  int lTotalCount = 0;
-  bool lAddCmdFlag = false;
-
-  if (aAdditionalCmd == REG_STR_DETACH)
-    lAddCmdFlag = true;
-
-  // emit sample and checkpoint requested commands
-  
-  int *lCommandArray = kNULL;
-  char **lCmdParamArray = kNULL;
-  
-  try
-  {
-    int lSampleCount = mIOTypeSampleTable->getCommandRequestsCountNew();
-    int lChkPtCount = mIOTypeChkPtTable->getCommandRequestsCountNew();
-        
-    lTotalCount = lSampleCount + lChkPtCount;
-
-    if (lAddCmdFlag)
-      lTotalCount++;
-    
-    // populate the array of commands and array of parameters for commands   
-    lCommandArray = new int[lTotalCount];
-    lCmdParamArray = new char *[lTotalCount];
-
-    // initialize array to blank strings
-    for (int i=0; i<lTotalCount; i++)
-    {
-      lCmdParamArray[i] = new char [kCHKPT_PARAM_LEN]; //SMR XXX
-      strcpy(lCmdParamArray[i], " ");
-    }
-   
-    int lRealSampleCount = 0;
-    int lRealChkPtCount = 0;
-    
-    if (lSampleCount > 0)
-      lRealSampleCount = mIOTypeSampleTable->populateCommandRequestArray(lCommandArray, lCmdParamArray, lSampleCount, 0);
-  
-    if (lChkPtCount>0)
-      lRealChkPtCount = mIOTypeChkPtTable->populateCommandRequestArray(lCommandArray, lCmdParamArray, lChkPtCount, lRealSampleCount);
-    
-    int lRealTotalCount = lRealSampleCount + lRealChkPtCount;
-
-    // finally add in the additional command if is one
-    if (lAddCmdFlag)
-    {
-      lCommandArray[lRealTotalCount] = REG_STR_DETACH;
-      lRealTotalCount++;
-    }
-   
-    if (lRealTotalCount > 0 || aForceEmitFlag == true)
-    { 
-      qApp->lock();
-      lReGStatus = Emit_control(mSimHandle,			//ReG library
-				lRealTotalCount,
-				lCommandArray,
-				lCmdParamArray);
-      
-      qApp->unlock();
-
-      if (lReGStatus != REG_SUCCESS)
-	THROWEXCEPTION("Emit_contol");
-    }
-    
-    // clean up
-    delete [] lCommandArray;
-    for (int i=0; i<lTotalCount; i++)
-      delete [] lCmdParamArray[i];
-    delete [] lCmdParamArray;
-
-
-  } //try
-
-  catch (SteererException StEx)
-  {
-    StEx.print();
-
-    delete [] lCommandArray;
-    for (int i=0; i<lTotalCount; i++)
-      delete [] lCmdParamArray[i];
-    delete [] lCmdParamArray;
-
-    emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
-			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
-			 QMessageBox::NoButton);
-    
-  }
-
-}
-*/
-
-/*
-void 
-ControlForm::emitAllSlot()
-{
-  emitAll();
-}
-
-void 
-ControlForm::emitAll(const int aAdditionalCmd)
-{
-  // emit both parameter values and iotype frequencies
-  // and emit sample and checkpoint requested commands
-
-
-  try 
-  {
-    // set the values in library
-    int lCount = mSteerParamTable->setNewParamValuesInLib();
-    lCount += mIOTypeSampleTable->setNewFreqValuesInLib();
-    lCount += mIOTypeChkPtTable->setNewFreqValuesInLib();
-
-    //emit to library, parameter aForceEmitFlag=true so emit happens even if no commands to send
-    emitAllIOCommands(aAdditionalCmd, true);
-    
-  }
-  
-  catch (SteererException StEx)
-  {
-    StEx.print();
-    emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
-			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
-			 QMessageBox::NoButton);
-    
-  }
-
-}
-
-void
-ControlForm::emitAllAndDetachCmdSlot()
-{
-  emitAll(REG_STR_DETACH); 
-}
-*/

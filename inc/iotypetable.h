@@ -60,10 +60,8 @@ public:
   void addRow(const int lHandle, const char *lLabel, const int lVal, const int lType);
   int getNumIOTypes() const;
 
-  int getCommandRequestsCount();
   int getCommandRequestsCountNew();
   int getCommandRequestsCountOfType(const int aType);
-  int populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
   int populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
   int populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex, const int aType);
   int setNewFreqValuesInLib();
@@ -80,9 +78,7 @@ private:
 protected slots:
 
   void validateValueSlot( int row, int col );
-  //void emitCommandsSlot();
   void emitValuesSlot();
-  //void emitRestartSlot();
 
   // MR:
   void createButtonPressedSlot();
