@@ -72,7 +72,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     mQuitAction(kNULL), mCommsThread(kNULL)
 {
   DBGCON("SteererMainWindow");
-  setCaption( "ReG" );
+  setCaption( "ReG Steerer" );
 
   //make a central widget to contain the other widgets
   mCentralWgt = new QWidget( this );
@@ -139,8 +139,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     mStackLogoLabel->setFont(QFont("Times", 9, QFont::DemiBold));
   }
    
-  //mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
-
   // SMR XXX - future add more widgets to stack for log viewing, for now only tabwidget
   mStack = new QWidgetStack(mCentralWgt);
 
@@ -156,8 +154,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   connect(mAppTabs, SIGNAL(currentChanged(QWidget *)), this, 
 	  SLOT(tabChangedSlot(QWidget *)));
 
-  //mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
-
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
 
@@ -169,9 +165,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   if (mCommsThread != kNULL)
     mSetCheckIntervalAction->setEnabled(TRUE);
 
-
-  //statusBar()->setSizeGripEnabled(false);
-
   // Check if we're auto connecting to a GSH
   if (autoConnect){
     simAttachApp((char*)aSGS);
@@ -179,7 +172,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   }
 
   mAppList.setAutoDelete(TRUE);
-  
 }
 
 
@@ -375,12 +367,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       mStack->raiseWidget(mAppTabs);
       
       // resize - only do for first app attached
-      if(mAppList.count() == 1)resize(540, 700);
-
-      // set minimum size so all gui visible, if remove this can 
-      // shrink gui, but no scrollbars
-      //this->setMinimumSize(540, 700);
-      //statusBar()->clear();
+      if(mAppList.count() == 1)resize(525, 700);
 
       DBGMSG("posted now start commsthread");
       // set off comms thread if it's not already running

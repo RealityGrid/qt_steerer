@@ -64,44 +64,43 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bo
   // that represents that iotype
   // each table row holds the iotype id in a column hidden form the user
 
-  // note: many functions similar to Steeredparametertable class (and iotype similar to paramater) - not looking
+  // note: many functions similar to Steeredparametertable class (and iotype 
+  // similar to paramater) - not looking
   // at merging as iotype display may well change SMR XXX
 
   // set up signal/slots to enable buttons when tables populated
   connect(this, SIGNAL(enableSampleButtonsSignal()), aParent, SLOT(enableSampleButtonsSlot()));
   connect(this, SIGNAL(enableChkPtButtonsSignal()), aParent, SLOT(enableChkPtButtonsSlot()));
 
-  // MR: add a context menu so that we can right click on a cell to select whether to create or restart a checkpoint
-  //connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), this, SLOT(contextMenuSlot(int, int, const QPoint &)));
-
   // MR: propogate table selection changes
   connect(this, SIGNAL(selectionChanged()), this, SLOT(selectionChangedSlot()));
   connect(this, SIGNAL(currentChanged(int, int)), this, SLOT(currentChangedSlot(int, int)));
 
   // MR:
-  connect(this, SIGNAL(setRestartButtonStateSignal(const bool)), aParent, SLOT(setRestartButtonStateSlot(const bool)));
-  connect(this, SIGNAL(setCreateButtonStateSignal(const bool)), aParent, SLOT(setCreateButtonStateSlot(const bool)));
-  connect(this, SIGNAL(setConsumeButtonStateSignal(const bool)), aParent, SLOT(setConsumeButtonStateSlot(const bool)));
-  connect(this, SIGNAL(setEmitButtonStateSignal(const bool)), aParent, SLOT(setEmitButtonStateSlot(const bool)));
+  connect(this, SIGNAL(setRestartButtonStateSignal(const bool)), aParent, 
+	  SLOT(setRestartButtonStateSlot(const bool)));
+  connect(this, SIGNAL(setCreateButtonStateSignal(const bool)), aParent, 
+	  SLOT(setCreateButtonStateSlot(const bool)));
+  connect(this, SIGNAL(setConsumeButtonStateSignal(const bool)), aParent, 
+	  SLOT(setConsumeButtonStateSlot(const bool)));
+  connect(this, SIGNAL(setEmitButtonStateSignal(const bool)), aParent, 
+	  SLOT(setEmitButtonStateSlot(const bool)));
   
   // MR:
   // Ensure that instances of this table aren't drawn too large,
   // since they're unlikely to be particularly full
-  setMinimumHeight(90);
+  setMinimumHeight(70);
   setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-  
 }
 
 IOTypeTable::~IOTypeTable()
 {
   DBGDST("IOTypeTable");
-
 }
 
 void
 IOTypeTable::initTable()
 {
-
   if (mChkPtTypeFlag)
     setNumCols(kNUM_IO_COLUMNS-1);
   else

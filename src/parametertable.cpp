@@ -65,7 +65,7 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHand
 
   // MR:
   // Playing with the default minimum table heights as with IOTypeTable
-  setMinimumHeight(100);
+  setMinimumHeight(70);
   setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
 }  
@@ -95,11 +95,6 @@ ParameterTable::initTable()
 {  
   // set up the monitored parameters table - columns headings, readonly status of columns etc.
 
-  ///SMRXXX  setMinimumSize(QSize(900,900));
-
-  // MR: removed - was causing problems, and giving no noticeable benefit
-  //setNumInitRows(kINIT_ROWS);
-  //setNumRows(kINIT_ROWS);
   setNumCols(kNUM_MON_COLUMNS);
   setReadOnly(TRUE);
  
@@ -116,13 +111,12 @@ ParameterTable::initTable()
   hideColumn(kREG_COLUMN);
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
-  setColumnWidth(kVALUE_COLUMN, 95);
+  setColumnWidth(kVALUE_COLUMN, 85);
 
-  // MR: add a context menu so that we can right click on a cell to draw a graph of that parameter's history
+  // MR: add a context menu so that we can right click on a cell to 
+  // draw a graph of that parameter's history
   connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), 
 	  this, SLOT(contextMenuSlot(int, int, const QPoint &)));
-
-  
 }
 
 int 
@@ -413,17 +407,8 @@ SteeredParameterTable::initTable()
 {  
   // set up the steered parameters table - columns headings, readonly status of columns etc.
 
-  // MR: removed - was causing problems, and giving no noticeable benefit
-  //setNumInitRows(kINIT_ROWS);
-  //setNumRows(kINIT_ROWS);
   setNumCols(kNUM_STEER_COLUMNS);
 
-  // MR: removed - was causing problems, and giving no noticeable benefit
-  // initially set all rows read only as all empty 
-  // SMR XXX all this init rows stuff hopefully will be improved
-  //for (int i=0; i<kINIT_ROWS; i++)
-  //  setRowReadOnly(i, TRUE);
- 
   setShowGrid(FALSE);
   verticalHeader()->hide();
   setLeftMargin(0);
@@ -446,8 +431,8 @@ SteeredParameterTable::initTable()
 
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
-  setColumnWidth(kVALUE_COLUMN, 95);
-  setColumnWidth(kNEWVALUE_COLUMN, 95);
+  setColumnWidth(kVALUE_COLUMN, 85);
+  setColumnWidth(kNEWVALUE_COLUMN, 85);
 
   // set up signal/slot to handle data entered by user (new parameter value)
   connect (this, SIGNAL( valueChanged(int,int) ),
@@ -455,7 +440,6 @@ SteeredParameterTable::initTable()
 
   // Create a DynamicTip object for this table
   new DynamicTip(this, frameRect());
-
 }
 
 
