@@ -302,9 +302,12 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
   // Pop up a context menu which will allow the user to view a graph
   // of the current variable / parameter's history
+  Parameter* paramPtr;
 
-  // No history plot if the parameter is of type REG_CHAR
-  if(findParameterHandleFromRow(row)->getType() == REG_CHAR)return;
+  if( !(paramPtr = findParameterHandleFromRow(row)) )return;
+
+  // No history plot if the parameter is of type REG_CHAR or REG_BIN
+  if(paramPtr->getType() == REG_CHAR || paramPtr->getType() == REG_BIN)return;
 
   QPopupMenu popupMenu;
 
