@@ -40,6 +40,7 @@
 #include "parameterhistory.h"
 
 #include "qprinter.h"
+#include "qinputdialog.h"
 
 
 /** Constructor
@@ -68,17 +69,32 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mParamHist, const char *_lLabel, con
 
     QVBoxLayout *tBL = new QVBoxLayout(this);
     mMenuBar = new QMenuBar(this, "menuBar");
+
     mFileMenu = new QPopupMenu(this, "filePopup");
     mFileMenu->insertItem("&Print", this, SLOT(filePrint()), CTRL+Key_P);
     mFileMenu->insertItem("&Save", this, SLOT(fileSave()), CTRL+Key_S);
     mFileMenu->insertSeparator();
     mFileMenu->insertItem("&Quit", this, SLOT(fileQuit()), CTRL+Key_Q);
+
+    mGraphMenu = new QPopupMenu(this, "graphPopup");
+    autoAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, SLOT(autoYAxisSlot()), CTRL+Key_A);
+    upperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, SLOT(graphYUpperBoundSlot()), CTRL+Key_U);
+    lowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, SLOT(graphYLowerBoundSlot()), CTRL+Key_L);
+
+    mGraphMenu->setItemChecked(autoAxisId, true);
+    mGraphMenu->setItemEnabled(upperBoundId, false);
+    mGraphMenu->setItemEnabled(lowerBoundId, false);
+    
     mMenuBar->insertItem("&File", mFileMenu);
+    mMenuBar->insertItem("&Graph", mGraphMenu);
 
     tBL->setMenuBar(mMenuBar);
     tBL->addWidget(mPlotter);
 
     resize(300, 300);
+
+    lowerBound = upperBound = 0;
+    autoAxisSet = true;
 
     doPlot();
 }
@@ -126,6 +142,19 @@ void HistoryPlot::doPlot(){
     // Set curve styles
     mPlotter->setCurvePen(cSin, QPen(red));
 
+    // allow the user to define the Y axis dims if desired
+    if (!autoAxisSet){
+      mPlotter->setAxisScale(0, lowerBound, upperBound);
+    }
+    else{
+      mPlotter->setAxisAutoScale(0);
+
+      // also want to update the manual upper and lower bounds to something sensible at this point
+      const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
+      lowerBound = autoScaleDiv->lBound();
+      upperBound = autoScaleDiv->hBound();
+    }
+
     //
     //  Calculate some values
     //
@@ -152,6 +181,22 @@ void HistoryPlot::doPlot(){
     mPlotter->setMarkerYPos(mY, 0.0);
 
     mPlotter->replot();
+}
+
+void HistoryPlot::autoYAxisSlot(){
+  autoAxisSet = !autoAxisSet;
+
+  mGraphMenu->setItemChecked(autoAxisId, autoAxisSet);
+  mGraphMenu->setItemEnabled(lowerBoundId, !autoAxisSet);
+  mGraphMenu->setItemEnabled(upperBoundId, !autoAxisSet);
+}
+
+void HistoryPlot::graphYUpperBoundSlot(){
+  upperBound = QInputDialog::getDouble("Enter Y-axis upper-bound", "Y Upper-bound Dialog");
+}
+
+void HistoryPlot::graphYLowerBoundSlot(){
+  lowerBound = QInputDialog::getDouble("Enter Y-axis lower-bound", "Y Lower-bound Dialog");
 }
 
 

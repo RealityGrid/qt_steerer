@@ -80,10 +80,15 @@ class HistoryPlot : public QFrame
 private:
     QMenuBar *mMenuBar;
     QPopupMenu *mFileMenu;
+    QPopupMenu *mGraphMenu;
     ParameterHistory *mParamHist;
     HistoryPlotter *mPlotter;
     char lLabel[kCHKPT_PARAM_LEN];
     int paramID;
+    
+    double upperBound, lowerBound;
+    int upperBoundId, lowerBoundId, autoAxisId;
+    bool autoAxisSet;
         
     void doPlot();
 
@@ -92,6 +97,9 @@ public slots:
     void filePrint();
     void fileSave();
     void fileQuit();
+    void graphYUpperBoundSlot();
+    void graphYLowerBoundSlot();
+    void autoYAxisSlot();
 
 public:
     HistoryPlot(ParameterHistory *mParamHist, const char *lLabel, const int paramID);
