@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------
-    Header file utility classes for QT steerer GUI.
+    AttachForm class header file for QT steerer GUI. 
 
     (C)Copyright 2002 The University of Manchester, United Kingdom,
     all rights reserved.
@@ -27,51 +27,53 @@
     
     Date          Version    Updates                            Author
     ----          -------    -------                            ------
-    03.10.2002      0.1                                         S Ramsden
+    23.10.2002      0.1                                         S Ramsden
 
 ---------------------------------------------------------------------------*/
 
-#ifndef __UTILITY_H__
-#define __UTILITY_H__
+#ifndef __ATTACH_FORM_H__
+#define __ATTACH_FORM_H__
 
-#include <qlabel.h>
-#include <qlistbox.h>
+#include <qdialog.h>
 
-class QPainter;
-class QString;
-class QWidget;
+class QLineEdit;
+class QListBox;
+class QPushButton;
 
-class TableLabel : public QLabel
+class AttachForm: public QDialog
 {
-
+  Q_OBJECT
+       
 public:
-  TableLabel(const QString & text, QWidget * parent);
-  ~TableLabel();
+  AttachForm(QWidget *parent = 0, const char *name = "attachform",
+	     bool modal = TRUE, WFlags f = 0 );
+  ~AttachForm();
 
-};
+  int getNumSims() const;
+  int getLibReturnStatus() const;
+  char *getSimGSMSelected() const;
 
-
-
-class AttachListItem : public QListBoxItem
-{
-
-public:
-  AttachListItem(int aSimIndex, const QString &text);
-  ~AttachListItem();
-
-  int getSimIndex() const;
-
-  virtual void paint( QPainter * );
-  virtual int width( const QListBox* ) const;
-  virtual int height( const QListBox* ) const;
+protected slots:
+  void attachSlot();
+  void filterSlot();
 
 private:
-  int mSimIndex;
+  void cleanUp();
 
-  
+private:
+  int		mNumSims;
+  int		mLibReturnStatus;
+
+  char		*mSimGSHSelected;
+  char  	**mSimName;
+  char		**mSimGSH;
+
+  QListBox	*mListBox;
+  QLineEdit	*mFilterLineEdit;
+
+  QPushButton	*mAttachButton;
+  QPushButton	*mCancelButton;
+
 };
 
-
-
 #endif
-

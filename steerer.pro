@@ -38,12 +38,14 @@ TEMPLATE = app
 TARGET      = steerer
 
 CONFIG      += qt thread
-INCLUDEPATH = ${REG_STEER_HOME}/include ./inc
+INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR}
 LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer
-LIBS        += -L${REG_STEER_HOME}/expat/xmlparse -lexpat
+#LIBS        += -L${REG_STEER_HOME}/expat/xmlparse -lexpat
+LIBS        += -L${REG_XML_LIBDIR}32 -lxml2
 
 # Input
-HEADERS += inc/application.h \
+HEADERS += inc/application.h \	
+           inc/attachform.h \
            inc/commsthread.h \
            inc/controlform.h \
            inc/debug.h \
@@ -57,6 +59,7 @@ HEADERS += inc/application.h \
            inc/types.h \
            inc/utility.h
 SOURCES += src/application.cpp \
+           src/attachform.cpp \
            src/commsthread.cpp \
            src/controlform.cpp \
            src/exception.cpp \

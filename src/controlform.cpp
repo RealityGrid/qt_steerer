@@ -58,17 +58,17 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   // this consists of four tables - one each for monitored parameters, steered parameters,
   // samples iotypes and checkpoint iotypes, plus buttons associated with the tables
 
-  QVBoxLayout *lEditLayout = new QVBoxLayout(this, 6, 6);
+  QVBoxLayout *lEditLayout = new QVBoxLayout(this, 6, 6, "editlayout");
   QHBoxLayout *lStatusLayout = new QHBoxLayout(6, "statuslayout");
   QHBoxLayout *lBottomButtonLayout = new QHBoxLayout(6, "bottombuttonlayout");
 
-  QSpacerItem* spacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
+  QSpacerItem* lSpacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, QSizePolicy::Expanding );
 
   mStatusLabel = new QLabel("Attached to application", this);
   lStatusLayout->addWidget(new TableLabel("Steering Status: ", this));
   lStatusLayout->addWidget(mStatusLabel);
-  lStatusLayout->addItem(spacer);
-  lStatusLayout->addItem(spacer);
+  lStatusLayout->addItem(lSpacer);
+  lStatusLayout->addItem(lSpacer);
 
   // set up table for monitored parameters
   QHBoxLayout *lMonLayout = new QHBoxLayout(6, "montablayout");
@@ -92,7 +92,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   connect( mEmitButton, SIGNAL( clicked() ), mSteerParamTable, SLOT( emitValuesSlot() ) );
     
   // layout steered parameters
-  lSteerButtonLayout->addItem(spacer);
+  lSteerButtonLayout->addItem(lSpacer);
   lSteerButtonLayout->addWidget(mEmitButton);
   lSteerLayout->addWidget(mSteerParamTable);  
   lSteerLayout->addLayout(lSteerButtonLayout);
@@ -116,7 +116,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mSetSampleFreqButton->setMaximumSize(mSetSampleFreqButton->sizeHint());
   connect(mSetSampleFreqButton, SIGNAL( clicked() ), mIOTypeSampleTable, SLOT( emitValuesSlot()));
 
-  lSampleButtonLayout->addItem(spacer);
+  lSampleButtonLayout->addItem(lSpacer);
   lSampleButtonLayout->addWidget(mSndSampleButton);
   lSampleButtonLayout->addWidget(mSetSampleFreqButton);
   lSampleLayout->addWidget(mIOTypeSampleTable);
@@ -141,7 +141,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mSetChkPtFreqButton->setMaximumSize(mSetChkPtFreqButton->sizeHint());
   connect(mSetChkPtFreqButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( emitValuesSlot()));
 
-  lChkPtButtonLayout->addItem(spacer);
+  lChkPtButtonLayout->addItem(lSpacer);
   lChkPtButtonLayout->addWidget(mSndChkPtButton);
   lChkPtButtonLayout->addWidget(mSetChkPtFreqButton);
   lChkPtLayout->addWidget(mIOTypeChkPtTable);
@@ -167,7 +167,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   lBottomButtonLayout->addWidget(mEmitAllValuesButton);
   lBottomButtonLayout->addWidget(mEmitAllIOCommandsButton);
   lBottomButtonLayout->addWidget(mEmitAllButton);
-  lBottomButtonLayout->addItem(spacer);
+  lBottomButtonLayout->addItem(lSpacer);
 
 
   connect(this, SIGNAL(detachFromApplicationForErrorSignal()), 
@@ -176,23 +176,23 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   // the overall layout
   lEditLayout->addLayout(lStatusLayout);
-  lEditLayout->addItem(spacer);
+  lEditLayout->addItem(lSpacer);
 
   lEditLayout->addWidget(new TableLabel("Monitored Parameters", this));
   lEditLayout->addLayout(lMonLayout);
-  lEditLayout->addItem(spacer);
+  lEditLayout->addItem(lSpacer);
 
   lEditLayout->addWidget(new TableLabel("Steered Parameters", this));
   lEditLayout->addLayout(lSteerLayout);
-  lEditLayout->addItem(spacer);
+  lEditLayout->addItem(lSpacer);
 
   lEditLayout->addWidget(new TableLabel("Sample IOTypes", this));
   lEditLayout->addLayout(lSampleLayout);
-  lEditLayout->addItem(spacer);
+  lEditLayout->addItem(lSpacer);
 
   lEditLayout->addWidget(new TableLabel("CheckPoint IOTypes", this));
   lEditLayout->addLayout(lChkPtLayout);
-  lEditLayout->addItem(spacer);
+  lEditLayout->addItem(lSpacer);
 
   lEditLayout->addLayout(lBottomButtonLayout);
 
@@ -375,11 +375,11 @@ ControlForm::updateIOTypes()
       
       // setup arrays of appropriate size for Get_param_values
       // note that REG_MAX_STRING_LENGTH is max string length imposed by library
-      int *lHandles = new int[lNumIOTypes];
-      int *lTypes = new int[lNumIOTypes];
-      int *lAutoFlags = new int[lNumIOTypes];
-      int *lVals = new int[lNumIOTypes];
-      char  **lLabels = new char *[lNumIOTypes];   
+      lHandles = new int[lNumIOTypes];
+      lTypes = new int[lNumIOTypes];
+      lAutoFlags = new int[lNumIOTypes];
+      lVals = new int[lNumIOTypes];
+      lLabels = new char *[lNumIOTypes];   
       for(int i=0; i<lNumIOTypes; i++)
       {
 	lLabels[i] = new char[REG_MAX_STRING_LENGTH + 1];
@@ -588,7 +588,7 @@ ControlForm::emitAllIOCommandsSlot()
 
 
 void 
-ControlForm::emitAllIOCommands(const int aAdditionalCmd)
+ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
 {
 
   bool lAddCmdFlag = false;
@@ -631,7 +631,7 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd)
       lRealTotalCount++;
     }
    
-    if (lRealTotalCount > 0)
+    if (lRealTotalCount > 0 || aForceEmitFlag == true)
     {  
       if (Emit_control(mSimHandle,			//ReG library
 		       lRealTotalCount,
@@ -680,8 +680,8 @@ ControlForm::emitAll(const int aAdditionalCmd)
     lCount += mIOTypeSampleTable->setNewFreqValuesInLib();
     lCount += mIOTypeChkPtTable->setNewFreqValuesInLib();
 
-    //emit to library
-    emitAllIOCommands(aAdditionalCmd);
+    //emit to library, parameter aForceEmitFlag=true so emit happens even if no commands to send
+    emitAllIOCommands(aAdditionalCmd, true);
     
   }
   

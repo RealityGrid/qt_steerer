@@ -130,7 +130,7 @@ Application::~Application()
   if (!mDetachedFlag)
     detachFromApplication();
 
-  delete mControlForm;
+  delete mControlForm;  //check this SMR XXX
   mControlForm = kNULL;
 }
 
@@ -255,7 +255,9 @@ Application::closeApplicationSlot()
   // user has hit close button (only enabled when application has detached)
   // so get rid of this form
 
-  
+  // tell steering lib we're detaching
+  detachFromApplication();
+
   emit closeApplicationSignal(mSimHandle);
 
 }

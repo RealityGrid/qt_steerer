@@ -86,6 +86,7 @@ ParameterTable::initTable()
   horizontalHeader()->setLabel(kVALUE_COLUMN, "Value");
  
   hideColumn(kID_COLUMN);
+  setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
   setColumnWidth(kVALUE_COLUMN, 120);
 
@@ -268,6 +269,7 @@ SteeredParameterTable::initTable()
   setColumnReadOnly(kVALUE_COLUMN, TRUE);
 
   hideColumn(kID_COLUMN);
+  setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
   setColumnWidth(kVALUE_COLUMN, 120);
   setColumnWidth(kNEWVALUE_COLUMN, 120);

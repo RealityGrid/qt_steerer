@@ -40,6 +40,7 @@
 #include "steerermainwindow.h"
 #include "commsthread.h"
 #include "application.h"
+#include "attachform.h"
 
 #include <qapplication.h>
 #include <qcombobox.h>
@@ -58,8 +59,9 @@
 
 SteererMainWindow::SteererMainWindow()
   : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL), mTopLayout(kNULL),  
-  mLeftLayout(kNULL), mRightLayout(kNULL), mAttachButton(kNULL), mQuitButton(kNULL),
-    mStack(kNULL), mAppTabs(kNULL), mCommsThread(kNULL), mApplication(kNULL)
+    mLeftLayout(kNULL), mRightLayout(kNULL), mAttachButton(kNULL), mGridAttachButton(kNULL), 
+    mQuitButton(kNULL), mReadMsgButton(kNULL), mStack(kNULL), mAppTabs(kNULL), 
+    mCommsThread(kNULL), mApplication(kNULL)
 {
   DBGCON("SteererMainWindow");
   setCaption( "Steerer - test GUI" );
@@ -78,14 +80,23 @@ SteererMainWindow::SteererMainWindow()
   mLeftLayout->setMargin(10);
 
   // set up all buttons
-  mAttachButton = new QPushButton( "Attach", mCentralWgt, "attachbutton" );
+  mAttachButton = new QPushButton( "Local Attach", mCentralWgt, "attachbutton" );
   mAttachButton->setMinimumSize(mAttachButton->sizeHint());
   mAttachButton->setMaximumSize(mAttachButton->sizeHint());
   mAttachButton->setEnabled(TRUE);
-  QToolTip::add( mAttachButton, "Attach to new application" );
+  QToolTip::add( mAttachButton, "Attach to local application" );
   connect( mAttachButton, SIGNAL(clicked()),
 	   this, SLOT(attachAppSlot()) );
   mLeftLayout->addWidget(mAttachButton); 
+
+  mGridAttachButton= new QPushButton( "Grid Attach", mCentralWgt, "gridattachbutton" );
+  mGridAttachButton->setMinimumSize(mGridAttachButton->sizeHint());
+  mGridAttachButton->setMaximumSize(mGridAttachButton->sizeHint());
+  mGridAttachButton->setEnabled(TRUE);
+  QToolTip::add( mGridAttachButton, "Attach to application on grid" );
+  connect( mGridAttachButton, SIGNAL(clicked()),
+	   this, SLOT(attachGridAppSlot()) );
+  mLeftLayout->addWidget(mGridAttachButton); 
 
 
   // SMR XXX tmp button to read steerer files - replaced with thread that poles for files
@@ -176,86 +187,137 @@ SteererMainWindow::attachAppSlot()
 {
 
   // SMR XXX - just attach to application using env variables
-  // SMR XXX this all to be done properly using grid services etc....
+
+  statusBar()->clear();
+
+  if (QMessageBox::information(0, "Local Attach", 
+			       "Attach using ReG environment variables?",
+			       QMessageBox::Ok,
+			       QMessageBox::Cancel, 
+			       QMessageBox::NoButton) == QMessageBox::Ok)
+  
+  {
+    /* Attempt to attach simulation */
+    simAttachApp("local");
+  }  
+  else
+  {
+    statusBar()->clear();
+    DBGMSG("Application to steer::Cancel hit"); // user entered nothing or pressed Cancel
+  }
+
+}
+
+
+void 
+SteererMainWindow::attachGridAppSlot()
+{
+
+  // SMR XXX future: need to keep record of attached SimGSH so cannot attach twice - 
+  // also filter of grid  list shown 
+
+  AttachForm *lAttachForm = new AttachForm(this);
+     
+  if (lAttachForm->getLibReturnStatus() == REG_SUCCESS)
+  {  
+    if (lAttachForm->getNumSims() > 0)
+    {
+      if ( lAttachForm->exec() == QDialog::Accepted ) 
+      {
+	DBGMSG1("attach accepted, sim = ",  lAttachForm->getSimGSMSelected());
+	simAttachApp(lAttachForm->getSimGSMSelected());
+      }
+    } 
+    else
+    {
+      QMessageBox::information(0, "Grid Attach", 
+			       "No steerable applications found",
+			       QMessageBox::Ok,
+			       QMessageBox::NoButton, 
+			       QMessageBox::NoButton);
+      
+    }
+    
+  }
+  else
+  {
+    QMessageBox::information(0, "Grid Proxy Unavailable", 
+			     "Local attach available only",
+			     QMessageBox::Ok,
+			     QMessageBox::NoButton, 
+			     QMessageBox::NoButton);
+  }
+
+  delete lAttachForm;
+
+}
+
+
+void 
+SteererMainWindow::simAttachApp(char * aSimID)
+{
+
+  /* Attempt to attach ONE simulation */ 
+
+  int lSimHandle = -1;
 
   try
   {
 
-    QString lText;
-    bool lOk = FALSE;
-    statusBar()->clear();
-    lText = QInputDialog::getText(
-				  tr( "Application to steer" ),
-				  tr( "Please enter application name" ),
-				  QLineEdit::Normal, tr("LB3D"), &lOk, this );
-    
-    if ( lOk && !lText.isEmpty() )
+    if (Sim_attach(aSimID, &lSimHandle) == REG_SUCCESS)		//ReG library
     {
-      /* Attempt to attach to ONE simulation */
+      DBGMSG1("Wooohoooo - Attached: mSimHandle = ",lSimHandle);
       
-      int lSimHandle = -1;
+      mApplication = new Application(this, aSimID, lSimHandle);
+      // get supported command list from library and enable buttons appropriately
+      mApplication->enableCmdButtons();
       
-      if (Sim_attach(1, &lSimHandle) == REG_SUCCESS)		//ReG library
+      mAppTabs->addTab(mApplication, QString(aSimID));
+      
+      //need showpage otherwise only shown on first attach - why? SMR XXX
+      mAppTabs->showPage(mApplication);
+      mStack->raiseWidget(mAppTabs);
+      
+      // code for posting in new window - future SMR XXX
+      ///SMR	   ApplicationWindow *lNewWindow = new ApplicationWindow(lText, lSimHandle); //SMR XXX member/deletion?
+      ///SMR	   lNewWindow->setCaption("New Appl Window");
+      ///SMR	   lNewWindow->show();
+      ///SMR	   mApplication = lNewWindow->getApplication();
+      
+      // SMR XXX disable attach buttons as currently only attach to one application
+      mAttachButton->setEnabled(FALSE);
+      mGridAttachButton->setEnabled(FALSE);
+      
+      // set off comms thread iff it's not already running
+      // process messages form all steered applications	
+      if (!isThreadRunning())
       {
-	DBGMSG1("Wooohoooo - Attached: mSimHandle = ",lSimHandle);
-
-	mApplication = new Application(this, lText, lSimHandle);
-	// get supported command list from library and enable buttons appropriately
-	mApplication->enableCmdButtons();
-
-	mAppTabs->addTab(mApplication, lText);
+	if (mCommsThread == kNULL)
+	  mCommsThread = new CommsThread(this, 3);
 	
-	//need showpage otherwise only shown on first attach - why? SMR XXX
-	mAppTabs->showPage(mApplication);
-	mStack->raiseWidget(mAppTabs);
+	mCommsThread->start();  // calls the run method
 	
-	// code for posting in new window - future SMR XXX
-	///SMR	   ApplicationWindow *lNewWindow = new ApplicationWindow(lText, lSimHandle); //SMR XXX member/deletion?
-	///SMR	   lNewWindow->setCaption("New Appl Window");
-	///SMR	   lNewWindow->show();
-	///SMR	   mApplication = lNewWindow->getApplication();
-	
-	// SMR XXX disable attach buttons as currently only attach to one application
-	mAttachButton->setEnabled(FALSE);
-	
-
-	// set off comms thread iff it's not already running
-	// process messages form all steered applications	
-	if (!isThreadRunning())
+	if (!mCommsThread->running())
 	{
-	  if (mCommsThread == kNULL)
-	    mCommsThread = new CommsThread(this, 3);
-	  
-	  mCommsThread->start();  // calls the run method
-	  
-	  if (!mCommsThread->running())
-	  {
-	    THROWEXCEPTION("Thread creation failed");
-	    ///SMR mReadMsgButton->setEnabled(TRUE);
-	  }
+	  THROWEXCEPTION("Thread creation failed");
+	  ///SMR mReadMsgButton->setEnabled(TRUE);
 	}
-
-
-	// resize - only do for first app attached? SMR XXX
-	resize(950, 800);   
-
-	statusBar()->clear();
-	
-	
-      }
-      else
-      {
-	statusBar()->message( "Failed to attach to application" );
-	DBGMSG("Sim_attach failed");
       }
       
-    }  
+      
+      // resize - only do for first app attached? SMR XXX
+      resize(980, 800);   
+      
+      statusBar()->clear();
+      
+      
+    }
     else
     {
-      statusBar()->clear();
-      DBGMSG("Application to steer::Cancel hit"); // user entered nothing or pressed Cancel
+      statusBar()->message( "Failed to attach to application" );
+      DBGMSG("Sim_attach failed");
     }
-
+    
   } //try
 
   catch (SteererException StEx)
@@ -273,7 +335,6 @@ SteererMainWindow::attachAppSlot()
     StEx.print();
   }
   
-
 }
 
 
@@ -290,7 +351,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   // SMR XXX if last application being steered, stop the CommsThread
   if (isThreadRunning())
     mCommsThread->stop();
-  
+
   mAppTabs->removePage(mApplication);
 
   delete mApplication;
@@ -298,6 +359,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
 
   // re-enable attach button SMR XXX
   mAttachButton->setEnabled(TRUE);
+  mGridAttachButton->setEnabled(TRUE);
 
   // SMR XXX  if last application being steered,resie the window
   resizeForNoAttached();

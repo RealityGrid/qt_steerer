@@ -70,7 +70,7 @@ private:
   void updateParameters(bool aSteeredFlag);
   void disableButtons();
   
-  void emitAllIOCommands(const int aAdditionalCmd = -1);
+  void emitAllIOCommands(const int aAdditionalCmd = -1, bool aForceEmitFlag = false);
   void emitAll(const int aAdditionalCmd = -1);
 
 

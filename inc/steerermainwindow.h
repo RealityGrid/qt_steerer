@@ -63,10 +63,14 @@ private:
 
 protected slots:
   void attachAppSlot();
+  void attachGridAppSlot();
   void quitSlot(); 
   void readMsgSlot();
   void closeApplicationSlot(int aSimHandle);
 
+
+private:
+  void simAttachApp(char *aSimID);
 
 private:
 
@@ -77,6 +81,7 @@ private:
   QVBoxLayout	*mRightLayout;
 
   QPushButton	*mAttachButton;
+  QPushButton	*mGridAttachButton;
 
   QPushButton	*mQuitButton;
   QPushButton	*mReadMsgButton;

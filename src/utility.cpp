@@ -32,10 +32,14 @@
 ---------------------------------------------------------------------------*/
 
 #include "utility.h"
+#include "types.h"
 #include "debug.h"
 
-#include "qstring.h"
-#include "qwidget.h"
+#include <qapplication.h>
+#include <qfontmetrics.h>
+#include <qpainter.h>
+#include <qstring.h>
+#include <qwidget.h>
 
 TableLabel::TableLabel(const QString & text, QWidget * parent)
   : QLabel(text, parent)
@@ -47,4 +51,56 @@ TableLabel::TableLabel(const QString & text, QWidget * parent)
 TableLabel::~TableLabel()
 {
   DBGDST("TableLabel");
+}
+
+
+
+
+AttachListItem::AttachListItem(int aSimIndex, const QString &text)
+  : QListBoxItem(), mSimIndex(aSimIndex)
+{
+  DBGCON("AttachListItem");
+  setText( text );
+  printf("constucted AttachListItem mSimIndex = %d\n", mSimIndex);
+
+}
+
+AttachListItem::~AttachListItem()
+{
+  DBGDST("AttachListItem");
+}
+
+int
+AttachListItem::getSimIndex() const
+{
+  return mSimIndex;
+}
+
+
+void 
+AttachListItem::paint( QPainter *painter )
+{
+    QFontMetrics fm = painter->fontMetrics();
+    painter->drawText( 3, fm.ascent() +  (fm.leading()+1)/2 + 1, text() );
+}
+
+int 
+AttachListItem::height( const QListBox* lb ) const
+{
+    int h = lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
+    if (h > QApplication::globalStrut().height())
+      return h;
+    else
+      return QApplication::globalStrut().height();
+}
+
+
+int 
+AttachListItem::width( const QListBox* lb ) const
+{
+    int w = lb ? lb->fontMetrics().width( text() ) + 6 : 0;
+    if (w > QApplication::globalStrut().width())
+      return w;
+    else
+      return QApplication::globalStrut().width();
 }
