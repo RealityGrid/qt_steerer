@@ -106,7 +106,6 @@ IOTypeTable::initTable()
 
   horizontalHeader()->setLabel(kIO_ID_COLUMN, "ID");
   horizontalHeader()->setLabel(kIO_NAME_COLUMN, "Name"); 
-  horizontalHeader()->setLabel(kIO_AUTO_COLUMN, "Auto?");
   horizontalHeader()->setLabel(kIO_VALUE_COLUMN, "Frequency");
   horizontalHeader()->setLabel(kIO_NEWVALUE_COLUMN, "New Frequency");
   horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "Request");
@@ -115,22 +114,20 @@ IOTypeTable::initTable()
   if (mChkPtTypeFlag)
   {
     horizontalHeader()->setLabel(kIO_RESTART_COLUMN, "Request");
-    setColumnWidth(kIO_REQUEST_COLUMN, 65);
+    setColumnWidth(kIO_REQUEST_COLUMN, 70);
     setColumnWidth(kIO_RESTART_COLUMN, 70);
   }
 
   
   setColumnReadOnly(kIO_ID_COLUMN, TRUE);
   setColumnReadOnly(kIO_NAME_COLUMN, TRUE);
-  setColumnReadOnly(kIO_AUTO_COLUMN, TRUE);
   setColumnReadOnly(kIO_VALUE_COLUMN, TRUE);
   setColumnReadOnly(kIO_SPLIT, TRUE);
   
 
   hideColumn(kIO_ID_COLUMN);
   setColumnWidth(kIO_NAME_COLUMN, 200);
-  setColumnWidth(kIO_AUTO_COLUMN, 50);
-  setColumnWidth(kIO_VALUE_COLUMN, 80);
+   setColumnWidth(kIO_VALUE_COLUMN, 80);
   setColumnWidth(kIO_NEWVALUE_COLUMN, 117);
   setColumnWidth(kIO_SPLIT, 10);
 
@@ -206,14 +203,9 @@ IOTypeTable::updateRow(const int lHandle, const int lVal)
   IOType	*lIOTypePtr;
   if ((lIOTypePtr = findIOType(lHandle)) != kNULL)
   { 
-    // only update frequencyand auto toggle if this is supported for iotype
-    if (lIOTypePtr->getAutoSupportedFlag())
-    { 
-      int lRowIndex = lIOTypePtr->getRowIndex();
-      item(lRowIndex,kIO_VALUE_COLUMN)->setText(QString::number(lVal));
-      updateCell(lRowIndex, kIO_VALUE_COLUMN);
-      
-    }
+    int lRowIndex = lIOTypePtr->getRowIndex();
+    item(lRowIndex,kIO_VALUE_COLUMN)->setText(QString::number(lVal));
+    updateCell(lRowIndex, kIO_VALUE_COLUMN);
     return true;
   }
 
@@ -222,7 +214,7 @@ IOTypeTable::updateRow(const int lHandle, const int lVal)
 
 
 void
-IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const int lType, const int lAutoFlag)
+IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const int lType)
 {
   // add a new iotype to the table and the list
 
@@ -244,28 +236,14 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
 
 
   IOType	*lIOTypePtr;
-  lIOTypePtr = new IOType(lHandle, lType, lAutoFlag);
+  lIOTypePtr = new IOType(lHandle, lType);
   
   setText(lRowIndex, kIO_ID_COLUMN, QString::number(lHandle) );
   setText(lRowIndex, kIO_NAME_COLUMN, lLabel);
-  
-  if (lAutoFlag==true) // the application supports auto emit/consume
-  {
-    setText(lRowIndex, kIO_AUTO_COLUMN, "Yes");
- 
     setItem(lRowIndex, kIO_VALUE_COLUMN, 
-	    new QTableItem(this, QTableItem::Never, QString::number(lVal)));
-    setItem(lRowIndex, kIO_NEWVALUE_COLUMN,
-	    new QTableItem(this, QTableItem::OnTyping, QString::null));
-  }
-  else			// the application does NOT support auto emit/consume
-  {
-    setText(lRowIndex, kIO_AUTO_COLUMN, "No");
-    setItem(lRowIndex, kIO_VALUE_COLUMN, 
-	    new QTableItem(this, QTableItem::Never, QString::null));
-    setItem(lRowIndex, kIO_NEWVALUE_COLUMN,
-	    new QTableItem(this, QTableItem::Never, QString::null));
-  }
+	  new QTableItem(this, QTableItem::Never, QString::number(lVal)));
+  setItem(lRowIndex, kIO_NEWVALUE_COLUMN,
+	  new QTableItem(this, QTableItem::OnTyping, QString::null));
 
   // set up the "request" column (checkbox to say which iotypes request now when hit button)
   switch(lType)
@@ -357,7 +335,7 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
   // as we need int value for ReG library call -  store the int value on the IOType class
   // to avoid having to convert QString value held on gui.
 
-  // only care about new value column and autotoggle column
+  // only care about new value column and restart column
   // only care is app is still attached
 
   try
@@ -402,6 +380,8 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
       }
       else if (aCol == kIO_RESTART_COLUMN)
       {      
+	// can only have one restart checked at once
+
 	if (((QCheckTableItem *) this->item(aRow, aCol))->isChecked())
         {
 	  int lOldRestartRowIndex = mRestartRowIndex;

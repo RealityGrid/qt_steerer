@@ -40,8 +40,8 @@
 #include "debug.h"
 #include "iotype.h"
 
-IOType::IOType(int aId, int aIOTypeType, int aAutoFlag)
-  : mId(aId), mType(aIOTypeType), mNewFrequency(kNULL_FREQ), mAutoSupportedFlag(aAutoFlag)
+IOType::IOType(int aId, int aIOTypeType)
+  : mId(aId), mType(aIOTypeType), mNewFrequency(kNULL_FREQ)
 {
   DBGCON("IOType");
   // Create an iotype object - this holds information about a sample or checkpont IOType.
@@ -59,9 +59,8 @@ IOType::IOType(int aId, int aIOTypeType, int aAutoFlag)
 
   // Once registered IOTypes cannot be unregistered by the steered application
 
-  // mAutoSupportedFlag indicates whether the steered application supports auto emit/consume
-  // for this iotype.  Such auto emit/consume has an associated freqenncy.
-  // All iotypes support on demand emit/comsume (i.e. user demands via gui)
+  // All iotypes support on demand emit/comsume (i.e. user demands via gui) and 
+  // auto emit/consume as dictated by frequency.
 
 }
 
@@ -92,12 +91,6 @@ int
 IOType::getRowIndex() const
 {
   return mRowIndex;
-}
-
-bool 
-IOType::getAutoSupportedFlag() const
-{
-  return mAutoSupportedFlag;
 }
 
 int

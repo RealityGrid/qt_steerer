@@ -65,16 +65,15 @@
 //iotype table constants
 #define kIO_ID_COLUMN		0
 #define kIO_NAME_COLUMN		1
-#define kIO_AUTO_COLUMN		2
-#define kIO_VALUE_COLUMN	3
-#define kIO_SPLIT		4
-#define kIO_NEWVALUE_COLUMN	5
-#define kIO_REQUEST_COLUMN	6
-#define kIO_RESTART_COLUMN	7  // chkpoint only
+#define kIO_VALUE_COLUMN	2
+#define kIO_SPLIT		3
+#define kIO_NEWVALUE_COLUMN	4
+#define kIO_REQUEST_COLUMN	5
+#define kIO_RESTART_COLUMN	6  // chkpoint only
 
 
 //iotype tables sizes
-#define kNUM_IO_COLUMNS		7  // not include kIO_RESTART_COLUMN
+#define kNUM_IO_COLUMNS		6  // not include kIO_RESTART_COLUMN
 #define kIO_INIT_ROWS		4
 
 // iotype new frequency not set indicator

@@ -55,7 +55,7 @@ public:
   virtual void clearAndDisableForDetach(const bool aUnRegister = true);
 
   bool updateRow(const int lHandle, const int lVal);
-  void addRow(const int lHandle, const char *lLabel, const int lVal, const int lType, const int lAutoFlag = false);
+  void addRow(const int lHandle, const char *lLabel, const int lVal, const int lType);
   int getNumIOTypes() const;
 
   int getCommandRequestsCount();

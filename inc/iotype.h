@@ -43,7 +43,7 @@ class IOType
 {
 
 public:
-  IOType(int aId, int aIOTypeType, int aAutoFlag = false);
+  IOType(int aId, int aIOTypeType);
   ~IOType();
 
   void printIOType() const;
@@ -52,7 +52,6 @@ public:
   int getType() const;
   int getRowIndex() const;
   int getFrequency() const;
-  bool getAutoSupportedFlag() const;
  
   int  getAndResetFrequency();
 
@@ -67,7 +66,6 @@ private:
   int	mRowIndex;
   int	mNewFrequency;
 
-  bool	mAutoSupportedFlag;
 };
 
 #endif

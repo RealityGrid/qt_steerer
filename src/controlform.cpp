@@ -83,7 +83,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mMonParamTable = new ParameterTable(this, "monparamtable", aSimHandle);
   mMonParamTable->initTable();
   lMonLayout->addWidget(mMonParamTable);
-  lMonLayout->addSpacing(280);
+  lMonLayout->addSpacing(250);
 
   // set up table and buttons for steered parameters
   QHBoxLayout *lSteerLayout = new QHBoxLayout(6, "steertablayout");
@@ -105,7 +105,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   lSteerButtonLayout->addWidget(mEmitButton);
   lSteerLayout->addWidget(mSteerParamTable);  
   lSteerLayout->addLayout(lSteerButtonLayout);
-  lSteerLayout->addSpacing(50);
+  lSteerLayout->addSpacing(30);
 
   // table and buttons for sample iotypes
   QHBoxLayout *lSampleLayout = new QHBoxLayout(6, "sampletablayout");
@@ -377,7 +377,6 @@ ControlForm::updateIOTypes()
   int		lNumIOTypes;
   int *lHandles = kNULL;
   int *lTypes = kNULL;
-  int *lAutoFlags = kNULL;
   int *lVals = kNULL;
   char  **lLabels = kNULL;
   bool lCleanUpFlag = false;
@@ -398,7 +397,6 @@ ControlForm::updateIOTypes()
       // note that REG_MAX_STRING_LENGTH is max string length imposed by library
       lHandles = new int[lNumIOTypes];
       lTypes = new int[lNumIOTypes];
-      lAutoFlags = new int[lNumIOTypes];
       lVals = new int[lNumIOTypes];
       lLabels = new char *[lNumIOTypes];   
       for(int i=0; i<lNumIOTypes; i++)
@@ -411,7 +409,6 @@ ControlForm::updateIOTypes()
 		    lHandles,
 		    lLabels,
 		    lTypes,
-		    lAutoFlags,
 		    lVals) == REG_SUCCESS)
       {
 	for (int i=0; i<lNumIOTypes; i++)
@@ -426,7 +423,7 @@ ControlForm::updateIOTypes()
 	  if (!(lIOTypeTablePtr->updateRow(lHandles[i], lVals[i])))
 	  {
 	    // new IOTypee so add it
-	    lIOTypeTablePtr->addRow(lHandles[i], lLabels[i], lVals[i], lTypes[i], lAutoFlags[i]);
+	    lIOTypeTablePtr->addRow(lHandles[i], lLabels[i], lVals[i], lTypes[i]);
 	  } 
 	  
 	} //for lNumIOTypes            
@@ -440,7 +437,6 @@ ControlForm::updateIOTypes()
       // delete local arrays
       delete [] lHandles;
       delete [] lTypes;
-      delete [] lAutoFlags;
       delete [] lVals;
       for(int i=0; i<lNumIOTypes; i++)
 	{
@@ -458,7 +454,6 @@ ControlForm::updateIOTypes()
     {
       delete [] lHandles;
       delete [] lTypes;
-      delete [] lAutoFlags;
       delete [] lVals;
       for(int i=0; i<lNumIOTypes; i++)
 	{
