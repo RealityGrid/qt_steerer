@@ -145,7 +145,8 @@ class ScreenGrabThread: public QThread
 
       // Grab the window contents rather than the widget
       // since we seemingly can't force a refresh immediately - spawn a thread to do this
-      QPixmap lPixmap = QPixmap::grabWindow(mWidget->winId(), 0, mMenuBar->heightForWidth(mWidget->width()));
+      QPixmap lPixmap = QPixmap::grabWindow(mWidget->winId(), 0, 
+					    mMenuBar->heightForWidth(mWidget->width()));
       lPixmap.save(mFileName, "JPEG");
     }
 };
