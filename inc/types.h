@@ -53,7 +53,7 @@
 
 //parameter tables sizes
 #define kNUM_MON_COLUMNS	4
-#define kNUM_STEER_COLUMNS	6
+#define kNUM_STEER_COLUMNS	6 
 #define kINIT_ROWS		4
 
 
@@ -65,13 +65,21 @@
 #define kIO_SPLIT		4
 #define kIO_NEWVALUE_COLUMN	5
 #define kIO_REQUEST_COLUMN	6
+#define kIO_RESTART_COLUMN	7  // chkpoint only
+
 
 //iotype tables sizes
-#define kNUM_IO_COLUMNS		7
+#define kNUM_IO_COLUMNS		7  // not include kIO_RESTART_COLUMN
 #define kIO_INIT_ROWS		4
 
 // iotype new frequency not set indicator
 #define kNULL_FREQ		-1
+
+// iotype checkpoint null restart index
+#define kNULL_INDX		-1
+
+// checkpoint command parameter string length
+#define kCHKPT_PARAM_LEN	10	// SMR XXX update this when 2nd param implemented
 
 
 // minimum poling interval (milliseconds)from commsthread Get_next_message

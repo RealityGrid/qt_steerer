@@ -551,6 +551,7 @@ SteeredParameterTable::emitValuesSlot()
       // call ReG library function to "emit" values to steered application
       lReGStatus = Emit_control(getSimHandle(),		//ReG library
 				0,
+				NULL,
 				NULL);
       qApp->unlock();
      

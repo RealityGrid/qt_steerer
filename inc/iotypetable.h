@@ -42,7 +42,7 @@ class IOTypeTable : public Table
   Q_OBJECT
     
 public:
-  IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle);
+  IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bool aChkPtType = false);
   ~IOTypeTable();
 
   virtual void initTable();
@@ -53,7 +53,7 @@ public:
   int getNumIOTypes() const;
 
   int getCommandRequestsCount();
-  int populateCommandRequestArray(int *aCmdArray, const int aMaxCmds, const int aStartIndex);
+  int populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
   int setNewFreqValuesInLib();
 
 private:
@@ -75,6 +75,9 @@ signals:
 
 private:
   QPtrList<IOType> mIOTypeList;
+
+  bool		mChkPtTypeFlag;
+  int		mRestartRowIndex;
 
 };
 

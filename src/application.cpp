@@ -368,7 +368,8 @@ Application::emitSingleCmd(int aCmdId)
     qApp->lock();
     lReGStatus = Emit_control(mSimHandle,			//ReG library 
 			      1,
-			      lCommandArray);
+			      lCommandArray,
+			      NULL);
     qApp->unlock();
 
     if (lReGStatus != REG_SUCCESS)
