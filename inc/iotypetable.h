@@ -62,8 +62,10 @@ public:
 
   int getCommandRequestsCount();
   int getCommandRequestsCountNew();
+  int getCommandRequestsCountOfType(const int aType);
   int populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
   int populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex);
+  int populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex, const int aType);
   int setNewFreqValuesInLib();
 
 private:
@@ -72,13 +74,13 @@ private:
   int findIOTypeRowIndex(int aId);
   IOType *findIOType(int aId);
 
-  void setRestartButtonState();
-  void setCreateButtonState();
+  void setCreateRestartButtonStates();
+  void setConsumeEmitButtonStates();
 
 protected slots:
 
   void validateValueSlot( int row, int col );
-  void emitCommandsSlot();
+  //void emitCommandsSlot();
   void emitValuesSlot();
   //void emitRestartSlot();
 
@@ -89,14 +91,17 @@ protected slots:
   void selectionChangedSlot();
   void currentChangedSlot(int row, int column);
 
+  void consumeButtonPressedSlot();
+  void emitButtonPressedSlot();
+
 signals:
   void enableSampleButtonsSignal();
   void enableChkPtButtonsSignal();
-  void disableRestartButtonSignal();
-  void enableRestartButtonSignal();
-  void disableCreateButtonSignal();
-  void enableCreateButtonSignal();
-
+  
+  void setRestartButtonStateSignal(const bool aEnable);
+  void setCreateButtonStateSignal(const bool aEnable);
+  void setConsumeButtonStateSignal(const bool aEnable);
+  void setEmitButtonStateSignal(const bool aEnable);
 
 private:
   QPtrList<IOType> mIOTypeList;

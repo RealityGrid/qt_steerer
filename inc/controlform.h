@@ -84,8 +84,8 @@ private:
   void updateParameters(bool aSteeredFlag);
   void disableButtons();
   
-  void emitAllIOCommands(const int aAdditionalCmd = -1, bool aForceEmitFlag = false);
-  void emitAll(const int aAdditionalCmd = -1);
+  // MR: void emitAllIOCommands(const int aAdditionalCmd = -1, bool aForceEmitFlag = false);
+  // MR: void emitAll(const int aAdditionalCmd = -1);
 
 
 protected slots:
@@ -93,15 +93,14 @@ protected slots:
   void enableSampleButtonsSlot();   
   void enableChkPtButtonsSlot();
   void emitAllValuesSlot();
-  void emitAllIOCommandsSlot();
-  void emitAllSlot();
-  void emitAllAndDetachCmdSlot();
+  // MR: void emitAllIOCommandsSlot();
+  // MR: void emitAllSlot();
+  // MR: void emitAllAndDetachCmdSlot();
   // MR:
-  void disableRestartButtonSlot();
-  void enableRestartButtonSlot();
-  void disableCreateButtonSlot();
-  void enableCreateButtonSlot();
-
+  void setRestartButtonStateSlot(const bool aEnable);
+  void setCreateButtonStateSlot(const bool aEnable);
+  void setConsumeButtonStateSlot(const bool aEnable);
+  void setEmitButtonStateSlot(const bool aEnable);
 
 
 signals:
@@ -122,8 +121,8 @@ private:
   QPushButton		*mSetChkPtFreqButton;
 
   QPushButton		*mEmitAllValuesButton;
-  QPushButton		*mEmitAllIOCommandsButton;
-  QPushButton		*mEmitAllButton;
+  //QPushButton		*mEmitAllIOCommandsButton;
+  //QPushButton		*mEmitAllButton;
 
   ParameterTable	*mMonParamTable;
   SteeredParameterTable	*mSteerParamTable;
@@ -135,6 +134,8 @@ private:
   QPushButton		*mStopButton;
   QPushButton		*mPauseButton;
   QPushButton		*mResumeButton;
+  QPushButton   *mConsumeDataButton;
+  QPushButton   *mEmitDataButton;
 
 };
 

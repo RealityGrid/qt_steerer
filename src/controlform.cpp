@@ -68,12 +68,12 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
     mRestartChkPtButton(kNULL), 
     mSndChkPtButton(kNULL), mSetChkPtFreqButton(kNULL), 
     mEmitAllValuesButton(kNULL),
-    mEmitAllIOCommandsButton(kNULL), mEmitAllButton(kNULL), 
+    //mEmitAllIOCommandsButton(kNULL), mEmitAllButton(kNULL), 
     mMonParamTable(kNULL),
     mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), 
     mIOTypeChkPtTable(kNULL),
     mCloseButton(kNULL), mDetachButton(kNULL), mStopButton(kNULL), 
-    mPauseButton(kNULL), mResumeButton(kNULL)
+    mPauseButton(kNULL), mResumeButton(kNULL), mConsumeDataButton(kNULL), mEmitDataButton(kNULL)
 { 
   DBGCON("ControlForm");
   // create widget which holds all steering data (some dynamic) 
@@ -85,7 +85,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   QVBoxLayout *lEditLayout = new QVBoxLayout(this, 6, 6, "editlayout");
 
   //QHBoxLayout *lStatusLayout = new QHBoxLayout(6, "statuslayout");
-  QHBoxLayout *lBottomButtonLayout = new QHBoxLayout(6, "bottombuttonlayout");
+  //QHBoxLayout *lBottomButtonLayout = new QHBoxLayout(6, "bottombuttonlayout");
 
   //mStatusLabel = new TableLabel("Attached to application", this);
   //lStatusLayout->addWidget(new TableLabel("Steering Status: ", this));
@@ -93,14 +93,26 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   //lStatusLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum ));
 
   //QVGroupBox *lCmdGrpBox = new QVGroupBox("Cmds",this, "cmdbuttonbox");
-  QHButtonGroup *lCmdGrpBox = new QHButtonGroup("Commands", this, "cmdbuttons");
+  QButtonGroup *lCmdGrpBox = new QButtonGroup(6, Qt::Horizontal, "Commands", this, "cmdbuttons");
   //lCmdGrpBox->setAlignment(Qt::AlignHCenter);
  
   // set up main command buttons
   // we use Resume button sizeHint to size all buttons to this size
+
+  mPauseButton = new QPushButton( "Pause", lCmdGrpBox, "pause" );
+//  mPauseButton = new QPushButton( "Pause", this, "pause" );
+  mPauseButton->setMinimumSize(mPauseButton->sizeHint());
+  mPauseButton->setMaximumSize(mPauseButton->sizeHint());
+  QToolTip::add(mPauseButton, "Tell the attached application"
+		" to pause");
+  connect( mPauseButton, SIGNAL( clicked() ), aApplication,
+	   SLOT( emitPauseCmdSlot() ));
+  //lCmdGrpBox->addWidget(mPauseButton);
+  lCmdGrpBox->insert(mPauseButton);
+  
   mResumeButton = new QPushButton( "Resume", lCmdGrpBox, "resume" );  //SMR XXXn
 //  mResumeButton = new QPushButton( "Resume", this, "resume" );  //SMR XXXn
-  mResumeButton->setMinimumSize(mResumeButton->sizeHint());
+  mResumeButton->setMinimumSize(mPauseButton->sizeHint());
   mResumeButton->setMaximumSize(mResumeButton->sizeHint());
   QToolTip::add(mResumeButton, "Tell the attached application "
 		"to resume");
@@ -109,31 +121,20 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   //lCmdGrpBox->addWidget(mResumeButton);
   lCmdGrpBox->insert(mResumeButton);
   
-  mPauseButton = new QPushButton( "Pause", lCmdGrpBox, "pause" );
-//  mPauseButton = new QPushButton( "Pause", this, "pause" );
-  mPauseButton->setMinimumSize(mResumeButton->sizeHint());
-  mPauseButton->setMaximumSize(mPauseButton->sizeHint());
-  QToolTip::add(mPauseButton, "Tell the attached application"
-		" to pause");
-  connect( mPauseButton, SIGNAL( clicked() ), aApplication, 
-	   SLOT( emitPauseCmdSlot() ));
-  //lCmdGrpBox->addWidget(mPauseButton);
-  lCmdGrpBox->insert(mPauseButton);
-
   mDetachButton = new QPushButton( "Detach", lCmdGrpBox, "detach" );
 //  mDetachButton = new QPushButton( "Detach", this, "detach" );
-  mDetachButton->setMinimumSize(mResumeButton->sizeHint());
+  mDetachButton->setMinimumSize(mPauseButton->sizeHint());
   mDetachButton->setMaximumSize(mDetachButton->sizeHint());
   QToolTip::add(mDetachButton, "Tell the attached application to detach");
   connect( mDetachButton, SIGNAL( clicked() ), aApplication, 
-	   SLOT( emitDetachCmdSlot() ));
+     SLOT( emitDetachCmdSlot() ));
   //lCmdGrpBox->addWidget(mDetachButton);
   lCmdGrpBox->insert(mDetachButton);
     
   // button to allow user to get rid of this application form when detached
   mCloseButton = new QPushButton( "Close", lCmdGrpBox, "close" );
 //  mCloseButton = new QPushButton( "Close", this, "close" );
-  mCloseButton->setMinimumSize(mResumeButton->sizeHint());
+  mCloseButton->setMinimumSize(mPauseButton->sizeHint());
   mCloseButton->setMaximumSize(mCloseButton->sizeHint());
   QToolTip::add( mCloseButton, "Close form to allow another attach");
   connect(mCloseButton, SIGNAL( clicked() ), aApplication, 
@@ -143,7 +144,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 
   mStopButton = new QPushButton( "Stop", lCmdGrpBox, "stop" );
 //  mStopButton = new QPushButton( "Stop", this, "stop" );
-  mStopButton->setMinimumSize(mResumeButton->sizeHint());
+  mStopButton->setMinimumSize(mPauseButton->sizeHint());
   mStopButton->setMaximumSize(mStopButton->sizeHint());
   QToolTip::add(mStopButton, "Tell the attached application to stop");
   connect( mStopButton, SIGNAL( clicked() ), aApplication, 
@@ -163,7 +164,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
 					       aSimHandle);
   mSteerParamTable->initTable();
 
-  mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable", 
+  mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable",
 				       aSimHandle);
   mIOTypeSampleTable->initTable();
 
@@ -239,21 +240,34 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mSetSampleFreqButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
   mSetSampleFreqButton->setMaximumSize(mSetSampleFreqButton->sizeHint());
   QToolTip::add(mSetSampleFreqButton, "Tell application new "
-		"frequency values for sample iotypes");
+		"frequency values for data IO");
   connect(mSetSampleFreqButton, SIGNAL( clicked() ), 
 	  mIOTypeSampleTable, SLOT( emitValuesSlot()));
-
-  mSndSampleButton = new QPushButton( "Tell Req's", this, 
-				      "SndSample" );
+/*
+  mSndSampleButton = new QPushButton( "Tell Req's", this, "SndSample" );
   mSndSampleButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
   mSndSampleButton->setMaximumSize(mSndSampleButton->sizeHint());
-  QToolTip::add(mSndSampleButton, "Tell application to emit/consume requested sample iotypes");
+  QToolTip::add(mSndSampleButton, "Tell application to emit/consume requested data");
   connect(mSndSampleButton, SIGNAL( clicked() ), mIOTypeSampleTable, 
 	  SLOT( emitCommandsSlot()));
+*/
+  mConsumeDataButton = new QPushButton( "Consume", this, "ConsumeData" );
+  mConsumeDataButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
+  mConsumeDataButton->setMaximumSize(mConsumeDataButton->sizeHint());
+  QToolTip::add(mConsumeDataButton, "Tell application to Consume data");
+  connect( mConsumeDataButton, SIGNAL( clicked() ), mIOTypeSampleTable, SLOT( consumeButtonPressedSlot()));
 
+  mEmitDataButton = new QPushButton( "Emit", this, "EmitData" );
+  mEmitDataButton->setMinimumSize(mSetSampleFreqButton->sizeHint());
+  mEmitDataButton->setMaximumSize(mEmitDataButton->sizeHint());
+  QToolTip::add(mEmitDataButton, "Tell application to Emit data");
+  connect( mEmitDataButton, SIGNAL( clicked() ), mIOTypeSampleTable, SLOT( emitButtonPressedSlot()));
 
+    
   lSampleButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-  lSampleButtonLayout->addWidget(mSndSampleButton);
+  //lSampleButtonLayout->addWidget(mSndSampleButton);
+  lSampleButtonLayout->addWidget(mConsumeDataButton);
+  lSampleButtonLayout->addWidget(mEmitDataButton);
   lSampleButtonLayout->addWidget(mSetSampleFreqButton);
   lSampleLayout->addWidget(mIOTypeSampleTable);
   lSampleLayout->addLayout(lSampleButtonLayout);
@@ -307,32 +321,37 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   
 
   // buttons for combined sends to application 
-
-  mEmitAllIOCommandsButton = new QPushButton("Tell All Requests", 
-					     this, "sendallrequests");
+/*
+  mEmitAllIOCommandsButton = new QPushButton("Tell All Requests", lCmdGrpBox, "sendallrequests");
   mEmitAllIOCommandsButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
   mEmitAllIOCommandsButton->setMaximumSize(mEmitAllIOCommandsButton->sizeHint());
   QToolTip::add(mEmitAllIOCommandsButton, "Tell application all emit/consume/create requests");
   connect(mEmitAllIOCommandsButton, SIGNAL(clicked()), this, SLOT(emitAllIOCommandsSlot()));
+*/
 
-
-  mEmitAllValuesButton = new QPushButton("Tell All Values", this, "tellallvals");
-  mEmitAllValuesButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
+  mEmitAllValuesButton = new QPushButton("Tell All Values", lCmdGrpBox, "tellallvals");
+  mEmitAllValuesButton->setMinimumSize(mEmitAllValuesButton->sizeHint());//IOCommandsButton->sizeHint());
   mEmitAllValuesButton->setMaximumSize(mEmitAllValuesButton->sizeHint());
   QToolTip::add(mEmitAllValuesButton, "Tell application all new parameter and frequency values");
   connect(mEmitAllValuesButton, SIGNAL(clicked()), this, SLOT(emitAllValuesSlot()));
   
-
-  mEmitAllButton = new QPushButton("Tell All", this, "sendall");
+/*
+  mEmitAllButton = new QPushButton("Tell All", lCmdGrpBox, "sendall");
   mEmitAllButton->setMinimumSize(mEmitAllIOCommandsButton->sizeHint());
   mEmitAllButton->setMaximumSize(mEmitAllButton->sizeHint());
   QToolTip::add(mEmitAllButton, "Tell application all new values and all emit/consume/create requests");
   connect(mEmitAllButton, SIGNAL(clicked()), this, SLOT(emitAllSlot()));
-
+*/
+/*
   lBottomButtonLayout->addWidget(mEmitAllValuesButton);
   lBottomButtonLayout->addWidget(mEmitAllIOCommandsButton);
   lBottomButtonLayout->addWidget(mEmitAllButton);
   lBottomButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+*/
+
+  lCmdGrpBox->insert(mEmitAllValuesButton);
+  //lCmdGrpBox->insert(mEmitAllIOCommandsButton);
+  //lCmdGrpBox->insert(mEmitAllButton);
 
   connect(this, SIGNAL(detachFromApplicationForErrorSignal()), 
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
@@ -358,16 +377,15 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   lEditLayout->addLayout(lChkPtLayout);
 */
   QVBoxLayout *lExtraLayout = new QVBoxLayout(6, "bottom tables");
-  lExtraLayout->addWidget(new TableLabel("Sample IOTypes", this));
+  lExtraLayout->addWidget(new TableLabel("Data IO", this));
   lExtraLayout->addLayout(lSampleLayout);
 
-
-  lExtraLayout->addWidget(new TableLabel("CheckPoint IOTypes", this));
+  lExtraLayout->addWidget(new TableLabel("CheckPoint Types", this));
   lExtraLayout->addLayout(lChkPtLayout);
 
   lEditLayout->addLayout(lExtraLayout);
  
-  lEditLayout->addLayout(lBottomButtonLayout);
+  //lEditLayout->addLayout(lBottomButtonLayout);
 
   // disable buttons - they are enabled when tables have some data
   disableButtons();
@@ -439,24 +457,24 @@ ControlForm::updateParameters(bool aSteeredFlag)
       // point to relevent table - i.e. steered or monitored
       ParameterTable *lTablePtr;
       if (aSteeredFlag)
-	lTablePtr = mSteerParamTable;
+        lTablePtr = mSteerParamTable;
       else
-	lTablePtr = mMonParamTable;
+        lTablePtr = mMonParamTable;
       
     // get parameter data from library and update tables on gui
       if (Get_param_values(mSimHandle,		//ReG library
-			   aSteeredFlag,
-			   lNumParams,
-			   lParamDetails) == REG_SUCCESS)
+         aSteeredFlag,
+         lNumParams,
+         lParamDetails) == REG_SUCCESS)
       {
-	
-	for (int i=0; i<lNumParams; i++)
-	{
-	  //check if already exists - if so only update value
-	  if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
-				     lParamDetails[i].value)))
-	  {
-	    // mus be new parameter so add it
+
+  for (int i=0; i<lNumParams; i++)
+  {
+    //check if already exists - if so only update value
+    if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
+             lParamDetails[i].value)))
+    {
+      // must be new parameter so add it
       // MR: changes to add the min and max values to the steerable parameter table
       if (aSteeredFlag){
         ((SteeredParameterTable*)lTablePtr)->addRow(lParamDetails[i].handle,
@@ -648,18 +666,20 @@ void
 ControlForm::disableIOCmdButtons()
 {
   mRestartChkPtButton->setEnabled(FALSE);
-  mSndSampleButton->setEnabled(FALSE); 
+  //mSndSampleButton->setEnabled(FALSE); 
   mSndChkPtButton->setEnabled(FALSE); 
-  mEmitAllIOCommandsButton->setEnabled(FALSE);
-  mEmitAllButton->setEnabled(FALSE);
+  //mEmitAllIOCommandsButton->setEnabled(FALSE);
+  //mEmitAllButton->setEnabled(FALSE);
+  mConsumeDataButton->setEnabled(FALSE);
+  mEmitDataButton->setEnabled(FALSE);
 }
 
 void
 ControlForm::enableIOCmdButtons()
 {
   // for each only do if are some rows populated
-  if (mIOTypeSampleTable->getNumIOTypes() > 0)
-    mSndSampleButton->setEnabled(TRUE);
+  //if (mIOTypeSampleTable->getNumIOTypes() > 0)
+  //  mSndSampleButton->setEnabled(TRUE);
 
   if (mIOTypeChkPtTable->getNumIOTypes() > 0)
   {
@@ -670,8 +690,10 @@ ControlForm::enableIOCmdButtons()
   if (mIOTypeSampleTable->getNumIOTypes() > 0  ||
       mIOTypeChkPtTable->getNumIOTypes() > 0)
   {
-    mEmitAllIOCommandsButton->setEnabled(TRUE);
-    mEmitAllButton->setEnabled(TRUE);
+    //mEmitAllIOCommandsButton->setEnabled(TRUE);
+    //mEmitAllButton->setEnabled(TRUE);
+    mConsumeDataButton->setEnabled(TRUE);
+    mEmitDataButton->setEnabled(TRUE);
   }
 }
 
@@ -679,14 +701,16 @@ void
 ControlForm::disableButtons()
 {
   mEmitButton->setEnabled(FALSE); 
-  mSndSampleButton->setEnabled(FALSE); 
+  //mSndSampleButton->setEnabled(FALSE); 
   mSetSampleFreqButton->setEnabled(FALSE); 
   mRestartChkPtButton->setEnabled(FALSE);
   mSndChkPtButton->setEnabled(FALSE); 
   mSetChkPtFreqButton->setEnabled(FALSE); 
   mEmitAllValuesButton->setEnabled(FALSE); 
-  mEmitAllIOCommandsButton->setEnabled(FALSE); 
-  mEmitAllButton->setEnabled(FALSE); 
+  //mEmitAllIOCommandsButton->setEnabled(FALSE); 
+  //mEmitAllButton->setEnabled(FALSE);
+  mConsumeDataButton->setEnabled(FALSE);
+  mEmitDataButton->setEnabled(FALSE);
 }
 
 void 
@@ -741,18 +765,20 @@ ControlForm::enableParamButtonsSlot()
 {
   mEmitButton->setEnabled(TRUE);
 
-  mEmitAllValuesButton->setEnabled(TRUE);
+  //mEmitAllValuesButton->setEnabled(TRUE);
 }
 
 void 
 ControlForm::enableSampleButtonsSlot()
 {
-  mSndSampleButton->setEnabled(TRUE); 
+  //mSndSampleButton->setEnabled(TRUE); 
   mSetSampleFreqButton->setEnabled(TRUE);
 
   mEmitAllValuesButton->setEnabled(TRUE);
-  mEmitAllIOCommandsButton->setEnabled(TRUE);
-  mEmitAllButton->setEnabled(TRUE);
+  //mEmitAllIOCommandsButton->setEnabled(TRUE);
+  //mEmitAllButton->setEnabled(TRUE);
+  mConsumeDataButton->setEnabled(TRUE);
+  mEmitDataButton->setEnabled(TRUE);
 
 }
 
@@ -764,35 +790,36 @@ ControlForm::enableChkPtButtonsSlot()
   mSetChkPtFreqButton->setEnabled(TRUE);
 
   mEmitAllValuesButton->setEnabled(TRUE);
-  mEmitAllIOCommandsButton->setEnabled(TRUE);
-  mEmitAllButton->setEnabled(TRUE);
+  //mEmitAllIOCommandsButton->setEnabled(TRUE);
+  //mEmitAllButton->setEnabled(TRUE);
+  mConsumeDataButton->setEnabled(TRUE);
+  mEmitDataButton->setEnabled(TRUE);
 
 }
 
 // MR:
-void ControlForm::disableRestartButtonSlot(){
+void ControlForm::setRestartButtonStateSlot(const bool aEnable){
   if (mRestartChkPtButton != NULL)
-    mRestartChkPtButton->setEnabled(FALSE);
+    mRestartChkPtButton->setEnabled(aEnable);
 }
 
 // MR:
-void ControlForm::enableRestartButtonSlot(){
-  if (mRestartChkPtButton != NULL)
-    mRestartChkPtButton->setEnabled(TRUE);
-}
-
-// MR:
-void ControlForm::disableCreateButtonSlot(){
+void ControlForm::setCreateButtonStateSlot(const bool aEnable){
   if (mSndChkPtButton != NULL)
-    mSndChkPtButton->setEnabled(FALSE);
+    mSndChkPtButton->setEnabled(aEnable);
 }
 
 // MR:
-void ControlForm::enableCreateButtonSlot(){
-  if (mSndChkPtButton != NULL)
-    mSndChkPtButton->setEnabled(TRUE);
+void ControlForm::setConsumeButtonStateSlot(const bool aEnable){
+  if (mConsumeDataButton != NULL)
+    mConsumeDataButton->setEnabled(aEnable);
 }
 
+// MR:
+void ControlForm::setEmitButtonStateSlot(const bool aEnable){
+  if (mEmitDataButton != NULL)
+    mEmitDataButton->setEnabled(aEnable);
+}
 
 void 
 ControlForm::emitAllValuesSlot()
@@ -837,7 +864,7 @@ ControlForm::emitAllValuesSlot()
     
 
 }
-
+/*
 void 
 ControlForm::emitAllIOCommandsSlot()
 {
@@ -859,17 +886,16 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
   
   int *lCommandArray = kNULL;
   char **lCmdParamArray = kNULL;
-
+  
   try
   {
-    int lSampleCount = mIOTypeSampleTable->getCommandRequestsCount();
-    int lChkPtCount = mIOTypeChkPtTable->getCommandRequestsCount();
+    int lSampleCount = mIOTypeSampleTable->getCommandRequestsCountNew();
+    int lChkPtCount = mIOTypeChkPtTable->getCommandRequestsCountNew();
         
     lTotalCount = lSampleCount + lChkPtCount;
 
     if (lAddCmdFlag)
       lTotalCount++;
-
     
     // populate the array of commands and array of parameters for commands   
     lCommandArray = new int[lTotalCount];
@@ -941,7 +967,9 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
   }
 
 }
+*/
 
+/*
 void 
 ControlForm::emitAllSlot()
 {
@@ -985,3 +1013,4 @@ ControlForm::emitAllAndDetachCmdSlot()
 {
   emitAll(REG_STR_DETACH); 
 }
+*/

@@ -83,13 +83,11 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bo
   connect(this, SIGNAL(currentChanged(int, int)), this, SLOT(currentChangedSlot(int, int)));
 
   // MR:
-  connect(this, SIGNAL(disableRestartButtonSignal()), aParent, SLOT(disableRestartButtonSlot()));
-  connect(this, SIGNAL(enableRestartButtonSignal()), aParent, SLOT(enableRestartButtonSlot()));
-
-  // MR:
-  connect(this, SIGNAL(disableCreateButtonSignal()), aParent, SLOT(disableCreateButtonSlot()));
-  connect(this, SIGNAL(enableCreateButtonSignal()), aParent, SLOT(enableCreateButtonSlot()));
-
+  connect(this, SIGNAL(setRestartButtonStateSignal(const bool)), aParent, SLOT(setRestartButtonStateSlot(const bool)));
+  connect(this, SIGNAL(setCreateButtonStateSignal(const bool)), aParent, SLOT(setCreateButtonStateSlot(const bool)));
+  connect(this, SIGNAL(setConsumeButtonStateSignal(const bool)), aParent, SLOT(setConsumeButtonStateSlot(const bool)));
+  connect(this, SIGNAL(setEmitButtonStateSignal(const bool)), aParent, SLOT(setEmitButtonStateSlot(const bool)));
+  
   // MR:
   // Ensure that instances of this table aren't drawn too large,
   // since they're unlikely to be particularly full
@@ -143,8 +141,12 @@ IOTypeTable::initTable()
   }
   else
   {
+/* MR:
     horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "Request");
     setColumnWidth(kIO_REQUEST_COLUMN, 80);
+*/
+    horizontalHeader()->setLabel(kIO_REQUEST_COLUMN, "IO Type");
+    setColumnWidth(kIO_REQUEST_COLUMN, 50);
   }
 
   
@@ -308,7 +310,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
   }
   else
   {
-
+/* MR:
     switch(lType)
     {
       case REG_IO_IN:
@@ -317,6 +319,16 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
       case REG_IO_OUT:
 	setItem(lRowIndex, kIO_REQUEST_COLUMN, new QCheckTableItem(this, "Emit"));
 	break;
+    }
+*/
+    switch(lType)
+    {
+      case REG_IO_IN:
+        setItem(lRowIndex, kIO_REQUEST_COLUMN, new QTableItem(this, QTableItem::Never, "Input"));
+        break;
+      case REG_IO_OUT:
+        setItem(lRowIndex, kIO_REQUEST_COLUMN, new QTableItem(this, QTableItem::Never, "Output"));
+        break;
     }
   }
 
@@ -365,8 +377,10 @@ void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
 	((QCheckTableItem *)item(lRowIndex, kIO_RESTART_COLUMN))->setChecked(FALSE);
 */ 
     }
-    else      
-      ((QCheckTableItem *)item(lRowIndex, kIO_REQUEST_COLUMN))->setChecked(FALSE);
+    else
+    {    
+//      ((QCheckTableItem *)item(lRowIndex, kIO_REQUEST_COLUMN))->setChecked(FALSE);
+    }
     
 
     ++mIOTypeIterator;
@@ -398,7 +412,7 @@ void IOTypeTable::clearNewValues()
 void 
 IOTypeTable::validateValueSlot( int aRow, int aCol )
 {
-  printf("\nMR: validateValueSlot\n\n");
+  DBGMSG("\nMR: validateValueSlot\n\n");
   // validate the value entered by user and set on gui, 
   // otherwise just post invalid msg and clear cell of invalid entry
 
@@ -406,7 +420,7 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
   // to avoid having to convert QString value held on gui.
 
   // only care about new value column and restart column
-  // only care is app is still attached
+  // only care if app is still attached
 
   try
   {
@@ -521,7 +535,7 @@ IOTypeTable::getCommandRequestsCount()
   return lCount;
 }
 
-
+/*
 int
 IOTypeTable::populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex)
 {
@@ -547,13 +561,13 @@ IOTypeTable::populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, 
       lCheckItem = (QCheckTableItem *) this->item(lIOTypePtr->getRowIndex(), kIO_REQUEST_COLUMN);
       if (lCheckItem->isChecked())
       {
-	// recheck box in table... 
-	lCheckItem->setChecked(FALSE);
-	aCmdArray[lIndex] = lIOTypePtr->getId();
-	if (mChkPtTypeFlag)
-	  strcpy(aCmdParamArray[lIndex], "OUT 1");
-	lIndex++;
-	lNumAdded++;
+        // recheck box in table... 
+        lCheckItem->setChecked(FALSE);
+        aCmdArray[lIndex] = lIOTypePtr->getId();
+        if (mChkPtTypeFlag)
+          strcpy(aCmdParamArray[lIndex], "OUT 1");
+        lIndex++;
+        lNumAdded++;
       }
     }
     ++mIOTypeIterator;
@@ -566,7 +580,8 @@ IOTypeTable::populateCommandRequestArray(int *aCmdArray, char **aCmdParamArray, 
   return lNumAdded;
 
 }
-
+*/
+/*
 void 
 IOTypeTable::emitCommandsSlot()
 {
@@ -640,7 +655,7 @@ IOTypeTable::emitCommandsSlot()
   }
     
 }
-
+*/
 /*
 void 
 IOTypeTable::emitRestartSlot()
@@ -933,33 +948,75 @@ IOTypeTable::emitValuesSlot()
  *  Only deal with the checkpoint table
  */
 void IOTypeTable::selectionChangedSlot(){
-    printf("\nIOTypeTable::selectionChanged called\n\n");
-    if (!mChkPtTypeFlag)
-      return;
+    DBGMSG("\nIOTypeTable::selectionChanged called\n");
+    
     if (!getAppAttached())
       return;
 
-    setRestartButtonState();
+    if (mChkPtTypeFlag)
+      setCreateRestartButtonStates();
+    else
+      setConsumeEmitButtonStates();
 }
+
 
 /** Unfortunately this method is required as well to catch all the possible
  *  events from the table
  */
 void IOTypeTable::currentChangedSlot(int row, int column){
-    printf("\nIOTypeTable::currentChangedSlot\n\n");
-    if (!mChkPtTypeFlag)
-      return;
     if (!getAppAttached())
       return;
 
-    setRestartButtonState();
+    if (mChkPtTypeFlag)
+      setCreateRestartButtonStates();
+    else
+      setConsumeEmitButtonStates();
+
 }
 
+
+void IOTypeTable::setConsumeEmitButtonStates(){
+  int numInputRowsSelected = 0;
+  int numOutputRowsSelected = 0;
+  int numTotalRowsSelected = 0;
+
+  // First work out what the user's selected
+  for (int i=0; i<numRows(); i++){
+    if (isRowSelected(i)){
+      numTotalRowsSelected++;
+      
+      if (text(i, kIO_REQUEST_COLUMN).compare("Input") == 0)
+        numInputRowsSelected++;
+      else // It's an "Output"
+        numOutputRowsSelected++;
+        
+    }
+  }
+
+  if (numInputRowsSelected > 0){
+    // enable both the consume and emit buttons
+    emit setConsumeButtonStateSignal(true);
+  }
+  else {
+    // disable both the buttons
+    emit setConsumeButtonStateSignal(false);
+  }
+
+  if (numOutputRowsSelected > 0){
+    // enable both the consume and emit buttons
+    emit setEmitButtonStateSignal(true);
+  }
+  else {
+    // disable both the buttons
+    emit setEmitButtonStateSignal(false);
+  }
+  
+}
 
 /** Unfortunatley this is called on a double click too - at which point
  *  the isRowSelected() method reports that nothing is selected!??!?!
  */
-void IOTypeTable::setRestartButtonState(){
+void IOTypeTable::setCreateRestartButtonStates(){
     int firstSelectedRestartRow = -1;
     int firstSelectedCreateRow = -1;
     int numValidRestartRowsSelected = 0;
@@ -996,22 +1053,20 @@ void IOTypeTable::setRestartButtonState(){
     // Check to see if the user has selected more than one row,
     // and if so, disable the restart button
     if (numValidRestartRowsSelected == 1 && numTotalRowsSelected == 1){
-      emit enableRestartButtonSignal();
+      emit setRestartButtonStateSignal(true);
     }
     else {
-      emit disableRestartButtonSignal();
+      emit setRestartButtonStateSignal(false);
     }
 
     if (numValidCreateRowsSelected != numTotalRowsSelected){
-      emit disableCreateButtonSignal();
+      emit setCreateButtonStateSignal(false);
     }
     else {
-      emit enableCreateButtonSignal();
+      emit setCreateButtonStateSignal(true);
     }
 
     mRestartRowIndexNew = firstSelectedRestartRow;
-
-    //printf("\nThere are %d rows selected\nThere are %d valid rows selected\nThe first valid row selected is %d\n\n", numTotalRowsSelected, numValidRowsSelected, firstSelectedRow);
 }
 
 
@@ -1026,6 +1081,27 @@ int IOTypeTable::getCommandRequestsCountNew(){
   }
 
   return lCount;
+}
+
+/** MR: simple method to count the number of Input or Output
+ *      entries in the Sample IOType table / Data IO
+ */
+int IOTypeTable::getCommandRequestsCountOfType(const int aType){
+  int result = 0;
+  QString comparisonTestString;
+
+  if (aType == REG_IO_IN)
+    comparisonTestString = "Input";
+  else if (aType == REG_IO_OUT)
+    comparisonTestString = "output";
+  else return result;
+
+  for (int i=0; i<numRows(); i++){
+    if (isRowSelected(i) && text(i, kIO_REQUEST_COLUMN).compare(comparisonTestString) == 0)
+      result++;
+  }
+
+  return result;
 }
 
 /** MR: this slot will replace the current emitCommandsSlot
@@ -1196,7 +1272,6 @@ int IOTypeTable::populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParam
   // populate the array aCmdIds with the commands to be send starting at array index aStartIndex
   // there should be exactly aMaxCmds to add - do not add any more as array not sized to hold an more
   // note any not added will remain checked on GUI indicating that not been sent so no need to throw excp.
-  // As Commands (IOTypes) are added uncheck "Request" column on the GUI
 
   //QCheckTableItem *lCheckItem;
   IOType *lIOTypePtr;
@@ -1227,5 +1302,171 @@ int IOTypeTable::populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParam
   // return the actual number of commands added
   return lNumAdded;
 
+}
+
+int IOTypeTable::populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex, const int aType)
+{
+  // populate the array aCmdIds with the commands to be send starting at array index aStartIndex
+  // there should be exactly aMaxCmds to add - do not add any more as array not sized to hold an more
+  // note any not added will remain checked on GUI indicating that not been sent so no need to throw excp.
+
+  IOType *lIOTypePtr;
+  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
+
+  int lNumAdded = 0;
+  int lIndex = aStartIndex;
+
+  mIOTypeIterator.toFirst();
+  while ( ((lIOTypePtr = mIOTypeIterator.current()) != 0) && (lNumAdded  <= aMaxCmds)){
+
+    //if (! (mChkPtTypeFlag && lIOTypePtr->getType() == REG_IO_IN) ){
+    // Check to see if we've found a row matching the passed
+    // type in the Sample IOType / Data IO Table
+    if (!mChkPtTypeFlag && lIOTypePtr->getType() == aType){
+    
+      if (isRowSelected(lIOTypePtr->getRowIndex())){
+        aCmdArray[lIndex] = lIOTypePtr->getId();
+        if (mChkPtTypeFlag) // this should always be the case
+          strcpy(aCmdParamArray[lIndex], "OUT 1");
+          
+        lIndex++;
+        lNumAdded++;
+      }
+      
+    }
+    
+    ++mIOTypeIterator;
+  }
+
+  if (aMaxCmds != lNumAdded)
+    DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
+
+  // return the actual number of commands added
+  return lNumAdded;
+
+}
+
+void IOTypeTable::consumeButtonPressedSlot(){
+  // search through the table and find any highlighted entries,
+  // read in data for those
+  DBGMSG("consumeButtonPressedSlot");
+  
+  // this slot will get called for the CheckPoint IOTypes table
+  // as well, so ignore those events
+  if (mChkPtTypeFlag)
+    return;
+
+  int lCount = 0;
+  int *lCommandArray = kNULL;
+  char **lCmdParamArray = kNULL;
+    
+  try {
+    lCount = getCommandRequestsCountOfType(REG_IO_IN);
+    
+    if (lCount > 0){
+      lCommandArray = new int[lCount];
+      lCmdParamArray = new char*[lCount];
+
+      for (int i=0; i<lCount; i++){
+        lCmdParamArray[i] = new char[kCHKPT_PARAM_LEN];
+        strcpy(lCmdParamArray[i], " ");
+      }
+
+      int lNumAdded = populateCommandRequestArrayOfType(lCommandArray, lCmdParamArray, lCount, 0, REG_IO_IN);
+
+      // library call to emit application
+      if (lNumAdded > 0){
+        if (Emit_control(getSimHandle(), lNumAdded, lCommandArray, lCmdParamArray) != REG_SUCCESS){
+          THROWEXCEPTION("Emit_control");
+        }
+      }
+      DBGMSG1("Sent Sample Commands", lCount);
+
+      // clean up
+      delete[] lCommandArray;
+      for (int i=0; i<lCount; i++){
+        delete[] lCmdParamArray[i];
+      }
+      delete[] lCmdParamArray;
+      
+    } // if lCount > 0
+    
+  } // try
+  catch (SteererException StEx){
+    StEx.print();
+
+    // clean up
+    delete[] lCommandArray;
+    for (int i=0; i<lCount; i++){
+      delete[] lCmdParamArray[i];
+    }
+    delete[] lCmdParamArray;
+    
+    emit detachFromApplicationForErrorSignal();
+    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+  }
+
+  
+}
+
+void IOTypeTable::emitButtonPressedSlot(){
+  // search through the table and find any highlighted entries,
+  // write data out for those
+  DBGMSG("emitButtonPressedSlot");
+
+  // this slot will get called for the CheckPoint IOTypes table
+  // as well, so ignore those events
+  if (mChkPtTypeFlag)
+    return;
+
+  int lCount = 0;
+  int *lCommandArray = kNULL;
+  char **lCmdParamArray = kNULL;
+
+  try {
+    lCount = getCommandRequestsCountOfType(REG_IO_OUT);
+
+    if (lCount > 0){
+      lCommandArray = new int[lCount];
+      lCmdParamArray = new char*[lCount];
+
+      for (int i=0; i<lCount; i++){
+        lCmdParamArray[i] = new char[kCHKPT_PARAM_LEN];
+        strcpy(lCmdParamArray[i], " ");
+      }
+
+      int lNumAdded = populateCommandRequestArrayOfType(lCommandArray, lCmdParamArray, lCount, 0, REG_IO_OUT);
+
+      // library call to emit application
+      if (lNumAdded > 0){
+        if (Emit_control(getSimHandle(), lNumAdded, lCommandArray, lCmdParamArray) != REG_SUCCESS){
+          THROWEXCEPTION("Emit_control");
+        }
+      }
+      DBGMSG1("Sent Sample Commands", lCount);
+
+      // clean up
+      delete[] lCommandArray;
+      for (int i=0; i<lCount; i++){
+        delete[] lCmdParamArray[i];
+      }
+      delete[] lCmdParamArray;
+
+    } // if lCount > 0
+
+  } // try
+  catch (SteererException StEx){
+    StEx.print();
+
+    // clean up
+    delete[] lCommandArray;
+    for (int i=0; i<lCount; i++){
+      delete[] lCmdParamArray[i];
+    }
+    delete[] lCmdParamArray;
+
+    emit detachFromApplicationForErrorSignal();
+    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+  }
 }
 
