@@ -84,25 +84,29 @@ SteererMainWindow::SteererMainWindow()
   // set up actions for configure check interval, attach and quit
   mSetCheckIntervalAction =  new QAction("Set polling interval","Set Polling Interval",
 						  CTRL+Key_P, this, "setcheckaction");
-  mSetCheckIntervalAction->setStatusTip("Set polling interval");
+  //mSetCheckIntervalAction->setStatusTip("Set polling interval");
+  mSetCheckIntervalAction->setToolTip(QString("Set polling interval"));
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, SLOT(configureSteererSlot()));
 
 
   mAttachAction = new QAction("Attach to local application", "Local &Attach",
 			      CTRL+Key_A, this, "attachaction");
-  mAttachAction->setStatusTip("Attach to local app");
+  //mAttachAction->setStatusTip("Attach to local app");
+  mAttachAction->setToolTip(QString("Attach to local app"));
   connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
 
 
   mGridAttachAction = new QAction("Attach to app on Grid", "&Grid Attach",
 			      CTRL+Key_G, this, "gridattachaction");
-  mGridAttachAction->setStatusTip("Attach to Grid app");
+  //mGridAttachAction->setStatusTip("Attach to Grid app");
+  mGridAttachAction->setToolTip(QString("Attach to Grid app"));
   connect( mGridAttachAction, SIGNAL(activated()), this, SLOT(attachGridAppSlot()) );
 
 
   mQuitAction =  new QAction("Quit (& detach)", "&Quit",
 			      CTRL+Key_Q, this, "quitaction");
-  mQuitAction->setStatusTip("Quit (& detach)");
+  //mQuitAction->setStatusTip("Quit (& detach)");
+  mQuitAction->setToolTip(QString("Quit (& detach)"));
   connect( mQuitAction, SIGNAL(activated()), this, SLOT(quitSlot()) );
 
   // put actions in menu
@@ -133,7 +137,7 @@ SteererMainWindow::SteererMainWindow()
     mStackLogoLabel->setFont(QFont("Times", 9, QFont::DemiBold));
   }
    
-  mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
+  //mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
 
   // SMR XXX - future add more widgets to stack for log viewing, for now only tabwidget
   mStack = new QWidgetStack(mCentralWgt);
@@ -146,7 +150,7 @@ SteererMainWindow::SteererMainWindow()
   mStack->addWidget(mStackLogoLabel);
   mStack->raiseWidget(mStackLogoLabel);
 
-  mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
+  //mTopLayout->addItem(new QSpacerItem( 15, 0, QSizePolicy::Maximum, QSizePolicy::Expanding ));
 
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
@@ -160,6 +164,8 @@ SteererMainWindow::SteererMainWindow()
   if (mCommsThread != kNULL)
     mSetCheckIntervalAction->setEnabled(TRUE);
 
+
+  //statusBar()->setSizeGripEnabled(false);
 }
 
 
@@ -358,12 +364,12 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       mGridAttachAction->setEnabled(FALSE);
       
       // resize - only do for first app attached? SMR XXX future concern
-      resize(560, 730);
+      resize(540, 700);
 
       // set minimum size so all gui visible, if remove this can 
       // shrink gui, but no scrollbars
-      //this->setMinimumSize(600, 730);
-      statusBar()->clear();
+      this->setMinimumSize(540, 700);
+      //statusBar()->clear();
 
       DBGMSG("posted now start commsthread");
       // set off comms thread iff it's not already running
@@ -494,6 +500,9 @@ SteererMainWindow::configureSteererSlot()
 
 }
 
+void SteererMainWindow::statusBarMessageSlot(QString &message){
+  statusBar()->message(message);
+}
 
 //SMRXXXfutue - new window posting for appl
 
