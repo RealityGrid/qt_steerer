@@ -138,7 +138,8 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     tBL->setMenuBar(mMenuBar);
     tBL->addWidget(mPlotter);
 
-    resize(300, 300);
+    // Better without this for qwt 4.2.0
+    //resize(300, 300);
 
     mYLowerBound = mYUpperBound = 0;
     mXLowerBound = mXUpperBound = 0;
