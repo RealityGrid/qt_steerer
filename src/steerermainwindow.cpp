@@ -48,6 +48,7 @@
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qinputdialog.h>
+#include <qfiledialog.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qlineedit.h>
@@ -271,28 +272,24 @@ SteererMainWindow::resizeForNoAttached()
 void 
 SteererMainWindow::attachAppSlot()
 {
-
-  // SMR XXX - just attach to application using env variables
-
+  // Attach to app using local file system - allow user to specify a directory
+  // other than that contained in the REG_STEER_DIRECTORY env. variable
   statusBar()->clear();
 
-  // MR: requested that this MessageBox be turned off for now
-  if (1)/*QMessageBox::information(0, "Local Attach", 
-			       "Attach using ReG environment variables?",
-			       QMessageBox::Ok,
-			       QMessageBox::Cancel, 
-			       QMessageBox::NoButton) == QMessageBox::Ok)
-*/  
-  {
-    /* Attempt to attach simulation */
-    simAttachApp("DEFAULT", true);
-  }  
-  else
-  {
-    statusBar()->clear();
-    DBGMSG("Application to steer::Cancel hit"); // user entered nothing or pressed Cancel
-  }
+  QString newDir = QFileDialog::getExistingDirectory(getenv("REG_STEER_DIRECTORY"),
+						     this,
+						     "get existing directory",
+						     "Choose a directory for steering connection",
+						     TRUE );
 
+  if ( !newDir.isEmpty() ) {
+    // User entered something and pressed OK
+    // Attempt to attach simulation
+    simAttachApp((char *)newDir.latin1(), true);
+  }  
+  else {
+    simAttachApp("", true);
+  }
 }
 
 
@@ -322,9 +319,7 @@ SteererMainWindow::attachGridAppSlot()
 			       QMessageBox::Ok,
 			       QMessageBox::NoButton, 
 			       QMessageBox::NoButton);
-      
     }
-    
   }
   else
   {
