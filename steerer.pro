@@ -37,6 +37,8 @@ TEMPLATE = app
 
 TARGET      = steerer
 
+## debug modes DBG_VERSION DBG_CONS
+DEFINES     += DBG_VERSION
 CONFIG      += qt thread
 INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR}
 LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer
