@@ -439,6 +439,15 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
     if  (lParamPtr == kNULL)
       THROWEXCEPTION("Failed to find parameter in list");
 
+    bool noMinValue = false;
+    bool noMaxValue = false;
+    const char *minString = lParamPtr->getMinString().latin1();
+    const char *maxString = lParamPtr->getMaxString().latin1();
+    if (strcmp(minString, "--") == 0)
+      noMinValue = true;
+    if (strcmp(maxString, "--") == 0)
+      noMaxValue = true;
+      
     // validate what user has entered - currently just validate it is correct type
     // SMR XXX future - add more validation when range supported - will mean calling parameter member func
     // as ranges will be held on parameter class
@@ -454,10 +463,14 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
             {
               int newInt = newVal.toInt( &lOk );
               // Now check to see if the values the user's entered are legal
-              if (lOk){
-                int min = atoi(lParamPtr->getMinString());
-                int max = atoi(lParamPtr->getMaxString());
-                if (newInt < min || newInt > max)
+              if (lOk && !noMinValue){
+                 int min = atoi(minString);
+                 if (newInt < min)
+                   lOk = false;
+              }
+              if (lOk && !noMaxValue){
+                int max = atoi(maxString);
+                if (newInt > max)
                   lOk = false;
               }
               break;
@@ -466,11 +479,15 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
             case REG_FLOAT:
             {
               float newFloat = newVal.toFloat( &lOk );
-                // Now check to see if the values the user's entered are legal
-              if (lOk){
-                float min = float(atof(lParamPtr->getMinString()));
-                float max = float(atof(lParamPtr->getMaxString()));
-                if (newFloat < min || newFloat > max)
+              // Now check to see if the values the user's entered are legal
+              if (lOk && !noMinValue){
+                 float min = float(atof(minString));
+                 if (newFloat < min)
+                   lOk = false;
+              }
+              if (lOk && !noMaxValue){
+                float max = float(atof(maxString));
+                if (newFloat > max)
                   lOk = false;
               }
               break;
@@ -480,10 +497,14 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
             {
               double newDouble = newVal.toDouble( &lOk );
               // Now check to see if the values the user's entered are legal
-              if (lOk){
-                double min = atof(lParamPtr->getMinString());
-                double max = atof(lParamPtr->getMaxString());
-                if (newDouble < min || newDouble > max)
+              if (lOk && !noMinValue){
+                 double min = atof(minString);
+                 if (newDouble < min)
+                   lOk = false;
+              }
+              if (lOk && !noMaxValue){
+                double max = atof(maxString);
+                if (newDouble > max)
                   lOk = false;
               }
               break;
@@ -844,7 +865,26 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   if  (lParamPtr == kNULL)
     THROWEXCEPTION("Failed to find parameter in list");
 
-  string = QString(lParamPtr->getMinString()+" <= ? <= "+lParamPtr->getMaxString());
+  QString minStr = lParamPtr->getMinString();
+  QString maxStr = lParamPtr->getMaxString();
+  
+  if (minStr.compare(QString("--")) == 0){
+    if (maxStr.compare(QString("--")) == 0){
+      // then they're both untested so let the user know they can add anything
+      string = QString("Any string...");
+    }
+    else {
+      // then theres no upper bounds
+      string = QString("? <= "+maxStr);
+    }
+  }
+  else if (maxStr.compare(QString("--")) == 0){
+    // then theres no lower bounds
+    string = QString(minStr+" <= ?");
+  }
+  else
+    // there are both upper and lower bounds
+    string = QString(minStr+" <= ? <= "+maxStr);
  
   // Return success!
   return 0;
