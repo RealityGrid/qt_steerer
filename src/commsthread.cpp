@@ -65,7 +65,12 @@ CommsThread::~CommsThread()
 void 
 CommsThread::setCheckInterval(const int aInterval)
 {
-  mCheckInterval = aInterval;
+  // note value aInterval constrained on user entry also
+
+  if (aInterval > kMIN_POLING_INT)
+    mCheckInterval = aInterval;
+  else
+    mCheckInterval = kMIN_POLING_INT;
 }
 
 int
