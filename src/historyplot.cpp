@@ -318,6 +318,8 @@ void HistoryPlot::autoYAxisSlot(){
   mGraphMenu->setItemChecked(mAutoYAxisId, mAutoYAxisSet);
   mGraphMenu->setItemEnabled(mYLowerBoundId, !mAutoYAxisSet);
   mGraphMenu->setItemEnabled(mYUpperBoundId, !mAutoYAxisSet);
+  // redraw the plot
+  doPlot();
 }
 
 void HistoryPlot::autoXAxisSlot(){
@@ -326,6 +328,8 @@ void HistoryPlot::autoXAxisSlot(){
   mGraphMenu->setItemChecked(mAutoXAxisId, mAutoXAxisSet);
   mGraphMenu->setItemEnabled(mXLowerBoundId, !mAutoXAxisSet);
   mGraphMenu->setItemEnabled(mXUpperBoundId, !mAutoXAxisSet);
+  // redraw the plot
+  doPlot();
 }
 
 void HistoryPlot::graphYUpperBoundSlot(){
@@ -349,8 +353,11 @@ void HistoryPlot::graphYUpperBoundSlot(){
   if (!conversionOk){
     graphYUpperBoundSlot();
   }
-  else
+  else{
     mYUpperBound = upperBoundTmp;
+  }
+  // redraw the plot
+  doPlot();
 }
 
 void HistoryPlot::graphXUpperBoundSlot(){
@@ -374,8 +381,11 @@ void HistoryPlot::graphXUpperBoundSlot(){
   if (!conversionOk){
     graphXUpperBoundSlot();
   }
-  else
+  else{
     mXUpperBound = upperBoundTmp;
+  }
+  // redraw the plot
+  doPlot();
 }
 
 void HistoryPlot::graphYLowerBoundSlot(){
@@ -399,8 +409,11 @@ void HistoryPlot::graphYLowerBoundSlot(){
   if (!conversionOk){
     graphYLowerBoundSlot();
   }
-  else
+  else{
     mYLowerBound = lowerBoundTmp;
+  }
+  // redraw the plot
+  doPlot();
 }
 
 void HistoryPlot::graphXLowerBoundSlot(){
@@ -424,8 +437,11 @@ void HistoryPlot::graphXLowerBoundSlot(){
   if (!conversionOk){
     graphXLowerBoundSlot();
   }
-  else
+  else{
     mXLowerBound = lowerBoundTmp;
+  }
+  // redraw the plot
+  doPlot();
 }
 
 /** Toggle display of data points on graph on/off
