@@ -225,7 +225,7 @@ CommsThread::run()
 	if(mCheckInterval < kMAX_POLLING_INT){
 	  // Not getting messages very often so increase the interval
 	  // between polls
-	  mCheckInterval += (int)(0.5*mCheckInterval);
+	  mCheckInterval += (int)(0.5*mCheckInterval) + 1;
 	  DBGMSG1("CommsThread: increasing poll interval to ", mCheckInterval);
 	  // Adjust how many calls we average over to try and ensure
 	  // we check about every 2 seconds
