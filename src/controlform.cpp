@@ -379,12 +379,8 @@ ControlForm::updateParameters(bool aSteeredFlag)
   // aSteerFlag determines whether get monitored or steered parameters
 
   int lNumParams = 0;
-  int *lHandles = kNULL;
-  int *lTypes = kNULL;
-  char  **lLabels = kNULL;
-  char  **lVals = kNULL;
   bool lCleanUpFlag = false;
-
+  Param_details_struct *lParamDetails = kNULL;
 
   try
   {
@@ -400,17 +396,8 @@ ControlForm::updateParameters(bool aSteeredFlag)
       lCleanUpFlag = true;
 
       // set up arrays of appropriate size for Get_param_values
-      // note that REG_MAX_STRING_LENGTH is max string length imposed by library
-      lHandles = new int[lNumParams];
-      lTypes = new int[lNumParams];
-      lLabels = new char *[lNumParams];
-      lVals = new char *[lNumParams];
-      for(int i=0; i<lNumParams; i++)
-      {
-	lVals[i]   = new char[REG_MAX_STRING_LENGTH + 1];
-	lLabels[i] = new char[REG_MAX_STRING_LENGTH + 1];
-      }
-      
+     lParamDetails = new Param_details_struct[lNumParams];
+
       // point to relevent table - i.e. steered or monitored
       ParameterTable *lTablePtr;
       if (aSteeredFlag)
@@ -422,19 +409,20 @@ ControlForm::updateParameters(bool aSteeredFlag)
       if (Get_param_values(mSimHandle,		//ReG library
 			   aSteeredFlag,
 			   lNumParams,
-			   lHandles,
-			   lLabels,
-			   lVals,
-			   lTypes) == REG_SUCCESS)
+			   lParamDetails) == REG_SUCCESS)
       {
 	
 	for (int i=0; i<lNumParams; i++)
 	{
 	  //check if already exists - if so only update value
-	  if (!(lTablePtr->updateRow(lHandles[i], lVals[i])))
+	  if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
+				     lParamDetails[i].value)))
 	  {
 	    // mus be new parameter so add it
-	    lTablePtr->addRow(lHandles[i], lLabels[i], lVals[i], lTypes[i]);
+	    lTablePtr->addRow(lParamDetails[i].handle, 
+			      lParamDetails[i].label, 
+			      lParamDetails[i].value, 
+			      lParamDetails[i].type);
 	  } 
 	} //for lNumParams
 	
@@ -443,16 +431,7 @@ ControlForm::updateParameters(bool aSteeredFlag)
 	THROWEXCEPTION("Get_param_values");
       
       // delete local arrays
-      delete [] lHandles;
-      delete [] lTypes;
-      for(int i=0; i<lNumParams; i++)
-	{
-	  delete [] lVals[i];
-	  delete [] lLabels[i];
-	}
-      delete [] lLabels;
-      delete [] lVals;
-      
+      delete [] lParamDetails;
 
     } // if lNumParams > 0
 
@@ -468,15 +447,7 @@ ControlForm::updateParameters(bool aSteeredFlag)
     // clean up
     if (lCleanUpFlag)
     {
-      delete [] lHandles;
-      delete [] lTypes;
-      for(int i=0; i<lNumParams; i++)
-      {
-	delete [] lVals[i];
-	delete [] lLabels[i];
-      }
-      delete [] lLabels;
-      delete [] lVals;
+      delete [] lParamDetails;
     }
 
     // rethrow to Application::processNextMessage

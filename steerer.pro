@@ -45,11 +45,9 @@ TARGET      = steerer
 ## debug modes DBG_VERSION DBG_CONS
 DEFINES     += DBG_VERSION
 CONFIG      += qt thread
-INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR} ${HOME}/gsoap-linux-2.2.3
+INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR} 
 LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer
-#LIBS        += -L${REG_STEER_HOME}/expat/xmlparse -lexpat
 LIBS        += -L${REG_XML_LIBDIR} -lxml2 
-LIBS        += -L${HOME}/gsoap-linux-2.2.3 -lgsoap
 MOC_DIR      = moc
 OBJECTS_DIR  = obj
 
