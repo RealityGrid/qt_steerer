@@ -368,7 +368,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 
       // set minimum size so all gui visible, if remove this can 
       // shrink gui, but no scrollbars
-      this->setMinimumSize(540, 700);
+      //this->setMinimumSize(540, 700);
       //statusBar()->clear();
 
       DBGMSG("posted now start commsthread");
