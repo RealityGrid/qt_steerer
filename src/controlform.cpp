@@ -678,10 +678,6 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
    
     if (lRealTotalCount > 0 || aForceEmitFlag == true)
     { 
-      //SMR XXX DBG
-      for (int i=0; i<lTotalCount; i++)
-	DBGMSG1("***CmsParam :", lCmdParamArray[i]);
-
       qApp->lock();
       lReGStatus = Emit_control(mSimHandle,			//ReG library
 				lRealTotalCount,
