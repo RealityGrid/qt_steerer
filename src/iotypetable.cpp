@@ -705,7 +705,7 @@ int IOTypeTable::getCommandRequestsCountOfType(const int aType){
   if (aType == REG_IO_IN)
     comparisonTestString = "Input";
   else if (aType == REG_IO_OUT)
-    comparisonTestString = "output";
+    comparisonTestString = "Output";
   else return result;
 
   for (int i=0; i<numRows(); i++){
