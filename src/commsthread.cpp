@@ -158,21 +158,19 @@ CommsThread::getCheckInterval() const
 void
 CommsThread::stop()
 {
-
   // flag thread to stop running (get out of while loop)
   setKeepRunning(false);
 
   // thread must have finished running before destruction - so wait for finish
   while (!finished())
   {
-    DBGMSG("CommsThread stop()  waiting for run completion");
+    DBGMSG("CommsThread::stop() - waiting for run completion");
     wait(1000);  //1000 milliseconds
   }
   DBGMSG("Thread is stopped");
 
   // reset flag for next run()
   setKeepRunning(true);
-
 }
 
 
@@ -181,7 +179,7 @@ CommsThread::run()
 {
   // this is the routine that is call when CommsThread->start() is called.
   // this routine runs until flagged to stop
-
+  Application *lApp;
   int	lSimHandle = REG_SIM_HANDLE_NOTSET ;
   int   lMsgType = MSG_NOTSET;
 
@@ -209,17 +207,22 @@ CommsThread::run()
 
     if (lMsgType != MSG_NOTSET)
     {
-      //SMR XXX  future: find Application in list that matches lSimHandle
       //SMR XXX  validate lMsgType SMR XXX to do
 
       // create event and post it - posting means the main GUI thread will 
       // process the event and not this commsthread.
       // this avoids any locking issues around GUI funcs (i think)
       
-      // SMR XXX make this member of COmmsThread and resue rather than 
-      // new each time - chk when QT dlete ?
       CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
-      postEvent(mSteerer->getApplication(lSimHandle), lEvent);
+
+      lApp = mSteerer->getApplication(lSimHandle);
+
+      if(lApp){
+        postEvent(lApp, lEvent);
+      }
+      else{
+        DBGMSG("CommsThread::run: NULL application pointer!");
+      }
     }
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
 

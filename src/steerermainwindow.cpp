@@ -64,6 +64,8 @@
 #include <qwidget.h>
 #include <qwidgetstack.h>
 
+#include <unistd.h>
+
 SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
     mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
@@ -421,8 +423,16 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   unsigned int i;
   // close the window for the application
   // this can only be done when detached from application
+  DBGMSG1("Close button hit and signalled to main window... ", aSimHandle);
 
-  DBGMSG1("Close button hit and signalled to main window...", aSimHandle);
+  // If this was last application being steered, stop the CommsThread
+  if((mAppList.count() == 1) && isThreadRunning() ){
+
+    DBGMSG("closeApplicationSlot: stopping comms thread");
+    mCommsThread->stop();
+  }
+
+  DBGMSG("closeApplicationSlot: deleting Application...");
 
   for(i=0; i<mAppList.count(); i++){
     if(aSimHandle == mAppList.at(i)->getHandle()){
@@ -434,20 +444,13 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
       break;
     }
   }
-
-  DBGMSG("closeApplicationSlot: Applications deleted...");
-  DBGMSG1("closeApplicationSlot: no. of apps = ", mAppList.count());
-
+ 
   // If this was last application being steered, resize the window...
   if(mAppList.count() == 0){
 
+    DBGMSG("closeApplicationSlot: re-sizing window...");
     resizeForNoAttached();
     statusBar()->message( "www.realitygrid.org");
-
-    // ...and stop the CommsThread
-    if (isThreadRunning()){
-      mCommsThread->stop();
-    }
   }
 }
 
