@@ -68,7 +68,7 @@ SteererException::SteererException(const SteererException& aCopyEx)
 }
 
 
-const char* const
+const char*
 SteererException::getErrorMsg() const
 {
   return mMsgPtr;
