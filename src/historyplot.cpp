@@ -76,9 +76,9 @@ void HistoryPlot::doPlot(){
     //
     //  Calculate some values
     //
-    const int nPoints = mParamHist->size;
-    double x[nPoints];
-    double y[nPoints];
+    int nPoints = mParamHist->size;
+    double *x = new double[nPoints];
+    double *y = new double[nPoints];
 
 
     for (int i = 0; i < nPoints; i++){
@@ -95,7 +95,10 @@ void HistoryPlot::doPlot(){
     long mY = insertLineMarker("y = 0", QwtPlot::yLeft);
     setMarkerYPos(mY, 0.0);
 
-	replot();
+    replot();
+
+    delete [] x;
+    delete [] y;
 }
 
 /** Update the graph with new data

@@ -13,9 +13,18 @@ How to install:
 1. Install steering library (reg_steer_lib under CVS)
 
 2. Set up the environment variable QTDIR to point to the QT installation.
-Add $QTDIR/bin to your $PATH.
+   Add $QTDIR/bin to your $PATH.
 
-3. In top level directory type :
+3. Install the Qwt library (provides Qt widgets for technical
+   applications) - available from http://qwt.sourceforge.net/.  Add
+   'staticlib' to the CONFIG options in the qwt.pro file to get
+   a static library.
+
+4. Set the environment variables REG_QWT_LIBDIR and REG_QWT_INCDIR to
+   point to the location of the library and header files, respectively,
+   for Qwt.
+
+5. In the top level directory (the one containing this file) type:
 
  For Linux:
   qmake "QMAKE_CXXFLAGS_RELEASE+=-fexceptions" -o Makefile steerer.pro
@@ -26,10 +35,10 @@ Add $QTDIR/bin to your $PATH.
 
 This will produce the Makefiles (for link against shared libraries)
 
-4. In top level directory type :
+6. In top level directory type:
 make
 
-5. To run type:
+7. To run type:
 steerer
 (Note: environment variables as for steering library are required)
 
@@ -42,14 +51,14 @@ The current version has only been compiled and executed under Irix and Linux.
 if linking against static libraries you need to add the following when linking:
 
 Linux:
- -lSM -lpng -lmng -lXinerama -lXft
+ -lSM -lGL -lpng -lmng -lXinerama -lXft
 
 Irix:
  -lSM -lGL
 
 Any comments, enquiries or pleas for explanation should be sent to:
 
-Sue Ramsden                Sue.Ramsden@man.ac.uk
+Andrew Porter                Andrew.Porter@man.ac.uk
 SVE Group
 Manchester Computing
 University of Manchester
