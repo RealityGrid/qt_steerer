@@ -464,6 +464,18 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	      mDetachedFlag = true;
 	      break;
 	    
+	  case REG_STR_STOP:
+	    DBGMSG("Received stop command from application");
+	      detached = true;
+	      Delete_sim_table_entry(&lSimHandle);		//ReG library 
+
+	      // make GUI form for this application read only
+	      disableForDetach();
+	      mControlForm->setStatusLabel("Detached as application has stopped");
+
+	      mDetachedFlag = true;
+	      break;
+
 	    default:
 	      break;
 	  }
