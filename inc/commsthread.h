@@ -48,7 +48,7 @@ class SteererMainWindow;
 class CommsThread : public QThread
 {
 public:
-    CommsThread(SteererMainWindow *, int aCheckInterval=1000);
+    CommsThread(SteererMainWindow *, int aCheckInterval=500);
     ~CommsThread();
 
     void setCheckInterval(const int aInterval);
