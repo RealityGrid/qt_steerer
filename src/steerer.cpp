@@ -48,6 +48,8 @@
 #include <signal.h>
 #include <new.h>
 
+#include <X11/Xlib.h>
+
 
 //file scope global pointer pointing at this SteererMainWindow object; need this to
 //perform clean up.  
@@ -118,16 +120,16 @@ extern "C" void signalHandler(int aSignal)
 
 int main( int argc, char ** argv )
 {
-  // ignore any ctrl-c or kill until SteererMainWindow init sets up signal handlers
-  ///signal( SIGINT, SIG_IGN );
-  ///signal( SIGTERM, SIG_IGN );
-
   // Print out command-line arguments
   //cout << argc << endl;
   //for (int i=0; i<argc; i++){
   //  cout << argv[i] << " ";
   //}
   //cout << endl;
+
+  // Was getting XSync errors when trying to save screenshots to file.
+  // This seems to fix it.
+  XInitThreads();
 
   SteererMainWindow *lSteererMainWindow = kNULL;
   gSteererMainWindowSelfPtr = kNULL;
@@ -202,8 +204,6 @@ int main( int argc, char ** argv )
     cerr << "Check environment variables and restart steerer\n" << endl;
     return result;
   }
-
-
 
 }
 
