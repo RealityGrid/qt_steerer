@@ -1,4 +1,4 @@
-This software is an IN PROGRESS implementation of a generic steerer
+This software is an ongoing implementation of a generic steerer
 using QT for the RealityGrid project, produced by the Supercomputing,
 Visualization & e-Science Group, Manchester Computing, University of
 Manchester.  It uses the steering API for the RealityGrid project,
@@ -44,7 +44,6 @@ The current version has only been compiled and executed under Irix and Linux.
 Any comments, enquiries or pleas for explanation should be sent to:
 
 Sue Ramsden                Sue.Ramsden@man.ac.uk
-
 SVE Group
 Manchester Computing
 University of Manchester
