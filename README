@@ -16,14 +16,14 @@ Add $QTDIR/bin to your $PATH.
 
 3. In top level directory type :
 
- For linux:
+ For Linux:
   qmake "QMAKE_CXXFLAGS_RELEASE+=-fexceptions" -o Makefile steerer.pro
 
  For Irix:
   qmake -o Makefile steerer.pro
 
 
-This will produce the Makefiles
+This will produce the Makefiles (for link against shared libraries)
 
 4. In top level directory type :
 make
@@ -33,13 +33,18 @@ steerer
 (Note: environment variables as for steering library are required)
 
 
-NOTE:
+NOTES:
 
 The QT steerer GUI is still under development.
 The current version has only been compiled and executed under Irix and Linux.
 
+if linking against static libraries you need to add the following when linking:
 
+Linux:
+ -lSM -lpng -lmng -lXinerama -lXft
 
+Irix:
+ -lSM -lGL
 
 Any comments, enquiries or pleas for explanation should be sent to:
 
