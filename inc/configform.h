@@ -54,7 +54,7 @@ protected slots:
   void applySlot();
 
 private:
-  double	mIntervalValue;
+  int		mIntervalValue;
 
   QLineEdit	*mLineEdit;
   QPushButton	*mApplyButton;
