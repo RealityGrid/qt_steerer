@@ -54,11 +54,10 @@
 #define kREG_COLUMN		2
 #define kVALUE_COLUMN		3
 #define kNEWVALUE_COLUMN	4
-#define kMINMAXSTRING_COLUMN 5
 
 //parameter tables sizes
 #define kNUM_MON_COLUMNS	4
-#define kNUM_STEER_COLUMNS	6 
+#define kNUM_STEER_COLUMNS	5 
 #define kINIT_ROWS		3
 
 
