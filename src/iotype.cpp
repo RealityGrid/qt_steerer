@@ -55,12 +55,12 @@ IOType::IOType(int aId, int aIOTypeType)
   // is needed to update the table when the iotype data changes
 
   // mId is the iotype handle assigned by ReG library (and this is a command)
-  // mType is the type of the IOType - SampleIn, SampleOut or CheckPoint
+  // mType is the type of the IOType - Sample can be IN or OUT,  CheckPoint can be IN, OUT or INOUT
 
   // Once registered IOTypes cannot be unregistered by the steered application
 
-  // All iotypes support on demand emit/comsume (i.e. user demands via gui) and 
-  // auto emit/consume as dictated by frequency.
+  // All iotypes support on demand emit/consume (i.e. user demands via gui) and 
+  // auto emit/consume as dictated by frequency.  Auto consume is NOT relevant to checkpoint types.
 
 }
 

@@ -73,6 +73,7 @@ protected slots:
   void validateValueSlot( int row, int col );
   void emitCommandsSlot();
   void emitValuesSlot();
+  void emitRestartSlot();
 
 signals:
   void enableSampleButtonsSignal();

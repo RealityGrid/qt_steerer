@@ -63,7 +63,7 @@ public:
   ~ControlForm();
 
   void updateParameters();
-  void updateIOTypes();
+  void updateIOTypes(bool aChkPtType = false);
 
   void disableAll(const bool aUnRegister = true);
   void disableIOCmdButtons();
@@ -103,6 +103,7 @@ private:
   QPushButton		*mSndSampleButton;
   QPushButton		*mSetSampleFreqButton;
 
+  QPushButton		*mRestartChkPtButton;
   QPushButton		*mSndChkPtButton;
   QPushButton		*mSetChkPtFreqButton;
 

@@ -450,10 +450,27 @@ Application::processNextMessage(REG_MsgType aMsgType)
       else
       {
 	// update IOType list and table
-	mControlForm->updateIOTypes();
+	mControlForm->updateIOTypes(false);
 
       }
       break;
+
+    case CHK_DEFS:
+
+      DBGMSG("Got Chkdefs message");
+
+      if(Consume_ChkType_defs(mSimHandle) != REG_SUCCESS)	//ReG library 
+      {
+	THROWEXCEPTION("Consume_ChkType_defs failed");
+      }
+      else
+      {
+	// update IOType list and table
+	mControlForm->updateIOTypes(true);
+
+      }
+      break;
+
       
     case PARAM_DEFS:
       
@@ -492,7 +509,9 @@ Application::processNextMessage(REG_MsgType aMsgType)
 	mControlForm->updateParameters();
       
 	// update IOType list and table (needed for frequency update)
-	mControlForm->updateIOTypes();
+	mControlForm->updateIOTypes(false);	// sample types
+	mControlForm->updateIOTypes(true);	// checkpoint types
+
 
 	// now deal with commands - for now we only care about detach command
 	for(int i=0; i<num_cmds && !detached; i++)

@@ -59,8 +59,8 @@
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Application *aApplication)
   : QWidget(aParent, aName), mSimHandle(aSimHandle), mStatusLabel(kNULL), mEmitButton(kNULL), 
-    mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), mSndChkPtButton(kNULL), 
-    mSetChkPtFreqButton(kNULL), mEmitAllValuesButton(kNULL),
+    mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), mRestartChkPtButton(kNULL), 
+    mSndChkPtButton(kNULL), mSetChkPtFreqButton(kNULL), mEmitAllValuesButton(kNULL),
     mEmitAllIOCommandsButton(kNULL), mEmitAllButton(kNULL), mMonParamTable(kNULL),
     mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), mIOTypeChkPtTable(kNULL)
 { 
@@ -143,6 +143,13 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   connect(mIOTypeChkPtTable, SIGNAL(detachFromApplicationForErrorSignal()), 
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
 
+
+  mRestartChkPtButton = new QPushButton( "Restart", this, "restartchkpt" );
+  mRestartChkPtButton->setMinimumSize(mRestartChkPtButton->sizeHint());
+  mRestartChkPtButton->setMaximumSize(mRestartChkPtButton->sizeHint());
+  QToolTip::add(mRestartChkPtButton, "Tell application to restart using requested checkpoint");
+  connect( mRestartChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( emitRestartSlot()));
+
   mSndChkPtButton = new QPushButton( "Tell Requests", this, "sndchkpt" );
   mSndChkPtButton->setMinimumSize(mSndChkPtButton->sizeHint());
   mSndChkPtButton->setMaximumSize(mSndChkPtButton->sizeHint());
@@ -155,7 +162,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   QToolTip::add(mSetChkPtFreqButton, "Tell application new frequency values for checkpoint iotypes");  
   connect(mSetChkPtFreqButton, SIGNAL( clicked() ), mIOTypeChkPtTable, SLOT( emitValuesSlot()));
 
-  lChkPtButtonLayout->addItem(new QSpacerItem( 0, 48, QSizePolicy::Minimum, QSizePolicy::Expanding));
+  lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+  lChkPtButtonLayout->addWidget(mRestartChkPtButton);
   lChkPtButtonLayout->addWidget(mSndChkPtButton);
   lChkPtButtonLayout->addWidget(mSetChkPtFreqButton);
   lChkPtLayout->addWidget(mIOTypeChkPtTable);
@@ -368,57 +376,76 @@ ControlForm::updateParameters(bool aSteeredFlag)
 
 
 void
-ControlForm::updateIOTypes()
+ControlForm::updateIOTypes(bool aChkPtType)
 {
   // call ReG library routines to get all iotype data
   // and update tables displaying iotypes on gui
 
   IOTypeTable	*lIOTypeTablePtr;
-  int		lNumIOTypes;
-  int *lHandles = kNULL;
-  int *lTypes = kNULL;
-  int *lVals = kNULL;
-  char  **lLabels = kNULL;
-  bool lCleanUpFlag = false;
+  int		lNumTypes;
+  int		*lHandles = kNULL;
+  int		*lTypes = kNULL;
+  int		*lVals = kNULL;
+  char		**lLabels = kNULL;
+  bool		lCleanUpFlag = false;
+  int		lStatus = REG_FAILURE;
 
+
+  // point to relevant table - sample or checkpoint
+  if (aChkPtType)
+    lIOTypeTablePtr = mIOTypeChkPtTable;
+  else
+    lIOTypeTablePtr = mIOTypeSampleTable;
+  
 
   try
   {
-    if(Get_iotype_number(mSimHandle, &lNumIOTypes) != REG_SUCCESS)		//ReG library
+
+    if (aChkPtType)
+      lStatus = Get_chktype_number(mSimHandle, &lNumTypes);	//ReG library
+    else
+      lStatus = Get_iotype_number(mSimHandle, &lNumTypes);	//ReG library    
+
+    if(lStatus != REG_SUCCESS)		
       THROWEXCEPTION("Get_iotype_number");
     
-    DBGMSG1("Number IOTypes: Monitored = ", lNumIOTypes);
+    DBGMSG1("Number IO/Chk Types: Monitored = ", lNumTypes);
     
-    if (lNumIOTypes>0)
+    if (lNumTypes>0)
     {
       lCleanUpFlag = true;
       
       // setup arrays of appropriate size for Get_param_values
       // note that REG_MAX_STRING_LENGTH is max string length imposed by library
-      lHandles = new int[lNumIOTypes];
-      lTypes = new int[lNumIOTypes];
-      lVals = new int[lNumIOTypes];
-      lLabels = new char *[lNumIOTypes];   
-      for(int i=0; i<lNumIOTypes; i++)
+      lHandles = new int[lNumTypes];
+      lTypes = new int[lNumTypes];
+      lVals = new int[lNumTypes];
+      lLabels = new char *[lNumTypes];   
+      for(int i=0; i<lNumTypes; i++)
       {
 	lLabels[i] = new char[REG_MAX_STRING_LENGTH + 1];
       }
       
-      if (Get_iotypes(mSimHandle,			//ReG library
-		    lNumIOTypes,
-		    lHandles,
-		    lLabels,
-		    lTypes,
-		    lVals) == REG_SUCCESS)
+      if (aChkPtType)
+	
+	lStatus = Get_chktypes(mSimHandle,			//ReG library
+			       lNumTypes,
+			       lHandles,
+			       lLabels,
+			       lTypes,
+			       lVals);
+      else
+	lStatus = Get_iotypes(mSimHandle,			//ReG library
+			      lNumTypes,
+			      lHandles,
+			      lLabels,
+			      lTypes,
+			      lVals);
+
+      if (lStatus == REG_SUCCESS)
       {
-	for (int i=0; i<lNumIOTypes; i++)
-	{
-	  // point to relevant table - sample or checkpoint
-	  if (lTypes[i] == REG_IO_CHKPT)
-	    lIOTypeTablePtr = mIOTypeChkPtTable;
-	  else
-	  lIOTypeTablePtr = mIOTypeSampleTable;
-	  
+	for (int i=0; i<lNumTypes; i++)
+	{	  
 	  //check if already exists - if so only update frequency value
 	  if (!(lIOTypeTablePtr->updateRow(lHandles[i], lVals[i])))
 	  {
@@ -426,7 +453,7 @@ ControlForm::updateIOTypes()
 	    lIOTypeTablePtr->addRow(lHandles[i], lLabels[i], lVals[i], lTypes[i]);
 	  } 
 	  
-	} //for lNumIOTypes            
+	} //for lNumTypes            
       } // if Get_IOType_values
       else
 	THROWEXCEPTION("Get_iotypes");
@@ -438,13 +465,13 @@ ControlForm::updateIOTypes()
       delete [] lHandles;
       delete [] lTypes;
       delete [] lVals;
-      for(int i=0; i<lNumIOTypes; i++)
+      for(int i=0; i<lNumTypes; i++)
 	{
 	  delete [] lLabels[i];
 	}
       delete [] lLabels;
       
-    } //if (lNumIOTypes>0)
+    } //if (lNumTypes>0)
     
   } //try
 
@@ -455,7 +482,7 @@ ControlForm::updateIOTypes()
       delete [] lHandles;
       delete [] lTypes;
       delete [] lVals;
-      for(int i=0; i<lNumIOTypes; i++)
+      for(int i=0; i<lNumTypes; i++)
 	{
 	  delete [] lLabels[i];
 	}
@@ -487,6 +514,7 @@ ControlForm::disableAll(const bool aUnRegister)
 void
 ControlForm::disableIOCmdButtons()
 {
+  mRestartChkPtButton->setEnabled(FALSE);
   mSndSampleButton->setEnabled(FALSE); 
   mSndChkPtButton->setEnabled(FALSE); 
   mEmitAllIOCommandsButton->setEnabled(FALSE);
@@ -499,7 +527,10 @@ ControlForm::enableIOCmdButtons()
   if (mIOTypeSampleTable->getNumIOTypes() > 0)
     mSndSampleButton->setEnabled(TRUE); 
   if (mIOTypeChkPtTable->getNumIOTypes() > 0)
+  {
     mSndChkPtButton->setEnabled(TRUE); 
+    mRestartChkPtButton->setEnabled(TRUE);
+  }
 
   if (mIOTypeSampleTable->getNumIOTypes() > 0  ||
       mIOTypeChkPtTable->getNumIOTypes() > 0)
@@ -516,6 +547,7 @@ ControlForm::disableButtons()
   mEmitButton->setEnabled(FALSE); 
   mSndSampleButton->setEnabled(FALSE); 
   mSetSampleFreqButton->setEnabled(FALSE); 
+  mRestartChkPtButton->setEnabled(FALSE);
   mSndChkPtButton->setEnabled(FALSE); 
   mSetChkPtFreqButton->setEnabled(FALSE); 
   mEmitAllValuesButton->setEnabled(FALSE); 
@@ -555,6 +587,7 @@ ControlForm::enableSampleButtonsSlot()
 void 
 ControlForm::enableChkPtButtonsSlot()
 {
+  mRestartChkPtButton->setEnabled(TRUE);
   mSndChkPtButton->setEnabled(TRUE); 
   mSetChkPtFreqButton->setEnabled(TRUE);
 
