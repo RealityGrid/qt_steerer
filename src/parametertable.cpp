@@ -439,7 +439,7 @@ void ParameterTable::updateParameterLog(){
     }
     //cout << "ARPDBG: handle = "<< lParamPtr->getId() << 
     //  ", size of history = "  <<
-      lParamPtr->mParamHist->mPreviousHistArraySize << endl;
+    //  lParamPtr->mParamHist->mPreviousHistArraySize << endl;
 
     // This allows user to see that we're receiving data but
     // slows things down so left out for the minute.
