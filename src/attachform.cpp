@@ -65,18 +65,8 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mSimGSH[i] = new char[REG_MAX_STRING_LENGTH + 1];
   }
 
-  // tmp code SMR XXX
-   mNumSims = 3;
-  strcpy(mSimName[0], "sue1");
-  strcpy(mSimName[1], "sue2");
-  strcpy(mSimName[2], "sue3");
-
-  strcpy(mSimGSH[0], "handle1");
-  strcpy(mSimGSH[1], "handle2");
-  strcpy(mSimGSH[2], "handle3");
-
   // get the list of grid applications from library
-  //  mLibReturnStatus = Get_sim_list(&mNumSims, mSimName, mSimGSH); //SMR XXX need javac
+  mLibReturnStatus = Get_sim_list(&mNumSims, mSimName, mSimGSH); //SMR XXX need javac
 
   // only continue is there is some info to show
   if(mLibReturnStatus == REG_SUCCESS && mNumSims>0)  // SMR XXX need javac
@@ -102,6 +92,9 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     AttachListItem *lListItem;
     for (int i=0; i<mNumSims; i++)
     {      
+      DBGMSG1("mSimName ", mSimName[i]);
+      DBGMSG1("mSimGSH ", mSimGSH[i]);
+
       // QString(const char *) is deep copy
       lListItem = new AttachListItem(i, QString( mSimName[i]));
       mListBox->insertItem( lListItem );
