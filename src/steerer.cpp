@@ -126,6 +126,11 @@ int main( int argc, char ** argv )
   ///signal( SIGINT, SIG_IGN );
   ///signal( SIGTERM, SIG_IGN );
 
+  cout << argc << endl;
+  for (int i=0; i<argc; i++){
+    cout << argv[i] << " ";
+  }
+  cout << endl;
 
   SteererMainWindow *lSteererMainWindow = kNULL;
   gSteererMainWindowSelfPtr = kNULL;
@@ -167,9 +172,16 @@ int main( int argc, char ** argv )
     lApp.setFont(QFont("Times", 10));  //SMR XXX default is Helvetica on errol
     lApp.setStyle(new QMotifPlusStyle);
 
-    lSteererMainWindow = new SteererMainWindow();
+    // MR Check to see if we were supplied with an SGS as a command line arg
+    // if so - we've been started from the QT launcher, so go directly to the
+    // main Steering window without using the Grid Attach dialog.
+    if (argc == 2)
+      lSteererMainWindow = new SteererMainWindow(true, argv[1]);
+    else
+      lSteererMainWindow = new SteererMainWindow();
     gSteererMainWindowSelfPtr = lSteererMainWindow;
     lApp.setMainWidget( lSteererMainWindow );
+    
     lSteererMainWindow->show();
     
     lApp.connect( &lApp, SIGNAL( lastWindowClosed() ), &lApp, SLOT( quit() ) );

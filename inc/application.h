@@ -57,12 +57,14 @@ class Application : public QWidget
 
 public:
 
-  Application(QWidget *mParent, const char *, int aSimHandle);
+  Application(QWidget *mParent, const char *, int aSimHandle, bool aIsLocal);
   ~Application();
 
   void customEvent(QCustomEvent *);
   void processNextMessage(REG_MsgType aMsgType);
   void enableCmdButtons();
+
+  bool isLocal(){return mIsLocal;}
 
 private:
   void detachFromApplication();
@@ -74,6 +76,7 @@ protected slots:
   void emitStopCmdSlot();
   void emitPauseCmdSlot();
   void emitResumeCmdSlot();
+  void emitGridRestartCmdSlot();
   void closeApplicationSlot();
   void detachFromApplicationForErrorSlot();
 
@@ -94,6 +97,8 @@ private:
   ControlForm	*mControlForm;
   QGroupBox	*mControlBox;
   SteererMainWindow *mSteerer;
+
+  bool mIsLocal;
 
 
 };

@@ -852,6 +852,13 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   // adjustedPos is the mouse coordinate moved from the table 
   // coordinate system to the scroll window coordinate system
   int adjustedPos = scrolled + (pnt.y() - headerHeight);
+
+  // need to check that the singleRowHeight is not 0, this can happen
+  // if there's no data in the table. If it is zero we end up with a
+  // divide by zero exception below !
+  if (singleRowHeight == 0){
+    return -1;
+  }
   // actualRow contains the index to the proper row in the scrollview
   int actualRow = adjustedPos / singleRowHeight;
 
@@ -877,12 +884,14 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   // get parameter ID from hidden column and use this get parameter from the list
   bool lOk;
   int lId = this->text( actualRow, kID_COLUMN ).toInt(&lOk);
-  if (!lOk)
+  if (!lOk){
     THROWEXCEPTION("Failed to get parameter ID from row in table");
+  }
 
   Parameter *lParamPtr = findParameter(lId);
-  if  (lParamPtr == kNULL)
+  if  (lParamPtr == kNULL){
     THROWEXCEPTION("Failed to find parameter in list");
+  }
 
   QString minStr = lParamPtr->getMinString();
   QString maxStr = lParamPtr->getMaxString();

@@ -48,6 +48,7 @@
 
 #include <qapplication.h>
 #include <qgroupbox.h>
+#include <qinputdialog.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
@@ -55,12 +56,16 @@
 #include <qtooltip.h>
 #include <qwidget.h>
 
-Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
+Application::Application(QWidget *aParent, const char *aName, int aSimHandle, bool aIsLocal)
   : QWidget(aParent, aName), mSimHandle(aSimHandle), mNumCommands(0), 
     mDetachSupported(false), mStopSupported(false), mPauseSupported(false), 
     mResumeSupported(false), mDetachedFlag(false),
     mControlForm(kNULL), mControlBox(kNULL)
-{ 
+{
+
+  // MR keep an internal record of whether we're local or grid
+  mIsLocal = aIsLocal;
+
   // construct form for steering one application
   DBGCON("Application");
   
@@ -87,6 +92,7 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle)
   // old style status text on app creation. Do it  here instead
   QString message = QString("Attached to application");
   mSteerer->statusBarMessageSlot(message);
+  
 } 
 
 Application::~Application()
@@ -155,8 +161,8 @@ Application::enableCmdButtons()
       {
 	lCmdIds = new int[mNumCommands];
 
-	qApp->lock();
-	lReGStatus = Get_supp_cmds(mSimHandle, mNumCommands, lCmdIds);	//ReG library 
+  qApp->lock();
+	lReGStatus = Get_supp_cmds(mSimHandle, mNumCommands, lCmdIds);	//ReG library
 	qApp->unlock();
 
 	if (lReGStatus != REG_SUCCESS)
@@ -618,5 +624,21 @@ Application::processNextMessage(REG_MsgType aMsgType)
 
 
 } // ::processNextMessage
+
+void Application::emitGridRestartCmdSlot(){
+  // First of all get the user to enter the GSH
+  bool ok = false;
+  QString text = QInputDialog::getText(
+                    tr( "Grid Service Handle" ),
+                    tr( "Please enter the GSH" ),
+                    QLineEdit::Normal, QString::null, &ok, this );
+
+  // Now issue a restart steer library call with that GSH
+  qApp->lock();
+  Emit_restart_cmd(mSimHandle, (char*)text.latin1());
+  qApp->unlock();
+}
+
+
 
 

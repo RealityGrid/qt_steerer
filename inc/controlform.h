@@ -107,6 +107,9 @@ private:
   QPushButton		*mSetSampleFreqButton;
 
   QPushButton		*mRestartChkPtButton;
+  // MR:
+  QPushButton   *mGridRestartChkPtButton;
+  
   QPushButton		*mSndChkPtButton;
   QPushButton		*mSetChkPtFreqButton;
 
@@ -124,7 +127,9 @@ private:
   QPushButton		*mResumeButton;
   QPushButton   *mConsumeDataButton;
   QPushButton   *mEmitDataButton;
-
+  
+  Application   *mApplication;
+  
 };
 
 

@@ -919,7 +919,7 @@ int IOTypeTable::populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParam
 
 int IOTypeTable::populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdParamArray, const int aMaxCmds, const int aStartIndex, const int aType)
 {
-  // populate the array aCmdIds with the commands to be send starting at array index aStartIndex
+  // populate the array aCmdIds with the commands to be sent starting at array index aStartIndex
   // there should be exactly aMaxCmds to add - do not add any more as array not sized to hold an more
   // note any not added will remain checked on GUI indicating that not been sent so no need to throw excp.
 

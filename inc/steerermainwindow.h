@@ -59,7 +59,7 @@ class SteererMainWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  SteererMainWindow();
+  SteererMainWindow(bool autoConnect = false, const char *aSGS = NULL);
   ~SteererMainWindow();
 
   Application * getApplication() const;  //SMR XXX const?
@@ -86,6 +86,8 @@ private:
   void simAttachApp(char *aSimID, bool aIsLocal = false);
 
 private:
+
+  QString cmdLineSGS;
 
   QWidget	*mCentralWgt;
   QHBoxLayout	*mTopLayout;

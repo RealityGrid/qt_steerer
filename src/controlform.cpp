@@ -74,6 +74,10 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
     mPauseButton(kNULL), mResumeButton(kNULL), mConsumeDataButton(kNULL), mEmitDataButton(kNULL)
 { 
   DBGCON("ControlForm");
+
+  // MR: keep a reference to the Application class
+  mApplication = aApplication;
+  
   // create widget which holds all steering data (some dynamic) 
   // for one steered application this consists of four tables - 
   // one each for monitored parameters, steered parameters,
@@ -81,8 +85,17 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   // associated with the tables
 
   QVBoxLayout *lEditLayout = new QVBoxLayout(this, 6, 6, "editlayout");
-  QButtonGroup *lCmdGrpBox = new QButtonGroup(6, Qt::Horizontal, "Commands", this, "cmdbuttons");
- 
+
+  // MR: If we're doing a grid session, have the restart button up
+  //     in the top control panel, as we're going to restart from
+  //     a GSH only...
+  QButtonGroup *lCmdGrpBox;
+  
+  if (mApplication->isLocal())
+    lCmdGrpBox = new QButtonGroup(6, Qt::Horizontal, "Commands", this, "cmdbuttons");
+  else
+    lCmdGrpBox = new QButtonGroup(7, Qt::Horizontal, "Commands", this, "cmdbuttons");
+  
   // set up main command buttons
   // we use Resume button sizeHint to size all buttons to this size
 
@@ -95,6 +108,10 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   mCloseButton = new QPushButton( "Close", lCmdGrpBox, "close" );
   mEmitAllValuesButton = new QPushButton("Tell All", lCmdGrpBox, "tellallvals");
   mStopButton = new QPushButton( "Stop", lCmdGrpBox, "stop" );
+
+  // MR:
+  if (!mApplication->isLocal())
+    mGridRestartChkPtButton = new QPushButton("Restart", lCmdGrpBox, "restart");
   
   // then set up each button individually, never setting the maximum size
   // so that each button stretches to fill the standard gap
@@ -134,6 +151,15 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   QToolTip::add(mStopButton, "Tell the attached application to stop");
   connect( mStopButton, SIGNAL( clicked() ), aApplication, SLOT( emitStopCmdSlot() ));
   lCmdGrpBox->insert(mStopButton);
+
+  // MR:
+  if (!mApplication->isLocal()){
+    mGridRestartChkPtButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
+    //mStopButton->setMaximumSize(mStopButton->sizeHint());
+    QToolTip::add(mGridRestartChkPtButton, "Restart via a GSH");
+    connect( mGridRestartChkPtButton, SIGNAL( clicked() ), aApplication, SLOT( emitGridRestartCmdSlot() ));
+    lCmdGrpBox->insert(mGridRestartChkPtButton);
+  }
 
   // set up table for monitored parameters
   QVBoxLayout *lMonLayout = new QVBoxLayout(6, "montablayout");
@@ -245,11 +271,17 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
   connect(mSetChkPtFreqButton, SIGNAL( clicked() ), 
 	  mIOTypeChkPtTable, SLOT( emitValuesSlot()));
 
-  mRestartChkPtButton = new QPushButton( "Restart", this, "restartchkpt" );
-  mRestartChkPtButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
-  mRestartChkPtButton->setMaximumSize(mRestartChkPtButton->sizeHint());
-  QToolTip::add(mRestartChkPtButton, "Tell application to restart using requested checkpoint");
-  connect( mRestartChkPtButton, SIGNAL(clicked()), mIOTypeChkPtTable, SLOT(restartButtonPressedSlot()));
+  // MR: we only want to add the RestartChkPtButton to the ChkPtButtonLayout
+  //     if we're in local attach mode. If we're in grid attach mode then
+  //     we'll place the button on the top control panel, and use it to get
+  //     a GSH from an input dialog box instead.
+  if (mApplication->isLocal()){
+    mRestartChkPtButton = new QPushButton( "Restart", this, "restartchkpt" );
+    mRestartChkPtButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
+    mRestartChkPtButton->setMaximumSize(mRestartChkPtButton->sizeHint());
+    QToolTip::add(mRestartChkPtButton, "Tell application to restart using requested checkpoint");
+    connect( mRestartChkPtButton, SIGNAL(clicked()), mIOTypeChkPtTable, SLOT(restartButtonPressedSlot()));
+  }
 
   mSndChkPtButton = new QPushButton( "Create", this, "sndchkpt" );
   mSndChkPtButton->setMinimumSize(mSetChkPtFreqButton->sizeHint());
@@ -260,7 +292,10 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Ap
  
 
   lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
-  lChkPtButtonLayout->addWidget(mRestartChkPtButton);
+  // MR: RestartChkPtButton Local vs Grid
+  if (mApplication->isLocal())
+    lChkPtButtonLayout->addWidget(mRestartChkPtButton);
+
   lChkPtButtonLayout->addWidget(mSndChkPtButton);
   lChkPtButtonLayout->addWidget(mSetChkPtFreqButton);
   lChkPtLayout->addWidget(mIOTypeChkPtTable);
@@ -563,7 +598,10 @@ ControlForm::disableAll(const bool aUnRegister)
 void
 ControlForm::disableIOCmdButtons()
 {
-  mRestartChkPtButton->setEnabled(FALSE);
+  // MR: RestartChkPtButton Local vs Grid
+  if (mApplication->isLocal())
+    mRestartChkPtButton->setEnabled(FALSE);
+    
   mSndChkPtButton->setEnabled(FALSE); 
   mConsumeDataButton->setEnabled(FALSE);
   mEmitDataButton->setEnabled(FALSE);
@@ -574,8 +612,10 @@ ControlForm::enableIOCmdButtons()
 {
   if (mIOTypeChkPtTable->getNumIOTypes() > 0)
   {
-    mSndChkPtButton->setEnabled(TRUE); 
-    mRestartChkPtButton->setEnabled(TRUE);
+    mSndChkPtButton->setEnabled(TRUE);
+    // MR: RestartChkPtButton Local vs Grid
+    if (mApplication->isLocal())
+      mRestartChkPtButton->setEnabled(TRUE);
   }
 
   if (mIOTypeSampleTable->getNumIOTypes() > 0  ||
@@ -590,8 +630,13 @@ void
 ControlForm::disableButtons()
 {
   mEmitButton->setEnabled(FALSE); 
-  mSetSampleFreqButton->setEnabled(FALSE); 
-  mRestartChkPtButton->setEnabled(FALSE);
+  mSetSampleFreqButton->setEnabled(FALSE);
+  // MR: RestartChkPtButton Local vs Grid
+  if (mApplication->isLocal())
+    mRestartChkPtButton->setEnabled(FALSE);
+  else
+    mGridRestartChkPtButton->setEnabled(FALSE);
+
   mSndChkPtButton->setEnabled(FALSE); 
   mSetChkPtFreqButton->setEnabled(FALSE); 
   mEmitAllValuesButton->setEnabled(FALSE); 
@@ -659,7 +704,12 @@ ControlForm::enableSampleButtonsSlot()
 void 
 ControlForm::enableChkPtButtonsSlot()
 {
-  mRestartChkPtButton->setEnabled(TRUE);
+  // MR: RestartChkPtButton Local vs Grid
+  if (mApplication->isLocal())
+    mRestartChkPtButton->setEnabled(TRUE);
+  else
+    mGridRestartChkPtButton->setEnabled(TRUE);
+
   mSndChkPtButton->setEnabled(TRUE); 
   mSetChkPtFreqButton->setEnabled(TRUE);
 
@@ -672,7 +722,11 @@ ControlForm::enableChkPtButtonsSlot()
 // MR:
 void ControlForm::setRestartButtonStateSlot(const bool aEnable){
   if (mRestartChkPtButton != NULL)
-    mRestartChkPtButton->setEnabled(aEnable);
+    // MR: RestartChkPtButton Local vs Grid
+    if (mApplication->isLocal())
+      mRestartChkPtButton->setEnabled(aEnable);
+    else
+      mGridRestartChkPtButton->setEnabled(aEnable);
 }
 
 // MR:

@@ -67,7 +67,7 @@
 #include <qwidget.h>
 #include <qwidgetstack.h>
 
-SteererMainWindow::SteererMainWindow()
+SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
     mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
     mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
@@ -166,6 +166,13 @@ SteererMainWindow::SteererMainWindow()
 
 
   //statusBar()->setSizeGripEnabled(false);
+
+  // Check if we're auto connecting to a GSH
+  if (autoConnect){
+    simAttachApp((char*)aSGS);
+    cmdLineSGS = aSGS;
+  }
+  
 }
 
 
@@ -291,8 +298,8 @@ SteererMainWindow::attachGridAppSlot()
     {
       if ( lAttachForm->exec() == QDialog::Accepted ) 
       {
-	DBGMSG1("attach accepted, sim = ",  lAttachForm->getSimGSMSelected());
-	simAttachApp(lAttachForm->getSimGSMSelected());
+        DBGMSG1("attach accepted, sim = ",  lAttachForm->getSimGSMSelected());
+        simAttachApp(lAttachForm->getSimGSMSelected());
       }
     } 
     else
@@ -308,6 +315,11 @@ SteererMainWindow::attachGridAppSlot()
   }
   else
   {
+    // Check to see if we were passed an SGS on the command line
+    if (cmdLineSGS.length() > 0){
+      simAttachApp((char*)cmdLineSGS.latin1());
+    }
+    else
     QMessageBox::information(0, "Grid Proxy Unavailable", 
 			     "Local attach available only",
 			     QMessageBox::Ok,
@@ -318,7 +330,6 @@ SteererMainWindow::attachGridAppSlot()
   delete lAttachForm;
 
 }
-
 
 void 
 SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
@@ -338,15 +349,15 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
     {
       DBGMSG1("Attached: mSimHandle = ",lSimHandle);
       
-      mApplication = new Application(this, aSimID, lSimHandle);
+      mApplication = new Application(this, aSimID, lSimHandle, aIsLocal);
 
       // get supported command list from library and enable buttons appropriately
       mApplication->enableCmdButtons();
 
       if (aIsLocal)     
-	mAppTabs->addTab(mApplication, QString("Local Application"));
+        mAppTabs->addTab(mApplication, QString("Local Application"));
       else
-	mAppTabs->addTab(mApplication, QString(aSimID));
+        mAppTabs->addTab(mApplication, QString(aSimID));
       
 
       //need showpage otherwise only shown on first attach - why? SMR XXX
@@ -516,4 +527,6 @@ void SteererMainWindow::statusBarMessageSlot(QString &message){
 ///SMR	resize(900,800);
 ///SMR
 ///SMR}
+
+
 

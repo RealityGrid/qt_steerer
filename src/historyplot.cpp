@@ -41,6 +41,7 @@
 
 #include "qprinter.h"
 #include "qinputdialog.h"
+#include "qwt_symbol.h"
 
 
 /** Constructor
@@ -141,6 +142,11 @@ void HistoryPlot::doPlot(){
 
     // Set curve styles
     mPlotter->setCurvePen(cSin, QPen(red));
+    //cout << mPlotter->setCurveStyle(cSin, QwtCurve::Dots) << endl;
+    //QwtSymbol sym;
+    //sym.setStyle(QwtSymbol::DTriangle);
+    //sym.setSize(20);
+    //mPlotter->setCurveSymbol(cSin, sym);
 
     // allow the user to define the Y axis dims if desired
     if (!autoAxisSet){
