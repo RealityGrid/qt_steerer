@@ -135,7 +135,9 @@ int main( int argc, char ** argv )
   set_new_handler( failedNewHandler );
 
   int result = 1;
-   
+ 
+  // note no qApp->lock need here as commsthread not running
+  
   // initialise steerer via library
   if (Steerer_initialize() == REG_SUCCESS)		//ReG library
   {
@@ -153,7 +155,7 @@ int main( int argc, char ** argv )
     
     delete lSteererMainWindow;
 
-    if (Steerer_finalize() != REG_SUCCESS)
+    if (Steerer_finalize() != REG_SUCCESS)		//ReG library
       DBGEXCP("Steerer_finalize failed");
 
     return result;
