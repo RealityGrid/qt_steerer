@@ -70,7 +70,7 @@ protected slots:
 
 
 private:
-  void simAttachApp(char *aSimID);
+  void simAttachApp(char *aSimID, bool aIsLocal = false);
 
 private:
 

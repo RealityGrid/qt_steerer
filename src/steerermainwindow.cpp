@@ -123,6 +123,7 @@ SteererMainWindow::SteererMainWindow()
 
   // tab widget - each tab will be form for one steered application
   mAppTabs = new QTabWidget();
+
   mStack->addWidget(mAppTabs, 1);
 
   mRightLayout->addWidget(mStack);
@@ -198,7 +199,7 @@ SteererMainWindow::attachAppSlot()
   
   {
     /* Attempt to attach simulation */
-    simAttachApp("local");
+    simAttachApp("DEFAULT", true);
   }  
   else
   {
@@ -254,7 +255,7 @@ SteererMainWindow::attachGridAppSlot()
 
 
 void 
-SteererMainWindow::simAttachApp(char * aSimID)
+SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 {
 
   /* Attempt to attach ONE simulation */ 
@@ -269,11 +270,16 @@ SteererMainWindow::simAttachApp(char * aSimID)
       DBGMSG1("Wooohoooo - Attached: mSimHandle = ",lSimHandle);
       
       mApplication = new Application(this, aSimID, lSimHandle);
+
       // get supported command list from library and enable buttons appropriately
       mApplication->enableCmdButtons();
+
+      if (aIsLocal)     
+	mAppTabs->addTab(mApplication, QString("Local Application"));
+      else
+	mAppTabs->addTab(mApplication, QString(aSimID));
       
-      mAppTabs->addTab(mApplication, QString(aSimID));
-      
+
       //need showpage otherwise only shown on first attach - why? SMR XXX
       mAppTabs->showPage(mApplication);
       mStack->raiseWidget(mAppTabs);
@@ -306,7 +312,7 @@ SteererMainWindow::simAttachApp(char * aSimID)
       
       
       // resize - only do for first app attached? SMR XXX
-      resize(980, 800);   
+      resize(985, 800);   
       
       statusBar()->clear();
       
