@@ -218,6 +218,29 @@ SteererMainWindow::getApplication() const
   return mApplication; 
 }
 
+
+void
+SteererMainWindow::customEvent(QCustomEvent *aEvent)
+{
+  // this function will be executed when main GUI thread gets round to processing 
+  // the event posted by our CommsThread.
+
+  // only expect events with type (User+kSIGNAL_EVENT)
+  if (aEvent->type() == QEvent::User+kSIGNAL_EVENT)
+  {
+      DBGMSG("Steerer cleaning up..."); //SMR XXX make sure is correct event... to do
+      // detach from all apps and exit
+      cleanUp();
+      qApp->exit(0);
+  }
+  else
+  {
+    DBGMSG("SteererMainWindow::customEvent - unexpected event type");
+  }
+
+}
+
+
 bool
 SteererMainWindow::isThreadRunning() const
 {

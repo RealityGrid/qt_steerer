@@ -50,12 +50,77 @@
 #include "ReG_Steer_Steerside.h"
 
 #include <qapplication.h>
+#include <signal.h>
+
+//file scope global pointer pointing at this CommsThread object; need this to
+//when catch signal.  
+CommsThread *gCommsThreadPtr;
+
+extern "C" void threadSignalHandler(int aSignal)
+{
+  
+  // caught one signal - ignore all others now as going to quit and do not
+  // want the quit process to be interrupted and restarted...
+  signal(SIGINT, SIG_IGN);	//ctrl-c
+  signal(SIGTERM, SIG_IGN);	//kill (note cannot (and should not) catch kill -9)  
+  signal(SIGSEGV, SIG_IGN);
+  signal(SIGILL, SIG_IGN);
+  signal(SIGABRT, SIG_IGN);
+  signal(SIGFPE, SIG_IGN);
+
+  switch(aSignal)
+  {
+    case SIGINT:
+      cout << "Interrupt signal received (signal " << aSignal << ")" << endl;
+      break;
+      
+    case SIGTERM:
+      cout << "Kill signal received (signal " << aSignal << ")" << endl;
+      break;
+      
+    case SIGSEGV:
+      cout << "Illegal Access caught (signal " << aSignal << ")" << endl;
+      break;
+
+    case  SIGILL:
+      cout << "Illegal Exception caught (signal " << aSignal << ")" << endl;
+      break;
+
+      // note: abort called if exception not caught (and hence calls terminate)
+    case SIGABRT:
+      cout << "Abort signal caught (signal " << aSignal << ")" << endl;
+      break;
+
+    case SIGFPE:
+      cout << "Arithmetic Exception caught (signal " << aSignal << ")" << endl;
+      break;
+
+    default:
+      cout << "Signal caught (signal " << aSignal << ")" << endl;
+
+  }
+  
+  cout << "CommsThread received signal..." << endl;
+  gCommsThreadPtr->handleSignal();
+  
+
+}
+
 
 CommsThread::CommsThread(SteererMainWindow *aSteerer, int aCheckInterval)
   : mSteerer(aSteerer), mKeepRunningFlag(true), mCheckInterval(aCheckInterval)
 {
   DBGCON("CommsThread");
-  
+  gCommsThreadPtr = this; 
+
+  signal(SIGINT, threadSignalHandler);	//ctrl-c
+  signal(SIGTERM, threadSignalHandler);	//kill (note cannot (and should not) catch kill -9)  
+  signal(SIGSEGV, threadSignalHandler);
+  signal(SIGILL, threadSignalHandler);
+  signal(SIGABRT, threadSignalHandler);
+  signal(SIGFPE, threadSignalHandler);
+
+
 }
 
 CommsThread::~CommsThread()
@@ -67,6 +132,15 @@ CommsThread::~CommsThread()
     stop();
 }
 
+void
+CommsThread::handleSignal()
+{
+  DBGMSG("CommsThread::handleSignal - send event to main thread");
+
+  QCustomEvent *lEvent = new QCustomEvent(QEvent::User + kSIGNAL_EVENT);
+  postEvent(mSteerer, lEvent);
+    
+}
 
 void 
 CommsThread::setCheckInterval(const int aInterval)
@@ -88,6 +162,7 @@ CommsThread::getCheckInterval() const
 void
 CommsThread::stop()
 {
+
   // flag thread to stop running (get out of while loop)
   setKeepRunning(false);
 
@@ -101,6 +176,7 @@ CommsThread::stop()
 
   // reset flag for next run()
   setKeepRunning(true);
+
 
 }
 
@@ -122,7 +198,7 @@ CommsThread::run()
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
-    DBGMSG("Poling now");
+    DBGMSG("CommsThread Poling now");
 
     // reset lMsgType
     lMsgType = MSG_NOTSET;
@@ -148,11 +224,10 @@ CommsThread::run()
       CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
       postEvent(mSteerer->getApplication(), lEvent);
     }
-
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
-  
-  }
 
+  }
+  DBGMSG("Leaving CommsThread::run");
 }
 
 void
@@ -164,7 +239,7 @@ CommsThread::setKeepRunning(const bool aFlag)
 
 
 CommsThreadEvent::CommsThreadEvent(REG_MsgType aMsgType)
-  : QCustomEvent(QEvent::User + 100), mMsgType(aMsgType)
+  : QCustomEvent(QEvent::User + kMSG_EVENT), mMsgType(aMsgType)
 { 
   // class to extend QCustomEvent to hold mMsgType
   DBGCON("CommsThreadEvent");

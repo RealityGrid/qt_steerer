@@ -63,7 +63,8 @@ public:
   ~SteererMainWindow();
 
   Application * getApplication() const;  //SMR XXX const?
- 
+  void customEvent(QCustomEvent *);
+
 private:
   void cleanUp();
 

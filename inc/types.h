@@ -91,5 +91,11 @@
 #define kMIN_POLING_INT		100
 
 
+// Unique numbers to make QCustomEvent IDs for postEvent from  CommsThread.cpp
+#define kMSG_EVENT		100
+#define kSIGNAL_EVENT		200
+ 
+
+
 #endif
 

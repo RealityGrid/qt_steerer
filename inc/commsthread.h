@@ -54,6 +54,7 @@ public:
     void setCheckInterval(const int aInterval);
     int getCheckInterval() const;
     void stop();
+    void handleSignal();
 
 protected:
     virtual void run();

@@ -177,6 +177,8 @@ int main( int argc, char ** argv )
     
     delete lSteererMainWindow;
 
+    DBGLOG("Steerer quitting.");
+
     if (Steerer_finalize() != REG_SUCCESS)		//ReG library
       DBGEXCP("Steerer_finalize failed");
 

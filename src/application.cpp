@@ -37,7 +37,7 @@
     
 ---------------------------------------------------------------------------*/
 
-
+#include "types.h"
 #include "application.h"
 #include "controlform.h"
 #include "debug.h"
@@ -405,13 +405,17 @@ Application::customEvent(QCustomEvent *aEvent)
   // - alternative is to have CommsThread execute processNextMessage 
   // but then we need to worry about locking within Qt GUI related methods
 
-  // only expect events with type (User+100)
-  if (aEvent->type() == QEvent::User+100)
+  // only expect events with type (User+kMSG_EVENT)
+  if (aEvent->type() == QEvent::User+kMSG_EVENT)
   {
     CommsThreadEvent *lEvent = (CommsThreadEvent *) aEvent;
     qApp->lock();
     processNextMessage(lEvent->getMsgType());
     qApp->unlock();
+  }
+  else
+  {
+    DBGMSG("Application::customEvent -  unexpected event type");
   }
 
 }
