@@ -38,6 +38,7 @@
 #include "exception.h"
 #include "iotypetable.h"
 
+#include <qapplication.h>
 #include <qmessagebox.h>
 #include <qtable.h>
 
@@ -560,12 +561,18 @@ IOTypeTable::setNewFreqValuesInLib()
 	++mIOTypeIterator;
 	
       }
-      
+
+      int lReGStatus = REG_FAILURE;
+
+      qApp->lock();
+      lReGStatus = Set_iotype_freq(getSimHandle(),			//ReG library
+				   lIndex,
+				   lHandles,
+				   lFreqs);
+      qApp->unlock();
+
       // set the values in the steering library
-      if (Set_iotype_freq(getSimHandle(),			//ReG library
-			  lIndex,
-			  lHandles,
-			  lFreqs) != REG_SUCCESS)
+      if (lReGStatus != REG_SUCCESS)
       {
 	THROWEXCEPTION("Set_iotype_freq");
       }
@@ -603,16 +610,21 @@ IOTypeTable::emitValuesSlot()
   // and "emit" these to the steered application
   // the new value cells in the table will be cleared as part of this
   // ready for user to enter the next values
+  int lReGStatus = REG_FAILURE;
 
   try 
   {
 
     if (setNewFreqValuesInLib() > 0)
     {  
+      qApp->lock();
       // "emit" values to steered application
-      if (Emit_control(getSimHandle(),				//ReG library
-		       0,
-		       NULL) != REG_SUCCESS)
+      lReGStatus = Emit_control(getSimHandle(),				//ReG library
+				0,
+				NULL);
+      qApp->unlock();
+
+      if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
     }
     else

@@ -40,6 +40,7 @@
 #include "ReG_Steer_Steerside.h"
 #include "exception.h"
 
+#include <qapplication.h>
 #include <qgroupbox.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -144,9 +145,14 @@ void Application::detachFromApplication()
   int lSimHandle = mSimHandle;
 
   DBGMSG("Do Sim_detach");
+  int lReGStatus = REG_FAILURE;
+
+  qApp->lock();
+  lReGStatus = Sim_detach(&lSimHandle);		// ReG library
+  qApp->unlock();
 
   // note Sim_Detach always returns REG_SUCCESS surrrently!
-  if (Sim_detach(&lSimHandle) != REG_SUCCESS)		// ReG library
+  if (lReGStatus != REG_SUCCESS)
     DBGEXCP("Sim_detach");
 
   // flag as detached so destructor knows not to detach
@@ -179,6 +185,7 @@ void
 Application::enableCmdButtons() 
 {
   // Enable/disable single command buttons for application
+  int lReGStatus = REG_FAILURE;
 
   // get supported commands via ReG library, populate id array and enable buttons
   // note that the supported cmds remain static for duration of steering application
@@ -190,14 +197,21 @@ Application::enableCmdButtons()
 
   try
   {
-        
-    if (Get_supp_cmd_number(mSimHandle, &mNumCommands) == REG_SUCCESS)		//ReG library
+    qApp->lock();
+    lReGStatus = Get_supp_cmd_number(mSimHandle, &mNumCommands);	//ReG library 
+    qApp->unlock();
+
+    if (lReGStatus == REG_SUCCESS)
     {  
       if (mNumCommands > 0)
       {
 	lCmdIds = new int[mNumCommands];
-	
-	if (Get_supp_cmds(mSimHandle, mNumCommands, lCmdIds) != REG_SUCCESS)  	//ReG library 
+
+	qApp->lock();
+	lReGStatus = Get_supp_cmds(mSimHandle, mNumCommands, lCmdIds);	//ReG library 
+	qApp->unlock();
+
+	if (lReGStatus != REG_SUCCESS)
 	  THROWEXCEPTION("Get_supp_cmds");
       }
     }
@@ -344,15 +358,20 @@ Application::emitSingleCmd(int aCmdId)
 {
   // send single command to application using ReG library
   DBGMSG1("Send Cmd id ",aCmdId);
- 
+  int lReGStatus = REG_FAILURE;
+
   int lCommandArray[1];
   lCommandArray[0] = aCmdId;
  
   try 
   {
-    if (Emit_control(mSimHandle,			//ReG library 
-		     1,
-		     lCommandArray) != REG_SUCCESS)
+    qApp->lock();
+    lReGStatus = Emit_control(mSimHandle,			//ReG library 
+			      1,
+			      lCommandArray);
+    qApp->unlock();
+
+    if (lReGStatus != REG_SUCCESS)
       THROWEXCEPTION("Emit control");
   }
 
@@ -384,7 +403,9 @@ Application::customEvent(QCustomEvent *aEvent)
   if (aEvent->type() == QEvent::User+100)
   {
     CommsThreadEvent *lEvent = (CommsThreadEvent *) aEvent;
+    qApp->lock();
     processNextMessage(lEvent->getMsgType());
+    qApp->unlock();
   }
 
 }
@@ -411,6 +432,7 @@ Application::processNextMessage(REG_MsgType aMsgType)
     case IO_DEFS:
       
       DBGMSG("Got IOdefs message");
+
       if(Consume_IOType_defs(mSimHandle) != REG_SUCCESS)	//ReG library 
       {
 	THROWEXCEPTION("Consume_IOType_defs failed");

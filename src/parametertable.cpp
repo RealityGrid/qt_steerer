@@ -40,6 +40,7 @@
 #include "exception.h"
 #include "parametertable.h"
 
+#include <qapplication.h>
 #include <qmessagebox.h>
 
 
@@ -268,6 +269,7 @@ SteeredParameterTable::initTable()
   setColumnReadOnly(kNAME_COLUMN, TRUE);
   setColumnReadOnly(kREG_COLUMN, TRUE);
   setColumnReadOnly(kVALUE_COLUMN, TRUE);
+  setColumnReadOnly(kSPLIT, TRUE);
 
   hideColumn(kID_COLUMN);
   setColumnWidth(kREG_COLUMN, 90);
@@ -483,11 +485,17 @@ SteeredParameterTable::setNewParamValuesInLib()
 	++mParamIterator;
       }
       
+      int lReGStatus = REG_FAILURE;
+
+      qApp->lock();
       // set the values in the steering library
-      if (Set_param_values(getSimHandle(),			//ReG library
-			   lIndex,
-			   lHandles,
-			   lVals) != REG_SUCCESS)
+      lReGStatus = Set_param_values(getSimHandle(),			//ReG library
+				    lIndex,
+				    lHandles,
+				    lVals);
+      qApp->unlock();
+
+      if (lReGStatus != REG_SUCCESS)
       {
 	THROWEXCEPTION("Set_param_values");
       }
@@ -531,16 +539,22 @@ SteeredParameterTable::emitValuesSlot()
   // the new value cells in the table will be cleared as part of this
   // ready for user to enter the next values
 
+  int lReGStatus = REG_FAILURE;
   try
   {
 
     // set the values in the library
     if (setNewParamValuesInLib() > 0)
     {
+
+      qApp->lock();
       // call ReG library function to "emit" values to steered application
-      if (Emit_control(getSimHandle(),		//ReG library
-		       0,
-		       NULL) != REG_SUCCESS)
+      lReGStatus = Emit_control(getSimHandle(),		//ReG library
+				0,
+				NULL);
+      qApp->unlock();
+     
+      if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
       
       // note: steerer has no control over when the application will actually read these new values

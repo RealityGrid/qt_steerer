@@ -42,6 +42,7 @@
 #include "utility.h"
 #include "exception.h"
 
+#include <qapplication.h>
 #include <qhbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
@@ -258,6 +259,7 @@ ControlForm::updateParameters(bool aSteeredFlag)
   char  **lLabels = kNULL;
   char  **lVals = kNULL;
   bool lCleanUpFlag = false;
+
 
   try
   {
@@ -566,7 +568,7 @@ void
 ControlForm::emitAllValuesSlot()
 {
   // emit both parameter values and iotype frequencies
-  
+  int lReGStatus = REG_FAILURE;
   try
   {
 
@@ -578,9 +580,13 @@ ControlForm::emitAllValuesSlot()
     if (lCount > 0)
     {
       // call ReG library function to "emit" values to steered application
-      if (Emit_control(mSimHandle,		//ReG library
-		       0,
-		       NULL) != REG_SUCCESS)
+      qApp->lock();
+      lReGStatus = Emit_control(mSimHandle,		//ReG library
+				0,
+				NULL);
+      qApp->unlock();
+
+      if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
       
     }
@@ -611,7 +617,7 @@ ControlForm::emitAllIOCommandsSlot()
 void 
 ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
 {
-
+  int lReGStatus = REG_FAILURE;
   bool lAddCmdFlag = false;
 
   if (aAdditionalCmd == REG_STR_DETACH)
@@ -653,10 +659,15 @@ ControlForm::emitAllIOCommands(const int aAdditionalCmd, bool aForceEmitFlag)
     }
    
     if (lRealTotalCount > 0 || aForceEmitFlag == true)
-    {  
-      if (Emit_control(mSimHandle,			//ReG library
-		       lRealTotalCount,
-		       lCommandArray) != REG_SUCCESS)
+    { 
+      qApp->lock();
+      lReGStatus = Emit_control(mSimHandle,			//ReG library
+				lRealTotalCount,
+				lCommandArray);
+      
+      qApp->unlock();
+
+      if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
     }
     

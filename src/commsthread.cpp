@@ -44,6 +44,7 @@
 
 #include "ReG_Steer_Steerside.h"
 
+#include <qapplication.h>
 
 CommsThread::CommsThread(SteererMainWindow *aSteerer, int aCheckInterval)
   : mSteerer(aSteerer), mKeepRunningFlag(true), mCheckInterval(aCheckInterval)
@@ -110,13 +111,25 @@ CommsThread::run()
 
   DBGMSG("CommsThread starting");
   
+  // add sleep to give GUI chance to finsh posting new form SMR XXX thread bug fix
+  msleep(3000);
+
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
     DBGMSG("Poling now");
+
+    // reset lMsgType
+    lMsgType = MSG_NOTSET;
+
+    // hold qt library mutex for call
+    qApp->lock();
+
     // Get_next_message always returns  REG_SUCCESS currently
     if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)	//ReG library
       DBGEXCP("Get_next_message error");
+
+    qApp->unlock();
 
     if (lMsgType != MSG_NOTSET)
     {
@@ -129,7 +142,6 @@ CommsThread::run()
       /// SMR XXX make this member of COmmsThread and resue rather than new each time - chk when QT dlete ?
       CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
       postEvent(mSteerer->getApplication(), lEvent);
-
     }
 
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds

@@ -308,13 +308,16 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 {
 
   /* Attempt to attach ONE simulation */ 
-
+  int lReGStatus = REG_FAILURE;
   int lSimHandle = -1;
 
   try
   {
+    qApp->lock();
+    lReGStatus = Sim_attach(aSimID, &lSimHandle);	//ReG library
+    qApp->unlock();
 
-    if (Sim_attach(aSimID, &lSimHandle) == REG_SUCCESS)		//ReG library
+    if (lReGStatus == REG_SUCCESS)
     {
       DBGMSG1("Wooohoooo - Attached: mSimHandle = ",lSimHandle);
       
@@ -343,6 +346,13 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       mAttachButton->setEnabled(FALSE);
       mGridAttachButton->setEnabled(FALSE);
       
+      mLogoLabel->show();
+      // resize - only do for first app attached? SMR XXX
+      resize(985, 820);     
+     
+      statusBar()->clear();
+
+      DBGMSG("posted now start commsthread");
       // set off comms thread iff it's not already running
       // process messages form all steered applications	
       if (!isThreadRunning())
@@ -360,14 +370,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 	  THROWEXCEPTION("Thread creation failed");
 	  ///SMR mReadMsgButton->setEnabled(TRUE);
 	}
-      }
-      
-      mLogoLabel->show();
-      // resize - only do for first app attached? SMR XXX
-      resize(985, 820);     
-     
-      statusBar()->clear();
-      
+      }            
       
     }
     else
