@@ -84,6 +84,9 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   //make a central widget to contain the other widgets
   mCentralWgt = new QWidget( this );
+  QFont f = mCentralWgt->font();
+  f.setPointSize(9);
+  mCentralWgt->setFont(f);
   setCentralWidget(mCentralWgt);
    
   // set up actions for configure check interval, attach and quit
@@ -141,13 +144,15 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mQuitAction->setEnabled(TRUE);
 
   // Create layouts to position the widgets
-  mTopLayout = new QHBoxLayout( mCentralWgt, 5);
+  mTopLayout = new QHBoxLayout( mCentralWgt, 2);
   
   // set up the ReG logo
   mStackLogoLabel = new QLabel(mCentralWgt);
   mStackLogoPixMap = new QPixmap();
-  if (mStackLogoPixMap->load("logo-sm.bmp"))
+  if (mStackLogoPixMap->load("logo-sm.bmp")){
     mStackLogoLabel->setPixmap(*mStackLogoPixMap);
+    mCentralWgt->setIcon(*mStackLogoPixMap);
+  }
   else
   {
     mStackLogoLabel->setText("RealityGrid");
@@ -443,7 +448,6 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   unsigned int i;
   // close the window for the application
   // this can only be done when detached from application
-  DBGMSG1("Close button hit and signalled to main window... ", aSimHandle);
 
   // If this was last application being steered, stop the CommsThread
   if((mAppList.count() == 1) && isThreadRunning() ){
