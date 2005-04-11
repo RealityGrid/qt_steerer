@@ -90,7 +90,8 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bo
   // Ensure that instances of this table aren't drawn too large,
   // since they're unlikely to be particularly full
   setMinimumHeight(70);
-  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
+  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, 
+			    QSizePolicy::MinimumExpanding));
 }
 
 IOTypeTable::~IOTypeTable()
