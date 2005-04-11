@@ -32,6 +32,10 @@
     
 ---------------------------------------------------------------------------*/
 
+/**
+ * @file controlform.h
+ * @brief Header file for form displaying details of attached app. */
+
 #ifndef __CONTROL_FORM_H__
 #define __CONTROL_FORM_H__
 
@@ -81,6 +85,12 @@ public:
    * @return        pointer to Application object.
    */
   Application *application();
+
+  /**
+   * Method to show or hide the checkpoint table and associated label
+   * and buttons.
+   */
+  void hideChkPtTable(bool flag);
 
 private:
   void updateParameters(bool aSteeredFlag);
