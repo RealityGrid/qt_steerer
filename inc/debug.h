@@ -35,7 +35,8 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 
 // some simple different cerrs for debug versions
 
