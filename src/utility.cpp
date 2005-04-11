@@ -47,7 +47,11 @@ TableLabel::TableLabel(const QString & text, QWidget * parent)
   : QLabel(text, parent)
 {
   DBGCON("TableLabel");
-  setFont(QFont( "Times", 9, QFont::DemiBold ));
+  QFont lFont = font();
+  lFont.setWeight(QFont::DemiBold);
+  lFont.setPointSize(lFont.pointSize()-1);
+  setFont(lFont);
+  //setFont(QFont( "Times", 9, QFont::DemiBold ));
 }
 
 TableLabel::~TableLabel()
