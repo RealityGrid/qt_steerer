@@ -89,6 +89,11 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle, bo
   // old style status text on app creation. Do it  here instead
   QString message = QString("Attached to application");
   mSteerer->statusBarMessageSlot(this, message);
+
+  mChkTableVisible = true;
+  mIOTableVisible = true;
+  mSteerTableVisible = true;
+  mMonTableVisible = true;
 } 
 
 Application::~Application()
@@ -658,4 +663,50 @@ QString Application::getCurrentStatus(){
   return mStatusTxt;
 }
 
+void Application::hideChkPtTable(bool flag){
+  if(mControlForm)mControlForm->hideChkPtTable(flag);
+}
 
+void Application::hideIOTable(bool flag){
+  if(mControlForm)mControlForm->hideIOTable(flag);
+}
+
+void Application::hideSteerTable(bool flag){
+  if(mControlForm)mControlForm->hideSteerTable(flag);
+}
+
+void Application::hideMonTable(bool flag){
+  if(mControlForm)mControlForm->hideMonTable(flag);
+}
+
+bool Application::monTableVisible(){
+  return mMonTableVisible;
+}
+
+bool Application::steerTableVisible(){
+  return mSteerTableVisible;
+}
+
+bool Application::ioTableVisible(){
+  return mIOTableVisible;
+}
+
+bool Application::chkTableVisible(){
+  return mChkTableVisible;
+}
+
+void Application::setMonTableVisible(bool flag){
+  mMonTableVisible = flag;
+}
+
+void Application::setSteerTableVisible(bool flag){
+  mSteerTableVisible = flag;
+}
+
+void Application::setIOTableVisible(bool flag){
+  mIOTableVisible = flag;
+}
+
+void Application::setChkTableVisible(bool flag){
+  mChkTableVisible = flag;
+}

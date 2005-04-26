@@ -32,6 +32,9 @@
     
 ---------------------------------------------------------------------------*/
 
+/** @file application.h
+ *  @brief Header file for class holding details on application being steered.
+ */
 
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
@@ -64,6 +67,19 @@ public:
   int  getHandle();
   void setCurrentStatus(QString &msg);
   QString getCurrentStatus();
+  void hideChkPtTable(bool flag);
+  void hideIOTable(bool flag);
+  void hideSteerTable(bool flag);
+  void hideMonTable(bool flag);
+
+  bool monTableVisible();
+  bool steerTableVisible();
+  bool ioTableVisible();
+  bool chkTableVisible();
+  void setMonTableVisible(bool flag);
+  void setSteerTableVisible(bool flag);
+  void setIOTableVisible(bool flag);
+  void setChkTableVisible(bool flag);
 
 private:
   void detachFromApplication();
@@ -100,6 +116,10 @@ private:
 
   bool mIsLocal;
 
+  bool mChkTableVisible;
+  bool mIOTableVisible;
+  bool mSteerTableVisible;
+  bool mMonTableVisible;
 
 };
 

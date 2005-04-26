@@ -129,7 +129,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // put actions in menu
   QPopupMenu *lConfigMenu = new QPopupMenu( this );
-  menuBar()->insertItem( "Steerer", lConfigMenu );
+  menuBar()->insertItem( "&Steerer", lConfigMenu );
   mAttachAction->addTo(lConfigMenu);
   mGridAttachAction->addTo(lConfigMenu);
   mSetCheckIntervalAction->addTo(lConfigMenu);
@@ -170,6 +170,40 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mTopLayout->addWidget(mStack);
   mStack->addWidget(mStackLogoLabel);
   mStack->raiseWidget(mStackLogoLabel);
+
+  // Second menu to configure view
+  QPopupMenu *lViewMenu = new QPopupMenu(this);
+  menuBar()->insertItem("&View", lViewMenu);
+
+  mHideChkPtTableAction = new QAction("Hide CheckPoint table", 
+				      "Hide &CheckPoint table",
+			      CTRL+Key_C, this, "hidechkaction");
+  connect( mHideChkPtTableAction, SIGNAL(activated()), this, 
+	   SLOT(hideChkPtTableSlot()) );
+  mHideChkPtTableAction->addTo(lViewMenu);
+
+  mHideIOTableAction = new QAction("Hide IO table", 
+				   "Hide &IO table",
+				   CTRL+Key_I, this, "hideIOaction");
+  connect( mHideIOTableAction, SIGNAL(activated()), this, 
+	   SLOT(hideIOTableSlot()) );
+  mHideIOTableAction->addTo(lViewMenu);
+
+  mHideSteerTableAction = new QAction("Hide Steered Params table",
+				      "Hide &Steered Params table",
+				      CTRL+Key_S, this, 
+				      "hideSteeraction");
+  connect(mHideSteerTableAction, SIGNAL(activated()), this,
+	  SLOT(hideSteerTableSlot()));
+  mHideSteerTableAction->addTo(lViewMenu);
+
+  mHideMonTableAction = new QAction("Hide Monitored Params table",
+				    "Hide &Monitored Params table",
+				    CTRL+Key_M, this,
+				    "hideMonaction");
+  connect(mHideMonTableAction, SIGNAL(activated()), this,
+	  SLOT(hideMonTableSlot()));
+  mHideMonTableAction->addTo(lViewMenu);
 
   // Catch tab changes so we can keep the status bar relevant
   connect(mAppTabs, SIGNAL(currentChanged(QWidget *)), this, 
@@ -589,5 +623,132 @@ void
 SteererMainWindow::tabChangedSlot(QWidget *aWidget)
 {
   DBGMSG("Tab changed");
-  statusBar()->message( ((Application *)aWidget)->getCurrentStatus() );
+  Application *aApp;
+  aApp = (Application *)aWidget;
+
+  // Update the status bar so it is relevant to this tab
+  statusBar()->message( aApp->getCurrentStatus() );
+
+  // Ensure the View menu reflects what is being displayed on this
+  // tab
+  if(aApp->chkTableVisible()){
+    mHideChkPtTableAction->setMenuText("Hide &CheckPoint table");
+
+  }
+  else{
+    mHideChkPtTableAction->setMenuText("Show &CheckPoint table");
+  }
+
+  if(aApp->ioTableVisible()){
+    mHideIOTableAction->setMenuText("Hide &IO table");
+  }
+  else{
+    mHideIOTableAction->setMenuText("Show &IO table");
+  }
+
+  if(aApp->steerTableVisible()){
+    mHideSteerTableAction->setMenuText("Hide &Steered Params table");
+  }
+  else{
+    mHideSteerTableAction->setMenuText("Show &Steered Params table");
+  }
+
+  if(aApp->monTableVisible()){
+    mHideMonTableAction->setMenuText("Hide &Monitored Params table");
+  }
+  else{
+    mHideMonTableAction->setMenuText("Show &Monitored Params table");
+  }
+}
+
+void SteererMainWindow::hideChkPtTableSlot()
+{
+  cout << "ARPDBG - SteererMainWindow::hideChkPtTableSlot" << endl;
+  Application *aApp;
+
+  if( (aApp = (Application *)(mAppTabs->currentPage())) ){
+
+    if(aApp->chkTableVisible()){
+      aApp->hideChkPtTable(true);
+      mHideChkPtTableAction->setMenuText("Show &CheckPoint table");
+      aApp->setChkTableVisible(false);
+    }
+    else{
+      aApp->hideChkPtTable(false);
+      mHideChkPtTableAction->setMenuText("Hide &CheckPoint table");
+      aApp->setChkTableVisible(true);
+    }
+  }
+  else{
+    cout << "ARPDBG - no visible widget??" << endl;
+  }
+}
+
+void SteererMainWindow::hideIOTableSlot()
+{
+  cout << "ARPDBG - SteererMainWindow::hideIOTableSlot" << endl;
+  Application *aApp;
+
+  if( (aApp = (Application *)(mAppTabs->currentPage())) ){
+
+    if(aApp->ioTableVisible()){
+      aApp->hideIOTable(true);
+      mHideIOTableAction->setMenuText("Show &IO table");
+      aApp->setIOTableVisible(false);
+    }
+    else{
+      aApp->hideIOTable(false);
+      mHideIOTableAction->setMenuText("Hide &IO table");
+      aApp->setIOTableVisible(true);
+    }
+  }
+  else{
+    cout << "ARPDBG - no visible widget??" << endl;
+  }
+}
+
+void SteererMainWindow::hideSteerTableSlot()
+{
+  cout << "ARPDBG - SteererMainWindow::hideSteerTableSlot" << endl;
+  Application *aApp;
+
+  if( (aApp = (Application *)(mAppTabs->currentPage())) ){
+
+    if(aApp->steerTableVisible()){
+      aApp->hideSteerTable(true);
+      mHideSteerTableAction->setMenuText("Show &Steered Params table");
+      aApp->setSteerTableVisible(false);
+    }
+    else{
+      aApp->hideSteerTable(false);
+      mHideSteerTableAction->setMenuText("Hide &Steered Params table");
+      aApp->setSteerTableVisible(true);
+    }
+  }
+  else{
+    cout << "ARPDBG - no visible widget??" << endl;
+  }
+}
+
+void SteererMainWindow::hideMonTableSlot()
+{
+  cout << "ARPDBG - SteererMainWindow::hideMonTableSlot" << endl;
+  Application *aApp;
+
+  if( (aApp = (Application *)(mAppTabs->currentPage())) ){
+    
+    if(aApp->monTableVisible()){
+      aApp->hideMonTable(true);
+      mHideMonTableAction->setMenuText("Show &Monitored Params table");
+      aApp->setMonTableVisible(false);
+    }
+    else{
+      aApp->hideMonTable(false);
+      mHideMonTableAction->setMenuText("Hide &Monitored Params table");
+      aApp->setMonTableVisible(true);
+    }
+  }
+  else{
+    cout << "ARPDBG - no visible widget??" << endl;
+  }
 }

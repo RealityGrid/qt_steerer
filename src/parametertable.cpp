@@ -148,8 +148,14 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
     // update the parameter value and call updateCell to make sure display is updated immediately
     // Note: we could make the QTableItem displayed in this cell a member of parameter class
     // and just update that each time SMR XXX to check.
-
-    item(lParamPtr->getRowIndex(), kVALUE_COLUMN)->setText(QString( lVal));
+    if(lParamPtr->getType() == REG_FLOAT || lParamPtr->getType() == REG_DBL){
+      double lTmp;
+      sscanf(lVal, "%lf", &lTmp);
+      item(lParamPtr->getRowIndex(), kVALUE_COLUMN)->setText(QString::number(lTmp));
+    }
+    else{
+      item(lParamPtr->getRowIndex(), kVALUE_COLUMN)->setText(QString( lVal));
+    }
 
     updateCell(lParamPtr->getRowIndex(),kVALUE_COLUMN);
 
@@ -192,8 +198,17 @@ ParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, 
   setText(lRowIndex, kNAME_COLUMN, lLabel);
   setText(lRowIndex, kREG_COLUMN, "Yes");
   
-  setItem(lRowIndex, kVALUE_COLUMN, new QTableItem(this, QTableItem::Never,  QString( lVal)));
-    
+  if(lType == REG_FLOAT || lType == REG_DBL){
+    double lTmp;
+    sscanf(lVal, "%lf", &lTmp);
+    setItem(lRowIndex, kVALUE_COLUMN, 
+	    new QTableItem(this, QTableItem::Never,  QString::number(lTmp)));
+  }
+  else{
+    setItem(lRowIndex, kVALUE_COLUMN, 
+	    new QTableItem(this, QTableItem::Never,  QString( lVal)));
+  }
+
   lParamPtr->setIndex(lRowIndex);
 
   // Don't store this initial value in the parameter's history because

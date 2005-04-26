@@ -152,18 +152,23 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   //--------------------------------------
   // set up table for monitored parameters
-  TableLabel *lMonTableLabel = new TableLabel("Monitored Parameters", 
-					      this);
+  mMonTableLabel = new TableLabel("Monitored Parameters", 
+				  this);
   mMonParamTable = new ParameterTable(this, "monparamtable", 
 				      aSimHandle);
   mMonParamTable->initTable();
 
   QVBoxLayout *lTopLeftLayout = new QVBoxLayout(-1, "topleftlayout");
-  lTopLeftLayout->addWidget(lMonTableLabel);
+  lTopLeftLayout->addWidget(mMonTableLabel);
   lTopLeftLayout->addWidget(mMonParamTable);
 
   //-----------------------------
   // table for steered parameters
+  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", 
+					       mMonParamTable, aSimHandle);
+  mSteerParamTable->initTable();
+  connect(mSteerParamTable, SIGNAL(detachFromApplicationForErrorSignal()), 
+	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
 
   // set up buttons for steered parameters
   mEmitButton = new QPushButton( "Tell", this, "tellvalue" );
@@ -171,7 +176,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   connect( mEmitButton, SIGNAL( clicked() ), mSteerParamTable, 
 	   SLOT( emitValuesSlot() ) );
 
-  TableLabel *lStrTableLabel = new TableLabel("Steered Parameters", this);
+  mSteerTableLabel = new TableLabel("Steered Parameters", this);
 
   QHBoxLayout *lSteeredLableLayout = new QHBoxLayout(-1, 
 						     "SteeredLableLayout");
@@ -179,14 +184,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 						QSizePolicy::Minimum));
   lSteeredLableLayout->addWidget(mEmitButton);
 
-  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", 
-					       mMonParamTable, aSimHandle);
-  mSteerParamTable->initTable();
-  connect(mSteerParamTable, SIGNAL(detachFromApplicationForErrorSignal()), 
-	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
-
   QVBoxLayout *lSteerLayout = new QVBoxLayout(-1, "SteerLayout");
-  lSteerLayout->addWidget(lStrTableLabel);
+  lSteerLayout->addWidget(mSteerTableLabel);
   lSteerLayout->addWidget(mSteerParamTable);
   lSteerLayout->addLayout(lSteeredLableLayout);
 
@@ -218,7 +217,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   QVBoxLayout *lSampleLayout = new QVBoxLayout(-1, "sampletablayout");
   QHBoxLayout *lSampleButtonLayout = new QHBoxLayout(-1, "samplebuttons");
 
-  TableLabel *lIOTypeLabel = new TableLabel("Data IO", this);
+  mIOTableLabel = new TableLabel("Data IO", this);
 
   lSampleButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
   						QSizePolicy::Minimum));
@@ -226,7 +225,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   lSampleButtonLayout->addWidget(mEmitDataButton);
   lSampleButtonLayout->addWidget(mSetSampleFreqButton);
 
-  lSampleLayout->addWidget(lIOTypeLabel);
+  lSampleLayout->addWidget(mIOTableLabel);
   lSampleLayout->addWidget(mIOTypeSampleTable);
   lSampleLayout->addLayout(lSampleButtonLayout);
 
@@ -267,7 +266,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   QVBoxLayout *lChkPtLayout = new QVBoxLayout(-1, "chktablayout");
   QHBoxLayout *lChkPtButtonLayout = new QHBoxLayout(-1, "chkptbuttons");
 
-  TableLabel *lChkTableLabel = new TableLabel("CheckPoint Types", this);
+  mChkTableLabel = new TableLabel("CheckPoint Types", this);
   lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
 					       QSizePolicy::Minimum));
   // MR: RestartChkPtButton Local vs Grid
@@ -277,7 +276,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   lChkPtButtonLayout->addWidget(mSndChkPtButton);
   lChkPtButtonLayout->addWidget(mSetChkPtFreqButton);
 
-  lChkPtLayout->addWidget(lChkTableLabel);
+  lChkPtLayout->addWidget(mChkTableLabel);
   lChkPtLayout->addWidget(mIOTypeChkPtTable);
   lChkPtLayout->addLayout(lChkPtButtonLayout);
 
@@ -408,7 +407,10 @@ ControlForm::updateParameters(bool aSteeredFlag)
       
 		    } 
 		} //for lNumParams
-      
+
+	      // Adjust width of first column holding labels      
+	      lTablePtr->adjustColumn(0);
+
 	    } // if Get_param_values
 	  else
 	    {
@@ -798,17 +800,53 @@ Application *ControlForm::application()
 void ControlForm::hideChkPtTable(bool flag){
 
   cout << "ARPDBG ControlForm::hideChkPtTable" << endl;
+  if(mSetChkPtFreqButton) mSetChkPtFreqButton->setHidden(flag);
   if(mIOTypeChkPtTable)mIOTypeChkPtTable->setHidden(flag);
-  if(mSetChkPtFreqButton)mSetChkPtFreqButton->setHidden(flag);
-  /*
-  if(flag){
-    if(mIOTypeChkPtTable)mIOTypeChkPtTable->hide();
-    if(mSetChkPtFreqButton)mSetChkPtFreqButton->hide();
+  if(mSndChkPtButton)mSndChkPtButton->setHidden(flag);
+  if (mApplication && mApplication->isLocal()){
+    mRestartChkPtButton->setHidden(flag);
   }
-  else{
-    if(mIOTypeChkPtTable)mIOTypeChkPtTable->show();
-    if(mSetChkPtFreqButton)mSetChkPtFreqButton->show();
+  if(mChkTableLabel)mChkTableLabel->setHidden(flag);
 
-  }
-  */
+  this->update();
+}
+
+/**
+ * Method to show or hide the IOTypes table and associated label
+ * and buttons.
+ */
+void ControlForm::hideIOTable(bool flag){
+
+  if(mEmitDataButton)mEmitDataButton->setHidden(flag);
+  if(mSetSampleFreqButton)mSetSampleFreqButton->setHidden(flag);
+  if(mConsumeDataButton)mConsumeDataButton->setHidden(flag);
+  if(mIOTypeSampleTable)mIOTypeSampleTable->setHidden(flag);
+  if(mIOTableLabel)mIOTableLabel->setHidden(flag);
+
+  this->update();
+}
+
+/**
+ * Method to show or hide the steered params table and associated
+ * label and buttons.
+ */
+void ControlForm::hideSteerTable(bool flag){
+
+  if(mSteerParamTable)mSteerParamTable->setHidden(flag);
+  if(mEmitButton)mEmitButton->setHidden(flag);
+  if(mSteerTableLabel)mSteerTableLabel->setHidden(flag);
+
+  this->update();
+}
+
+/**
+ * Method to show or hide the monitored params table and associated
+ * label and buttons.
+ */
+void ControlForm::hideMonTable(bool flag){
+
+  if(mMonParamTable)mMonParamTable->setHidden(flag);
+  if(mMonTableLabel)mMonTableLabel->setHidden(flag);
+
+  this->update();
 }

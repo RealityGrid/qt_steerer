@@ -79,6 +79,10 @@ protected slots:
   void toggleAutoPollSlot();
   void tabChangedSlot(QWidget *aWidget);
   void editTabTitleSlot();
+  void hideChkPtTableSlot();
+  void hideIOTableSlot();
+  void hideSteerTableSlot();
+  void hideMonTableSlot();
 
 public slots:
   void statusBarMessageSlot(Application *aApp, QString &message);
@@ -108,25 +112,12 @@ private:
   QAction       *mSetTabTitleAction;
   QAction	*mQuitAction;
 
+  QAction       *mHideChkPtTableAction;
+  QAction       *mHideIOTableAction;
+  QAction       *mHideSteerTableAction;
+  QAction       *mHideMonTableAction;
+
   QPtrList<Application> mAppList;
 };
-
-/// SMR XXX - future for posting app in new window rather than new tab
-///SMR class ApplicationWindow : public QMainWindow
-///SMR {
-///SMR 	Q_OBJECT
-///SMR 
-///SMR public:
-///SMR 
-///SMR 	ApplicationWindow(const char *, int aSimHandle);
-///SMR 	~ApplicationWindow() {}
-///SMR 
-///SMR 	Application * getApplication() {return mApplication;}
-///SMR 
-///SMR private:
-///SMR 	Application	*mApplication;
-///SMR 
-///SMR };
-
 
 #endif

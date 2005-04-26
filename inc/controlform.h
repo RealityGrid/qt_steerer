@@ -91,6 +91,9 @@ public:
    * and buttons.
    */
   void hideChkPtTable(bool flag);
+  void hideIOTable(bool flag);
+  void hideSteerTable(bool flag);
+  void hideMonTable(bool flag);
 
 private:
   void updateParameters(bool aSteeredFlag);
@@ -139,11 +142,15 @@ private:
   QPushButton		*mStopButton;
   QPushButton		*mPauseButton;
   QPushButton		*mResumeButton;
-  QPushButton   *mConsumeDataButton;
-  QPushButton   *mEmitDataButton;
+  QPushButton           *mConsumeDataButton;
+  QPushButton           *mEmitDataButton;
   
   Application   *mApplication;
-  
+
+  TableLabel    *mChkTableLabel;
+  TableLabel    *mIOTableLabel;
+  TableLabel    *mSteerTableLabel;
+  TableLabel    *mMonTableLabel;
 };
 
 
