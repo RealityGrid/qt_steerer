@@ -156,7 +156,7 @@ int main( int argc, char ** argv )
   signal(SIGFPE, signalHandler);
 
 #ifndef WIN32
-  set_new_handler( failedNewHandler );
+  std::set_new_handler( failedNewHandler );
 #else
   _set_new_handler( failedNewHandler );
 #endif
