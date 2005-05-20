@@ -132,7 +132,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 	  SLOT(closeApplicationSlot()) );
   lCmdGrpLayout->addWidget(mCloseButton);
 
-  QToolTip::add(mEmitAllValuesButton, "Tell application all new parameter and frequency values");
+  QToolTip::add(mEmitAllValuesButton, "Tell application all new "
+		"parameter and frequency values");
   connect(mEmitAllValuesButton, SIGNAL(clicked()), this, 
 	  SLOT(emitAllValuesSlot()));
   lCmdGrpLayout->addWidget(mEmitAllValuesButton);
@@ -285,7 +286,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   //---------------------------------------------
   // the overall layout
-  QVBoxLayout *lEditLayout = new QVBoxLayout(this, -1, -1, "editlayout");
+  QVBoxLayout *lEditLayout = new QVBoxLayout(this, 0, 0, "editlayout");
 
   lEditLayout->addLayout(lCmdGrpLayout);
   lEditLayout->addLayout(lTopLeftLayout);
@@ -302,13 +303,6 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   // Close button only becomes enabled when detach from application
   mCloseButton->setEnabled(FALSE);
-
-  if(mEmitAllValuesButton->sizeHint().isValid()){
-    cout << "Our size hint is valid ******" << endl;
-  }
-  else{
-    cout << "Our size hint is NOT valid +++++++" << endl;
-  }
 
 } 
 
