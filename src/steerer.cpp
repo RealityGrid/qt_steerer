@@ -186,9 +186,9 @@ int main( int argc, char ** argv )
   if (Steerer_initialize() == REG_SUCCESS)		//ReG library
   {
     QApplication lApp( argc, argv );
-    lApp.setFont(QFont("Times", 10));  //SMR XXX default is Helvetica on errol
 
     /* Don't set the window style explicitly - use system default
+    //lApp.setFont(QFont("Times", 10));
 #ifndef WIN32
     lApp.setStyle(new QMotifPlusStyle);
 #else
