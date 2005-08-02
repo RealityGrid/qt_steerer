@@ -132,6 +132,9 @@ void
 Application::disableForDetach(const bool aUnRegister)
 {
   mControlForm->disableAll(aUnRegister);  
+  // ARPDBG - no longer wait for confirmation and thus
+  // let user close form when done.
+  mControlForm->setEnabledClose(true);
 }  
 
 /** As for disableForDetach but called when an error condition
