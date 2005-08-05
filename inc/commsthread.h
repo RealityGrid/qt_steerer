@@ -44,7 +44,7 @@ class SteererMainWindow;
 class CommsThread : public QThread
 {
 public:
-    CommsThread(SteererMainWindow *, int aCheckInterval=100);
+    CommsThread(SteererMainWindow *, QMutex *, int aCheckInterval=100);
     ~CommsThread();
 
     void setCheckInterval(const int aInterval);
@@ -71,7 +71,7 @@ private:
     // or not to adjust the polling interval
     int                 mPollAdjustInterval; 
     int                 mMinPollAdjustInterval;
-
+    QMutex             *mMutexPtr;
 };
 
 
@@ -82,10 +82,20 @@ public:
   CommsThreadEvent(int aMsgType);
   ~CommsThreadEvent();
   
-  int getMsgType() const;
-    
+  int  getMsgType() const;
+  void storeCommands(int aNum, int *aArray);
+  int  getNumCmds() const;
+  int *getCmdsPtr();
+
 private:
+  /** The type of the message that generated this event */
   int mMsgType;
+  /** The number of commands in the control message that generated
+      this event */
+  int mNumCmds;
+  /** Array holding the commands in the control message that generated
+      this event */
+  int mCommands[REG_MAX_NUM_STR_CMDS];
   
 };
 

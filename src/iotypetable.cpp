@@ -47,8 +47,11 @@
 #include <qtable.h>
 
 
-IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bool aChkPtType)
-  : Table(aParent, aName, aSimHandle), mChkPtTypeFlag(aChkPtType), mRestartRowIndex(kNULL_INDX), mRestartRowIndexNew(kNULL_INDX)
+IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, 
+			 QMutex *aMutex, bool aChkPtType)
+  : Table(aParent, aName, aSimHandle), mChkPtTypeFlag(aChkPtType), 
+    mRestartRowIndex(kNULL_INDX), mRestartRowIndexNew(kNULL_INDX),
+    mMutexPtr(aMutex)
 {
   DBGCON("IOTypeTable constructor");
 
@@ -462,19 +465,21 @@ IOTypeTable::setNewFreqValuesInLib()
 
       int lReGStatus = REG_FAILURE;
 
-      qApp->lock();
+      mMutexPtr->lock();
 
-      if (mChkPtTypeFlag)
-	lReGStatus = Set_chktype_freq(getSimHandle(),			//ReG library
+      if (mChkPtTypeFlag){
+	lReGStatus = Set_chktype_freq(getSimHandle(), //ReG library
 				     lIndex,
 				     lHandles,
 				     lFreqs);
-      else
-	lReGStatus = Set_iotype_freq(getSimHandle(),			//ReG library
+      }
+      else{
+	lReGStatus = Set_iotype_freq(getSimHandle(),  //ReG library
 				     lIndex,
 				     lHandles,
 				     lFreqs);
-      qApp->unlock();
+      }
+      mMutexPtr->unlock();
 
       // set the values in the steering library
       if (lReGStatus != REG_SUCCESS)
@@ -522,13 +527,13 @@ IOTypeTable::emitValuesSlot()
 
     if (setNewFreqValuesInLib() > 0)
     {  
-      qApp->lock();
+      mMutexPtr->lock();
       // "emit" values to steered application
       lReGStatus = Emit_control(getSimHandle(),				//ReG library
 				0,
 				NULL,
 				NULL);
-      qApp->unlock();
+      mMutexPtr->unlock();
 
       if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
@@ -800,14 +805,15 @@ void IOTypeTable::restartButtonPressedSlot(){
 
           // Get number log entries for this checkpoint
           int lNumEntries = 0;
-          qApp->lock();
+          mMutexPtr->lock();
           if (Get_chk_log_number(getSimHandle(), lCmdId, &lNumEntries) != REG_SUCCESS)
             THROWEXCEPTION("Get_chk_log_number");
-          qApp->unlock();
+          mMutexPtr->unlock();
 
           if (lNumEntries > 0){
             // get list of ChkTags from log
-            lChkPtForm = new ChkPtForm(lNumEntries, getSimHandle(), lCmdId, this);
+            lChkPtForm = new ChkPtForm(lNumEntries, getSimHandle(), lCmdId, 
+				       mMutexPtr, this);
 
             if (lChkPtForm->getLibReturnStatus() == REG_SUCCESS){
               if (lChkPtForm->exec() == QDialog::Accepted){

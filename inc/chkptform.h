@@ -38,6 +38,7 @@
 
 #include <qdialog.h>
 #include <qlistbox.h>
+#include <qmutex.h>
 #include "ReG_Steer_Steerside.h"
 
 class QLineEdit;
@@ -50,8 +51,8 @@ class ChkPtForm: public QDialog
        
 public:
   ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
-	    QWidget *parent = 0, const char *name = "chkptform",
-	    bool modal = TRUE, WFlags f = 0 );
+	    QMutex *aMutex, QWidget *parent = 0, const char *name = "chkptform",
+	    bool modal = TRUE, WFlags f = 0);
   ~ChkPtForm();
 
    int getLibReturnStatus() const;
@@ -76,12 +77,13 @@ private:
   QListBox		*mListBox;
   QLineEdit		*mFilterLineEdit;
 
-  // MR: button to bring up the chkptvariableform
+  /// MR: button to bring up the chkptvariableform
   QPushButton		*mParametersButton;
   
   QPushButton		*mRestartButton;
   QPushButton		*mCancelButton;
-
+  /** Pointer to mutex protecting ReG library calls */
+  QMutex                *mMutexPtr;
 };
 
 

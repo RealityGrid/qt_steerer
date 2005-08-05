@@ -180,7 +180,7 @@ int main( int argc, char ** argv )
 
   DBGLOG("Steerer starting...\n");
 
-  // note no qApp->lock need here as commsthread not running
+  // note no need to lock mutex  here as commsthread not running
   
   // initialise steerer via library
   if (Steerer_initialize() == REG_SUCCESS)		//ReG library

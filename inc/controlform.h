@@ -43,6 +43,7 @@
 #include <qlabel.h>
 #include <qvbox.h>
 #include <qwidget.h>
+#include <qmutex.h>
 
 class QPushButton;
 class QString;
@@ -61,7 +62,8 @@ class ControlForm : public QWidget
 
 public:
 
-  ControlForm(QWidget *aParent, const char *aName, int aSimHandle, Application *aApplication);
+  ControlForm(QWidget *aParent, const char *aName, int aSimHandle, 
+	      Application *aApplication, QMutex *aMutex);
   ~ControlForm();
 
   void updateParameters();
@@ -151,6 +153,9 @@ private:
   TableLabel    *mIOTableLabel;
   TableLabel    *mSteerTableLabel;
   TableLabel    *mMonTableLabel;
+
+  /// Pointer to mutex protecting calls to ReG steer lib
+  QMutex        *mMutexPtr;
 };
 
 

@@ -33,6 +33,8 @@
     
 ---------------------------------------------------------------------------*/
 
+/** @file parametertable.h
+    @brief Header file for ParameterTable class */
 
 #ifndef __PARAMETER_TABLE_H__
 #define __PARAMETER_TABLE_H__
@@ -40,17 +42,16 @@
 #include "table.h"
 #include "parameter.h"
 #include "qpoint.h"
-
+#include "qmutex.h"
 #include "historyplot.h"
-//class HistoryPlot;
-
 
 class ParameterTable : public Table
 {
   Q_OBJECT
 
 public: 
-  ParameterTable(QWidget *aParent, const char *aName, int aSimHandle);
+  ParameterTable(QWidget *aParent, const char *aName, int aSimHandle,
+		 QMutex *aMutex);
   virtual ~ParameterTable();
 
   virtual void initTable();
@@ -81,10 +82,11 @@ protected:
 
 protected:
   QPtrList<HistoryPlot> mHistoryPlotList;
-  QPtrList<Parameter> mParamList;
-  HistoryPlot *mQwtPlot;
-  ParameterTable *mMonParamTable;
-  bool mFetchedSeqNumHistory;
+  QPtrList<Parameter>   mParamList;
+  HistoryPlot          *mQwtPlot;
+  ParameterTable       *mMonParamTable;
+  bool                  mFetchedSeqNumHistory;
+  QMutex               *mMutexPtr;
 };
 
 
@@ -94,7 +96,8 @@ class SteeredParameterTable : public ParameterTable
 
 public:
   SteeredParameterTable(QWidget *aParent, const char *aName, 
-			ParameterTable *aTable, int aSimHandle);
+			ParameterTable *aTable, int aSimHandle,
+			QMutex *aMutex);
   virtual ~SteeredParameterTable();
 
   virtual void initTable();

@@ -62,7 +62,7 @@
 #include <qgroupbox.h>
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, 
-			 Application *aApplication)
+			 Application *aApplication, QMutex *aMutex)
   : QWidget(aParent, aName), mSimHandle(aSimHandle), 
     mEmitButton(kNULL), 
     mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), 
@@ -74,7 +74,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
     mIOTypeChkPtTable(kNULL),
     mCloseButton(kNULL), mDetachButton(kNULL), mStopButton(kNULL), 
     mPauseButton(kNULL), mResumeButton(kNULL), mConsumeDataButton(kNULL), 
-    mEmitDataButton(kNULL)
+    mEmitDataButton(kNULL), mMutexPtr(aMutex)
 { 
   DBGCON("ControlForm");
 
@@ -144,7 +144,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   lCmdGrpLayout->addWidget(mStopButton);
 
   if (!mApplication->isLocal()){
-    mGridRestartChkPtButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
+    //mGridRestartChkPtButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
     QToolTip::add(mGridRestartChkPtButton, "Restart via a GSH");
     connect( mGridRestartChkPtButton, SIGNAL( clicked() ), aApplication, 
 	     SLOT( emitGridRestartCmdSlot() ));
@@ -156,7 +156,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   mMonTableLabel = new TableLabel("Monitored Parameters", 
 				  this);
   mMonParamTable = new ParameterTable(this, "monparamtable", 
-				      aSimHandle);
+				      aSimHandle, mMutexPtr);
   mMonParamTable->initTable();
 
   QVBoxLayout *lTopLeftLayout = new QVBoxLayout(-1, "topleftlayout");
@@ -166,7 +166,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   //-----------------------------
   // table for steered parameters
   mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", 
-					       mMonParamTable, aSimHandle);
+					       mMonParamTable, aSimHandle,
+					       mMutexPtr);
   mSteerParamTable->initTable();
   connect(mSteerParamTable, SIGNAL(detachFromApplicationForErrorSignal()), 
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
@@ -192,7 +193,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   //------------------------------
   // Table for IOTypes
-  mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable",aSimHandle);
+  mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable",aSimHandle,
+				       mMutexPtr);
   mIOTypeSampleTable->initTable();
   connect(mIOTypeSampleTable, SIGNAL(detachFromApplicationForErrorSignal()), 
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
@@ -233,7 +235,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   //-------------------------------------------
   // table and buttons for checkpoint iotypes
   mIOTypeChkPtTable = new IOTypeTable(this,"chkptparamtable", aSimHandle, 
-				      true);
+				      mMutexPtr, true);
   mIOTypeChkPtTable->initTable();
   connect(mIOTypeChkPtTable, 
 	  SIGNAL(detachFromApplicationForErrorSignal()), 
@@ -349,8 +351,13 @@ ControlForm::updateParameters(bool aSteeredFlag)
   try
     {
       // find out number of parameters that library is going to give us
-      if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) != REG_SUCCESS)  //ReG library
+      DBGMSG("ControlForm::updateParameters: getting mutex1");
+      mMutexPtr->lock();
+      if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) != REG_SUCCESS){  //ReG library
+	mMutexPtr->unlock();
 	THROWEXCEPTION("Get_param_number");
+      }
+      mMutexPtr->unlock();
     
       DBGMSG1("Number Params: = ", lNumParams);
     
@@ -370,14 +377,15 @@ ControlForm::updateParameters(bool aSteeredFlag)
 	    lTablePtr = mMonParamTable;
       
 	  // get parameter data from library and update tables on gui
+	  DBGMSG("ControlForm::updateParameters: getting mutex2");
+	  mMutexPtr->lock();
 	  if (Get_param_values(mSimHandle,		//ReG library
 			       aSteeredFlag,
 			       lNumParams,
-			       lParamDetails) == REG_SUCCESS)
-	    {
+			       lParamDetails) == REG_SUCCESS){
+	    mMutexPtr->unlock();
 
-	      for (int i=0; i<lNumParams; i++)
-		{
+	    for (int i=0; i<lNumParams; i++){
 		  //check if already exists - if so only update value
 		  if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
 					     lParamDetails[i].value)))
@@ -400,16 +408,17 @@ ControlForm::updateParameters(bool aSteeredFlag)
 		      }
       
 		    } 
-		} //for lNumParams
+	    } //for lNumParams
+	    
+	    // Adjust width of first column holding labels      
+	    lTablePtr->adjustColumn(0);
 
-	      // Adjust width of first column holding labels      
-	      lTablePtr->adjustColumn(0);
+	  } // if Get_param_values
+	  else{
 
-	    } // if Get_param_values
-	  else
-	    {
+	    mMutexPtr->unlock();
 	    THROWEXCEPTION("Get_param_values");
-	    }
+	  }
 
 	  // delete local arrays
 	  delete [] lParamDetails;
@@ -473,10 +482,14 @@ ControlForm::updateIOTypes(bool aChkPtType)
   try
   {
 
-    if (aChkPtType)
+    mMutexPtr->lock();
+    if (aChkPtType){
       lStatus = Get_chktype_number(mSimHandle, &lNumTypes);	//ReG library
-    else
+    }
+    else{
       lStatus = Get_iotype_number(mSimHandle, &lNumTypes);	//ReG library    
+    }
+    mMutexPtr->unlock();
 
     if(lStatus != REG_SUCCESS)		
       THROWEXCEPTION("Get_iotype_number");
@@ -498,21 +511,24 @@ ControlForm::updateIOTypes(bool aChkPtType)
 	lLabels[i] = new char[REG_MAX_STRING_LENGTH + 1];
       }
       
-      if (aChkPtType)
-	
+      mMutexPtr->lock();
+      if (aChkPtType){
 	lStatus = Get_chktypes(mSimHandle,			//ReG library
 			       lNumTypes,
 			       lHandles,
 			       lLabels,
 			       lTypes,
 			       lVals);
-      else
+      }
+      else{
 	lStatus = Get_iotypes(mSimHandle,			//ReG library
 			      lNumTypes,
 			      lHandles,
 			      lLabels,
 			      lTypes,
 			      lVals);
+      }
+      mMutexPtr->unlock();
 
       if (lStatus == REG_SUCCESS)
       {
@@ -752,12 +768,12 @@ ControlForm::emitAllValuesSlot()
     if (lCount > 0)
     {
       // call ReG library function to "emit" values to steered application
-      qApp->lock();
+      mMutexPtr->lock();
       lReGStatus = Emit_control(mSimHandle,		//ReG library
 				0,
 				NULL,
 				NULL);
-      qApp->unlock();
+      mMutexPtr->unlock();
 
       if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");

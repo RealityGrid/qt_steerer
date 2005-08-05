@@ -216,7 +216,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // create commsthread so can set checkinterval 
   // - thread is started on first attach
-  mCommsThread = new CommsThread(this);
+  mCommsThread = new CommsThread(this, &mReGMutex);
   if (mCommsThread != kNULL){
     mSetCheckIntervalAction->setEnabled(TRUE);
 
@@ -407,15 +407,15 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 
   try
   {
-    qApp->lock();
+    mReGMutex.lock();
     lReGStatus = Sim_attach(aSimID, &lSimHandle);	//ReG library
-    qApp->unlock();
+    mReGMutex.unlock();
 
     if (lReGStatus == REG_SUCCESS)
     {
       DBGMSG1("Attached: mSimHandle = ",lSimHandle);
       
-      mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal));
+      mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal, &mReGMutex));
 
       // get supported command list from library and enable buttons appropriately
       mAppList.current()->enableCmdButtons();
@@ -436,7 +436,7 @@ SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       if (!isThreadRunning())
       {
 	if (mCommsThread == kNULL)
-	  mCommsThread = new CommsThread(this);
+	  mCommsThread = new CommsThread(this, &mReGMutex);
 
 	if (mCommsThread == kNULL)
 	  THROWEXCEPTION("Thread not instantiated");

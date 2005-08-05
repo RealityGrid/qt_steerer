@@ -104,7 +104,7 @@ private:
   QPixmap	*mStackLogoPixMap;
 
   CommsThread	*mCommsThread;
- 
+  QMutex         mReGMutex;
   QAction	*mSetCheckIntervalAction;
   QAction	*mToggleAutoPollAction;
   QAction	*mAttachAction;

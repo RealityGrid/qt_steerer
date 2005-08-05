@@ -67,43 +67,43 @@ extern "C" void threadSignalHandler(int aSignal)
   switch(aSignal)
   {
     case SIGINT:
-      cout << "Interrupt signal received (signal " << aSignal << ")" << endl;
+      cout << "CommsThread: Interrupt signal received (signal " << aSignal << ")" << endl;
       break;
       
     case SIGTERM:
-      cout << "Kill signal received (signal " << aSignal << ")" << endl;
+      cout << "CommsThread: Kill signal received (signal " << aSignal << ")" << endl;
       break;
       
     case SIGSEGV:
-      cout << "Illegal Access caught (signal " << aSignal << ")" << endl;
+      cout << "CommsThread: Segmentation violation caught (signal " << aSignal << ")" << endl;
       break;
 
     case  SIGILL:
-      cout << "Illegal Exception caught (signal " << aSignal << ")" << endl;
+      cout << "CommsThread: Illegal Exception caught (signal " << aSignal << ")" << endl;
       break;
 
       // note: abort called if exception not caught (and hence calls terminate)
     case SIGABRT:
-      cout << "Abort signal caught (signal " << aSignal << ")" << endl;
+      cout << "CommsThread: Abort signal caught (signal " << aSignal << ")" << endl;
       break;
 
     case SIGFPE:
-      cout << "Arithmetic Exception caught (signal " << aSignal << ")" << endl;
+      cout << "CommsThread: Arithmetic Exception caught (signal " << aSignal << ")" << endl;
       break;
 
     default:
-      cout << "Signal caught (signal " << aSignal << ")" << endl;
+      cout << "CommsThread: Signal caught (signal " << aSignal << ")" << endl;
 
   }
   
   cout << "CommsThread received signal..." << endl;
   gCommsThreadPtr->handleSignal();
-  
-
 }
 
-CommsThread::CommsThread(SteererMainWindow *aSteerer, int aCheckInterval)
-  : mSteerer(aSteerer), mKeepRunningFlag(true), mCheckInterval(aCheckInterval)
+CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex, 
+			 int aCheckInterval)
+  : mSteerer(aSteerer), mKeepRunningFlag(true), 
+    mCheckInterval(aCheckInterval), mMutexPtr(aMutex)
 {
   DBGCON("CommsThread");
   gCommsThreadPtr = this; 
@@ -172,7 +172,7 @@ CommsThread::stop()
     DBGMSG("CommsThread::stop() - waiting for run completion");
     wait(1000);  //1000 milliseconds
   }
-  DBGMSG("Thread is stopped");
+  DBGMSG("CommsThread: Thread is stopped");
 
   // reset flag for next run()
   setKeepRunning(true);
@@ -188,6 +188,10 @@ CommsThread::run()
   int	lSimHandle = REG_SIM_HANDLE_NOTSET ;
   int   lMsgType = MSG_NOTSET;
   float lPollRatio;
+  int   app_seqnum;
+  int   num_cmds = 0;
+  int   status = REG_FAILURE;
+  int   commands[REG_MAX_NUM_STR_CMDS];
   DBGMSG("CommsThread starting");
   
   // add sleep to give GUI chance to finsh posting new form SMR XXX thread bug fix
@@ -243,14 +247,17 @@ CommsThread::run()
     // reset lMsgType
     lMsgType = MSG_NOTSET;
 
-    // hold qt library mutex for call
-    qApp->lock();
-
+    // hold qt library mutex for library call
+    DBGMSG("CommsThread - getting mutex 1");
+    mMutexPtr->lock();
     // Get_next_message always returns  REG_SUCCESS currently
-    if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)  //ReG library
+    DBGMSG("CommsThread -  calling Get_next_message");
+    if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS){  //ReG library
+      mMutexPtr->unlock();
       DBGEXCP("Get_next_message error");
-
-    qApp->unlock();
+    }
+    DBGMSG("CommsThread -  done Get_next_message");
+    mMutexPtr->unlock();
 
     // Protect this count to prevent overflow when not using auto. poll interv.
     if(mUseAutoPollInterval)mPollCount++;
@@ -263,22 +270,104 @@ CommsThread::run()
 
       //SMR XXX  validate lMsgType SMR XXX to do
 
-      // create event and post it - posting means the main GUI thread will 
-      // process the event and not this commsthread.
-      // this avoids any locking issues around GUI funcs (i think)
+      switch(lMsgType){
+
+      case IO_DEFS:
       
-      CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
+	DBGMSG("CommsThread: Got IOdefs message");
 
-      lApp = mSteerer->getApplication(lSimHandle);
+	// hold qt library mutex for library call
+	mMutexPtr->lock();
+	DBGMSG("Calling Consume_IOType_defs");
+	status = Consume_IOType_defs(lSimHandle);	//ReG library 
+	mMutexPtr->unlock();
+	break;
 
-      if(lApp){
-        postEvent(lApp, lEvent);
-      }
-      else{
-        DBGMSG("CommsThread::run: NULL application pointer!");
+      case CHK_DEFS:
+	
+	DBGMSG("CommsThread: Got Chkdefs message");
+	mMutexPtr->lock();
+	DBGMSG("CommsThread: Calling Consume_ChkType_defs");
+	status = Consume_ChkType_defs(lSimHandle); //ReG library 
+	mMutexPtr->unlock();
+	break;
+
+      case PARAM_DEFS:
+      
+	DBGMSG("CommsThread: Got param defs message");
+	mMutexPtr->lock();
+	DBGMSG("CommsThread: Calling Consume_param_defs");
+	status = Consume_param_defs(lSimHandle); //ReG library 
+	mMutexPtr->unlock();
+	break;
+      
+      case STATUS:
+
+	DBGMSG("CommsThread: Got status message");
+	bool detached;
+	detached = false;
+	mMutexPtr->lock();
+	DBGMSG("CommsThread: Calling Consume_status");
+	status = Consume_status(lSimHandle,   //ReG library 
+				&app_seqnum,
+				&num_cmds, commands);
+	mMutexPtr->unlock();
+	break;
+
+      case STEER_LOG: 
+	DBGMSG("CommsThread: Got steer_log message");
+	mMutexPtr->lock();
+	DBGMSG("CommsThread: Calling Consume_log");
+	status = Consume_log(lSimHandle);   //ReG library 
+	mMutexPtr->unlock();
+	break;
+
+      case MSG_NOTSET:
+	DBGMSG("CommsThread: No msg to process");
+	break;
+
+      case CONTROL:
+	DBGMSG("CommsThread: Got control message");
+	break;
+	    
+      case SUPP_CMDS:
+	DBGMSG("CommsThread: Got supp_cmds message");
+	break;
+
+      case MSG_ERROR:
+	DBGMSG("CommsThread: Got error when attempting to get next message");
+	//ARPDBG - this from application.cpp - don't have it here
+	//THROWEXCEPTION("Attempt to get next message failed");
+	break;
+
+      default:
+	DBGMSG("Unrecognised msg returned by Get_next_message");
+	break;
+
+      } //switch(aMsgType)
+
+      if(status == REG_SUCCESS){
+	// create event and post it - posting means the main GUI
+	// thread will process the event and not this commsthread.
+	// this avoids any locking issues around GUI funcs (i think)
+      
+	CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
+	if(num_cmds)lEvent->storeCommands(num_cmds, commands);
+
+	DBGMSG("CommsThread: calling getApplication");
+	lApp = mSteerer->getApplication(lSimHandle);
+
+	// ARPDBG - attempt to avoid lock-up on shutdown
+	if(lApp && mKeepRunningFlag){
+	  DBGMSG("CommsThread: calling postEvent");
+	  postEvent(lApp, lEvent);
+	}
+	else{
+	  DBGMSG("CommsThread::run: NULL application pointer!");
+	}
       }
     }
-
+    DBGMSG("CommsThread: calling msleep");
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
 
   }
@@ -313,14 +402,37 @@ CommsThreadEvent::CommsThreadEvent(int aMsgType)
 { 
   // class to extend QCustomEvent to hold mMsgType
   DBGCON("CommsThreadEvent");
+  mNumCmds = 0;
 }
+
 CommsThreadEvent::~CommsThreadEvent()
 {
   DBGDST("CommsThreadEvent");
 }
 
+/** Returns the type of the message that generated this event */
 int
 CommsThreadEvent::getMsgType() const
 {
   return mMsgType;
+}
+
+/** Copy the array of commands into internal storage */
+void CommsThreadEvent::storeCommands(int aNum, int *aArray)
+{
+  int i;
+  mNumCmds = aNum;
+  for(i=0; i<mNumCmds; i++){
+    mCommands[i] = aArray[i];
+  }
+}
+
+int CommsThreadEvent::getNumCmds() const
+{
+  return mNumCmds;
+}
+
+int *CommsThreadEvent::getCmdsPtr()
+{
+  return mCommands;
 }

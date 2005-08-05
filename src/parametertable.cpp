@@ -49,8 +49,9 @@
 
 #include "historyplot.h"
   
-ParameterTable::ParameterTable(QWidget *aParent, const char *aName, int aSimHandle)
-  : Table(aParent, aName, aSimHandle)
+ParameterTable::ParameterTable(QWidget *aParent, const char *aName, 
+			       int aSimHandle, QMutex *aMutex)
+  : Table(aParent, aName, aSimHandle), mMutexPtr(aMutex)
 {
   DBGCON("ParameterTable");
 
@@ -367,15 +368,18 @@ void ParameterTable::requestParamHistorySlot(int row){
     else{
       lSeqParameter = this->findParameterHandleFromRow(0);
     }
-
+    mMutexPtr->lock();
     Emit_retrieve_param_log_cmd( this->getSimHandle() ,
 				 lSeqParameter->getId());  //ReG library
+    mMutexPtr->unlock();
 
     mFetchedSeqNumHistory = true;
   }
 
+  mMutexPtr->lock();
   Emit_retrieve_param_log_cmd( this->getSimHandle() ,
 			       tParameter->getId());	//ReG library
+  mMutexPtr->unlock();
 
   this->updateParameterLog();
 }
@@ -443,10 +447,13 @@ void ParameterTable::updateParameterLog(){
   lParamIterator.toFirst();
   while ( (lParamPtr = lParamIterator.current()) != 0){
 
-    status = Get_param_log(lhandle,		//ReG library
+    mMutexPtr->lock();
+    status = Get_param_log(lhandle,    //ReG library
 		  lParamPtr->getId(),
 		  &(dum_ptr),
 		  &(dum_int));
+    mMutexPtr->unlock();
+    DBGMSG("ARPDBG ParameterTable::updateParameterLog - Done Get_param_log");
 
     if(status == REG_SUCCESS){
       lParamPtr->mParamHist->mPtrPreviousHistArray = dum_ptr;
@@ -516,8 +523,9 @@ void DynamicTip::maybeTip( const QPoint &pos )
 
 
 SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName, 
-					     ParameterTable *aTable, int aSimHandle)
-  : ParameterTable(aParent, aName, aSimHandle)
+					     ParameterTable *aTable, int aSimHandle,
+					     QMutex *aMutex)
+  : ParameterTable(aParent, aName, aSimHandle, aMutex)
 {
   DBGCON("SteeredParameterTable");
 
@@ -830,13 +838,13 @@ SteeredParameterTable::setNewParamValuesInLib()
       
       int lReGStatus = REG_FAILURE;
 
-      qApp->lock();
+      mMutexPtr->lock();
       // set the values in the steering library
-      lReGStatus = Set_param_values(getSimHandle(),			//ReG library
+      lReGStatus = Set_param_values(getSimHandle(), //ReG library
 				    lIndex,
 				    lHandles,
 				    lVals);
-      qApp->unlock();
+      mMutexPtr->unlock();
 
       if (lReGStatus != REG_SUCCESS)
       {
@@ -889,13 +897,13 @@ void SteeredParameterTable::emitValuesSlot()
     if (setNewParamValuesInLib() > 0)
     {
 
-      qApp->lock();
+      mMutexPtr->lock();
       // call ReG library function to "emit" values to steered application
       lReGStatus = Emit_control(getSimHandle(),		//ReG library
 				0,
 				NULL,
 				NULL);
-      qApp->unlock();
+      mMutexPtr->unlock();
      
       if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");

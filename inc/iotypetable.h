@@ -32,6 +32,8 @@
     
 ---------------------------------------------------------------------------*/
 
+/** @file iotypetable.h
+    @brief Header file for IOTypeTable class */
 
 #ifndef __IOTYPE_TABLE_H__
 #define __IOTYPE_TABLE_H__
@@ -40,13 +42,15 @@
 #include "table.h"
 
 #include <qpoint.h>
+#include <qmutex.h>
 
 class IOTypeTable : public Table
 {
   Q_OBJECT
     
 public:
-  IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, bool aChkPtType = false);
+  IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, 
+	      QMutex *aMutex, bool aChkPtType = false);
   ~IOTypeTable();
 
   virtual void initTable();
@@ -98,10 +102,11 @@ signals:
 private:
   QPtrList<IOType> mIOTypeList;
 
-  bool		mChkPtTypeFlag;
-  int		mRestartRowIndex;
-  int   mRestartRowIndexNew;
-
+  bool	    mChkPtTypeFlag;
+  int	    mRestartRowIndex;
+  int       mRestartRowIndexNew;
+  /// Ptr to mutex protecting calls to ReG steer lib
+  QMutex   *mMutexPtr;
 };
 
 

@@ -33,6 +33,9 @@
     
 ---------------------------------------------------------------------------*/
 
+/** @file application.cpp
+    @brief Holds implementation of Application class */
+
 #include "types.h"
 #include "application.h"
 #include "controlform.h"
@@ -53,11 +56,12 @@
 #include <qwidget.h>
 #include <qpopupmenu.h>
 
-Application::Application(QWidget *aParent, const char *aName, int aSimHandle, bool aIsLocal)
-  : QWidget(aParent, aName), mSimHandle(aSimHandle), mNumCommands(0), 
-    mDetachSupported(false), mStopSupported(false), mPauseSupported(false), 
-    mResumeSupported(false), mDetachedFlag(false), mStatusTxt(""),
-    mControlForm(kNULL), mControlBox(kNULL)
+Application::Application(QWidget *aParent, const char *aName, 
+			 int aSimHandle, bool aIsLocal, QMutex *aMutex)
+  : QWidget(aParent, aName), mSimHandle(aSimHandle), mMutexPtr(aMutex), 
+    mNumCommands(0), mDetachSupported(false), mStopSupported(false), 
+    mPauseSupported(false),  mResumeSupported(false), mDetachedFlag(false), 
+    mStatusTxt(""), mControlForm(kNULL), mControlBox(kNULL)
 {
 
   // MR keep an internal record of whether we're local or grid
@@ -70,14 +74,17 @@ Application::Application(QWidget *aParent, const char *aName, int aSimHandle, bo
   QHBoxLayout *lFormLayout = new QHBoxLayout(this, 6, 6);
   ///  QVBoxLayout *lButtonLayout = new QVBoxLayout(-1, "hb1" );
 
-  // create the form which contains all the (dynamic) steered data (parameters etc)
+  // create the form which contains all the (dynamic) steered data 
+  // (parameters etc)
   mControlBox = new QGroupBox(1, Vertical, "", this, "editbox" );
-  mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this);
+  mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this, 
+				 mMutexPtr);
   lFormLayout->addWidget(mControlBox);
   //this->addChild(mControlBox);
 
   // connect up signaL/slot for close
-  connect (this, SIGNAL(closeApplicationSignal(int)), aParent, SLOT(closeApplicationSlot(int)) );
+  connect (this, SIGNAL(closeApplicationSignal(int)), aParent, 
+	   SLOT(closeApplicationSlot(int)) );
 
   // MR
   // keep a reference to the SteererMainWindow object, so as we can change it's
@@ -116,9 +123,9 @@ void Application::detachFromApplication()
   DBGMSG("Do Sim_detach");
   int lReGStatus = REG_FAILURE;
 
-  qApp->lock();
+  mMutexPtr->lock();
   lReGStatus = Sim_detach(&lSimHandle);		// ReG library
-  qApp->unlock();
+  mMutexPtr->unlock();
 
   // note Sim_Detach always returns REG_SUCCESS surrrently!
   if (lReGStatus != REG_SUCCESS)
@@ -163,9 +170,9 @@ Application::enableCmdButtons()
 
   try
   {
-    qApp->lock();
-    lReGStatus = Get_supp_cmd_number(mSimHandle, &mNumCommands);	//ReG library 
-    qApp->unlock();
+    mMutexPtr->lock();
+    lReGStatus = Get_supp_cmd_number(mSimHandle, &mNumCommands);  //ReG library 
+    mMutexPtr->unlock();
 
     if (lReGStatus == REG_SUCCESS)
     {  
@@ -173,9 +180,9 @@ Application::enableCmdButtons()
       {
 	lCmdIds = new int[mNumCommands];
 
-	qApp->lock();
+	mMutexPtr->lock();
 	lReGStatus = Get_supp_cmds(mSimHandle, mNumCommands, lCmdIds);	//ReG library
-	qApp->unlock();
+	mMutexPtr->unlock();
 
 	if (lReGStatus != REG_SUCCESS)
 	  THROWEXCEPTION("Get_supp_cmds");
@@ -268,7 +275,6 @@ Application::emitDetachCmdSlot()
 
   // make gui read only except for close button
   disableForDetach(false);
-//  mControlForm->setStatusLabel("Attached - awaiting user requested detach");
   QString message = QString("Attached - awaiting user requested detach");
   mSteerer->statusBarMessageSlot(this, message);
 }
@@ -356,11 +362,7 @@ Application::emitSingleCmd(int aCmdId)
  
   try 
   {
-    qApp->lock();
-    //lReGStatus = Emit_control(mSimHandle,		//ReG library 
-    //			      1,
-    //			      lCommandArray,
-    //			      NULL);
+    mMutexPtr->lock();
     switch(aCmdId){
 
     case REG_STR_STOP:
@@ -384,7 +386,7 @@ Application::emitSingleCmd(int aCmdId)
 
     }
 
-    qApp->unlock();
+    mMutexPtr->unlock();
 
     if (lReGStatus != REG_SUCCESS)
       THROWEXCEPTION("Emit control");
@@ -418,9 +420,7 @@ Application::customEvent(QCustomEvent *aEvent)
   if (aEvent->type() == QEvent::User+kMSG_EVENT)
   {
     CommsThreadEvent *lEvent = (CommsThreadEvent *) aEvent;
-    qApp->lock();
-    processNextMessage(lEvent->getMsgType());
-    qApp->unlock();
+    processNextMessage(lEvent);
   }
   else
   {
@@ -431,186 +431,216 @@ Application::customEvent(QCustomEvent *aEvent)
 
 
 void
-Application::processNextMessage(int aMsgType)
+//Application::processNextMessage(int aMsgType)
+Application::processNextMessage(CommsThreadEvent *aEvent)
 {
-  // the commsthread has found a file for this application - this
-  // function calls ReG library routines to process that file
-  // as thread uses postEvent, this func is executed by GUI thread
+  int status;
+  int aMsgType = aEvent->getMsgType();
+  // the commsthread has found a msg for this application - this
+  // function calls ReG library routines to process that msg.
+  // As thread uses postEvent, this func is executed by GUI thread
 
-  // need this as this done in GUI loop cos of thread->postEvent
-  // is possible that this event posted before sim_detach happened for pervious event
-  // if this is the case the file will have now been deleted
+  // need this as this done in GUI loop cos of thread->postEvent is
+  // possible that this event posted before sim_detach happened for
+  // previous event if this is the case the file will have now been
+  // deleted
   if (mDetachedFlag)
     return;
 
   try
   {
+    DBGMSG1("Application::processNextMessage, msg type = ", aMsgType);
+    switch(aMsgType){
 
-  switch(aMsgType)
-  {
     case IO_DEFS:
-      
-      DBGMSG("Got IOdefs message");
-
-      if(Consume_IOType_defs(mSimHandle) != REG_SUCCESS)	//ReG library 
+    
+      DBGMSG("Application::processNextMessage Got IOdefs message");
+      /*
+      // hold qt library mutex for library call
+      mMutexPtr->lock();
+      status = Consume_IOType_defs(mSimHandle);	//ReG library 
+      mMutexPtr->unlock();
+      if(status != REG_SUCCESS)
       {
 	THROWEXCEPTION("Consume_IOType_defs failed");
+	//DBGMSG("Application::processNextMessage - Consume_IOType_defs failed");
       }
       else
       {
+      */
 	// update IOType list and table
-	mControlForm->updateIOTypes(false);
-
-      }
+      mControlForm->updateIOTypes(false);
+	//}
       break;
 
     case CHK_DEFS:
 
-      DBGMSG("Got Chkdefs message");
-
-      if(Consume_ChkType_defs(mSimHandle) != REG_SUCCESS)	//ReG library 
+      DBGMSG("Application::processNextMessage Got Chkdefs message");
+      /*
+      mMutexPtr->lock();
+      status = Consume_ChkType_defs(mSimHandle); //ReG library 
+      mMutexPtr->unlock();
+      if(status != REG_SUCCESS)
       {
 	THROWEXCEPTION("Consume_ChkType_defs failed");
+	//DBGMSG("Application::processNextMessage - Consume_ChkType_defs failed");
       }
       else
       {
+      */
 	// update IOType list and table
-	mControlForm->updateIOTypes(true);
-
-      }
+      mControlForm->updateIOTypes(true);
+	//}
       break;
 
       
     case PARAM_DEFS:
       
-      DBGMSG("Got param defs message");
-      if(Consume_param_defs(mSimHandle) != REG_SUCCESS)		//ReG library 
+      DBGMSG("Application::processNextMessage Got param defs message");
+      /*
+      mMutexPtr->lock();
+      status = Consume_param_defs(mSimHandle); //ReG library 
+      mMutexPtr->unlock();
+      if(status != REG_SUCCESS)
       {
 	THROWEXCEPTION("Consume_param_defs failed");
+	//DBGMSG("Application::processNextMessage - Consume_param_defs failed");
       }
       else
       {
+      */
 	// update parameter list and table
-	mControlForm->updateParameters();
-      }
+      mControlForm->updateParameters();
+	//}
 
       break;
       
     case STATUS:
 
-      DBGMSG("Got status message");
-      int   app_seqnum;
-      int   num_cmds;
-      int   commands[REG_MAX_NUM_STR_CMDS];
+      DBGMSG("Application::processNextMessage Got status message");
+      int  app_seqnum;
+      int  num_cmds;
+      //int  commands[REG_MAX_NUM_STR_CMDS];
+      int  *commands;
       bool detached;
       detached = false;
-
-      if (Consume_status(mSimHandle,				//ReG library 
-			 &app_seqnum,
-			 &num_cmds,
-			 commands) == REG_FAILURE)
+      /*
+      mMutexPtr->lock();
+      status = Consume_status(mSimHandle,   //ReG library 
+			      &app_seqnum,
+			      &num_cmds, commands);
+      mMutexPtr->unlock();
+      if (status == REG_FAILURE)
       {
 	THROWEXCEPTION("Consume_status failed");
+	//DBGMSG("Application::processNextMessage - Consume_status failed");
       }
       else
       {
-	// update parameter list and table
-	mControlForm->updateParameters();
+      */
+      // update parameter list and table
+      mControlForm->updateParameters();
       
-	// update IOType list and table (needed for frequency update)
-	mControlForm->updateIOTypes(false);	// sample types
-	mControlForm->updateIOTypes(true);	// checkpoint types
+      // update IOType list and table (needed for frequency update)
+      mControlForm->updateIOTypes(false);	// sample types
+      mControlForm->updateIOTypes(true);	// checkpoint types
 
+      num_cmds = aEvent->getNumCmds();
+      if(num_cmds)commands = aEvent->getCmdsPtr();
 
-	// now deal with commands - for now we only care about detach command
-	for(int i=0; i<num_cmds && !detached; i++)
-	{  
-	  DBGMSG2("Recd Cmd", i, commands[i]);
-	  int lSimHandle = mSimHandle;
+      // now deal with commands - for now we only care about detach command
+      for(int i=0; i<num_cmds && !detached; i++){
+  
+	DBGMSG2("Recd Cmd", i, commands[i]);
+	int lSimHandle = mSimHandle;
 		      
-	  switch(commands[i])
-	  {
-	    case REG_STR_DETACH:
-	      {
-	      DBGMSG("Received detach command from application");
-	      detached = true;
-	      Delete_sim_table_entry(&lSimHandle);		//ReG library 
-
-	      // make GUI form for this application read only
-	      disableForDetach(true);
-	      QString message = QString("Application has detached");
-	      mSteerer->statusBarMessageSlot(this, message);
-
-	      // enable Close button
-	      mControlForm->setEnabledClose(TRUE);
-
-	      mDetachedFlag = true;
-	      break;
-	      }
-	    
-	  case REG_STR_STOP:
-	    {
-	    DBGMSG("Received stop command from application");
-	      detached = true;
-	      Delete_sim_table_entry(&lSimHandle);		//ReG library 
-
-	      // make GUI form for this application read only
-	      disableForDetach(true);
-	      QString message = QString("Detached as application has stopped");
-	      mSteerer->statusBarMessageSlot(this, message);
-
-	      // enable Close button
-	      mControlForm->setEnabledClose(TRUE);
-
-	      mDetachedFlag = true;
-	      break;
-	    }
-
-	    default:
-	      break;
-	  }
+	switch(commands[i]){
 	  
-	}
+	case REG_STR_DETACH:
+	  {
+	  DBGMSG("Application::processNextMessage Received detach command from application");
+	  detached = true;
+	  mMutexPtr->lock();
+	  Delete_sim_table_entry(&lSimHandle);     //ReG library 
+	  mMutexPtr->unlock();
 
-	DBGMSG1("Application SeqNum = ", app_seqnum);
-	
-      }
+	  // make GUI form for this application read only
+	  disableForDetach(true);
+	  QString message = QString("Application has detached");
+	  mSteerer->statusBarMessageSlot(this, message);
+
+	  // enable Close button
+	  mControlForm->setEnabledClose(TRUE);
+
+	  mDetachedFlag = true;
+	  break;
+	  }
+ 
+	case REG_STR_STOP:
+	  {
+	  DBGMSG("Application::processNextMessage Received stop command from application");
+	  detached = true;
+	  mMutexPtr->lock();
+	  Delete_sim_table_entry(&lSimHandle);		//ReG library 
+	  mMutexPtr->unlock();
+	  
+	  // make GUI form for this application read only
+	  disableForDetach(true);
+	  QString message = QString("Detached as application has stopped");
+	  mSteerer->statusBarMessageSlot(this, message);
+
+	  // enable Close button
+	  mControlForm->setEnabledClose(TRUE);
+
+	  mDetachedFlag = true;
+	  break;
+	  }
+
+	default:
+	  break;
+	}  // end switch
+      } // end for
+
+      //DBGMSG1("Application SeqNum = ", app_seqnum);
       break;
-      
 
     case STEER_LOG: 
-      DBGMSG("Got steer_log message");
-
-      if(Consume_log(mSimHandle) != REG_SUCCESS)	//ReG library 
+      DBGMSG("Application::processNextMessage Got steer_log message");
+      /*
+      mMutexPtr->lock();
+      status = Consume_log(mSimHandle);
+      mMutexPtr->unlock();
+      if(status != REG_SUCCESS)	//ReG library 
       {
 	// THROWEXCEPTION("Consume_log failed"); - don't throw - just log 
 	// that this has happened
 	DBGLOG("Consume_log library call failed");
       }
       else{
+      */
 	mControlForm->updateParameterLog();
-      }
-      break;
+	//}
+	break;
 
     case MSG_NOTSET:
-      DBGMSG("No msg to process");
+      DBGMSG("Application::processNextMessage No msg to process");
       break;
 
     case CONTROL:
-      DBGMSG("Got control message");
+      DBGMSG("Application::processNextMessage Got control message");
       break;
 	    
     case SUPP_CMDS:
-      DBGMSG("Got supp_cmds message");
+      DBGMSG("Application::processNextMessage Got supp_cmds message");
       break;
 
     case MSG_ERROR:
-      DBGMSG("Got error when attempting to get next message");
+      DBGMSG("Application::processNextMessage Got error when attempting to get next message");
       THROWEXCEPTION("Attempt to get next message failed");
       break;
 
     default:
-      DBGMSG("Unrecognised msg returned by Get_next_message");
+      DBGMSG("Application::processNextMessage Unrecognised msg returned by Get_next_message");
       break;
 
   } //switch(aMsgType)
@@ -621,11 +651,11 @@ Application::processNextMessage(int aMsgType)
   {
     StEx.print();
 
+    /* ARPDBG - this is draconian
     // detach from application (or at least attempt to)
-    // make from read only and update status 
+    // make form read only and update status 
 
     detachFromApplication();
-    //disableForDetach(true); ARP - replaced by below
     disableForDetachOnError();
     QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
 			 QMessageBox::Ok,
@@ -634,9 +664,8 @@ Application::processNextMessage(int aMsgType)
     
     QString message = QString("Detached from application due to internal error");
     mSteerer->statusBarMessageSlot(this, message);
-
+    */
   }
-
 
 } // ::processNextMessage
 
@@ -649,9 +678,9 @@ void Application::emitGridRestartCmdSlot(){
                     QLineEdit::Normal, QString::null, &ok, this );
 
   // Now issue a restart steer library call with that GSH
-  qApp->lock();
+  mMutexPtr->lock();
   Emit_restart_cmd(mSimHandle, (char*)text.latin1());
-  qApp->unlock();
+  mMutexPtr->unlock();
 }
 
 int Application::getHandle(){

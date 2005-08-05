@@ -42,6 +42,7 @@
 #include "types.h"
 
 #include <qwidget.h>
+#include <qmutex.h>
 
 class QGroupBox;
 class QPushButton;
@@ -49,20 +50,26 @@ class QString;
 
 class ControlForm;
 class SteererMainWindow;
+class CommsThreadEvent;
 
+/** Holds information on an application that the steering client is
+    attached to */
 class Application : public QWidget
 {
   Q_OBJECT
 
 public:
 
-  Application(QWidget *mParent, const char *, int aSimHandle, bool aIsLocal);
+  Application(QWidget *mParent, const char *, int aSimHandle, bool aIsLocal,
+	      QMutex *aMutex);
   ~Application();
 
   void customEvent(QCustomEvent *);
-  void processNextMessage(int aMsgType);
+  void processNextMessage(CommsThreadEvent *aEvent);
   void enableCmdButtons();
 
+  /** Getter method for mIsLocal 
+      @see mIsLocal */
   bool isLocal(){return mIsLocal;}
   int  getHandle();
   void setCurrentStatus(QString &msg);
@@ -101,20 +108,22 @@ signals:
 
 
 private:
-  const int		mSimHandle;
+  const int	mSimHandle;
 
+  /** Pointer to mutex controlling access to steering lib */
+  QMutex        *mMutexPtr;
   int		mNumCommands;
   bool		mDetachSupported;
   bool		mStopSupported;
   bool		mPauseSupported;
   bool		mResumeSupported;
   bool		mDetachedFlag;
+  /** Whether application is local or remote */
+  bool          mIsLocal;
   QString       mStatusTxt;
   ControlForm	*mControlForm;
   QGroupBox	*mControlBox;
   SteererMainWindow *mSteerer;
-
-  bool mIsLocal;
 
   bool mChkTableVisible;
   bool mIOTableVisible;

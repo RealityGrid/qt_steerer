@@ -48,13 +48,14 @@
 #include <qpushbutton.h>
 #include <qtooltip.h>
 #include <qvbox.h>
+#include <qmutex.h>
 
 ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
-		     QWidget *parent, const char *name,
+		     QMutex *aMutex, QWidget *parent, const char *name,
 		     bool modal, WFlags f)
   : QDialog( parent, name, modal, f ), mNumEntries(aNumEntries), mLibReturnStatus(REG_SUCCESS),
-    mIndexSelected(-1), mListBox(kNULL), 
-    mFilterLineEdit(kNULL), mRestartButton(kNULL), mCancelButton(kNULL)
+    mIndexSelected(-1), mListBox(kNULL), mFilterLineEdit(kNULL), 
+    mRestartButton(kNULL), mCancelButton(kNULL), mMutexPtr(aMutex)
 {
 
   DBGCON("ChkPtForm");
@@ -63,9 +64,9 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
   mLogEntries = new Output_log_struct[mNumEntries];
 
   // get the log entries from library
-  qApp->lock();
+  mMutexPtr->lock();
   mLibReturnStatus = Get_chk_log_entries(aSimHandle, aChkPtHandle, mNumEntries, mLogEntries); //ReG library
-  qApp->unlock();
+  mMutexPtr->unlock();
 
   // only continue is there is some info to show
   if(mLibReturnStatus == REG_SUCCESS)
