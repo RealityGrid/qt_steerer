@@ -70,7 +70,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   }
 
   // get the list of grid applications from library
-  mLibReturnStatus = Get_sim_list(&mNumSims, mSimName, mSimGSH);
+  mLibReturnStatus = Get_sim_list(&mNumSims, mSimName, mSimGSH); // ReG lib
 
   // only continue is there is some info to show
   if(mLibReturnStatus == REG_SUCCESS && mNumSims>0) 
