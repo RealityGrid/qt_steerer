@@ -350,15 +350,14 @@ CommsThread::run()
 	// create event and post it - posting means the main GUI
 	// thread will process the event and not this commsthread.
 	// this avoids any locking issues around GUI funcs (i think)
-      
-	CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
-	if(num_cmds)lEvent->storeCommands(num_cmds, commands);
-
 	DBGMSG("CommsThread: calling getApplication");
 	lApp = mSteerer->getApplication(lSimHandle);
 
 	// ARPDBG - attempt to avoid lock-up on shutdown
 	if(lApp && mKeepRunningFlag){
+
+	  CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
+	  if(num_cmds)lEvent->storeCommands(num_cmds, commands);
 	  DBGMSG("CommsThread: calling postEvent");
 	  postEvent(lApp, lEvent);
 	}
