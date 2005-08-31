@@ -38,6 +38,7 @@
 #include "types.h"
 #include "debug.h"
 #include "ReG_Steer_Steerside.h"
+#include "ReG_Steer_Browser.h"
 
 #include <qhbox.h>
 #include <qlayout.h>
