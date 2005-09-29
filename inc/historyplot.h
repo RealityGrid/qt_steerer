@@ -75,7 +75,7 @@ private:
     ParameterHistory *mXParamHist;
     ParameterHistory *mYParamHist;
     HistoryPlotter *mPlotter;
-    char llabelx[kCHKPT_PARAM_LEN];
+    char lLabelx[kCHKPT_PARAM_LEN];
     char lLabely[kCHKPT_PARAM_LEN];
     int xparamID;
     int yparamID;
@@ -126,10 +126,13 @@ signals:
     void plotClosedSignal(HistoryPlot *ptr);
 
 public:
-    HistoryPlot(ParameterHistory *mXParamHist, ParameterHistory *mYParamHist, 
-		const char *lLabely, const int xparamID, const int yparamID,
+    HistoryPlot(ParameterHistory *mXParamHist, 
+		ParameterHistory *mYParamHist, 
+		const char *lLabelx,
+		const char *lLabely, 
+		const int xparamID, const int yparamID,
 		const char *_lComponentName);
-	~HistoryPlot();
+    ~HistoryPlot();
 };
 
 /////////////////////////////////////////////////////////
