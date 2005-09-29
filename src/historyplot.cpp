@@ -54,7 +54,8 @@
  *    for the wrong parameter signals
  */
 HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist, 
-			 ParameterHistory *_mYParamHist, 
+			 ParameterHistory *_mYParamHist,
+			 const char *_lLabelx,
 			 const char *_lLabely, 
 			 const int _xparamID, 
 			 const int _yparamID,
@@ -65,6 +66,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mYParamHist = _mYParamHist;
     xparamID = _xparamID;
     yparamID = _yparamID;
+    strcpy(lLabelx, _lLabelx);
     strcpy(lLabely, _lLabely);
 
     // Set the caption to be something descriptive - include
@@ -79,7 +81,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     //mPlotter->setTitle(QString(lLabely)+QString(" vs. SEQUENCE_NUM"));
 
     // Set axis titles
-    mPlotter->setAxisTitle(mPlotter->xBottom, "SEQUENCE_NUM");
+    mPlotter->setAxisTitle(mPlotter->xBottom, lLabelx);
     mPlotter->setAxisTitle(mPlotter->yLeft, lLabely);
 
     QVBoxLayout *tBL = new QVBoxLayout(this);
