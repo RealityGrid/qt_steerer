@@ -46,28 +46,37 @@ class Parameter
 
 public:
 
-  Parameter(int aId, int aType, bool aSteerable);
+  Parameter(int aId, int aType, bool aSteerable,
+	    QString aLabel);
   ~Parameter();
   
   void printParameter(QTable *) const;  
 
+  /// Get the handle of the parameter
   int getId() const;
+  /// Get the type of the parameter (encoded as int)
   int getType() const;
+  /// Get the index of the row of the table displaying
+  /// this parameter
   int getRowIndex() const;
   bool isPresent() const;
   bool isRegistered() const;
+  /// Get whether or not this parameter is steerable
   bool isSteerable() const;
-
+  /// Whether parameter is currently registered with
+  /// steering library
   bool checkRegistered();
 
   void setIndex(int aIndex);
   void setIsPresent();
   void unRegister();
 
-  // MR:
   void setMinMaxStrings(const char *min, const char *max);
+  /// Return string containing minimum value of parameter
   QString getMinString();
+  /// Return string containing maximum value of parameter
   QString getMaxString();
+  QString getLabel();
 
   ParameterHistory  *mParamHist;
   
@@ -85,7 +94,8 @@ private:
   //     point anyhow
   QString mMinStr;
   QString mMaxStr;
-
+  /// The label given this parameter by the application code
+  QString mLabel;
 };
 
 

@@ -860,3 +860,17 @@ void ControlForm::hideMonTable(bool flag){
 
   this->update();
 }
+
+//--------------------------------------------------------------------
+
+ParameterTable *ControlForm::getMonParamTable()
+{
+  return mMonParamTable;
+}
+
+//--------------------------------------------------------------------
+
+SteeredParameterTable *ControlForm::getSteeredParamTable()
+{
+  return mSteerParamTable;
+}

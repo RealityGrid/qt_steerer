@@ -41,11 +41,13 @@
 #include <qtable.h>
 
 
-Parameter::Parameter(int aId, int aType, bool aSteerable)
-  : mSteerable(aSteerable), mRegisteredFlag(true), mPresentFlag(true), 
-    mRowIndex(-1), mId(aId), mType(aType)
+Parameter::Parameter(int aId, int aType, bool aSteerable,
+		     QString aLabel)
+  : mRegisteredFlag(true), mPresentFlag(true), 
+    mRowIndex(-1), mId(aId), mSteerable(aSteerable), mType(aType), 
+    mLabel(aLabel)
 {
-  DBGCON("Parameter");
+  DBGCON("Parameter constructor");
   // Create a parameter object - this holds information about a steered or monitored parameter
   // Note that not all data is stored in the class - some is simply displayed ( and updated)
   // in the gui (in table)
@@ -174,3 +176,6 @@ QString Parameter::getMaxString(){
   return mMaxStr;
 }
 
+QString Parameter::getLabel(){
+  return mLabel;
+}

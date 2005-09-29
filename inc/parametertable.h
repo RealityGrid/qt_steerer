@@ -44,6 +44,7 @@
 #include "qpoint.h"
 #include "qmutex.h"
 #include "historyplot.h"
+#include "controlform.h"
 
 class ParameterTable : public Table
 {
@@ -75,10 +76,14 @@ signals:
 protected:
 
   int getNumParameters() const;
+  /// Look up a parameter's row index from its handle
   int findParameterRowIndex(int aId);
+  /// Get a ptr to Parameter from its handle
   Parameter *findParameter(int aId);
-  // MR: reverse lookup of parameter ID
+  /// Reverse lookup of parameter ID
   Parameter *findParameterHandleFromRow(int row);
+  /// Lookup Parameter from its label
+  Parameter *findParameterFromLabel(const QString &aLabel);
 
 protected:
   QPtrList<HistoryPlot> mHistoryPlotList;
@@ -87,6 +92,9 @@ protected:
   ParameterTable       *mMonParamTable;
   bool                  mFetchedSeqNumHistory;
   QMutex               *mMutexPtr;
+
+ private:
+  ControlForm          *mParent;
 };
 
 

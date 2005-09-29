@@ -70,8 +70,11 @@ public:
   void updateIOTypes(bool aChkPtType = false);
   void updateParameterLog();
 
+  /// Disable all buttons on UI
   void disableAll(const bool aUnRegister = true);
+  /// Disable all IO-related buttons
   void disableIOCmdButtons();
+  /// Enable all IO-related buttons
   void enableIOCmdButtons();
 
   void disableAppCmdButtons();
@@ -87,6 +90,10 @@ public:
    * @return        pointer to Application object.
    */
   Application *application();
+  /** Getter method for the monitored parameters table */
+  ParameterTable *getMonParamTable();
+  /** Getter method for the steerable parameters table */
+  SteeredParameterTable *getSteeredParamTable();
 
   /**
    * Method to show or hide the checkpoint table and associated label
@@ -127,7 +134,7 @@ private:
 
   QPushButton		*mRestartChkPtButton;
   // MR:
-  QPushButton   *mGridRestartChkPtButton;
+  QPushButton           *mGridRestartChkPtButton;
   
   QPushButton		*mSndChkPtButton;
   QPushButton		*mSetChkPtFreqButton;
