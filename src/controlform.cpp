@@ -73,7 +73,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
     mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), 
     mIOTypeChkPtTable(kNULL),
     mCloseButton(kNULL), mDetachButton(kNULL), mStopButton(kNULL), 
-    mPauseButton(kNULL), mResumeButton(kNULL), mConsumeDataButton(kNULL), 
+    mPauseButton(kNULL), mConsumeDataButton(kNULL), 
     mEmitDataButton(kNULL), mMutexPtr(aMutex)
 { 
   DBGCON("ControlForm");
@@ -94,7 +94,6 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   // which to use for the size hint without having to reorder
   // any code
   mPauseButton = new QPushButton( "Pause", this, "pause" );
-  mResumeButton = new QPushButton( "Resume", this, "resume" );
   mDetachButton = new QPushButton( "Detach", this, "detach" );
   mCloseButton = new QPushButton( "Close", this, "close" );
   mEmitAllValuesButton = new QPushButton("Tell All", this, "tellallvals");
@@ -112,15 +111,10 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   // then set up each button individually, never setting the maximum size
   // so that each button stretches to fill the standard gap
   
-  QToolTip::add(mPauseButton, "Tell the attached application to pause");
+  QToolTip::add(mPauseButton, "Tell the attached application to pause/resume");
   connect( mPauseButton, SIGNAL( clicked() ), aApplication, 
 	   SLOT( emitPauseCmdSlot() ));
   lCmdGrpLayout->addWidget(mPauseButton);
-
-  QToolTip::add(mResumeButton, "Tell the attached application to resume");
-  connect( mResumeButton, SIGNAL( clicked() ), aApplication, 
-	   SLOT( emitResumeCmdSlot() ));
-  lCmdGrpLayout->addWidget(mResumeButton);
 
   QToolTip::add(mDetachButton, "Tell the attached application to detach");
   connect( mDetachButton, SIGNAL( clicked() ), aApplication, 
@@ -311,19 +305,6 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 ControlForm::~ControlForm()
 {
   DBGDST("ControlForm");
-///SMR
-///SMR	delete mMonParamTable;
-///SMR	mMonParamTable = kNULL;
-///SMR
-///SMR	delete mSteerParamTable;
-///SMR	mSteerParamTable = kNULL;
-///SMR
-///SMR	delete mIOTypeSampleTable;
-///SMR	mIOTypeSampleTable = kNULL;
-///SMR
-///SMR	delete mIOTypeChkPtTable;
-///SMR	mIOTypeChkPtTable = kNULL;
-///SMR	 
 }
 
 void
@@ -513,7 +494,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
       
       mMutexPtr->lock();
       if (aChkPtType){
-	lStatus = Get_chktypes(mSimHandle,			//ReG library
+	lStatus = Get_chktypes(mSimHandle,     		//ReG library
 			       lNumTypes,
 			       lHandles,
 			       lLabels,
@@ -521,7 +502,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
 			       lVals);
       }
       else{
-	lStatus = Get_iotypes(mSimHandle,			//ReG library
+	lStatus = Get_iotypes(mSimHandle,      		//ReG library
 			      lNumTypes,
 			      lHandles,
 			      lLabels,
@@ -655,7 +636,6 @@ ControlForm::disableAppCmdButtons()
   mDetachButton->setEnabled(FALSE);
   mStopButton->setEnabled(FALSE);
   mPauseButton->setEnabled(FALSE);
-  mResumeButton->setEnabled(FALSE);
 }
 
 void 
@@ -674,12 +654,6 @@ void
 ControlForm::setEnabledPause(const bool aEnable)
 {
   mPauseButton->setEnabled(aEnable);
-}
-
-void  
-ControlForm::setEnabledResume(const bool aEnable)
-{
-  mResumeButton->setEnabled(aEnable);
 }
 
 void  
@@ -873,4 +847,12 @@ ParameterTable *ControlForm::getMonParamTable()
 SteeredParameterTable *ControlForm::getSteeredParamTable()
 {
   return mSteerParamTable;
+}
+
+//--------------------------------------------------------------------
+
+void ControlForm::setPauseButtonLabel(QString aLabel){
+  if(mPauseButton){
+    mPauseButton->setText(aLabel);
+  }
 }

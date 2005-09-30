@@ -76,13 +76,19 @@ public:
   void disableIOCmdButtons();
   /// Enable all IO-related buttons
   void enableIOCmdButtons();
-
+  /// Disable all of the command buttons
   void disableAppCmdButtons();
+  /// En/disable the Detach button
   void setEnabledDetach(const bool aEnable);
+  /// En/disable the Stop button
   void setEnabledStop(const bool aEnable);
+  /// En/disable the Pause (resume) button
   void setEnabledPause(const bool aEnable);
-  void setEnabledResume(const bool aEnable);
+  /// En/disable the Close button
   void setEnabledClose(const bool aEnable);
+  /// Set the label on the 'pause' button to reflect
+  /// whether app is running or is paused.
+  void setPauseButtonLabel(const QString aLabel);
   /**
    * getter method for the Application being controlled by
    * this form
@@ -150,7 +156,6 @@ private:
   QPushButton		*mDetachButton;
   QPushButton		*mStopButton;
   QPushButton		*mPauseButton;
-  QPushButton		*mResumeButton;
   QPushButton           *mConsumeDataButton;
   QPushButton           *mEmitDataButton;
   

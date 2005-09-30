@@ -206,7 +206,6 @@ Application::enableCmdButtons()
 	  break;
 	  
         case REG_STR_RESUME:
-	  mControlForm->setEnabledResume(FALSE);  // only enable when detach has been sent
 	  mResumeSupported = true;
 	  break;
 	  
@@ -294,62 +293,51 @@ Application::emitStopCmdSlot()
 
   // make gui read only 
   disableForDetach(false);
-//  mControlForm->setStatusLabel("Attached - awaiting user requested stop");
   QString message = QString("Attached - awaiting user requested stop");
   mSteerer->statusBarMessageSlot(this, message);
-  /// }
 }
 
-void 
-Application::emitResumeCmdSlot()
-{
-
-  // disable resume and enable pause  if supported (should be forced 
-  // to support both in library)
-  mControlForm->setEnabledResume(FALSE);
-  if (mPauseSupported)
-    mControlForm->setEnabledPause(TRUE);
-
-  // enable IOtype commands
-  mControlForm->enableIOCmdButtons();
-
-  // enable detach now that app. is running again
-  mControlForm->setEnabledDetach(TRUE);
-
-  emitSingleCmd(REG_STR_RESUME);
-  
-//  mControlForm->setStatusLabel("Attached to application");
-  QString message = QString("Attached to application");
-  mSteerer->statusBarMessageSlot(this, message);
-
-}
-
+//------------------------------------------------------------------------
 void 
 Application::emitPauseCmdSlot()
 {
+  QString message;
+
   // disable Pause and enable resume if supported (should be forced to support both in library)
-  
-  mControlForm->setEnabledPause(FALSE);
-  if (mResumeSupported)
-    mControlForm->setEnabledResume(TRUE);
+  if(!getCurrentStatus().contains("paused", FALSE)){
 
-  // disable IOtype commands
-  mControlForm->disableIOCmdButtons();
+    mControlForm->setPauseButtonLabel(QString("Resume"));
 
-  // disable detach - don't think it makes sense to let user pause
-  // application and then detach from it
-  mControlForm->setEnabledDetach(FALSE);
+    // disable IOtype commands
+    mControlForm->disableIOCmdButtons();
 
-  emitSingleCmd(REG_STR_PAUSE);
+    // disable detach - don't think it makes sense to let user pause
+    // application and then detach from it
+    mControlForm->setEnabledDetach(FALSE);
 
-//  mControlForm->setStatusLabel("Attached - user requested pause");
-  QString message = QString("Attached - user requested pause");
+    emitSingleCmd(REG_STR_PAUSE);
+
+    message = QString("Attached - paused");
+  }
+  else{
+
+    mControlForm->setPauseButtonLabel(QString("Pause"));
+
+    emitSingleCmd(REG_STR_RESUME);
+
+    // enable IOtype commands
+    mControlForm->enableIOCmdButtons();
+
+    // enable detach now that app. is running again
+    mControlForm->setEnabledDetach(TRUE);
+
+    message = QString("Attached - running");
+  }
+
   mSteerer->statusBarMessageSlot(this, message);
- 
-
 }
 
-
+//------------------------------------------------------------------------
 void 
 Application::emitSingleCmd(int aCmdId)
 {
@@ -402,10 +390,9 @@ Application::emitSingleCmd(int aCmdId)
 			 QMessageBox::NoButton);
     
   }
-
 }
 
-
+//------------------------------------------------------------------------
 void
 Application::customEvent(QCustomEvent *aEvent)
 {
@@ -426,15 +413,12 @@ Application::customEvent(QCustomEvent *aEvent)
   {
     DBGMSG("Application::customEvent -  unexpected event type");
   }
-
 }
 
-
+//------------------------------------------------------------------------
 void
-//Application::processNextMessage(int aMsgType)
 Application::processNextMessage(CommsThreadEvent *aEvent)
 {
-  int status;
   int aMsgType = aEvent->getMsgType();
   // the commsthread has found a msg for this application - this
   // function calls ReG library routines to process that msg.
@@ -455,89 +439,32 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
     case IO_DEFS:
     
       DBGMSG("Application::processNextMessage Got IOdefs message");
-      /*
-      // hold qt library mutex for library call
-      mMutexPtr->lock();
-      status = Consume_IOType_defs(mSimHandle);	//ReG library 
-      mMutexPtr->unlock();
-      if(status != REG_SUCCESS)
-      {
-	THROWEXCEPTION("Consume_IOType_defs failed");
-	//DBGMSG("Application::processNextMessage - Consume_IOType_defs failed");
-      }
-      else
-      {
-      */
-	// update IOType list and table
+      // update IOType list and table
       mControlForm->updateIOTypes(false);
-	//}
       break;
 
     case CHK_DEFS:
 
       DBGMSG("Application::processNextMessage Got Chkdefs message");
-      /*
-      mMutexPtr->lock();
-      status = Consume_ChkType_defs(mSimHandle); //ReG library 
-      mMutexPtr->unlock();
-      if(status != REG_SUCCESS)
-      {
-	THROWEXCEPTION("Consume_ChkType_defs failed");
-	//DBGMSG("Application::processNextMessage - Consume_ChkType_defs failed");
-      }
-      else
-      {
-      */
-	// update IOType list and table
+      // update IOType list and table
       mControlForm->updateIOTypes(true);
-	//}
       break;
 
-      
     case PARAM_DEFS:
       
       DBGMSG("Application::processNextMessage Got param defs message");
-      /*
-      mMutexPtr->lock();
-      status = Consume_param_defs(mSimHandle); //ReG library 
-      mMutexPtr->unlock();
-      if(status != REG_SUCCESS)
-      {
-	THROWEXCEPTION("Consume_param_defs failed");
-	//DBGMSG("Application::processNextMessage - Consume_param_defs failed");
-      }
-      else
-      {
-      */
-	// update parameter list and table
+      // update parameter list and table
       mControlForm->updateParameters();
-	//}
 
       break;
       
     case STATUS:
 
       DBGMSG("Application::processNextMessage Got status message");
-      int  app_seqnum;
       int  num_cmds;
-      //int  commands[REG_MAX_NUM_STR_CMDS];
       int  *commands;
       bool detached;
       detached = false;
-      /*
-      mMutexPtr->lock();
-      status = Consume_status(mSimHandle,   //ReG library 
-			      &app_seqnum,
-			      &num_cmds, commands);
-      mMutexPtr->unlock();
-      if (status == REG_FAILURE)
-      {
-	THROWEXCEPTION("Consume_status failed");
-	//DBGMSG("Application::processNextMessage - Consume_status failed");
-      }
-      else
-      {
-      */
       // update parameter list and table
       mControlForm->updateParameters();
       
@@ -601,26 +528,12 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 	}  // end switch
       } // end for
 
-      //DBGMSG1("Application SeqNum = ", app_seqnum);
       break;
 
     case STEER_LOG: 
       DBGMSG("Application::processNextMessage Got steer_log message");
-      /*
-      mMutexPtr->lock();
-      status = Consume_log(mSimHandle);
-      mMutexPtr->unlock();
-      if(status != REG_SUCCESS)	//ReG library 
-      {
-	// THROWEXCEPTION("Consume_log failed"); - don't throw - just log 
-	// that this has happened
-	DBGLOG("Consume_log library call failed");
-      }
-      else{
-      */
-	mControlForm->updateParameterLog();
-	//}
-	break;
+      mControlForm->updateParameterLog();
+      break;
 
     case MSG_NOTSET:
       DBGMSG("Application::processNextMessage No msg to process");

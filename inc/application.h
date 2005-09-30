@@ -60,17 +60,20 @@ class Application : public QWidget
 
 public:
 
-  Application(QWidget *mParent, const char *, int aSimHandle, bool aIsLocal,
+  Application(QWidget *mParent, const char *, int aSimHandle, 
+	      bool aIsLocal,
 	      QMutex *aMutex);
   ~Application();
 
   void customEvent(QCustomEvent *);
   void processNextMessage(CommsThreadEvent *aEvent);
+  /// Enable all the command buttons for this application
   void enableCmdButtons();
 
   /** Getter method for mIsLocal 
       @see mIsLocal */
   bool isLocal(){return mIsLocal;}
+  /// Getter method for handle of application
   int  getHandle();
   void setCurrentStatus(QString &msg);
   QString getCurrentStatus();
@@ -98,7 +101,6 @@ protected slots:
   void emitDetachCmdSlot();
   void emitStopCmdSlot();
   void emitPauseCmdSlot();
-  void emitResumeCmdSlot();
   void emitGridRestartCmdSlot();
   void closeApplicationSlot();
   void detachFromApplicationForErrorSlot();
