@@ -73,19 +73,19 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   // get the list of grid applications from library
   mLibReturnStatus = Get_sim_list(&mNumSims, mSimName, mSimGSH); // ReG lib
 
-  // only continue is there is some info to show
+  // only continue if there is some info to show
   if(mLibReturnStatus == REG_SUCCESS && mNumSims>0) 
   {
     this->setCaption( "Grid Attach" );
-    resize( 350, 350 );
+    resize( 520, 350 );
     
     // create the layouts for the form
-    QHBoxLayout *lFormLayout = new QHBoxLayout(this, 10, 10, "attachformlayout");
+    QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, "attachformlayout");
     QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
     QVBoxLayout *lListLayout = new QVBoxLayout(6, "attachlistlayout");
-    QVBoxLayout *lButtonLayout = new QVBoxLayout(6, "attachbuttonlayout");
-    QSpacerItem* lSpacer = new QSpacerItem( 0, 156, QSizePolicy::Minimum, 
-					    QSizePolicy::Expanding );
+    QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "attachbuttonlayout");
+    QSpacerItem* lSpacer = new QSpacerItem( 200, 0, QSizePolicy::Expanding, 
+					    QSizePolicy::Minimum );
     
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("Steerable Applications", this));
@@ -110,14 +110,20 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 
       mTable->insertRows(mTable->numRows(),1);
       mTable->setItem(mTable->numRows()-1, 0, 
-		      new QTableItem(mTable, QTableItem::Never, QString(mSimName[i])));
+		      new QTableItem(mTable, QTableItem::Never, 
+				     QString(mSimName[i])));
       mTable->setItem(mTable->numRows()-1, 1, 
-		      new QTableItem(mTable, QTableItem::WhenCurrent, QString(mSimGSH[i])));
+		      new QTableItem(mTable, QTableItem::WhenCurrent, 
+				     QString(mSimGSH[i])));
     }
-    
-    // filter to do SMR XXX
+    mTable->adjustColumn(0);
+    mTable->adjustColumn(1);
+    // We checked that mNumSims was > 0 earlier...
+    mTable->selectRow(0);
+
     mFilterLineEdit = new QLineEdit(this, "containsfilter");
-    connect(mFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(filterSlot()));
+    connect(mFilterLineEdit, SIGNAL(returnPressed()), this, 
+	    SLOT(filterSlot()));
   
     lFilterLayout->addWidget(new QLabel("Contains", this));
     lFilterLayout->addWidget(mFilterLineEdit);
@@ -142,8 +148,8 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     
 
     lButtonLayout->addItem(lSpacer);
-    lButtonLayout->addWidget(mAttachButton);
     lButtonLayout->addWidget(mCancelButton);
+    lButtonLayout->addWidget(mAttachButton);
     
     lFormLayout->addLayout(lListLayout);
     lFormLayout->addLayout(lButtonLayout);
@@ -194,28 +200,25 @@ AttachForm::getSimGSMSelected() const
 void
 AttachForm::attachSlot()
 {
-  DBGMSG1("Slot: mNumSims: ", mNumSims);
-  int lCurrentItem = mTable->currentRow();
-  DBGMSG1("currentSelection ", lCurrentItem); 
-
-  // I don't understand this - if nothing has been selected
-  // then currentRow() frequently returns the row following 
-  // the last actual row in the table .  Therefore we have to 
-  // check that the row it's told us is selected is actually selected!
-  if (lCurrentItem >= 0 && mTable->isRowSelected(lCurrentItem))
-  {
-    mSimGSHSelected = mSimGSH[lCurrentItem];
-    DBGMSG1("selected app GSH: ",mSimGSHSelected);
-    QDialog::accept();
-  }
-  else {
+  int lCurrentItem;
+  int lNumSel = mTable->numSelections();
+  DBGMSG1("Have selections... ", lNumSel); 
+  if(!lNumSel || lNumSel > 1){
     // no item in the list has been selected
     QMessageBox::information(0, "Nothing selected", 
-			     "Please select an item in the list",
+			     "Please select one item from the list",
 			     QMessageBox::Ok,
 			     QMessageBox::NoButton, 
 			     QMessageBox::NoButton);
+    return;
   }
+
+  QTableSelection lSel = mTable->selection(0);
+  lCurrentItem = lSel.anchorRow();
+
+  mSimGSHSelected = mSimGSH[lCurrentItem];
+  DBGMSG1("selected app GSH: ",mSimGSHSelected);
+  QDialog::accept();
 }
 
 
@@ -223,44 +226,35 @@ void
 AttachForm::filterSlot()
 {
   DBGMSG1("FSLot: mNumSims: ", mNumSims);
-
-  // remove list and start again applying filter
-  for (int i=0; i<mTable->numRows(); i++){
-    mTable->clearCell(i,1);
-    mTable->clearCell(i,0);
-  }
+  int i;
 
   int lLen = mFilterLineEdit->text().length();
+  if (lLen == 0) return;
 
-  if (lLen > 0)
-  {
-    for (int i=0; i<mNumSims; i++)
-    {  
-      DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
-      if (strstr(mSimName[i], mFilterLineEdit->text().latin1()) != kNULL)
-      {
-	//lListItem = new AttachListItem(i, QString(mSimName[i]));
-  //mListBox->insertItem( lListItem );
-        mTable->insertRows(mTable->numRows(),1);
-        mTable->setItem(mTable->numRows()-1, 0, new QTableItem(mTable, QTableItem::Never, QString(mSimName[i])));
-        mTable->setItem(mTable->numRows()-1, 1, new QTableItem(mTable, QTableItem::OnTyping, QString(mSimGSH[i])));
-      }      
-    }
+  // clear out the table
+  for (i=(mTable->numRows()-1); i>-1; i--){
+    mTable->removeRow(i);
   }
-  else
-  {
-    // no filter specified so just show all sim names
-    for (int i=0; i<mNumSims; i++)
-    {
-      //lListItem = new AttachListItem(i, QString(mSimName[i]));
-      //mListBox->insertItem( lListItem );
-        mTable->insertRows(mTable->numRows(),1);
-        mTable->setItem(mTable->numRows()-1, 0, 
-			new QTableItem(mTable, QTableItem::Never, QString(mSimName[i])));
-        mTable->setItem(mTable->numRows()-1, 1, 
-			new QTableItem(mTable, QTableItem::OnTyping, QString(mSimGSH[i])));
-    }
+
+  for (int i=0; i<mNumSims; i++){
+  
+    DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
+    if (strstr(mSimName[i], mFilterLineEdit->text().latin1()) != kNULL){
+
+      mTable->insertRows(mTable->numRows(),1);
+      mTable->setItem(mTable->numRows()-1, 0, 
+		      new QTableItem(mTable, QTableItem::Never, 
+				     QString(mSimName[i])));
+      mTable->setItem(mTable->numRows()-1, 1, 
+		      new QTableItem(mTable, QTableItem::OnTyping, 
+				     QString(mSimGSH[i])));
+    }   
   }
+
+  mTable->adjustColumn(0);
+  mTable->adjustColumn(1);
+  if (mTable->numRows()) mTable->selectRow(0);
+
 }
 
 /** Slot to update the copy of the handle as obtained from the
