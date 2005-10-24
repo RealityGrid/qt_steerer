@@ -124,7 +124,11 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mFilterLineEdit = new QLineEdit(this, "containsfilter");
     connect(mFilterLineEdit, SIGNAL(returnPressed()), this, 
 	    SLOT(filterSlot()));
-  
+
+    // Initialize the filter with the user's username - might be handy
+    mFilterLineEdit->setText(QString(getenv("USER")));
+    mFilterLineEdit->selectAll();
+
     lFilterLayout->addWidget(new QLabel("Contains", this));
     lFilterLayout->addWidget(mFilterLineEdit);
     
