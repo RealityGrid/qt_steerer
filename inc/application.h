@@ -75,27 +75,39 @@ public:
   bool isLocal(){return mIsLocal;}
   /// Getter method for handle of application
   int  getHandle();
+  /// Set the string holding the current application status
   void setCurrentStatus(QString &msg);
+  /// Get the string holding the current application status
   QString getCurrentStatus();
   void hideChkPtTable(bool flag);
   void hideIOTable(bool flag);
   void hideSteerTable(bool flag);
   void hideMonTable(bool flag);
 
+  /** Getter method for current visibility of mon. params table */
   bool monTableVisible();
+  /** Getter method for current visibility of steered params table */
   bool steerTableVisible();
+  /** Getter method for current visibility of IOTypes table */
   bool ioTableVisible();
+  /** Getter method for current visibility of ChkTypes table */
   bool chkTableVisible();
+  /** Toggle the visibility of the Monitored Parameters table */
   void setMonTableVisible(bool flag);
+  /** Toggle the visibility of the Steered Parameters table */
   void setSteerTableVisible(bool flag);
+  /** Toggle the visibility of the IOTypes table */
   void setIOTableVisible(bool flag);
+  /** Toggle the visibility of the ChkTypes table */
   void setChkTableVisible(bool flag);
 
 private:
   void detachFromApplication();
   void disableForDetach(const bool aUnRegister = true);
   void disableForDetachOnError();
-  void emitSingleCmd(int aCmdId);
+  /** Sends the single, supplied command to the application
+      @returns REG_SUCCESS or REG_FAILURE */
+  int  emitSingleCmd(int aCmdId);
 
 protected slots:
   void emitDetachCmdSlot();
