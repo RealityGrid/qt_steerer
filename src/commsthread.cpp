@@ -105,7 +105,7 @@ CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex,
   : mSteerer(aSteerer), mKeepRunningFlag(true), 
     mCheckInterval(aCheckInterval), mMutexPtr(aMutex)
 {
-  DBGCON("CommsThread");
+  DBGCON("CommsThread constructor");
   gCommsThreadPtr = this; 
   // Set polling interval automatically
   mUseAutoPollInterval = 1;
@@ -248,15 +248,12 @@ CommsThread::run()
     lMsgType = MSG_NOTSET;
 
     // hold qt library mutex for library call
-    DBGMSG("CommsThread - getting mutex 1");
     mMutexPtr->lock();
     // Get_next_message always returns  REG_SUCCESS currently
-    DBGMSG("CommsThread -  calling Get_next_message");
     if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS){  //ReG library
       mMutexPtr->unlock();
       DBGEXCP("Get_next_message error");
     }
-    DBGMSG("CommsThread -  done Get_next_message");
     mMutexPtr->unlock();
 
     // Protect this count to prevent overflow when not using auto. poll interv.
@@ -278,7 +275,6 @@ CommsThread::run()
 
 	// hold qt library mutex for library call
 	mMutexPtr->lock();
-	DBGMSG("Calling Consume_IOType_defs");
 	status = Consume_IOType_defs(lSimHandle);	//ReG library 
 	mMutexPtr->unlock();
 	break;
@@ -287,7 +283,6 @@ CommsThread::run()
 	
 	DBGMSG("CommsThread: Got Chkdefs message");
 	mMutexPtr->lock();
-	DBGMSG("CommsThread: Calling Consume_ChkType_defs");
 	status = Consume_ChkType_defs(lSimHandle); //ReG library 
 	mMutexPtr->unlock();
 	break;
@@ -296,7 +291,6 @@ CommsThread::run()
       
 	DBGMSG("CommsThread: Got param defs message");
 	mMutexPtr->lock();
-	DBGMSG("CommsThread: Calling Consume_param_defs");
 	status = Consume_param_defs(lSimHandle); //ReG library 
 	mMutexPtr->unlock();
 	break;
@@ -304,10 +298,7 @@ CommsThread::run()
       case STATUS:
 
 	DBGMSG("CommsThread: Got status message");
-	bool detached;
-	detached = false;
 	mMutexPtr->lock();
-	DBGMSG("CommsThread: Calling Consume_status");
 	status = Consume_status(lSimHandle,   //ReG library 
 				&app_seqnum,
 				&num_cmds, commands);
@@ -317,7 +308,6 @@ CommsThread::run()
       case STEER_LOG: 
 	DBGMSG("CommsThread: Got steer_log message");
 	mMutexPtr->lock();
-	DBGMSG("CommsThread: Calling Consume_log");
 	status = Consume_log(lSimHandle);   //ReG library 
 	mMutexPtr->unlock();
 	break;
@@ -350,7 +340,6 @@ CommsThread::run()
 	// create event and post it - posting means the main GUI
 	// thread will process the event and not this commsthread.
 	// this avoids any locking issues around GUI funcs (i think)
-	DBGMSG("CommsThread: calling getApplication");
 	lApp = mSteerer->getApplication(lSimHandle);
 
 	// ARPDBG - attempt to avoid lock-up on shutdown
@@ -358,7 +347,6 @@ CommsThread::run()
 
 	  CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
 	  if(num_cmds)lEvent->storeCommands(num_cmds, commands);
-	  DBGMSG("CommsThread: calling postEvent");
 	  postEvent(lApp, lEvent);
 	}
 	else{
@@ -366,7 +354,6 @@ CommsThread::run()
 	}
       }
     }
-    DBGMSG("CommsThread: calling msleep");
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
 
   }
