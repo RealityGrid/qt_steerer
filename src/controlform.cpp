@@ -332,7 +332,6 @@ ControlForm::updateParameters(bool aSteeredFlag)
   try
     {
       // find out number of parameters that library is going to give us
-      DBGMSG("ControlForm::updateParameters: getting mutex1");
       mMutexPtr->lock();
       if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) != REG_SUCCESS){  //ReG library
 	mMutexPtr->unlock();
@@ -358,7 +357,6 @@ ControlForm::updateParameters(bool aSteeredFlag)
 	    lTablePtr = mMonParamTable;
       
 	  // get parameter data from library and update tables on gui
-	  DBGMSG("ControlForm::updateParameters: getting mutex2");
 	  mMutexPtr->lock();
 	  if (Get_param_values(mSimHandle,		//ReG library
 			       aSteeredFlag,
@@ -760,7 +758,8 @@ ControlForm::emitAllValuesSlot()
   {
     StEx.print();
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
+    QMessageBox::warning(0, "Steerer Error", 
+			 "Internal library error - detaching from application",
 			 QMessageBox::Ok,
 			 QMessageBox::NoButton, 
 			 QMessageBox::NoButton);
