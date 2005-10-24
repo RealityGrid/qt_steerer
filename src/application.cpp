@@ -270,7 +270,9 @@ Application::detachFromApplicationForErrorSlot()
 void 
 Application::emitDetachCmdSlot()
 {
-  emitSingleCmd(REG_STR_DETACH);
+  if(emitSingleCmd(REG_STR_DETACH) != REG_SUCCESS){
+    return;
+  }
 
   // make gui read only except for close button
   disableForDetach(false);
@@ -282,14 +284,16 @@ void
 Application::emitStopCmdSlot()
 {
 
-///  if (QMessageBox::information(0, "Stop Application", 
-///				  "Are you sure?",
-///				  QMessageBox::Ok,
-///				  QMessageBox::Cancel, 
-///				  QMessageBox::NoButton) == QMessageBox::Ok)
-///    
-/// {
-  emitSingleCmd(REG_STR_STOP);
+//  if (QMessageBox::information(0, "Stop Application", 
+//				  "Are you sure?",
+//				  QMessageBox::Ok,
+//				  QMessageBox::Cancel, 
+//				  QMessageBox::NoButton) == QMessageBox::Ok)
+//    
+// {
+  if(emitSingleCmd(REG_STR_STOP) != REG_SUCCESS){
+    return;
+  }
 
   // make gui read only 
   disableForDetach(false);
@@ -303,8 +307,13 @@ Application::emitPauseCmdSlot()
 {
   QString message;
 
-  // disable Pause and enable resume if supported (should be forced to support both in library)
+  // Disable Pause and enable resume if supported (should be forced 
+  // to support both in library)
   if(!getCurrentStatus().contains("paused", FALSE)){
+    
+    if(emitSingleCmd(REG_STR_PAUSE) != REG_SUCCESS){
+      return;
+    }
 
     mControlForm->setPauseButtonLabel(QString("Resume"));
 
@@ -315,15 +324,15 @@ Application::emitPauseCmdSlot()
     // application and then detach from it
     mControlForm->setEnabledDetach(FALSE);
 
-    emitSingleCmd(REG_STR_PAUSE);
-
     message = QString("Attached - paused");
   }
   else{
 
-    mControlForm->setPauseButtonLabel(QString("Pause"));
+    if(emitSingleCmd(REG_STR_RESUME) != REG_SUCCESS){
+      return;
+    }
 
-    emitSingleCmd(REG_STR_RESUME);
+    mControlForm->setPauseButtonLabel(QString("Pause"));
 
     // enable IOtype commands
     mControlForm->enableIOCmdButtons();
@@ -338,7 +347,7 @@ Application::emitPauseCmdSlot()
 }
 
 //------------------------------------------------------------------------
-void 
+int
 Application::emitSingleCmd(int aCmdId)
 {
   // send single command to application using ReG library
@@ -383,13 +392,16 @@ Application::emitSingleCmd(int aCmdId)
   catch (SteererException StEx)
   {
     StEx.print();
-    detachFromApplicationForErrorSlot();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
+    // ARP - it's OK for app. to reject a command
+    //detachFromApplicationForErrorSlot();
+    QMessageBox::warning(0, "Steerer Error", 
+			 "Application rejected command",
 			 QMessageBox::Ok,
 			 QMessageBox::NoButton, 
 			 QMessageBox::NoButton);
-    
   }
+
+  return lReGStatus;
 }
 
 //------------------------------------------------------------------------
@@ -475,7 +487,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       num_cmds = aEvent->getNumCmds();
       if(num_cmds)commands = aEvent->getCmdsPtr();
 
-      // now deal with commands - for now we only care about detach command
+      // now deal with commands
       for(int i=0; i<num_cmds && !detached; i++){
   
 	DBGMSG2("Recd Cmd", i, commands[i]);
@@ -485,7 +497,8 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 	  
 	case REG_STR_DETACH:
 	  {
-	  DBGMSG("Application::processNextMessage Received detach command from application");
+	  DBGMSG("Application::processNextMessage Received "
+		 "detach command from application");
 	  detached = true;
 	  mMutexPtr->lock();
 	  Delete_sim_table_entry(&lSimHandle);     //ReG library 
@@ -505,7 +518,8 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
  
 	case REG_STR_STOP:
 	  {
-	  DBGMSG("Application::processNextMessage Received stop command from application");
+	  DBGMSG("Application::processNextMessage Received stop "
+		 "command from application");
 	  detached = true;
 	  mMutexPtr->lock();
 	  Delete_sim_table_entry(&lSimHandle);		//ReG library 
