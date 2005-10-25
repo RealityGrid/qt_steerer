@@ -75,19 +75,29 @@ private:
     ParameterHistory *mXParamHist;
     ParameterHistory *mYParamHist;
     HistoryPlotter *mPlotter;
+    /// Holds the label for the x axis
     char lLabelx[kCHKPT_PARAM_LEN];
+    /// Holds the label for the y axis
     char lLabely[kCHKPT_PARAM_LEN];
+    /// Holds the handle of the parameter used for the abscissa
     int xparamID;
+    /// Holds the handle of the parameter used for the ordinate
     int yparamID;
 
     double mYUpperBound, mYLowerBound;
     double mXUpperBound, mXLowerBound;
     int    mXUpperBoundId, mXLowerBoundId, mAutoXAxisId;
     int    mYUpperBoundId, mYLowerBoundId, mAutoYAxisId;
-    int    showSymbolsId;
+    /// Hande of menu item for controlling whether symbols are drawn
+    int    mShowSymbolsId;
+    /// Hande of menu item for controlling whether lines are drawn
+    int    mShowCurvesId;
     int    mToggleLogXId, mToggleLogYId;
     bool   mAutoYAxisSet, mAutoXAxisSet;
-    bool   displaySymbolsSet;
+    /// Whether or not to display symbols on curve
+    bool   mDisplaySymbolsSet;
+    /// Whether or not to draw curve (as guide to eye)
+    bool   mDisplayCurvesSet;
     bool   mUseLogXAxis, mUseLogYAxis;
 
     // The Qwt identifiers for the two curves that we
@@ -97,10 +107,10 @@ private:
     long mHistCurveID;
     long mCurveID;
     int  mPreviousLogSize;
-    // Flag set when display options are changed by user - forces
-    // both curves to be redrawn.
+    /// Flag set when display options are changed by user - forces
+    /// both curves to be redrawn.
     bool mForceHistRedraw;
-
+    /// Wipe and (re)draw the graph
     void doPlot();
 
 protected:
@@ -119,6 +129,7 @@ public slots:
     void graphXLowerBoundSlot();
     void autoXAxisSlot();
     void graphDisplaySymbolsSlot();
+    void graphDisplayCurvesSlot();
     void toggleLogAxisXSlot();
     void toggleLogAxisYSlot();
 

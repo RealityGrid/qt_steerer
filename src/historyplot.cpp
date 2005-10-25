@@ -124,9 +124,13 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 					   ALT+Key_O);
     mGraphMenu->insertSeparator();
 
-    showSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
-					   SLOT(graphDisplaySymbolsSlot()),
-					   ALT+Key_D);
+    mShowSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
+					    SLOT(graphDisplaySymbolsSlot()),
+					    ALT+Key_D);
+
+    mShowCurvesId = mGraphMenu->insertItem("Toggle display of l&ines", this,
+					   SLOT(graphDisplayCurvesSlot()),
+					   ALT+Key_I);
 
     mGraphMenu->setItemChecked(mAutoYAxisId, true);
     mGraphMenu->setItemChecked(mAutoXAxisId, true);
@@ -134,7 +138,8 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mGraphMenu->setItemEnabled(mYLowerBoundId, false);
     mGraphMenu->setItemEnabled(mXUpperBoundId, false);
     mGraphMenu->setItemEnabled(mXLowerBoundId, false);
-    mGraphMenu->setItemChecked(showSymbolsId, true);
+    mGraphMenu->setItemChecked(mShowSymbolsId, true);
+    mGraphMenu->setItemChecked(mShowCurvesId, true);
     mGraphMenu->setItemChecked(mToggleLogXId, false);
     mGraphMenu->setItemChecked(mToggleLogYId, false);
     
@@ -155,7 +160,9 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     mUseLogYAxis = false;
 
     // Default to displaying symbols
-    displaySymbolsSet = true;
+    mDisplaySymbolsSet = true;
+    // Default to displaying a curve too
+    mDisplayCurvesSet   = true;
 
     mCurveID         = CURVE_UNSET;
     mHistCurveID     = CURVE_UNSET;
@@ -275,8 +282,14 @@ void HistoryPlot::doPlot(){
   if(lReplotHistory)mHistCurveID = mPlotter->insertCurve(lLabely);
 
     // Set curve styles
-    mPlotter->setCurvePen(mCurveID, QPen(red));
-    mPlotter->setCurvePen(mHistCurveID, QPen(red));
+    if(!mDisplayCurvesSet){
+      mPlotter->setCurveStyle(mCurveID, QwtCurve::NoCurve);
+      mPlotter->setCurveStyle(mHistCurveID, QwtCurve::NoCurve);
+    }
+    else{
+      mPlotter->setCurvePen(mCurveID, QPen(red));
+      mPlotter->setCurvePen(mHistCurveID, QPen(red));
+    }
 
     // allow the user to define the Y axis dims if desired
     if (!mAutoYAxisSet){
@@ -318,7 +331,7 @@ void HistoryPlot::doPlot(){
     // takes account of the TOTAL no. of points to be plotted and the
     // WIDTH of the plot window.  It does not allow for the fact that
     // y-axis limits may mean that only a subset of the points are plotted.
-    if(displaySymbolsSet){
+    if(mDisplaySymbolsSet){
       // |   x    x    x   |
       // |<     width     >| with npoints = 3.
       // Code below works out average spacing of data points
@@ -529,8 +542,19 @@ void HistoryPlot::graphXLowerBoundSlot(){
  */
 void HistoryPlot::graphDisplaySymbolsSlot(){
 
-  displaySymbolsSet = !displaySymbolsSet;
-  mGraphMenu->setItemChecked(showSymbolsId, displaySymbolsSet);
+  mDisplaySymbolsSet = !mDisplaySymbolsSet;
+  mGraphMenu->setItemChecked(mShowSymbolsId, mDisplaySymbolsSet);
+  mForceHistRedraw = true;
+  // redraw the plot
+  doPlot();
+}
+
+/** Toggle display of curve lines on graph on/off
+ */
+void HistoryPlot::graphDisplayCurvesSlot(){
+
+  mDisplayCurvesSet = !mDisplayCurvesSet;
+  mGraphMenu->setItemChecked(mShowCurvesId, mDisplayCurvesSet);
   mForceHistRedraw = true;
   // redraw the plot
   doPlot();
