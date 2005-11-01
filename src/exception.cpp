@@ -36,9 +36,9 @@
 #include "exception.h"
 #include "types.h"
 
-#include <stdio.h>
 #include <string.h>
-#include <iostream.h>
+#include <iostream>
+using namespace std;
 
 SteererException::SteererException(const char * const aMsgPtr)
   :  mFilenamePtr(kNULL), mLineNumber(0)
