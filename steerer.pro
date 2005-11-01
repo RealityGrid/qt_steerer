@@ -67,7 +67,8 @@ HEADERS += inc/application.h \
            inc/steerermainwindow.h \
            inc/table.h \
            inc/types.h \
-           inc/utility.h
+           inc/utility.h \
+           inc/historysubplot.h
 SOURCES += src/application.cpp \
            src/attachform.cpp \
            src/chkptform.cpp \
@@ -85,4 +86,5 @@ SOURCES += src/application.cpp \
            src/steerer.cpp \
            src/steerermainwindow.cpp \
            src/table.cpp \
-           src/utility.cpp
+           src/utility.cpp \
+           src/historysubplot.cpp
