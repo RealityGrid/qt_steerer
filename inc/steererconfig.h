@@ -37,6 +37,8 @@
 
 using namespace std;
 
+#include <qdom.h>
+
 /** @file steererconfig.h
     @brief Defines class holding configuration data
 */

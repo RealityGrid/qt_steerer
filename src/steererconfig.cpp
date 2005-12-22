@@ -41,7 +41,6 @@
  *  @brief Holds configuration data for the steering client */
 
 #include <iostream>
-#include <qdom.h>
 #include <qfile.h>
 #include <qdir.h>
 #include <qstring.h>
@@ -51,7 +50,15 @@ using namespace std;
 
 /** Constructor */
 SteererConfig::SteererConfig(){
-
+  mTopLevelRegistry = "";
+  mCACertsPath = "";
+  mPrivateKeyCertFile = "";
+  mAutoPollingOn = true;
+  mPollingIntervalSecs = 0.1;
+  mShowMonParamTable = true;
+  mShowSteerParamTable = true;
+  mShowIOTypeTable = true;
+  mShowChkTypeTable = true;
 }
 
 /** Destructor */
