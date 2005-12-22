@@ -214,9 +214,15 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   statusBar()->message( "www.realitygrid.org");
 
+  // Read configuration file (if any)
+  mSteererConfig = new SteererConfig();
+  mSteererConfig->readConfig(QString(getenv("HOME")) + 
+			     "/RealityGrid/etc/steerer.conf");
+
   // create commsthread so can set checkinterval 
   // - thread is started on first attach
-  mCommsThread = new CommsThread(this, &mReGMutex);
+  mCommsThread = new CommsThread(this, &mReGMutex, 
+				 (int)(1000.0*mSteererConfig->mPollingIntervalSecs));
   if (mCommsThread != kNULL){
     mSetCheckIntervalAction->setEnabled(TRUE);
 
@@ -350,14 +356,10 @@ SteererMainWindow::attachAppSlot()
   }
 }
 
+//------------------------------------------------------------------
 
-void 
-SteererMainWindow::attachGridAppSlot()
+void SteererMainWindow::attachGridAppSlot()
 {
-
-  // SMR XXX future: need to keep record of attached SimGSH so cannot attach twice - 
-  // also filter of grid  list shown 
-
   AttachForm *lAttachForm = new AttachForm(this);
      
   if (lAttachForm->getLibReturnStatus() == REG_SUCCESS)
@@ -394,22 +396,40 @@ SteererMainWindow::attachGridAppSlot()
   }
 
   delete lAttachForm;
-
 }
 
-void 
-SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
+//------------------------------------------------------------------
+
+void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 {
 
-  /* Attempt to attach ONE simulation */ 
+  /* Attempt to attach to a simulation */ 
   int lReGStatus = REG_FAILURE;
   int lSimHandle = -1;
 
   try
   {
-    mReGMutex.lock();
-    lReGStatus = Sim_attach(aSimID, &lSimHandle);	//ReG library
-    mReGMutex.unlock();
+    QString idStr(aSimID);
+    if(idStr.startsWith("http") && idStr.contains("/WSRF/")){
+      bool ok;
+      QString text = QInputDialog::getText("RealityGrid Steerer", 
+					   "Enter passphrase for this application:", 
+					   QLineEdit::Password,
+					   QString::null, &ok, this );
+      if ( !ok ) return; // Cancel if user didn't press OK
+
+      mReGMutex.lock();
+      lReGStatus = Sim_attach_secure(aSimID, getenv("USER"), 
+				     text.ascii(), 
+				     mSteererConfig->mCACertsPath,
+				     &lSimHandle); // ReG library
+      mReGMutex.unlock();
+    }
+    else{
+      mReGMutex.lock();
+      lReGStatus = Sim_attach(aSimID, &lSimHandle);  //ReG library
+      mReGMutex.unlock();
+    }
 
     if (lReGStatus == REG_SUCCESS)
     {
@@ -751,4 +771,14 @@ void SteererMainWindow::hideMonTableSlot()
   else{
     cout << "ARPDBG - no visible widget??" << endl;
   }
+}
+
+bool SteererMainWindow::autoPollingOn()
+{
+  return mSteererConfig->mAutoPollingOn;
+}
+
+float SteererMainWindow::getPollingIntervalSecs()
+{
+  return mSteererConfig->mPollingIntervalSecs;
 }
