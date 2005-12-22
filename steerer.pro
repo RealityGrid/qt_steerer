@@ -42,7 +42,7 @@ TARGET      = steerer
 DEFINES     += DBG_VERSION
 CONFIG      += qt thread
 INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR} ${REG_QWT_INCDIR}
-LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer -lReG_Steer_Utils
+LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer -lReG_Steer_Utils -lssl -lcrypto
 LIBS        += -L${REG_XML_LIBDIR} -lxml2
 LIBS        += -L${REG_QWT_LIBDIR} -lqwt
 MOC_DIR      = moc
@@ -64,6 +64,7 @@ HEADERS += inc/application.h \
            inc/parameter.h \
            inc/parameterhistory.h \
            inc/parametertable.h \
+           inc/steererconfig.h \
            inc/steerermainwindow.h \
            inc/table.h \
            inc/types.h \
@@ -84,6 +85,7 @@ SOURCES += src/application.cpp \
            src/parameterhistory.cpp \
            src/parametertable.cpp \
            src/steerer.cpp \
+           src/steererconfig.cpp \
            src/steerermainwindow.cpp \
            src/table.cpp \
            src/utility.cpp \
