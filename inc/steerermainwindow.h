@@ -48,7 +48,8 @@ class QWidget;
 class QWidgetStack;
 
 #include "application.h"
-//class Application;
+#include "steererconfig.h"
+
 class CommsThread;
 
 class SteererMainWindow : public QMainWindow
@@ -62,6 +63,8 @@ public:
   Application * getApplication(int aSimHandle);
   void customEvent(QCustomEvent *);
 
+  bool  autoPollingOn();
+  float getPollingIntervalSecs();
 private:
   void cleanUp();
 
@@ -118,6 +121,8 @@ private:
   QAction       *mHideMonTableAction;
 
   QPtrList<Application> mAppList;
+
+  SteererConfig *mSteererConfig;
 };
 
 #endif
