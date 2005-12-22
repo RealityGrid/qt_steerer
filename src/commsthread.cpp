@@ -108,7 +108,7 @@ CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex,
   DBGCON("CommsThread constructor");
   gCommsThreadPtr = this; 
   // Set polling interval automatically
-  mUseAutoPollInterval = 1;
+  mUseAutoPollInterval = aSteerer->autoPollingOn();
   mPollCount = 0;
   mMsgCount = 0;
   // How many polls to average over in order to decide whether
@@ -367,7 +367,7 @@ CommsThread::setKeepRunning(const bool aFlag)
   mKeepRunningFlag = aFlag;
 }
 
-int CommsThread::getUseAutoPollFlag() const
+bool CommsThread::getUseAutoPollFlag() const
 {
   return mUseAutoPollInterval;
 }

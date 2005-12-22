@@ -50,7 +50,7 @@ public:
     void setCheckInterval(const int aInterval);
     int getCheckInterval() const;
     void setUseAutoPollFlag(const int aFlag);
-    int getUseAutoPollFlag() const;
+    bool getUseAutoPollFlag() const;
     void stop();
     void handleSignal();
 
@@ -64,7 +64,7 @@ private:
     SteererMainWindow	*mSteerer;
     bool		mKeepRunningFlag;
     int			mCheckInterval;  //milliseconds
-    int                 mUseAutoPollInterval;
+    bool                mUseAutoPollInterval;
     int                 mPollCount;
     int                 mMsgCount;
     // How many polls to average over in order to decide whether
