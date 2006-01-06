@@ -34,6 +34,8 @@
 
  
 #include "attachform.h"
+#include "steererconfig.h"
+#include "steerermainwindow.h"
 #include "utility.h"
 #include "types.h"
 #include "debug.h"
@@ -43,6 +45,7 @@
 #include <qhbox.h>
 #include <qlayout.h>
 #include <qlineedit.h>
+#include <qinputdialog.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qtooltip.h>
@@ -55,29 +58,59 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mSimGSHSelected(kNULL), mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL), 
     mFilterLineEdit(kNULL), mAttachButton(kNULL), mCancelButton(kNULL)
 {
+  struct registry_entry *entries;
+  int i;
 
   DBGCON("AttachForm");
 
-  //  set up arrays for ReG lib call
+  // set up arrays for ReG lib call
   // max list can be is REG_MAX_NUM_STEERED_SIM
 
   mSimName = new char *[REG_MAX_NUM_STEERED_SIM];
   mSimGSH = new char *[REG_MAX_NUM_STEERED_SIM];
 
-  for (int i=0; i<REG_MAX_NUM_STEERED_SIM; i++)
-  {
+  for (i=0; i<REG_MAX_NUM_STEERED_SIM; i++){
     mSimName[i] = new char[REG_MAX_STRING_LENGTH + 1];
     mSimGSH[i] = new char[REG_MAX_STRING_LENGTH + 1];
   }
 
-  // get the list of grid applications from library
-  mLibReturnStatus = Get_sim_list(&mNumSims, mSimName, mSimGSH); // ReG lib
+  // Get the passphrase for the user's key if registry is using
+  // SSL
+  SteererConfig *lConfig = ((SteererMainWindow *)parent)->getConfig();
+  if(lConfig->mTopLevelRegistry.startsWith("https")){
+    bool ok;
+
+    lConfig->mKeyPassphrase = QInputDialog::getText("RealityGrid Steerer", 
+						    "Enter passphrase for X.509 key:", 
+						    QLineEdit::Password,
+						    QString::null, &ok, this );
+    if ( !ok ) return; // Cancel if user didn't press OK
+  }
+
+  // Now find out what's in the registry...
+  mLibReturnStatus = Get_registry_entries_secure(lConfig->mTopLevelRegistry,
+						 lConfig->mKeyPassphrase,
+						 lConfig->mPrivateKeyCertFile,
+						 lConfig->mCACertsPath,
+						 &mNumSims,  
+						 &entries);
 
   // only continue if there is some info to show
   if(mLibReturnStatus == REG_SUCCESS && mNumSims>0) 
   {
     this->setCaption( "Grid Attach" );
     resize( 520, 350 );
+
+    int count = 0;
+    for (i=0; i<mNumSims; i++){
+      if(!strcmp(entries[i].service_type, "SWS") ||
+	 !strcmp(entries[i].service_type, "SGS")){
+	sprintf(mSimName[count], "%s %s %s", entries[i].application,
+		entries[i].user, entries[i].start_date_time);
+	sprintf(mSimGSH[count], "%s", entries[i].entry_gsh);
+	count++;
+      }
+    }
     
     // create the layouts for the form
     QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, "attachformlayout");
