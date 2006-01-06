@@ -53,6 +53,7 @@ SteererConfig::SteererConfig(){
   mTopLevelRegistry = "";
   mCACertsPath = "";
   mPrivateKeyCertFile = "";
+  mKeyPassphrase = "";
   mAutoPollingOn = true;
   mPollingIntervalSecs = 0.1;
   mShowMonParamTable = true;
@@ -95,24 +96,8 @@ void SteererConfig::readConfig(QString fileName){
   mTopLevelRegistry =  getElementAttrValue(docElem, "topLevelRegistry");
   cout << "Top-level registry is " << mTopLevelRegistry << endl;
 
-  // Security section
-  QDomNodeList nodeList = docElem.elementsByTagName("Security");
-  if(nodeList.count() != 1){
-    cout << "Failed to find Security section in config. file" << endl;
-  }
-  else{
-    mCACertsPath = getElementAttrValue(nodeList.item(0).toElement(),
-				       "caCertsPath");
-    cout << "Path to dir holding CA certs. is " << mCACertsPath << endl;
-
-    mPrivateKeyCertFile = getElementAttrValue(nodeList.item(0).toElement(),
-					      "privateKeyCertFile");
-    cout << "Path to file holding user's key and cert. is " << 
-      mPrivateKeyCertFile << endl;
-  }
-
   // Polling configuration section
-  nodeList = docElem.elementsByTagName("Polling");
+  QDomNodeList nodeList = docElem.elementsByTagName("Polling");
   if(nodeList.count() != 1){
     cout << "Failed to find Polling section in config. file" << endl;
   }
@@ -181,6 +166,41 @@ void SteererConfig::readConfig(QString fileName){
   }
 
   return;
+}
+
+/** Method loads a configuration xml file, and parses it to
+ *  determine the stored security configuration values.
+ */
+void SteererConfig::readSecurityConfig(QString fileName){
+
+  QDomDocument doc( "steererSecurityConfigDocument" );
+  QFile        configFile(fileName);
+
+  // Parse file
+  if ( !configFile.open( IO_ReadOnly ) ){
+    cout << "Input file " << configFile.name() << " does not exist :-(" <<endl;
+    return;
+  }
+  if ( !doc.setContent( &configFile ) ) {
+    configFile.close();
+    return;
+  }
+  configFile.close();
+
+  // Root element
+  QDomElement docElem = doc.documentElement();
+  if(docElem.tagName().contains("Security_config")){
+
+    mCACertsPath = getElementAttrValue(docElem, "caCertsPath");
+    cout << "Path to dir holding CA certs. is " << mCACertsPath << endl;
+
+    mPrivateKeyCertFile = getElementAttrValue(docElem, "privateKeyCertFile");
+    cout << "Path to file holding user's key and cert. is " << 
+      mPrivateKeyCertFile << endl;
+  }
+  else{
+    cout << "Failed to find Security section in config. file" << endl;
+  }
 }
 
 //----------------------------------------------------------------------
