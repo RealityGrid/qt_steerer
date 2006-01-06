@@ -63,8 +63,14 @@ public:
   Application * getApplication(int aSimHandle);
   void customEvent(QCustomEvent *);
 
+  /// Queries whether or not automatic polling is on or off
   bool  autoPollingOn();
+  /// Returns the current value of the polling interval in seconds
   float getPollingIntervalSecs();
+
+  /// Returns a pointer to the SteererConfig object
+  SteererConfig *getConfig();
+
 private:
   void cleanUp();
 
