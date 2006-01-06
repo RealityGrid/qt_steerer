@@ -218,6 +218,8 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mSteererConfig = new SteererConfig();
   mSteererConfig->readConfig(QString(getenv("HOME")) + 
 			     "/RealityGrid/etc/steerer.conf");
+  mSteererConfig->readSecurityConfig(QString(getenv("HOME")) + 
+			     "/RealityGrid/etc/security.conf");
 
   // create commsthread so can set checkinterval 
   // - thread is started on first attach
@@ -781,4 +783,9 @@ bool SteererMainWindow::autoPollingOn()
 float SteererMainWindow::getPollingIntervalSecs()
 {
   return mSteererConfig->mPollingIntervalSecs;
+}
+
+SteererConfig *SteererMainWindow::getConfig()
+{
+  return mSteererConfig;
 }
