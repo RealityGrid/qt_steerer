@@ -54,6 +54,8 @@ class SteererConfig {
   QString mCACertsPath;
   /** Location of the PEM file holding user's private key and certificate */
   QString mPrivateKeyCertFile;
+  /** The passphrase for the user's private key */
+  QString mKeyPassphrase;
   /** Whether automatic polling should be switched on by default */
   bool mAutoPollingOn;
   /** The default polling interval when not setting it automatically */
@@ -70,10 +72,16 @@ class SteererConfig {
   SteererConfig();
   ~SteererConfig();
 
-  /** Write a configuration file for the steering client using current settings */
+  /** Write a configuration file for the steering client using 
+      current settings */
   void writeConfig(QString fileName);
-  /** Read configuration file and store values in member variables of this class */
+  /** Read configuration file and store values in member variables 
+      of this class */
   void readConfig(QString fileName);
+  /** Read security configuration file and store values in member variables 
+      of this class */
+  void readSecurityConfig(QString fileName);
+
   /** Get the value (from the "value" attribute) of the named 
       element which is to be found somewhere below the elem element */
   QString getElementAttrValue(QDomElement elem, 
