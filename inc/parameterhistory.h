@@ -35,25 +35,40 @@
 #ifndef __PARAMETERHISTORY_H__
 #define __PARAMETERHISTORY_H__
 
+/// @brief Class providing storage and accessors for logged parameter data.
+/// Used by the history plotting code.
+/// @see HistoryPlot
+/// @see HistorySubPlot
+/// @author Mark Riding
+/// @author Andrew Porter
+/// @author Sue Ramsden
 class ParameterHistory {
   public:
     ParameterHistory();
     ~ParameterHistory();
-  
+    /// Store the supplied value in mParamHistArray (append)
     void          updateParameter(const char* lVal);
+    /// Returns the value of the element at index in mParamHistArray
     const float   elementAt(int index);
+    /// Returns mParamHistArray
     double*       ptrToArray();
-    void          graphParameter();
 
+    /// Size of array pointed to by mParamHistArray
     int     mArraySize;
+    /// Position at which to insert next new value in array pointed 
+    /// to by mParamHistArray
     int     mArrayPos;
+    /// Pointer to array holding data logged by the steering library
+    /// _before_ steering client attached
     double *mPtrPreviousHistArray;
+    /// Size of array pointed to by mPtrPreviousHistArray
     int     mPreviousHistArraySize;
 
  private:
+    /// Used when realloc'ing memory for the mParamHistArray
     int     mArrayChunkSize;
+    /// Array holding data that we've logged since being attached
     double *mParamHistArray;
-
 };
 
 #endif
