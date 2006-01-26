@@ -63,11 +63,17 @@ public:
   void updateParameterLog();
 
 public slots:
-  // MR: Slot for the context menu
+  /// Slot for the context menu in the parameter table
   virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
   void requestParamHistorySlot(int row);
   void drawGraphSlot(int popupMenuID);
+  /** Slot called when the user selects the "Draw Graph" option from
+   *  the table's context menu */
+  void addGraphSlot(int popupMenuID);
+  /// Slot called when the user quits a parameter history plot
   void plotClosedSlot(HistoryPlot *ptr);
+  /// Slot called when user clicks on a history plot canvas
+  void plotSelectedSlot(HistoryPlot *);
 
 signals:
   // MR: Signal to tell the HistoryPlot to update
@@ -86,15 +92,27 @@ protected:
   Parameter *findParameterFromLabel(const QString &aLabel);
 
 protected:
+  /// List of the history plots associated with this application
   QPtrList<HistoryPlot> mHistoryPlotList;
+  /// List of the parameters associated with this application
   QPtrList<Parameter>   mParamList;
   HistoryPlot          *mQwtPlot;
+  /// Pointer to table of monitored parameters
   ParameterTable       *mMonParamTable;
+  /// Flag recording whether or not we've already fetched the full
+  /// history of the Sequence Number parameter for this app.
   bool                  mFetchedSeqNumHistory;
+  /// Pointer to mutex used to control calls to steering library
   QMutex               *mMutexPtr;
+  /// Pointer to parameter to add to history plot
+  Parameter            *mParamToAdd;
 
  private:
+  /// Pointer to our parent control form
   ControlForm          *mParent;
+  /// Whether or not we are in mode where user is selecting one of the
+  /// history plots
+  bool                  mUserChoosePlotMode;
 };
 
 

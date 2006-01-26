@@ -42,24 +42,13 @@
 #include "qthread.h"
 #include "qpixmap.h"
 #include <qwt_plot.h>
+#include <qwt_plot_picker.h>
 #include "types.h"
 
+class HistorySubPlot;
 class ParameterHistory;
 class QMenuBar;
 class QPopupMenu;
-
-/** The plotter class is the extended qwt widget.
- *  This deals with the drawing of the graph.
- */
-
-class HistoryPlotter : public QwtPlot
-{
-  Q_OBJECT
-
-private:
-public:
-  HistoryPlotter(QWidget *p=0, const char *name=0):QwtPlot(p, name){}
-};
 
 /** The history plot class is the main window for the
  *  graph, with the extra functionality of menus etc.
@@ -72,19 +61,19 @@ private:
     QMenuBar *mMenuBar;
     QPopupMenu *mFileMenu;
     QPopupMenu *mGraphMenu;
+    /// Pointer to ParameterHistory for abscissa
     ParameterHistory *mXParamHist;
-    ParameterHistory *mYParamHist;
-    HistoryPlotter *mPlotter;
+    /// The QwtPlot object for this history plot
+    QwtPlot *mPlotter;
+    /// The class dealing with plotting the curve for this history plot
+    HistorySubPlot *mSubPlot;
     /// Holds the label for the x axis
-    char lLabelx[kCHKPT_PARAM_LEN];
-    /// Holds the label for the y axis
-    char lLabely[kCHKPT_PARAM_LEN];
+    char mLabelx[kCHKPT_PARAM_LEN];
     /// Holds the handle of the parameter used for the abscissa
     int xparamID;
-    /// Holds the handle of the parameter used for the ordinate
-    int yparamID;
-
+    /// Bounds on y axis
     double mYUpperBound, mYLowerBound;
+    /// Bounds on x axis
     double mXUpperBound, mXLowerBound;
     int    mXUpperBoundId, mXLowerBoundId, mAutoXAxisId;
     int    mYUpperBoundId, mYLowerBoundId, mAutoYAxisId;
@@ -92,24 +81,21 @@ private:
     int    mShowSymbolsId;
     /// Hande of menu item for controlling whether lines are drawn
     int    mShowCurvesId;
-    int    mToggleLogXId, mToggleLogYId;
-    bool   mAutoYAxisSet, mAutoXAxisSet;
-    /// Whether or not to display symbols on curve
-    bool   mDisplaySymbolsSet;
-    /// Whether or not to draw curve (as guide to eye)
-    bool   mDisplayCurvesSet;
-    bool   mUseLogXAxis, mUseLogYAxis;
 
-    // The Qwt identifiers for the two curves that we
-    // might be plotting - one for the history of the parameter
-    // prior to the time the steerer connected and one for the
-    // history we've collected since connecting.
-    long mHistCurveID;
-    long mCurveID;
-    int  mPreviousLogSize;
     /// Flag set when display options are changed by user - forces
     /// both curves to be redrawn.
     bool mForceHistRedraw;
+
+    /// List of the sub-plots constituting this history plot
+    QPtrList<HistorySubPlot> mSubPlotList;
+
+    /// Picker to handle plot selection when adding further curves
+    QwtPicker *mPicker;
+
+    /// Holds a list of the colours that QColor knows about
+    QStringList mColourList;
+    QStringList::Iterator mColourIter;
+
     /// Wipe and (re)draw the graph
     void doPlot();
 
@@ -132,9 +118,12 @@ public slots:
     void graphDisplayCurvesSlot();
     void toggleLogAxisXSlot();
     void toggleLogAxisYSlot();
+    void canvasSelectedSlot(const QPointArray &);
+    //void canvasSelectedSlot( );
 
 signals:
     void plotClosedSignal(HistoryPlot *ptr);
+    void plotSelectedSignal(HistoryPlot *);
 
 public:
     HistoryPlot(ParameterHistory *mXParamHist, 
@@ -144,6 +133,19 @@ public:
 		const int xparamID, const int yparamID,
 		const char *_lComponentName);
     ~HistoryPlot();
+
+    /** Add another plot/curve to this history plot */
+    void addPlot(ParameterHistory *_mYParamHist,
+		 const char *_lLabely, 
+		 const int _yparamID);
+
+    int    mToggleLogXId, mToggleLogYId;
+    bool   mAutoYAxisSet, mAutoXAxisSet;
+    /// Whether or not to display symbols on curve
+    bool   mDisplaySymbolsSet;
+    /// Whether or not to draw curve (as guide to eye)
+    bool   mDisplayCurvesSet;
+    bool   mUseLogXAxis, mUseLogYAxis;
 };
 
 /////////////////////////////////////////////////////////

@@ -41,15 +41,18 @@
 
 #define CURVE_UNSET 1000
 
-/** The history plot class is the main window for the
- *  graph, with the extra functionality of menus etc.
+/** The historysubplot class deals with the plotting of a single
+ *  curve on a historyplot (which may consist of more than one
+ *  such curve).
  */
 class HistorySubPlot : public QObject
 {
   Q_OBJECT
   
 private:
+    /// Pointer to the parent HistoryPlot object
     HistoryPlot      *mHistPlot;
+    /// Pointer to the parent QwtPlot object in which we will draw
     QwtPlot   *mPlotter;
     ParameterHistory *mXParamHist;
     /// Holds the label for the y axis or key
@@ -59,16 +62,18 @@ private:
     /// Holds the handle of the parameter used for the ordinate
     int mYparamID;
 
-    double mYUpperBound, mYLowerBound;
-    double mXUpperBound, mXLowerBound;
-
-    // The Qwt identifiers for the two curves that we
-    // might be plotting - one for the history of the parameter
-    // prior to the time the steerer connected and one for the
-    // history we've collected since connecting.
-    long mHistCurveID;
-    long mCurveID;
-    int  mPreviousLogSize;
+    /// The Qwt identifier for the curve showing the history of the 
+    /// parameter prior to the time the steerer connected
+    long    mHistCurveID;
+    /// The (QwtPlot) id for the curve showing the history of the parameter
+    /// we are looking after since the steerer connected to the simulation
+    long    mCurveID;
+    /// How many elements the log for the parameter being plotted
+    /// used to have
+    int     mPreviousLogSize;
+    /// String holding the (QColor-recognised) name of the colour
+    /// of the pen for this curve 
+    QString mColour;
 
 public:
     HistorySubPlot(HistoryPlot *lHistPlot,
@@ -76,7 +81,8 @@ public:
 		   ParameterHistory *mXParamHist, 
 		   ParameterHistory *mYParamHist, 
 		   const QString &lLabely, 
-		   const int yparamID);
+		   const int yparamID,
+		   const QString lColour);
     ~HistorySubPlot();
 
     /// Wipe and (re)draw the graph

@@ -62,8 +62,8 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
   mHistoryPlotList.setAutoDelete( TRUE );
 
   // create table to display all monitored parameters
-  // as well as displaying parameters in a table (one per row), a list of parameter objects
-  // is also held on the class
+  // as well as displaying parameters in a table (one per row), a list of 
+  // parameter objects is also held on the class
   // each parameter object holds the row id  of the row in the parameter table
   // that represents that parameter
   // each table row holds the parameter id in a column hidden form the user
@@ -76,9 +76,13 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
   mMonParamTable = NULL;
 
   // Flag that says whether or not we've retrieved the full history of 
-  // the sequence number parameter.  Important because we currently plot 
+  // the sequence number parameter.  Important because we often plot 
   // all parameter histories against this.
   mFetchedSeqNumHistory = false;
+
+  // Whether we are in mode where user is selecting a history plot
+  mUserChoosePlotMode = false;
+  mParamToAdd = NULL;
 }  
 
 ParameterTable::~ParameterTable()
@@ -378,11 +382,11 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 		       SLOT(drawGraphSlot(int)), CTRL+Key_D, row, 0);
 
   // ARPDBG - work to allow user to add to a current plot goes here...
-  //if( mHistoryPlotList.count() > 0 || 
-  //   (mMonParamTable && (mMonParamTable->mHistoryPlotList.count() > 0)) ){
-  //  popupMenu.insertItem(QString("Add to History Graph"), this, 
-  //		       SLOT(drawGraphSlot(int)), CTRL+Key_M, row, 0);
-  //}
+  if( mHistoryPlotList.count() > 0 || 
+     (mMonParamTable && (mMonParamTable->mHistoryPlotList.count() > 0)) ){
+    popupMenu.insertItem(QString("Add to History Graph"), this, 
+			 SLOT(addGraphSlot(int)), CTRL+Key_M, row, 0);
+  }
 
   popupMenu.exec(pnt);
 
@@ -478,11 +482,45 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   // Make connection so that the graph can tell us when it has been closed
   connect(mQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
 	  SLOT(plotClosedSlot(HistoryPlot*)));
+
+
+  connect(mQwtPlot, SIGNAL(plotSelectedSignal(HistoryPlot *)),
+	  this, SLOT(plotSelectedSlot(HistoryPlot *)));
+
 }
 
-/** Slot called when the user quits a parameter history plot
- *
+//----------------------------------------------------------------
+/** Slot called when the user selects the "Draw Graph" option from
+ *  the table's context menu
  */
+void ParameterTable::addGraphSlot(int popupMenuID){
+  // First obtain the appropriate parameter (and therefore its history)
+  mParamToAdd = findParameterHandleFromRow(popupMenuID);
+  if(!mParamToAdd){
+    cout << "ParameterTable::addGraphSlot: failed to find valid parameter "
+      "for row " << popupMenuID << endl;
+    return;
+  }
+
+  mUserChoosePlotMode = true;
+  QMessageBox::information( this, "Add parameter to history plot",
+			    "Click on the history plot to which you wish "
+			    "to add this parameter.");
+}
+
+//----------------------------------------------------------------
+void ParameterTable::plotSelectedSlot(HistoryPlot *plot){
+
+  if(mUserChoosePlotMode && mParamToAdd){
+    plot->addPlot(mParamToAdd->mParamHist,
+		  mParamToAdd->getLabel(), 
+		  mParamToAdd->getId());
+    mUserChoosePlotMode = false;
+    mParamToAdd = NULL;
+  }
+}
+
+//----------------------------------------------------------------
 void ParameterTable::plotClosedSlot(HistoryPlot *ptr){
 
   // Plot closed so remove from list (Auto delete means Qt will then destroy 
@@ -490,6 +528,7 @@ void ParameterTable::plotClosedSlot(HistoryPlot *ptr){
   mHistoryPlotList.removeRef(ptr);
 }
 
+//----------------------------------------------------------------
 /** Called when application object receives a log message
  */
 void ParameterTable::updateParameterLog(){

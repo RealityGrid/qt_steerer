@@ -31,21 +31,24 @@
   Authors........: Mark Riding, Andrew Porter, Sue Ramsden
 
 ---------------------------------------------------------------------------*/
+#include <iostream>
+using namespace std;
 
+#include "historysubplot.h"
 #include "historyplot.h"
 #include "parameterhistory.h"
 
 #include "qprinter.h"
 #include "qinputdialog.h"
 #include "qwt_symbol.h"
+#include "qwt_picker.h"
+#include "qwt_legend.h"
 #include "qfiledialog.h"
 #include "qtextstream.h"
 #include <qmessagebox.h>
-#include "iostream.h"
+#include "qcolor.h"
 
 #include "debug.h"
-
-#define CURVE_UNSET 1000
 
 /** Constructor
  *  ParameterHistory* contains the data to plot
@@ -60,123 +63,167 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 			 const int _xparamID, 
 			 const int _yparamID,
 			 const char *_lComponentName)
+  : mXParamHist(_mXParamHist)
 {
-    // Local copies of passed parameters
-    mXParamHist = _mXParamHist;
-    mYParamHist = _mYParamHist;
-    xparamID = _xparamID;
-    yparamID = _yparamID;
-    strcpy(lLabelx, _lLabelx);
-    strcpy(lLabely, _lLabely);
+  // Local copies of passed parameters
+  xparamID = _xparamID;
+  strcpy(mLabelx, _lLabelx);
 
-    // Set the caption to be something descriptive - include
-    // name of the component being steered (same as the tab
-    // title and set in SteererMainWindow::editTabTitleSlot)
-    setCaption(QString(lLabely)+" of "+QString(_lComponentName));
+  // Set the caption to be something descriptive - include
+  // name of the component being steered (same as the tab
+  // title and set in SteererMainWindow::editTabTitleSlot)
+  setCaption(QString(_lLabely)+" of "+QString(_lComponentName));
     
-    // Create a plotter widget
-    mPlotter = new HistoryPlotter(this);
+  // Create a plotter widget
+  mPlotter = new QwtPlot(this);
 
-    // Don't bother with a plot title in order to save space
-    //mPlotter->setTitle(QString(lLabely)+QString(" vs. SEQUENCE_NUM"));
+  mPlotter->setCanvasBackground(Qt::darkGray);
 
-    // Set axis titles
-    mPlotter->setAxisTitle(mPlotter->xBottom, lLabelx);
-    mPlotter->setAxisTitle(mPlotter->yLeft, lLabely);
+  // Set axis titles
+  mPlotter->setAxisTitle(mPlotter->xBottom, mLabelx);
+  mPlotter->setAxisTitle(mPlotter->yLeft, _lLabely);
 
-    QVBoxLayout *tBL = new QVBoxLayout(this);
-    mMenuBar = new QMenuBar(this, "menuBar");
+  QVBoxLayout *tBL = new QVBoxLayout(this);
+  mMenuBar = new QMenuBar(this, "menuBar");
 
-    mFileMenu = new QPopupMenu(this, "filePopup");
-    mFileMenu->insertItem("&Print", this, SLOT(filePrint()), CTRL+Key_P);
-    mFileMenu->insertItem("&Save", this, SLOT(fileSave()), CTRL+Key_S);
-    mFileMenu->insertItem("Save da&ta", this, SLOT(fileDataSave()), 
-			  CTRL+Key_T);
-    mFileMenu->insertSeparator();
-    mFileMenu->insertItem("&Close", this, SLOT(fileQuit()), CTRL+Key_C);
+  mFileMenu = new QPopupMenu(this, "filePopup");
+  mFileMenu->insertItem("&Print", this, SLOT(filePrint()), CTRL+Key_P);
+  mFileMenu->insertItem("&Save", this, SLOT(fileSave()), CTRL+Key_S);
+  mFileMenu->insertItem("Save da&ta", this, SLOT(fileDataSave()), 
+			CTRL+Key_T);
+  mFileMenu->insertSeparator();
+  mFileMenu->insertItem("&Close", this, SLOT(fileQuit()), CTRL+Key_C);
 
-    mGraphMenu = new QPopupMenu(this, "graphPopup");
+  mGraphMenu = new QPopupMenu(this, "graphPopup");
 
-    mAutoYAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
+  mAutoYAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
 					SLOT(autoYAxisSlot()), CTRL+Key_A);
-    mYUpperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, 
+  mYUpperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, 
 					  SLOT(graphYUpperBoundSlot()), 
 					  CTRL+Key_U);
-    mYLowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
+  mYLowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
 					  SLOT(graphYLowerBoundSlot()),
  					  CTRL+Key_L);
-    mToggleLogYId = mGraphMenu->insertItem("Toggle use of L&og Y axis", this, 
-					   SLOT(toggleLogAxisYSlot()), 
-					   CTRL+Key_O);
+  mToggleLogYId = mGraphMenu->insertItem("Toggle use of L&og Y axis", this, 
+					 SLOT(toggleLogAxisYSlot()), 
+					 CTRL+Key_O);
 
-    mGraphMenu->insertSeparator();
-
-    mAutoXAxisId = mGraphMenu->insertItem("&Auto X Axis", this, 
+  mGraphMenu->insertSeparator();
+  
+  mAutoXAxisId = mGraphMenu->insertItem("&Auto X Axis", this, 
 					SLOT(autoXAxisSlot()), ALT+Key_A);
-    mXUpperBoundId = mGraphMenu->insertItem("Define X &upper-bound", this, 
+  mXUpperBoundId = mGraphMenu->insertItem("Define X &upper-bound", this, 
 					  SLOT(graphXUpperBoundSlot()), 
 					  ALT+Key_U);
-    mXLowerBoundId = mGraphMenu->insertItem("Define X &lower-bound", this, 
+  mXLowerBoundId = mGraphMenu->insertItem("Define X &lower-bound", this, 
 					  SLOT(graphXLowerBoundSlot()), 
 					  ALT+Key_L);
-    mToggleLogXId = mGraphMenu->insertItem("Toggle use of L&og X axis", this, 
-					   SLOT(toggleLogAxisXSlot()), 
-					   ALT+Key_O);
-    mGraphMenu->insertSeparator();
+  mToggleLogXId = mGraphMenu->insertItem("Toggle use of L&og X axis", this, 
+					 SLOT(toggleLogAxisXSlot()), 
+					 ALT+Key_O);
+  mGraphMenu->insertSeparator();
 
-    mShowSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
-					    SLOT(graphDisplaySymbolsSlot()),
-					    ALT+Key_D);
+  mShowSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
+					  SLOT(graphDisplaySymbolsSlot()),
+					  ALT+Key_D);
 
-    mShowCurvesId = mGraphMenu->insertItem("Toggle display of l&ines", this,
-					   SLOT(graphDisplayCurvesSlot()),
-					   ALT+Key_I);
+  mShowCurvesId = mGraphMenu->insertItem("Toggle display of l&ines", this,
+					 SLOT(graphDisplayCurvesSlot()),
+					 ALT+Key_I);
 
-    mGraphMenu->setItemChecked(mAutoYAxisId, true);
-    mGraphMenu->setItemChecked(mAutoXAxisId, true);
-    mGraphMenu->setItemEnabled(mYUpperBoundId, false);
-    mGraphMenu->setItemEnabled(mYLowerBoundId, false);
-    mGraphMenu->setItemEnabled(mXUpperBoundId, false);
-    mGraphMenu->setItemEnabled(mXLowerBoundId, false);
-    mGraphMenu->setItemChecked(mShowSymbolsId, true);
-    mGraphMenu->setItemChecked(mShowCurvesId, true);
-    mGraphMenu->setItemChecked(mToggleLogXId, false);
-    mGraphMenu->setItemChecked(mToggleLogYId, false);
+  mGraphMenu->setItemChecked(mAutoYAxisId, true);
+  mGraphMenu->setItemChecked(mAutoXAxisId, true);
+  mGraphMenu->setItemEnabled(mYUpperBoundId, false);
+  mGraphMenu->setItemEnabled(mYLowerBoundId, false);
+  mGraphMenu->setItemEnabled(mXUpperBoundId, false);
+  mGraphMenu->setItemEnabled(mXLowerBoundId, false);
+  mGraphMenu->setItemChecked(mShowSymbolsId, true);
+  mGraphMenu->setItemChecked(mShowCurvesId, true);
+  mGraphMenu->setItemChecked(mToggleLogXId, false);
+  mGraphMenu->setItemChecked(mToggleLogYId, false);
     
-    mMenuBar->insertItem("&File", mFileMenu);
-    mMenuBar->insertItem("&Graph", mGraphMenu);
+  mMenuBar->insertItem("&File", mFileMenu);
+  mMenuBar->insertItem("&Graph", mGraphMenu);
 
-    tBL->setMenuBar(mMenuBar);
-    tBL->addWidget(mPlotter);
+  tBL->setMenuBar(mMenuBar);
+  tBL->addWidget(mPlotter);
 
     // Better without this for qwt 4.2.0
     //resize(300, 300);
 
-    mYLowerBound = mYUpperBound = 0;
-    mXLowerBound = mXUpperBound = 0;
-    mAutoYAxisSet = true;
-    mAutoXAxisSet = true;
-    mUseLogXAxis = false;
-    mUseLogYAxis = false;
+  mYLowerBound = mYUpperBound = 0;
+  mXLowerBound = mXUpperBound = 0;
+  mAutoYAxisSet = true;
+  mAutoXAxisSet = true;
+  mUseLogXAxis = false;
+  mUseLogYAxis = false;
+  mForceHistRedraw = false;
+  // Default to displaying symbols
+  mDisplaySymbolsSet = true;
+  // Default to displaying a curve too
+  mDisplayCurvesSet   = true;
 
-    // Default to displaying symbols
-    mDisplaySymbolsSet = true;
-    // Default to displaying a curve too
-    mDisplayCurvesSet   = true;
+  mPicker = new QwtPicker(mPlotter->canvas());
 
-    mCurveID         = CURVE_UNSET;
-    mHistCurveID     = CURVE_UNSET;
-    mPreviousLogSize = 0;
-    mForceHistRedraw = false;
+  mPicker->setSelectionFlags(QwtPicker::PointSelection | 
+			     QwtPicker::ClickSelection);
 
-    doPlot();
+  if(!( connect(mPicker, SIGNAL(selected(const QPointArray &)), 
+		this, SLOT(canvasSelectedSlot(const QPointArray &))) )){
+    cout << "ERROR: failed to connect signal to slot in HistoryPlot constructor" 
+	 << endl;
+  }
+
+  // Let the list own the objects
+  mSubPlotList.setAutoDelete( TRUE );
+
+  mColourList = QColor::colorNames();
+  QStringList::Iterator it = mColourList.begin();
+  while( it != mColourList.end() ) {
+    cout << *it << ":";
+    if((*it).contains("white", FALSE)){
+      it = mColourList.remove(it);
+    }
+    else{
+      it++;
+    }
+  }
+  cout << endl;
+  for ( QStringList::Iterator it = mColourList.begin(); 
+	it != mColourList.end(); ++it ) {
+    cout << *it << ":";
+  }
+  cout << endl;
+  mColourIter = mColourList.begin();
+
+  // Create the HistorySubPlot object that will look after drawing this curve
+  mSubPlotList.append(new HistorySubPlot(this, mPlotter,
+					 _mXParamHist,
+					 _mYParamHist,
+					 QString(_lLabely),
+					 _yparamID,
+		                         *mColourIter));
+  ++mColourIter;
+
+  doPlot();
 }
 
+//--------------------------------------------------------------------
 HistoryPlot::~HistoryPlot()
 {
   DBGDST("HistoryPlot");
+  delete mPicker;
 }
 
+//--------------------------------------------------------------------
+void HistoryPlot::canvasSelectedSlot(const QPointArray &pos){
+
+  cout << "ARPDBG - in canvasSelectedSlot******" << endl;
+
+  emit plotSelectedSignal(this);
+}
+
+//--------------------------------------------------------------------
 /** Menu handling slots
  */
 void HistoryPlot::filePrint(){
@@ -184,7 +231,14 @@ void HistoryPlot::filePrint(){
   mPlotter->print(lPrinter, QwtPlotPrintFilter());
 }
 
+//--------------------------------------------------------------------
 void HistoryPlot::fileSave(){
+
+  //QPointArray *lPointArray = new QPointArray();
+  //  cout << "ARPDBG: emitting selected signal" << endl;
+  //  emit selected(*lPointArray);
+//emit selected();
+
   QString lFileName = QFileDialog::getSaveFileName(".", "Images (*.jpg)", 0, 
 						   "save file dialog", 
 						   "Choose a filename to save the image as");
@@ -196,14 +250,18 @@ void HistoryPlot::fileSave(){
 
     // spawn off a thread to take the screenshot, giving QT enough time
     // to redraw the graph
-    ScreenGrabThread *lScreenGrabThread = new ScreenGrabThread(this, lFileName, mMenuBar);
+    ScreenGrabThread *lScreenGrabThread = new ScreenGrabThread(this, 
+							       lFileName, 
+							       mMenuBar);
     lScreenGrabThread->start();
   }
 }
 
+//--------------------------------------------------------------------
 void HistoryPlot::fileDataSave(){
 
   int     i;
+  HistorySubPlot *plot;
 
   QString lFileName = QFileDialog::getSaveFileName(".", "Data (*.dat)", 0, 
 						   "save file dialog", 
@@ -230,167 +288,128 @@ void HistoryPlot::fileDataSave(){
 
     // Work out how many points we've got of 'historical data' - compare 
     // the no. available for each ordinate and use the smaller of the two.
-    int lNumPts = mYParamHist->mPreviousHistArraySize;
+    int lNumPts = 0;
+    for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+      if(lNumPts < plot->mYParamHist->mPreviousHistArraySize){
+	lNumPts = plot->mYParamHist->mPreviousHistArraySize;
+      }
+    }
     if(mXParamHist->mPreviousHistArraySize < lNumPts){
       lNumPts = mXParamHist->mPreviousHistArraySize;
     }
     double *lX = mXParamHist->mPtrPreviousHistArray;
-    double *lY = mYParamHist->mPtrPreviousHistArray;
 
     // The 'historical' data itself
     for(i=0; i<lNumPts; i++){
-      ts << lX[i] << QString("  %1").arg(lY[i], 0, 'e', 8) << endl;
+      ts << lX[i] ;
+      for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+	ts << QString("  %1").arg((plot->mYParamHist->mPtrPreviousHistArray)[i], 
+				  0, 'e', 8);
+      }
+
+      ts << endl;
     }
 
     // Now do the data we've collected whilst we've been attached
-    lNumPts = mYParamHist->mArrayPos;
+    lNumPts = 0;
+    for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+      if(lNumPts < plot->mYParamHist->mArrayPos){
+	lNumPts = plot->mYParamHist->mArrayPos;
+      }
+    }
     if(mXParamHist->mArrayPos < lNumPts){
       lNumPts = mXParamHist->mArrayPos;
     }
     lX = mXParamHist->ptrToArray();
-    lY = mYParamHist->ptrToArray();
 
     // The data itself
     for(i=0; i<lNumPts; i++){
-      ts << lX[i] << QString("  %1").arg(lY[i], 0, 'e', 8) << endl;
+      ts << lX[i];
+      for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+	ts << QString("  %1").arg((plot->mYParamHist->ptrToArray())[i], 0, 'e', 8);
+      }
+      ts << endl;
     }
 
     file.close();
   }
 }
 
+//--------------------------------------------------------------------
 void HistoryPlot::fileQuit(){
   close();
 }
 
-/** Draw the curve on the graph
+//--------------------------------------------------------------------
+/** Draw the curves on the graph
  */
 void HistoryPlot::doPlot(){
 
-  bool lReplotHistory = mForceHistRedraw || 
-    (mYParamHist->mPreviousHistArraySize != mPreviousLogSize);
+  cout << "HistoryPlot::doPlot - BEGINNING" << endl;
+  HistorySubPlot *plot;
+  for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+    plot->doPlot(mForceHistRedraw);
+  }
 
-  mForceHistRedraw = false;
-  mPreviousLogSize = mYParamHist->mPreviousHistArraySize;
+  // allow the user to define the Y axis dims if desired
+  if (mAutoYAxisSet){
+    mPlotter->setAxisAutoScale(0);
 
-  if(mCurveID != CURVE_UNSET)mPlotter->removeCurve(mCurveID);
-  if(lReplotHistory && 
-     (mHistCurveID != CURVE_UNSET))mPlotter->removeCurve(mHistCurveID);
+    // also want to update the manual upper and lower bounds to 
+    // something sensible at this point
+    const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
+    mYLowerBound = autoScaleDiv->lBound();
+    mYUpperBound = autoScaleDiv->hBound();
+  }
+  else{
+    mPlotter->setAxisScale(0, mYLowerBound, mYUpperBound);
+  }
 
-  // Insert new curves
-  mCurveID = mPlotter->insertCurve(lLabely);
-  if(lReplotHistory)mHistCurveID = mPlotter->insertCurve(lLabely);
+  // allow the user to define the X axis dims if desired
+  if (mAutoXAxisSet){
 
-    // Set curve styles
-    if(!mDisplayCurvesSet){
-      mPlotter->setCurveStyle(mCurveID, QwtCurve::NoCurve);
-      mPlotter->setCurveStyle(mHistCurveID, QwtCurve::NoCurve);
-    }
-    else{
-      mPlotter->setCurvePen(mCurveID, QPen(red));
-      mPlotter->setCurvePen(mHistCurveID, QPen(red));
-    }
+    mPlotter->setAxisAutoScale(mPlotter->xBottom);
 
-    // allow the user to define the Y axis dims if desired
-    if (!mAutoYAxisSet){
-      mPlotter->setAxisScale(0, mYLowerBound, mYUpperBound);
-    }
-    else{
-      mPlotter->setAxisAutoScale(0);
+    // also want to update the manual upper and lower bounds to 
+    // something sensible at this point
+    const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(mPlotter->xBottom);
+    mXLowerBound = autoScaleDiv->lBound();
+    mXUpperBound = autoScaleDiv->hBound();
+  }
+  else{
+    mPlotter->setAxisScale(mPlotter->xBottom, mXLowerBound, mXUpperBound);
+  }
 
-      // also want to update the manual upper and lower bounds to 
-      // something sensible at this point
-      const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
-      mYLowerBound = autoScaleDiv->lBound();
-      mYUpperBound = autoScaleDiv->hBound();
-    }
+  // Insert a horizontal line at y = 0...
+  long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
+  mPlotter->setMarkerYPos(mY, 0.0);
 
-    // allow the user to define the X axis dims if desired
-    if (!mAutoXAxisSet){
+  mPlotter->replot();
 
-      mPlotter->setAxisScale(mPlotter->xBottom, mXLowerBound, mXUpperBound);
-    }
-    else{
-      mPlotter->setAxisAutoScale(mPlotter->xBottom);
-
-      // also want to update the manual upper and lower bounds to 
-      // something sensible at this point
-      const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(mPlotter->xBottom);
-      mXLowerBound = autoScaleDiv->lBound();
-      mXUpperBound = autoScaleDiv->hBound();
-    }
-
-    // Work out how many points we've got - compare the no. available
-    // for each ordinate and use the smaller of the two.
-    int nPoints = mYParamHist->mArrayPos +  mYParamHist->mPreviousHistArraySize;
-    if((mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize) < nPoints){
-      nPoints = mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize;
-    }
-
-    // Add symbols - scale their size appropriately.  This code only
-    // takes account of the TOTAL no. of points to be plotted and the
-    // WIDTH of the plot window.  It does not allow for the fact that
-    // y-axis limits may mean that only a subset of the points are plotted.
-    if(mDisplaySymbolsSet){
-      // |   x    x    x   |
-      // |<     width     >| with npoints = 3.
-      // Code below works out average spacing of data points
-      // as width/(npoints + 1) and then takes a third of that
-      // to be the symbol size.  I don't know what units the
-      // symbol size is in so this is empirical.
-      int ltmp = (int)((float)this->contentsRect().width()/(float)((nPoints + 1)*3));
-      if(ltmp > 0){
-	// Min. symbol size of 3 looks best
-	if(ltmp < 3){
-	  ltmp = 3;
-	}
-	else if(ltmp > 15){
-	  ltmp = 15;
-	}
-	QwtSymbol lPlotSymbol;
-	lPlotSymbol.setSize(ltmp);
-	lPlotSymbol.setStyle(QwtSymbol::Diamond);
-
-	mPlotter->setCurveSymbol(mCurveID, lPlotSymbol);
-	mPlotter->setCurveSymbol(mHistCurveID, lPlotSymbol);
-      }
-    }
-
-    // Shallow copy of data for plot
-    nPoints = mYParamHist->mArrayPos;
-    if(mXParamHist->mArrayPos < nPoints){
-      nPoints = mXParamHist->mArrayPos;
-    }
-
-    mPlotter->setCurveRawData(mCurveID, mXParamHist->ptrToArray(), 
-			      mYParamHist->ptrToArray(), nPoints);
-
-    if(lReplotHistory){
-      nPoints = mYParamHist->mPreviousHistArraySize;
-      if(mXParamHist->mPreviousHistArraySize < nPoints){
-	nPoints = mXParamHist->mPreviousHistArraySize;
-      }
-      if(nPoints){
-	mPlotter->setCurveRawData(mHistCurveID, 
-				  mXParamHist->mPtrPreviousHistArray, 
-				  mYParamHist->mPtrPreviousHistArray, nPoints);
-
-	//	cout << "ARPDBG: doPlot no. of logged points = " << nPoints << endl;
-	//	for(int i=0; i<nPoints; i++){
-	//	  cout << mXParamHist->mPtrPreviousHistArray[i] << " " <<
-	//	    mYParamHist->mPtrPreviousHistArray[i] << endl;
-	//	}
-      }
-    }
-    // Insert markers
-
-    //  ...a horizontal line at y = 0...
-    long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
-    mPlotter->setMarkerYPos(mY, 0.0);
-
-    mPlotter->replot();
+  cout << "HistoryPlot::doPlot - END" << endl;
+  return;
 }
 
+//--------------------------------------------------------------------
+/** Add another plot/curve to this history plot */
+void HistoryPlot::addPlot(ParameterHistory *_mYParamHist,
+			  const char *_lLabely, 
+			  const int _yparamID){
+
+  mSubPlotList.append(new HistorySubPlot(this, mPlotter,
+					 mXParamHist,
+					 _mYParamHist,
+					 QString(_lLabely),
+					 _yparamID,
+		                         *mColourIter));
+  ++mColourIter;
+
+  // redraw the plot
+  mForceHistRedraw = true;
+  doPlot();
+}
+
+//--------------------------------------------------------------------
 /** Slot to allow user to switch-on autoscaling for the y-axis
  *
  */
@@ -405,6 +424,7 @@ void HistoryPlot::autoYAxisSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 /** Slot to allow user to switch-on autoscaling for the x-axis
  *
  */
@@ -419,6 +439,7 @@ void HistoryPlot::autoXAxisSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 /** Slot to allow user to set the upper bound on the y axis.
  *
  */
@@ -451,6 +472,7 @@ void HistoryPlot::graphYUpperBoundSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 void HistoryPlot::graphXUpperBoundSlot(){
   // using the default double dialog box is a pain, since we have to 
   // worry about the number of decimal points
@@ -480,6 +502,7 @@ void HistoryPlot::graphXUpperBoundSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 void HistoryPlot::graphYLowerBoundSlot(){
   // using the default double dialog box is a pain, since we have to 
   // worry about the number of decimal points
@@ -509,6 +532,7 @@ void HistoryPlot::graphYLowerBoundSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 void HistoryPlot::graphXLowerBoundSlot(){
   // using the default double dialog box is a pain, since we have to 
   // worry about the number of decimal points
@@ -538,6 +562,7 @@ void HistoryPlot::graphXLowerBoundSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 /** Toggle display of data points on graph on/off
  */
 void HistoryPlot::graphDisplaySymbolsSlot(){
@@ -549,6 +574,7 @@ void HistoryPlot::graphDisplaySymbolsSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 /** Toggle display of curve lines on graph on/off
  */
 void HistoryPlot::graphDisplayCurvesSlot(){
@@ -560,6 +586,7 @@ void HistoryPlot::graphDisplayCurvesSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 /** Toggle use of log X axis
  */
 void HistoryPlot::toggleLogAxisXSlot(){
@@ -582,6 +609,7 @@ void HistoryPlot::toggleLogAxisXSlot(){
   doPlot();
 }
 
+//--------------------------------------------------------------------
 /** Toggle use of log Y axis
  */
 void HistoryPlot::toggleLogAxisYSlot(){
@@ -604,23 +632,28 @@ void HistoryPlot::toggleLogAxisYSlot(){
   doPlot();
 }
 
-
+//--------------------------------------------------------------------
 /** Update the graph with new data
  */
 void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist, 
 			     const int _yparamID){
-    // check we're the right graph for this data
-    if (_yparamID != yparamID)
-      return;
 
-    // update the data
-    mYParamHist = _mYParamHist;
+  HistorySubPlot *plot;
+  for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+    plot->update(_mYParamHist, _yparamID);
+  }
 
-    mForceHistRedraw = true;
-    // do the plot
-    doPlot();
+  // Insert a horizontal line at y = 0...
+  long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
+  mPlotter->setMarkerYPos(mY, 0.0);
+
+  mPlotter->replot();
+
+  cout << "HistoryPlot::doPlot - END" << endl;
+  return;
 }
 
+//--------------------------------------------------------------------
 /** Override QWidget::closeEvent to catch the user clicking the close button
  *  in the window bar as well as them selecting Quit from the File menu.
  */

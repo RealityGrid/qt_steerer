@@ -33,6 +33,7 @@
 ---------------------------------------------------------------------------*/
 
 #include "historysubplot.h"
+#include "qwt_legend.h"
 #include <iostream>
 using namespace std;
 
@@ -42,15 +43,15 @@ HistorySubPlot::HistorySubPlot(HistoryPlot *lHistPlot,
 			       ParameterHistory *lXParamHist, 
 			       ParameterHistory *lYParamHist, 
 			       const QString &lLabely, 
-			       const int yparamID)
+			       const int yparamID,
+			       const QString lColour)
   : mHistPlot(lHistPlot), mXParamHist(lXParamHist), mYParamHist(lYParamHist),
-    mLabely(lLabely), mPlotter(lPlotter), mYparamID(yparamID)
+    mLabely(lLabely), mPlotter(lPlotter), mYparamID(yparamID), mColour(lColour)
 {
   mCurveID         = CURVE_UNSET;
   mHistCurveID     = CURVE_UNSET;
   mPreviousLogSize = 0;
-  mYLowerBound = mYUpperBound = 0;
-  mXLowerBound = mXUpperBound = 0;
+  cout << "ARPDBG: HistorySubPlot: colour = " << mColour << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -61,7 +62,6 @@ HistorySubPlot::~HistorySubPlot()
 //---------------------------------------------------------------------------
 void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 {
-  //cout << "HistorySubPlot::doPlot START" << endl;
   bool lReplotHistory = lForceHistRedraw || 
     (mYParamHist->mPreviousHistArraySize != mPreviousLogSize);
 
@@ -73,12 +73,22 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 
   // Insert new curves
   mCurveID = mPlotter->insertCurve(mLabely);
+  if( !(mPlotter->legendEnabled(mCurveID)) ){
+    // Only do this if not already enabled so as to prevent flicker
+    mPlotter->enableLegend(true, mCurveID);
+    mPlotter->legend()->setDisplayPolicy(QwtLegend::Fixed,
+					 (QwtLegendItem::ShowLine |
+					  QwtLegendItem::ShowText));
+  }
+
   if(lReplotHistory)mHistCurveID = mPlotter->insertCurve(mLabely);
 
   // Set curve styles
   if(mHistPlot->mDisplayCurvesSet){
-    mPlotter->setCurvePen(mCurveID, QPen(red));
-    mPlotter->setCurvePen(mHistCurveID, QPen(red));
+    //mPlotter->setCurvePen(mCurveID, QPen(red));
+    //mPlotter->setCurvePen(mHistCurveID, QPen(red));
+    mPlotter->setCurvePen(mCurveID, QPen(mColour));
+    mPlotter->setCurvePen(mHistCurveID, QPen(mColour));
   }
   else{
     mPlotter->setCurveStyle(mCurveID, QwtCurve::NoCurve);
@@ -143,7 +153,6 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 				mYParamHist->mPtrPreviousHistArray, nPoints);
     }
   }
-  //cout << "HistorySubPlot::doPlot END" << endl;
 }
 
 //---------------------------------------------------------------------------
