@@ -53,16 +53,18 @@ ParameterHistory::~ParameterHistory(){
 // eating up memory until the job is over... need to do something
 // a bit better and spool to file
 void ParameterHistory::updateParameter(const char* lVal){
-  if(mArrayPos < mArraySize){
-    mParamHistArray[mArrayPos++] = (double)atof(lVal);
-  }
-  else{
-    void *dum = realloc((void *)mParamHistArray, 
-			(size_t)(mArraySize+mArrayChunkSize)*sizeof(double));
-    if(dum){
-      mParamHistArray = (double *)dum;
-      mArraySize += mArrayChunkSize;
+  if(lVal[0] != '\0'){
+    if(mArrayPos < mArraySize){
       mParamHistArray[mArrayPos++] = (double)atof(lVal);
+    }
+    else{
+      void *dum = realloc((void *)mParamHistArray, 
+			  (size_t)(mArraySize+mArrayChunkSize)*sizeof(double));
+      if(dum){
+	mParamHistArray = (double *)dum;
+	mArraySize += mArrayChunkSize;
+	mParamHistArray[mArrayPos++] = (double)atof(lVal);
+      }
     }
   }
 }
