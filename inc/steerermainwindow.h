@@ -100,9 +100,8 @@ private:
   void simAttachApp(char *aSimID, bool aIsLocal = false);
 
 private:
-
-  QString cmdLineSGS;
-
+  /// Holds the EPR of service to attach to if specified on cmd line
+  QString        cmdLineSGS;
   QWidget	*mCentralWgt;
   QHBoxLayout	*mTopLayout;
 
@@ -127,7 +126,7 @@ private:
   QAction       *mHideMonTableAction;
 
   QPtrList<Application> mAppList;
-
+  /// Holds the configuration information for the steering client
   SteererConfig *mSteererConfig;
 };
 
