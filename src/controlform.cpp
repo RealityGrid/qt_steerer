@@ -333,7 +333,8 @@ ControlForm::updateParameters(bool aSteeredFlag)
     {
       // find out number of parameters that library is going to give us
       mMutexPtr->lock();
-      if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) != REG_SUCCESS){  //ReG library
+      if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) 
+	 != REG_SUCCESS){  //ReG library
 	mMutexPtr->unlock();
 	THROWEXCEPTION("Get_param_number");
       }
@@ -343,7 +344,8 @@ ControlForm::updateParameters(bool aSteeredFlag)
     
       if (lNumParams > 0)
 	{
-	  // flag that cleanup required - don't like this but checking for kNULL didn't work
+	  // flag that cleanup required - don't like this but checking 
+	  // for kNULL didn't work
 	  lCleanUpFlag = true;
 
 	  // set up arrays of appropriate size for Get_param_values

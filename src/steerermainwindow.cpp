@@ -404,16 +404,16 @@ void SteererMainWindow::attachGridAppSlot()
 
 void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 {
-
   /* Attempt to attach to a simulation */ 
   int lReGStatus = REG_FAILURE;
   int lSimHandle = -1;
+  bool ok;
 
   try
   {
     QString idStr(aSimID);
     if(idStr.startsWith("http") && idStr.contains("/WSRF/")){
-      bool ok;
+
       QString text = QInputDialog::getText("RealityGrid Steerer", 
 					   "Enter passphrase for this application:", 
 					   QLineEdit::Password,
@@ -437,7 +437,8 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
     {
       DBGMSG1("Attached: mSimHandle = ",lSimHandle);
       
-      mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal, &mReGMutex));
+      mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal, 
+				      &mReGMutex));
 
       // get supported command list from library and enable buttons appropriately
       mAppList.current()->enableCmdButtons();
