@@ -40,6 +40,7 @@ TARGET      = steerer
 
 ## debug modes DBG_VERSION DBG_CONS
 DEFINES     += DBG_VERSION
+DEFINES     += WITH_OPENSSL
 CONFIG      += qt thread
 INCLUDEPATH = ${REG_STEER_HOME}/include ./inc ${REG_XML_INCDIR} ${REG_QWT_INCDIR}
 LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer -lReG_Steer_Utils -lssl -lcrypto
