@@ -54,13 +54,14 @@
 
 AttachForm::AttachForm(QWidget *parent, const char *name,
 		       bool modal, WFlags f)
-  : QDialog( parent, name, modal, f ), mNumSims(0), mLibReturnStatus(REG_SUCCESS),
-    mSimGSHSelected(kNULL), mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL), 
+  : QDialog( parent, name, modal, f ), mNumSims(0), 
+    mLibReturnStatus(REG_SUCCESS), mSimGSHSelected(kNULL),
+    mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL), 
     mFilterLineEdit(kNULL), mAttachButton(kNULL), mCancelButton(kNULL)
 {
   struct registry_entry *entries;
   int i;
-
+  int count;
   DBGCON("AttachForm");
 
   // set up arrays for ReG lib call
@@ -77,7 +78,8 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   // Get the passphrase for the user's key if registry is using
   // SSL
   SteererConfig *lConfig = ((SteererMainWindow *)parent)->getConfig();
-  if(lConfig->mTopLevelRegistry.startsWith("https")){
+  if( lConfig->mTopLevelRegistry.startsWith("https") &&
+     lConfig->mKeyPassphrase.isEmpty() ){
     bool ok;
 
     lConfig->mKeyPassphrase = QInputDialog::getText("RealityGrid Steerer", 
@@ -94,9 +96,22 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 						 lConfig->mCACertsPath,
 						 &mNumSims,  
 						 &entries);
+  if(mLibReturnStatus != REG_SUCCESS) return;
+
+  count = 0;
+  for (i=0; i<mNumSims; i++){
+    if(!strcmp(entries[i].service_type, "SWS") ||
+       !strcmp(entries[i].service_type, "SGS")){
+      sprintf(mSimName[count], "%s %s %s", entries[i].application,
+	      entries[i].user, entries[i].start_date_time);
+      sprintf(mSimGSH[count], "%s", entries[i].gsh);
+      count++;
+    }
+  }
+  mNumSims = count;
 
   // only continue if there is some info to show
-  if(mLibReturnStatus == REG_SUCCESS && mNumSims>0) 
+  if(mNumSims>0) 
   {
     this->setCaption( "Grid Attach" );
     resize( 520, 350 );
@@ -107,13 +122,15 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 	 !strcmp(entries[i].service_type, "SGS")){
 	sprintf(mSimName[count], "%s %s %s", entries[i].application,
 		entries[i].user, entries[i].start_date_time);
-	sprintf(mSimGSH[count], "%s", entries[i].entry_gsh);
+	sprintf(mSimGSH[count], "%s", entries[i].gsh);
 	count++;
       }
     }
-    
+    mNumSims = count;
+
     // create the layouts for the form
-    QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, "attachformlayout");
+    QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, 
+					       "attachformlayout");
     QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
     QVBoxLayout *lListLayout = new QVBoxLayout(6, "attachlistlayout");
     QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "attachbuttonlayout");
