@@ -116,18 +116,6 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     this->setCaption( "Grid Attach" );
     resize( 520, 350 );
 
-    int count = 0;
-    for (i=0; i<mNumSims; i++){
-      if(!strcmp(entries[i].service_type, "SWS") ||
-	 !strcmp(entries[i].service_type, "SGS")){
-	sprintf(mSimName[count], "%s %s %s", entries[i].application,
-		entries[i].user, entries[i].start_date_time);
-	sprintf(mSimGSH[count], "%s", entries[i].gsh);
-	count++;
-      }
-    }
-    mNumSims = count;
-
     // create the layouts for the form
     QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, 
 					       "attachformlayout");
