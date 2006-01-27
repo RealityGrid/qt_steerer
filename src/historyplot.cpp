@@ -81,7 +81,9 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 
   // Set axis titles
   mPlotter->setAxisTitle(mPlotter->xBottom, mLabelx);
-  mPlotter->setAxisTitle(mPlotter->yLeft, _lLabely);
+  // We're now able to have >1 curve (with key) so labelling of
+  // y axis is inappropriate
+  //mPlotter->setAxisTitle(mPlotter->yLeft, _lLabely);
 
   QVBoxLayout *tBL = new QVBoxLayout(this);
   mMenuBar = new QMenuBar(this, "menuBar");
@@ -181,7 +183,11 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   QStringList::Iterator it = mColourList.begin();
   while( it != mColourList.end() ) {
     cout << *it << ":";
-    if((*it).contains("white", FALSE)){
+    // Remove this colour from the list because we've chosen this to
+    // be the colour of our canvas (earlier) or it's hard to tell 
+    // apart from one of the other standard colours.
+    if((*it).contains("darkGray", FALSE) || 
+       (*it).contains("antiquewhite", FALSE)){
       it = mColourList.remove(it);
     }
     else{
@@ -216,10 +222,8 @@ HistoryPlot::~HistoryPlot()
 }
 
 //--------------------------------------------------------------------
-void HistoryPlot::canvasSelectedSlot(const QPointArray &pos){
-
-  cout << "ARPDBG - in canvasSelectedSlot******" << endl;
-
+void HistoryPlot::canvasSelectedSlot(const QPointArray &pos)
+{
   emit plotSelectedSignal(this);
 }
 
@@ -233,11 +237,6 @@ void HistoryPlot::filePrint(){
 
 //--------------------------------------------------------------------
 void HistoryPlot::fileSave(){
-
-  //QPointArray *lPointArray = new QPointArray();
-  //  cout << "ARPDBG: emitting selected signal" << endl;
-  //  emit selected(*lPointArray);
-//emit selected();
 
   QString lFileName = QFileDialog::getSaveFileName(".", "Images (*.jpg)", 0, 
 						   "save file dialog", 
@@ -345,7 +344,6 @@ void HistoryPlot::fileQuit(){
  */
 void HistoryPlot::doPlot(){
 
-  cout << "HistoryPlot::doPlot - BEGINNING" << endl;
   HistorySubPlot *plot;
   for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
     plot->doPlot(mForceHistRedraw);
@@ -386,7 +384,6 @@ void HistoryPlot::doPlot(){
 
   mPlotter->replot();
 
-  cout << "HistoryPlot::doPlot - END" << endl;
   return;
 }
 
@@ -649,7 +646,6 @@ void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist,
 
   mPlotter->replot();
 
-  cout << "HistoryPlot::doPlot - END" << endl;
   return;
 }
 
