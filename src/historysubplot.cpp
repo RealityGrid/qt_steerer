@@ -45,8 +45,9 @@ HistorySubPlot::HistorySubPlot(HistoryPlot *lHistPlot,
 			       const QString &lLabely, 
 			       const int yparamID,
 			       const QString lColour)
-  : mHistPlot(lHistPlot), mXParamHist(lXParamHist), mYParamHist(lYParamHist),
-    mLabely(lLabely), mPlotter(lPlotter), mYparamID(yparamID), mColour(lColour)
+  : mHistPlot(lHistPlot), mPlotter(lPlotter), mXParamHist(lXParamHist),
+    mLabely(lLabely), mYparamID(yparamID), mColour(lColour), 
+    mYParamHist(lYParamHist)
 {
   mCurveID         = CURVE_UNSET;
   mHistCurveID     = CURVE_UNSET;
@@ -62,23 +63,23 @@ HistorySubPlot::~HistorySubPlot()
 //---------------------------------------------------------------------------
 void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 {
+  QwtSymbol lPlotSymbol;
+  int ltmp = 0;
   bool lReplotHistory = lForceHistRedraw || 
     (mYParamHist->mPreviousHistArraySize != mPreviousLogSize);
 
   mPreviousLogSize = mYParamHist->mPreviousHistArraySize;
 
-  if(mCurveID != CURVE_UNSET)mPlotter->removeCurve(mCurveID);
-  if(lReplotHistory && 
-     (mHistCurveID != CURVE_UNSET))mPlotter->removeCurve(mHistCurveID);
-
-  // Insert new curves
-  mCurveID = mPlotter->insertCurve(mLabely);
-  if( !(mPlotter->legendEnabled(mCurveID)) ){
-    // Only do this if not already enabled so as to prevent flicker
-    mPlotter->enableLegend(true, mCurveID);
-    mPlotter->legend()->setDisplayPolicy(QwtLegend::Fixed,
-					 (QwtLegendItem::ShowLine |
-					  QwtLegendItem::ShowText));
+  // Insert new curves if any
+  if(mCurveID == CURVE_UNSET){
+    mCurveID = mPlotter->insertCurve(mLabely);
+    if( !(mPlotter->legendEnabled(mCurveID)) ){
+      // Only do this if not already enabled so as to prevent flicker
+      mPlotter->enableLegend(true, mCurveID);
+      mPlotter->legend()->setDisplayPolicy(QwtLegend::Fixed,
+					   (QwtLegendItem::ShowLine |
+					    QwtLegendItem::ShowText));
+    }
   }
 
   if(lReplotHistory)mHistCurveID = mPlotter->insertCurve(mLabely);
@@ -95,13 +96,13 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
     mPlotter->setCurveStyle(mHistCurveID, QwtCurve::NoCurve);
   }
 
-
   // Work out how many points we've got - compare the no. available
   // for each ordinate and use the smaller of the two.
   int nPoints = mYParamHist->mArrayPos +  mYParamHist->mPreviousHistArraySize;
   if((mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize) < nPoints){
     nPoints = mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize;
   }
+  cout << "HistorySubPlot::doPlot nPoints = " << nPoints << endl;
 
   // Add symbols - scale their size appropriately.  This code only
   // takes account of the TOTAL no. of points to be plotted and the
@@ -114,7 +115,7 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
     // as width/(npoints + 1) and then takes a third of that
     // to be the symbol size.  I don't know what units the
     // symbol size is in so this is empirical.
-    int ltmp = (int)((float)mHistPlot->contentsRect().width()/(float)((nPoints + 1)*3));
+    ltmp = (int)((float)mHistPlot->contentsRect().width()/(float)((nPoints + 1)*3));
     if(ltmp > 0){
       // Min. symbol size of 3 looks best
       if(ltmp < 3){
@@ -123,13 +124,16 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
       else if(ltmp > 15){
 	ltmp = 15;
       }
-      QwtSymbol lPlotSymbol;
       lPlotSymbol.setSize(ltmp);
       lPlotSymbol.setStyle(QwtSymbol::Diamond);
-      
       mPlotter->setCurveSymbol(mCurveID, lPlotSymbol);
       mPlotter->setCurveSymbol(mHistCurveID, lPlotSymbol);
     }
+  }
+  if(ltmp <= 0){
+      lPlotSymbol.setStyle(QwtSymbol::None);
+      mPlotter->setCurveSymbol(mCurveID, lPlotSymbol);
+      mPlotter->setCurveSymbol(mHistCurveID, lPlotSymbol);
   }
 
   // Shallow copy of data for plot
@@ -137,7 +141,6 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
   if(mXParamHist->mArrayPos < nPoints){
     nPoints = mXParamHist->mArrayPos;
   }
-  //cout << "HistorySubPlot::doPlot nPoints = " << nPoints << endl;
 
   mPlotter->setCurveRawData(mCurveID, mXParamHist->ptrToArray(), 
 			    mYParamHist->ptrToArray(), nPoints);
