@@ -152,13 +152,24 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
     // set flag used later to indicate parameter has not be unregistered
     lParamPtr->setIsPresent();
 
-    // update the parameter value and call updateCell to make sure display is updated immediately
-    // Note: we could make the QTableItem displayed in this cell a member of parameter class
-    // and just update that each time SMR XXX to check.
-    if(lParamPtr->getType() == REG_FLOAT || lParamPtr->getType() == REG_DBL){
+    // update the parameter value and call updateCell to make sure 
+    // display is updated immediately
+    // Note: we could make the QTableItem displayed in this cell a 
+    // member of parameter class  and just update that each time 
+    // SMR XXX to check.
+    if((lVal[0] != '\0') && 
+       (lParamPtr->getType()==REG_FLOAT || lParamPtr->getType()==REG_DBL)){
       double lTmp;
-      sscanf(lVal, "%lf", &lTmp);
-      item(lParamPtr->getRowIndex(), kVALUE_COLUMN)->setText(QString::number(lTmp));
+      if(sscanf(lVal, "%lf", &lTmp) == 1){
+	// We do this to improve the formatting of floating point numbers
+	// - removes excessive decimal places.
+	item(lParamPtr->getRowIndex(), 
+	     kVALUE_COLUMN)->setText(QString::number(lTmp));
+      }
+      else{
+	item(lParamPtr->getRowIndex(), 
+	     kVALUE_COLUMN)->setText(QString(" "));
+      }
     }
     else{
       item(lParamPtr->getRowIndex(), kVALUE_COLUMN)->setText(QString( lVal));
@@ -210,7 +221,7 @@ ParameterTable::addRow(const int lHandle,
   setText(lRowIndex, kNAME_COLUMN, lLabel);
   setText(lRowIndex, kREG_COLUMN, "Yes");
   
-  if(lType == REG_FLOAT || lType == REG_DBL){
+  if( (lVal[0] != '\0') && (lType == REG_FLOAT || lType == REG_DBL) ){
     double lTmp;
     sscanf(lVal, "%lf", &lTmp);
     setItem(lRowIndex, kVALUE_COLUMN, 
@@ -220,7 +231,6 @@ ParameterTable::addRow(const int lHandle,
     setItem(lRowIndex, kVALUE_COLUMN, 
 	    new QTableItem(this, QTableItem::Never,  QString( lVal)));
   }
-
   lParamPtr->setIndex(lRowIndex);
 
   // Don't store this initial value in the parameter's history because
