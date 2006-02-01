@@ -419,13 +419,14 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 					   QLineEdit::Password,
 					   QString::null, &ok, this );
       if ( !ok ) return; // Cancel if user didn't press OK
-
+      /* WSRF support only for version >= 2.0
       mReGMutex.lock();
       lReGStatus = Sim_attach_secure(aSimID, getenv("USER"), 
 				     text.ascii(), 
 				     mSteererConfig->mCACertsPath,
 				     &lSimHandle); // ReG library
       mReGMutex.unlock();
+      */
     }
     else{
       mReGMutex.lock();
