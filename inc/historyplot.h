@@ -32,6 +32,9 @@
 
 ---------------------------------------------------------------------------*/
 
+/** @file historyplot.h
+    @brief header file for the HistoryPlot class */
+
 #ifndef HISTORYPLOT_H
 #define HISTORYPLOT_H
 
@@ -126,6 +129,16 @@ signals:
     void plotSelectedSignal(HistoryPlot *);
 
 public:
+    /** Constructor
+     *  @param mXParamHist pointer to ParameterHistory containing data to plot
+     *  @param mYParamHist pointer to ParameterHistory containing data to plot
+     *  @param lLabelx Label for the abscissa
+     *  @param lLabely Label for the ordinate
+     *  @param xparamID Unique parameter ID so that we don't draw graphs
+     *    for the wrong parameter signals
+     *  @param yparamID Unique parameter ID so that we don't draw graphs
+     *    for the wrong parameter signals
+     */
     HistoryPlot(ParameterHistory *mXParamHist, 
 		ParameterHistory *mYParamHist, 
 		const char *lLabelx,
