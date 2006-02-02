@@ -57,10 +57,15 @@ public:
 
   virtual void initTable();
   virtual void clearAndDisableForDetach(const bool aUnRegister = true);
-  
+  /// Update the information shown in an existing row in the 
+  /// parameter table
   virtual bool updateRow(const int lHandle, const char *lVal);
-  virtual void addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType);
+  /// Add a row to the parameter table
+  virtual void addRow(const int lHandle, const char *lLabel, 
+		      const char *lVal, const int lType);
   void updateParameterLog();
+  /// Get a ptr to Parameter from its handle
+  Parameter *findParameter(int aId);
 
 public slots:
   /// Slot for the context menu in the parameter table
@@ -70,30 +75,16 @@ public slots:
   /** Slot called when the user selects the "Draw Graph" option from
    *  the table's context menu */
   void addGraphSlot(int popupMenuID);
-  /// Slot called when the user quits a parameter history plot
-  void plotClosedSlot(HistoryPlot *ptr);
-  /// Slot called when user clicks on a history plot canvas
-  void plotSelectedSlot(HistoryPlot *);
-
-signals:
-  // MR: Signal to tell the HistoryPlot to update
-  void paramUpdateSignal(ParameterHistory *mParamHist, const int paramID);
 
 protected:
 
   int getNumParameters() const;
   /// Look up a parameter's row index from its handle
   int findParameterRowIndex(int aId);
-  /// Get a ptr to Parameter from its handle
-  Parameter *findParameter(int aId);
   /// Reverse lookup of parameter ID
   Parameter *findParameterHandleFromRow(int row);
   /// Lookup Parameter from its label
   Parameter *findParameterFromLabel(const QString &aLabel);
-
-protected:
-  // List of the history plots associated with this application
-  //QPtrList<HistoryPlot> mHistoryPlotList;
   /// List of the parameters associated with this application
   QPtrList<Parameter>   mParamList;
   /// Pointer to table of monitored parameters
@@ -103,15 +94,10 @@ protected:
   bool                  mFetchedSeqNumHistory;
   /// Pointer to mutex used to control calls to steering library
   QMutex               *mMutexPtr;
-  /// Pointer to parameter to add to history plot
-  Parameter            *mParamToAdd;
 
  private:
   /// Pointer to our parent control form
   ControlForm          *mParent;
-  /// Whether or not we are in mode where user is selecting one of the
-  /// history plots
-  bool                  mUserChoosePlotMode;
 };
 
 
@@ -141,11 +127,6 @@ public:
 protected slots:
   void validateValueSlot(int aRow, int aCol);
   void emitValuesSlot();
-
-  // ARPDBG LOGGING
-  //public slots:
-  // MR: Slot for the context menu (don't currently have one in this table)
-  //virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
 
 signals:
   void enableButtonsSignal();
