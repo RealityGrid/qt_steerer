@@ -63,6 +63,7 @@ HistorySubPlot::~HistorySubPlot()
 //---------------------------------------------------------------------------
 void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 {
+  cout << "ARPDBG: historysubplot::doPlot..." << endl;
   QwtSymbol lPlotSymbol;
   int ltmp = 0;
   bool lReplotHistory = lForceHistRedraw || 
@@ -95,7 +96,6 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
   if((mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize) < nPoints){
     nPoints = mXParamHist->mArrayPos + mXParamHist->mPreviousHistArraySize;
   }
-  cout << "HistorySubPlot::doPlot nPoints = " << nPoints << endl;
 
   // Add symbols - scale their size appropriately.  This code only
   // takes account of the TOTAL no. of points to be plotted and the
