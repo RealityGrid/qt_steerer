@@ -44,6 +44,7 @@
 #include <qvbox.h>
 #include <qwidget.h>
 #include <qmutex.h>
+#include "historyplot.h"
 
 class QPushButton;
 class QString;
@@ -56,6 +57,12 @@ class IOTypeTable;
 class TableLabel;
 class SteererMainWindow;
 
+/// The widget that displays all information on a single application
+/// We have one of these for each application being steered - they
+/// are used to populate the tab pages.
+/// @author Sue Ramsden
+/// @author Mark Riding
+/// @author Andrew Porter
 class ControlForm : public QWidget 
 {
   Q_OBJECT
@@ -147,7 +154,9 @@ private:
 
   QPushButton		*mEmitAllValuesButton;
 
+  /// Pointer to the ParameterTable containing monitored params
   ParameterTable	*mMonParamTable;
+  /// Pointer to the SteeredParameterTable containing steerable params
   SteeredParameterTable	*mSteerParamTable;
   IOTypeTable		*mIOTypeSampleTable;
   IOTypeTable		*mIOTypeChkPtTable;
@@ -159,15 +168,21 @@ private:
   QPushButton           *mConsumeDataButton;
   QPushButton           *mEmitDataButton;
   
-  Application   *mApplication;
+  Application           *mApplication;
 
-  TableLabel    *mChkTableLabel;
-  TableLabel    *mIOTableLabel;
-  TableLabel    *mSteerTableLabel;
-  TableLabel    *mMonTableLabel;
+  TableLabel            *mChkTableLabel;
+  TableLabel            *mIOTableLabel;
+  /// Pointer to the label for the ParameterTable containing steerable params
+  TableLabel            *mSteerTableLabel;
+  /// Pointer to the label for the ParameterTable containing monitored params
+  TableLabel            *mMonTableLabel;
 
   /// Pointer to mutex protecting calls to ReG steer lib
-  QMutex        *mMutexPtr;
+  QMutex                *mMutexPtr;
+
+public:
+  /// List of the history plots associated with this application
+  QPtrList<HistoryPlot>  mHistoryPlotList;
 };
 
 

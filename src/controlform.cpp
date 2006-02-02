@@ -78,6 +78,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 { 
   DBGCON("ControlForm");
 
+  mHistoryPlotList.setAutoDelete( TRUE );
+
   // MR: keep a reference to the Application class
   mApplication = aApplication;
   
