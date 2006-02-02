@@ -172,8 +172,8 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 
   if(!( connect(mPicker, SIGNAL(selected(const QPointArray &)), 
 		this, SLOT(canvasSelectedSlot(const QPointArray &))) )){
-    cout << "ERROR: failed to connect signal to slot in HistoryPlot constructor" 
-	 << endl;
+    cout << "ERROR: failed to connect signal to slot in HistoryPlot "
+      "constructor" << endl;
   }
 
   // Let the list own the objects
@@ -578,6 +578,12 @@ void HistoryPlot::graphDisplayCurvesSlot(){
 
   mDisplayCurvesSet = !mDisplayCurvesSet;
   mGraphMenu->setItemChecked(mShowCurvesId, mDisplayCurvesSet);
+
+  HistorySubPlot *plot;
+  for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+    plot->graphDisplayCurves();
+  }
+
   mForceHistRedraw = true;
   // redraw the plot
   doPlot();
