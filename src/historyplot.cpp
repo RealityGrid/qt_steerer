@@ -50,12 +50,6 @@ using namespace std;
 
 #include "debug.h"
 
-/** Constructor
- *  ParameterHistory* contains the data to plot
- *  const char* is the label for the data
- *  const int is the unique parameter ID so that we don't draw graphs
- *    for the wrong parameter signals
- */
 HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist, 
 			 ParameterHistory *_mYParamHist,
 			 const char *_lLabelx,
@@ -182,7 +176,6 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   mColourList = QColor::colorNames();
   QStringList::Iterator it = mColourList.begin();
   while( it != mColourList.end() ) {
-    cout << *it << ":";
     // Remove this colour from the list because we've chosen this to
     // be the colour of our canvas (earlier) or it's hard to tell 
     // apart from one of the other standard colours.
@@ -194,12 +187,12 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
       it++;
     }
   }
-  cout << endl;
-  for ( QStringList::Iterator it = mColourList.begin(); 
-	it != mColourList.end(); ++it ) {
-    cout << *it << ":";
-  }
-  cout << endl;
+
+  //  for ( QStringList::Iterator it = mColourList.begin(); 
+  //	it != mColourList.end(); ++it ) {
+  //    cout << *it << ":";
+  //  }
+  //cout << endl;
   mColourIter = mColourList.begin();
 
   // Create the HistorySubPlot object that will look after drawing this curve
