@@ -52,12 +52,13 @@ class QHBoxLayout;
 
 class Application;
 class ParameterTable;
+class Parameter;
 class SteeredParameterTable;
 class IOTypeTable;
 class TableLabel;
 class SteererMainWindow;
 
-/// The widget that displays all information on a single application
+/// The widget that displays all information on a single application.
 /// We have one of these for each application being steered - they
 /// are used to populate the tab pages.
 /// @author Sue Ramsden
@@ -107,6 +108,8 @@ public:
   ParameterTable *getMonParamTable();
   /** Getter method for the steerable parameters table */
   SteeredParameterTable *getSteeredParamTable();
+  void newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr, 
+		      QString xLabel, QString yLabel);
 
   /**
    * Method to show or hide the checkpoint table and associated label
@@ -126,16 +129,23 @@ protected slots:
   void enableSampleButtonsSlot();   
   void enableChkPtButtonsSlot();
   void emitAllValuesSlot();
-
-  // MR:
   void setRestartButtonStateSlot(const bool aEnable);
   void setCreateButtonStateSlot(const bool aEnable);
   void setConsumeButtonStateSlot(const bool aEnable);
   void setEmitButtonStateSlot(const bool aEnable);
 
+public slots:
+  /// Slot called when the user quits a parameter history plot
+  void plotClosedSlot(HistoryPlot *ptr);
+  /// Slot called when user clicks on a history plot canvas
+  void plotSelectedSlot(HistoryPlot *);
+
 
 signals:
   void detachFromApplicationForErrorSignal();
+  /// Signal to tell the HistoryPlot to update
+  void paramUpdateSignal(ParameterHistory *mParamHist, 
+			 const int paramID);
 
 private:
   int			mSimHandle;		
@@ -167,7 +177,8 @@ private:
   QPushButton		*mPauseButton;
   QPushButton           *mConsumeDataButton;
   QPushButton           *mEmitDataButton;
-  
+  /// Pointer to the Application object for the app. being steered on
+  /// this control form
   Application           *mApplication;
 
   TableLabel            *mChkTableLabel;
@@ -183,6 +194,11 @@ private:
 public:
   /// List of the history plots associated with this application
   QPtrList<HistoryPlot>  mHistoryPlotList;
+  /// Whether or not we are in mode where user is selecting one of the
+  /// history plots
+  bool                   mUserChoosePlotMode;
+  /// Pointer to parameter to add to history plot
+  Parameter             *mParamToAdd;
 };
 
 

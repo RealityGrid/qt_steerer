@@ -302,6 +302,9 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   // Close button only becomes enabled when detach from application
   mCloseButton->setEnabled(FALSE);
 
+  // Whether we are in mode where user is selecting a history plot
+  mUserChoosePlotMode = false;
+  mParamToAdd = NULL;
 } 
 
 ControlForm::~ControlForm()
@@ -389,8 +392,13 @@ ControlForm::updateParameters(bool aSteeredFlag)
 					  lParamDetails[i].value,
 					  lParamDetails[i].type);
 		      }
-      
 		    } 
+
+		  Parameter *lParamPtr = lTablePtr->findParameter(lParamDetails[i].handle);
+		  // Emit a SIGNAL so that any HistoryPlots can update
+		  cout << "ARPDBG: emitting signal to update parameter: " << i << endl;
+		  emit paramUpdateSignal(lParamPtr->mParamHist, 
+					 lParamPtr->getId());
 	    } //for lNumParams
 	    
 	    // Adjust width of first column holding labels      
@@ -767,7 +775,6 @@ ControlForm::emitAllValuesSlot()
 			 QMessageBox::Ok,
 			 QMessageBox::NoButton, 
 			 QMessageBox::NoButton);
-    
   }
 }
 
@@ -786,7 +793,6 @@ Application *ControlForm::application()
  */
 void ControlForm::hideChkPtTable(bool flag){
 
-  cout << "ARPDBG ControlForm::hideChkPtTable" << endl;
   if(mSetChkPtFreqButton) mSetChkPtFreqButton->setHidden(flag);
   if(mIOTypeChkPtTable)mIOTypeChkPtTable->setHidden(flag);
   if(mSndChkPtButton)mSndChkPtButton->setHidden(flag);
@@ -857,5 +863,56 @@ SteeredParameterTable *ControlForm::getSteeredParamTable()
 void ControlForm::setPauseButtonLabel(QString aLabel){
   if(mPauseButton){
     mPauseButton->setText(aLabel);
+  }
+}
+
+//--------------------------------------------------------------------
+void ControlForm::newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr, 
+				 QString xLabel, QString yLabel){
+
+  HistoryPlot *lQwtPlot;
+
+  // Call our whizzo graphing method to draw the graph
+  // need to keep a reference to the plotter so that it's cancelled when 
+  // we quit the main window
+  lQwtPlot = new HistoryPlot(xParamPtr->mParamHist, 
+			     yParamPtr->mParamHist,
+			     xLabel.latin1(),
+			     yLabel.latin1(), 
+			     xParamPtr->getId(), yParamPtr->getId(),
+			     this->application()->name());
+  mHistoryPlotList.append(lQwtPlot);
+  lQwtPlot->show();
+
+  // And make the connection to ensure that the graph updates
+  connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), 
+	  lQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
+ 
+  // Make connection so that the graph can tell us when it has been closed
+  connect(lQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
+	  SLOT(plotClosedSlot(HistoryPlot*)));
+
+
+  connect(lQwtPlot, SIGNAL(plotSelectedSignal(HistoryPlot *)),
+	  this, SLOT(plotSelectedSlot(HistoryPlot *)));
+}
+
+//----------------------------------------------------------------
+void ControlForm::plotClosedSlot(HistoryPlot *ptr){
+
+  // Plot closed so remove from list (Auto delete means Qt will then destroy 
+  // the associated HistoryPlot object)
+  mHistoryPlotList.removeRef(ptr);
+}
+
+//----------------------------------------------------------------
+void ControlForm::plotSelectedSlot(HistoryPlot *plot){
+
+  if(mUserChoosePlotMode && mParamToAdd){
+    plot->addPlot(mParamToAdd->mParamHist,
+		  mParamToAdd->getLabel(), 
+		  mParamToAdd->getId());
+    mUserChoosePlotMode = false;
+    mParamToAdd = NULL;
   }
 }
