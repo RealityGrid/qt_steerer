@@ -59,7 +59,6 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
 
   // setAutoDelete so QT deletes each obj in list when the list is deleted
   mParamList.setAutoDelete( TRUE );
-  mHistoryPlotList.setAutoDelete( TRUE );
 
   // create table to display all monitored parameters
   // as well as displaying parameters in a table (one per row), a list of 
@@ -93,8 +92,8 @@ ParameterTable::~ParameterTable()
   // Delete plot list first because the QwtPlotter objects have references to 
   // data in the Parameter objects.  Auto delete means associated objects
   // are deleted by Qt.
-  for(i=0; i<mHistoryPlotList.count(); i++){
-    mHistoryPlotList.remove(i);
+  for(i=0; i<mParent->mHistoryPlotList.count(); i++){
+    mParent->mHistoryPlotList.remove(i);
   }
   
   // Delete parameter list.  Auto delete set in constuctor so the Parameter 
@@ -391,9 +390,7 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
   popupMenu.insertItem(QString("&Draw history graph"), this, 
 		       SLOT(drawGraphSlot(int)), CTRL+Key_D, row, 0);
 
-  // ARPDBG - work to allow user to add to a current plot goes here...
-  if( mHistoryPlotList.count() > 0 || 
-     (mMonParamTable && (mMonParamTable->mHistoryPlotList.count() > 0)) ){
+  if( mParent->mHistoryPlotList.count() > 0 ){
     popupMenu.insertItem(QString("Add to History Graph"), this, 
 			 SLOT(addGraphSlot(int)), CTRL+Key_M, row, 0);
   }
@@ -450,6 +447,7 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   // First obtain the appropriate parameter (and therefore its history)
   Parameter *tParameter = findParameterHandleFromRow(popupMenuID);
   Parameter *txParameter;
+  HistoryPlot *lQwtPlot;
 
   // Ask the user for the label of the parameter to plot against.
   bool ok;
@@ -476,25 +474,25 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   // Then call our whizzo graphing method to draw the graph
   // need to keep a reference to the plotter so that it's cancelled when 
   // we quit the main window
-  mQwtPlot = new HistoryPlot(txParameter->mParamHist, 
+  lQwtPlot = new HistoryPlot(txParameter->mParamHist, 
 			     tParameter->mParamHist,
 			     labelIn.latin1(),
 			     text(popupMenuID, kNAME_COLUMN).latin1(), 
 			     txParameter->getId(), tParameter->getId(),
 			     ((ControlForm*)(parent()))->application()->name());
-  mHistoryPlotList.append(mQwtPlot);
-  mQwtPlot->show();
+  mParent->mHistoryPlotList.append(lQwtPlot);
+  lQwtPlot->show();
 
   // And make the connection to ensure that the graph updates
   connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), 
-	  mQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
+	  lQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
 
   // Make connection so that the graph can tell us when it has been closed
-  connect(mQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
+  connect(lQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
 	  SLOT(plotClosedSlot(HistoryPlot*)));
 
 
-  connect(mQwtPlot, SIGNAL(plotSelectedSignal(HistoryPlot *)),
+  connect(lQwtPlot, SIGNAL(plotSelectedSignal(HistoryPlot *)),
 	  this, SLOT(plotSelectedSlot(HistoryPlot *)));
 
 }
@@ -535,7 +533,7 @@ void ParameterTable::plotClosedSlot(HistoryPlot *ptr){
 
   // Plot closed so remove from list (Auto delete means Qt will then destroy 
   // the associated HistoryPlot object)
-  mHistoryPlotList.removeRef(ptr);
+  mParent->mHistoryPlotList.removeRef(ptr);
 }
 
 //----------------------------------------------------------------

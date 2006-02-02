@@ -92,11 +92,10 @@ protected:
   Parameter *findParameterFromLabel(const QString &aLabel);
 
 protected:
-  /// List of the history plots associated with this application
-  QPtrList<HistoryPlot> mHistoryPlotList;
+  // List of the history plots associated with this application
+  //QPtrList<HistoryPlot> mHistoryPlotList;
   /// List of the parameters associated with this application
   QPtrList<Parameter>   mParamList;
-  HistoryPlot          *mQwtPlot;
   /// Pointer to table of monitored parameters
   ParameterTable       *mMonParamTable;
   /// Flag recording whether or not we've already fetched the full
