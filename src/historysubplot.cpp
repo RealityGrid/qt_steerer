@@ -80,20 +80,13 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 					   (QwtLegendItem::ShowLine |
 					    QwtLegendItem::ShowText));
     }
+    this->graphDisplayCurves();
   }
 
-  if(lReplotHistory)mHistCurveID = mPlotter->insertCurve(mLabely);
-
-  // Set curve styles
-  if(mHistPlot->mDisplayCurvesSet){
-    //mPlotter->setCurvePen(mCurveID, QPen(red));
-    //mPlotter->setCurvePen(mHistCurveID, QPen(red));
-    mPlotter->setCurvePen(mCurveID, QPen(mColour));
-    mPlotter->setCurvePen(mHistCurveID, QPen(mColour));
-  }
-  else{
-    mPlotter->setCurveStyle(mCurveID, QwtCurve::NoCurve);
-    mPlotter->setCurveStyle(mHistCurveID, QwtCurve::NoCurve);
+  if(mHistCurveID == CURVE_UNSET && 
+     mYParamHist->mPreviousHistArraySize > 0){
+    mHistCurveID = mPlotter->insertCurve(mLabely);
+    this->graphDisplayCurves();
   }
 
   // Work out how many points we've got - compare the no. available
@@ -136,12 +129,12 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
       mPlotter->setCurveSymbol(mHistCurveID, lPlotSymbol);
   }
 
-  // Shallow copy of data for plot
   nPoints = mYParamHist->mArrayPos;
   if(mXParamHist->mArrayPos < nPoints){
     nPoints = mXParamHist->mArrayPos;
   }
 
+  // Shallow copy of data for plot
   mPlotter->setCurveRawData(mCurveID, mXParamHist->ptrToArray(), 
 			    mYParamHist->ptrToArray(), nPoints);
 
@@ -161,8 +154,6 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 //---------------------------------------------------------------------------
 void HistorySubPlot::update(ParameterHistory *lYParamHist, const int yparamID)
 {
-  //cout << "HistorySubPlot::update BEGIN, id = " << yparamID << endl;
-  //cout << "HistorySubPlot::update member id = " << mYparamID << endl;
   // check we're the right graph for this data
   if(mYparamID != yparamID)return;
 
@@ -171,7 +162,6 @@ void HistorySubPlot::update(ParameterHistory *lYParamHist, const int yparamID)
 
   // redo the plot
   doPlot(true);
-  //cout << "HistorySubPlot::update END" << endl;
 }
 
 //---------------------------------------------------------------------------
@@ -227,6 +217,20 @@ void HistorySubPlot::graphDisplaySymbols()
 //---------------------------------------------------------------------------
 void HistorySubPlot::graphDisplayCurves()
 {
+  // Set curve styles
+  if(mHistPlot->mDisplayCurvesSet){
+    mPlotter->setCurveStyle(mCurveID, QwtCurve::Lines);
+    mPlotter->setCurvePen(mCurveID, QPen(mColour));
+    if(mHistCurveID != CURVE_UNSET){
+      mPlotter->setCurveStyle(mHistCurveID, QwtCurve::Lines);
+      mPlotter->setCurvePen(mHistCurveID, QPen(mColour));
+    }
+  }
+  else{
+    mPlotter->setCurveStyle(mCurveID, QwtCurve::NoCurve);
+    if(mHistCurveID != CURVE_UNSET)mPlotter->setCurveStyle(mHistCurveID, 
+							   QwtCurve::NoCurve);
+  }
 }
 
 //---------------------------------------------------------------------------
