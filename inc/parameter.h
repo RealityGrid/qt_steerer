@@ -32,6 +32,8 @@
    
 ---------------------------------------------------------------------------*/
 
+/** @file parameter.h
+    @brief Header file describing the Parameter class */
 
 #ifndef __PARAMETER_H__
 #define __PARAMETER_H__
@@ -41,6 +43,11 @@
 
 class QTable;
 
+/// Container for information on a single parameter registered by a 
+/// steerable application.
+/// @author Mark Riding
+/// @author Andrew Porter
+/// @author Sue Ramsden
 class Parameter
 {
 
@@ -60,6 +67,7 @@ public:
   /// this parameter
   int getRowIndex() const;
   bool isPresent() const;
+  /// In case parameter has been unregistered
   bool isRegistered() const;
   /// Get whether or not this parameter is steerable
   bool isSteerable() const;
@@ -76,23 +84,25 @@ public:
   QString getMinString();
   /// Return string containing maximum value of parameter
   QString getMaxString();
+  /// Return string containing the label of the parameter
   QString getLabel();
 
   ParameterHistory  *mParamHist;
   
 private:
+  /// Whether or not this parameter is steerable
   const	bool	mSteerable;
   bool		mRegisteredFlag;
   bool		mPresentFlag;
 
   int		mRowIndex;
+  /// The handle of this parameter as assigned by the steering lib
   const int	mId;
+  /// The type of this parameter as assigned by the steering lib
   const int	mType;
-
-  // MR: Store these as strings since we don't know the type,
-  //     and also since we'll be using them as strings at some
-  //     point anyhow
+  /// Minimum value of this parameter (if any)
   QString mMinStr;
+  /// Maximum value of this parameter (if any)
   QString mMaxStr;
   /// The label given this parameter by the application code
   QString mLabel;
