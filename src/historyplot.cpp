@@ -635,12 +635,10 @@ void HistoryPlot::toggleLogAxisYSlot(){
 //--------------------------------------------------------------------
 /** Update the graph with new data
  */
-void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist, 
-			     const int _yparamID){
-  return;
+void HistoryPlot::updateSlot(){
   HistorySubPlot *plot;
   for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
-    plot->update(_mYParamHist, _yparamID);
+    plot->update();
   }
 
   // Insert a horizontal line at y = 0...
@@ -657,14 +655,6 @@ void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist,
  *  in the window bar as well as them selecting Quit from the File menu.
  */
 void HistoryPlot::closeEvent(QCloseEvent *e){
-
-  HistorySubPlot *plot;
-  for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
-    // ARPDBG - NEED TO GET PTR TO PARAMETER OBJECT here so can 
-    // decrement its count of plots
-    plot->mYparamID
-  }
-
   // Accept the event to close the widget
   e->accept();
   // Emit a SIGNAL to tell parametertable object we can be deleted
