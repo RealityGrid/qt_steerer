@@ -320,6 +320,11 @@ ControlForm::updateParameters()
   
   // update steered parameters
   updateParameters(true);
+
+  if(!mHistoryPlotList.isEmpty()){
+    // Emit a SIGNAL so that any HistoryPlots can update
+    emit paramUpdateSignal();
+  }
 }
 
 
@@ -344,8 +349,6 @@ ControlForm::updateParameters(bool aSteeredFlag)
 	THROWEXCEPTION("Get_param_number");
       }
       mMutexPtr->unlock();
-    
-      DBGMSG1("Number Params: = ", lNumParams);
     
       if (lNumParams > 0)
 	{
@@ -391,13 +394,6 @@ ControlForm::updateParameters(bool aSteeredFlag)
 				    lParamDetails[i].value,
 				    lParamDetails[i].type);
 		}
-	      } 
-	      else{
-		Parameter *lParamPtr = lTablePtr->findParameter(lParamDetails[i].handle);
-		// Emit a SIGNAL so that any HistoryPlots can update
-		cout << "ARPDBG: emitting signal to update parameter: " << i << endl;
-		emit paramUpdateSignal(lParamPtr->mParamHist, 
-				       lParamPtr->getId());
 	      }
 	    } //for lNumParams
 	    
@@ -883,17 +879,17 @@ void ControlForm::newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr,
 			     this->application()->name());
   mHistoryPlotList.append(lQwtPlot);
   lQwtPlot->show();
-  yParamPtr->mPlotCount++;
 
   // And make the connection to ensure that the graph updates
-  connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), 
-	  lQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
+  connect(this, SIGNAL(paramUpdateSignal()), 
+	  lQwtPlot, SLOT(updateSlot()));
  
   // Make connection so that the graph can tell us when it has been closed
   connect(lQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
 	  SLOT(plotClosedSlot(HistoryPlot*)));
 
-
+  // So that the user can select which history plot to add a curve to
+  // by simply clicking on it
   connect(lQwtPlot, SIGNAL(plotSelectedSignal(HistoryPlot *)),
 	  this, SLOT(plotSelectedSlot(HistoryPlot *)));
 }
@@ -913,7 +909,6 @@ void ControlForm::plotSelectedSlot(HistoryPlot *plot){
     plot->addPlot(mParamToAdd->mParamHist,
 		  mParamToAdd->getLabel(), 
 		  mParamToAdd->getId());
-    mParamToAdd->mPlotCount++;
     mUserChoosePlotMode = false;
     mParamToAdd = NULL;
   }

@@ -143,9 +143,8 @@ public slots:
 
 signals:
   void detachFromApplicationForErrorSignal();
-  /// Signal to tell the HistoryPlot to update
-  void paramUpdateSignal(ParameterHistory *mParamHist, 
-			 const int paramID);
+  /// Signal to tell any HistoryPlots to update
+  void paramUpdateSignal();
 
 private:
   int			mSimHandle;		
