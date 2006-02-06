@@ -435,7 +435,6 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
   // First obtain the appropriate parameter (and therefore its history)
   Parameter *tParameter = findParameterHandleFromRow(popupMenuID);
   Parameter *txParameter;
-  HistoryPlot *lQwtPlot;
 
   // Ask the user for the label of the parameter to plot against.
   bool ok;
@@ -447,7 +446,8 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
     // user entered something and pressed OK
     if( !(txParameter = this->findParameterFromLabel(labelIn)) ){
       QMessageBox::warning(0, "Parameter selection failed", 
-			   QString("Failed to find parameter with label ")+labelIn,
+			   QString("Failed to find parameter with label ")+
+			   labelIn,
 			   QMessageBox::Ok,
 			   QMessageBox::NoButton, 
 			   QMessageBox::NoButton);
@@ -461,32 +461,6 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
 
   mParent->newHistoryPlot(txParameter, tParameter, labelIn, 
 			  text(popupMenuID, kNAME_COLUMN));
-  return;
-  /*
-  // Then call our whizzo graphing method to draw the graph
-  // need to keep a reference to the plotter so that it's cancelled when 
-  // we quit the main window
-  lQwtPlot = new HistoryPlot(txParameter->mParamHist, 
-			     tParameter->mParamHist,
-			     labelIn.latin1(),
-			     text(popupMenuID, kNAME_COLUMN).latin1(), 
-			     txParameter->getId(), tParameter->getId(),
-			     ((ControlForm*)(parent()))->application()->name());
-  mParent->mHistoryPlotList.append(lQwtPlot);
-  lQwtPlot->show();
-
-  // And make the connection to ensure that the graph updates
-  connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), 
-	  lQwtPlot, SLOT(updateSlot(ParameterHistory*, const int)));
- 
-  // Make connection so that the graph can tell us when it has been closed
-  connect(lQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
-	  SLOT(plotClosedSlot(HistoryPlot*)));
-
-
-  connect(lQwtPlot, SIGNAL(plotSelectedSignal(HistoryPlot *)),
-	  this, SLOT(plotSelectedSlot(HistoryPlot *)));
-*/
 }
 
 //----------------------------------------------------------------
