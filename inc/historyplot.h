@@ -61,7 +61,7 @@ class HistoryPlot : public QFrame
   Q_OBJECT
   
 private:
-    QMenuBar *mMenuBar;
+    QMenuBar   *mMenuBar;
     QPopupMenu *mFileMenu;
     QPopupMenu *mGraphMenu;
     /// Pointer to ParameterHistory for abscissa
@@ -78,7 +78,9 @@ private:
     double mYUpperBound, mYLowerBound;
     /// Bounds on x axis
     double mXUpperBound, mXLowerBound;
+    /// Id's for menu items controlling x-axis options
     int    mXUpperBoundId, mXLowerBoundId, mAutoXAxisId;
+    /// Id's for menu items controlling y-axis options
     int    mYUpperBoundId, mYLowerBoundId, mAutoYAxisId;
     /// Hande of menu item for controlling whether symbols are drawn
     int    mShowSymbolsId;
@@ -97,6 +99,7 @@ private:
 
     /// Holds a list of the colours that QColor knows about
     QStringList mColourList;
+    /// Iterator so that each new curve is given a new colour
     QStringList::Iterator mColourIter;
 
     /// Wipe and (re)draw the graph
@@ -106,7 +109,8 @@ protected:
     void closeEvent(QCloseEvent *e);
 
 public slots:
-    void updateSlot(ParameterHistory *mYParamHist, const int yparamID);
+    /// Slot signalled from controlForm when graph needs to be updated
+    void updateSlot();
     void filePrint();
     void fileSave();
     void fileDataSave();
@@ -122,7 +126,6 @@ public slots:
     void toggleLogAxisXSlot();
     void toggleLogAxisYSlot();
     void canvasSelectedSlot(const QPointArray &);
-    //void canvasSelectedSlot( );
 
 signals:
     void plotClosedSignal(HistoryPlot *ptr);
