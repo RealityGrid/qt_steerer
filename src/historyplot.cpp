@@ -31,6 +31,10 @@
   Authors........: Mark Riding, Andrew Porter, Sue Ramsden
 
 ---------------------------------------------------------------------------*/
+
+/** @file historyplot.cpp
+    @brief Source file for HistoryPlot class - container for one or more
+    history plots on a single canvas */
 #include <iostream>
 using namespace std;
 
@@ -633,7 +637,7 @@ void HistoryPlot::toggleLogAxisYSlot(){
  */
 void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist, 
 			     const int _yparamID){
-
+  return;
   HistorySubPlot *plot;
   for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
     plot->update(_mYParamHist, _yparamID);
@@ -653,6 +657,14 @@ void HistoryPlot::updateSlot(ParameterHistory *_mYParamHist,
  *  in the window bar as well as them selecting Quit from the File menu.
  */
 void HistoryPlot::closeEvent(QCloseEvent *e){
+
+  HistorySubPlot *plot;
+  for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
+    // ARPDBG - NEED TO GET PTR TO PARAMETER OBJECT here so can 
+    // decrement its count of plots
+    plot->mYparamID
+  }
+
   // Accept the event to close the widget
   e->accept();
   // Emit a SIGNAL to tell parametertable object we can be deleted
