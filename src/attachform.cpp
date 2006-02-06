@@ -90,17 +90,20 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   }
 
   // Now find out what's in the registry...
-  /* ..._secure only available in steering library >= 2.0
+#ifdef REG_WSRF
+  //..._secure only available in steering library >= 2.0
   mLibReturnStatus = Get_registry_entries_secure(lConfig->mTopLevelRegistry,
 						 lConfig->mKeyPassphrase,
 						 lConfig->mPrivateKeyCertFile,
 						 lConfig->mCACertsPath,
 						 &mNumSims,  
 						 &entries);
-  */
+#else
   mLibReturnStatus = Get_registry_entries((char *)(lConfig->mTopLevelRegistry.ascii()),
 					  &mNumSims,  
 					  &entries);
+#endif // defined REG_WSRF
+
   if(mLibReturnStatus != REG_SUCCESS) return;
 
   count = 0;
