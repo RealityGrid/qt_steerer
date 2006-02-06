@@ -88,9 +88,6 @@ public:
   QString getLabel();
 
   ParameterHistory  *mParamHist;
-  /// Keeps a count of how many plots this parameter is
-  /// an ordinate for
-  int                mPlotCount;
 
 private:
   /// Whether or not this parameter is steerable
