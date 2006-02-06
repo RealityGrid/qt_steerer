@@ -46,8 +46,8 @@ HistorySubPlot::HistorySubPlot(HistoryPlot *lHistPlot,
 			       const int yparamID,
 			       const QString lColour)
   : mHistPlot(lHistPlot), mPlotter(lPlotter), mXParamHist(lXParamHist),
-    mLabely(lLabely), mYparamID(yparamID), mColour(lColour), 
-    mYParamHist(lYParamHist)
+    mLabely(lLabely), mColour(lColour),
+    mYParamHist(lYParamHist),  mYparamID(yparamID)
 {
   mCurveID         = CURVE_UNSET;
   mHistCurveID     = CURVE_UNSET;
@@ -108,7 +108,8 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
     // as width/(npoints + 1) and then takes a third of that
     // to be the symbol size.  I don't know what units the
     // symbol size is in so this is empirical.
-    ltmp = (int)((float)mHistPlot->contentsRect().width()/(float)((nPoints + 1)*3));
+    ltmp = (int)((float)mHistPlot->contentsRect().width()/
+		 (float)((nPoints + 1)*3));
     if(ltmp > 0){
       // Min. symbol size of 3 looks best
       if(ltmp < 3){
@@ -152,14 +153,8 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 }
 
 //---------------------------------------------------------------------------
-void HistorySubPlot::update(ParameterHistory *lYParamHist, const int yparamID)
+void HistorySubPlot::update()
 {
-  // check we're the right graph for this data
-  if(mYparamID != yparamID)return;
-
-  // update the data
-  mYParamHist = lYParamHist;
-
   // redo the plot
   doPlot(true);
 }
@@ -176,16 +171,6 @@ void HistorySubPlot::fileSave()
 
 //---------------------------------------------------------------------------
 void HistorySubPlot::fileDataSave()
-{
-}
-
-//---------------------------------------------------------------------------
-void HistorySubPlot::graphYUpperBound()
-{
-}
-
-//---------------------------------------------------------------------------
-void HistorySubPlot::graphYLowerBound()
 {
 }
 
