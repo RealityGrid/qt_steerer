@@ -85,12 +85,11 @@ public:
 
     /// Wipe and (re)draw the graph
     void doPlot(bool lForceHistRedraw);
-    void update(ParameterHistory *mYParamHist, const int yparamID);
+    /// Called by updateSlot in HistoryPlot
+    void update();
     void filePrint();
     void fileSave();
     void fileDataSave();
-    void graphYUpperBound();
-    void graphYLowerBound();
     void autoYAxis();
     void graphXUpperBound();
     void graphXLowerBound();
