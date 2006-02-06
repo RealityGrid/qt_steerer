@@ -372,33 +372,33 @@ ControlForm::updateParameters(bool aSteeredFlag)
 	    mMutexPtr->unlock();
 
 	    for (int i=0; i<lNumParams; i++){
-		  //check if already exists - if so only update value
-		  if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
-					     lParamDetails[i].value)))
-		    {
-		      // must be new parameter so add it
-		      // MR: changes to add the min and max values to the steerable parameter table
-		      if (aSteeredFlag){
-			((SteeredParameterTable*)lTablePtr)->addRow(lParamDetails[i].handle,
-								    lParamDetails[i].label, 
-								    lParamDetails[i].value, 
-								    lParamDetails[i].type,
-								    lParamDetails[i].min_val,
-								    lParamDetails[i].max_val);
-		      }
-		      else{
-			lTablePtr->addRow(lParamDetails[i].handle,
-					  lParamDetails[i].label,
-					  lParamDetails[i].value,
-					  lParamDetails[i].type);
-		      }
-		    } 
+	      //check if already exists - if so only update value
+	      if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
+					 lParamDetails[i].value))){
 
-		  Parameter *lParamPtr = lTablePtr->findParameter(lParamDetails[i].handle);
-		  // Emit a SIGNAL so that any HistoryPlots can update
-		  cout << "ARPDBG: emitting signal to update parameter: " << i << endl;
-		  emit paramUpdateSignal(lParamPtr->mParamHist, 
-					 lParamPtr->getId());
+		// must be new parameter so add it
+		if (aSteeredFlag){
+		  ((SteeredParameterTable*)lTablePtr)->addRow(lParamDetails[i].handle,
+							      lParamDetails[i].label, 
+							      lParamDetails[i].value, 
+							      lParamDetails[i].type,
+							      lParamDetails[i].min_val,
+							      lParamDetails[i].max_val);
+		}
+		else{
+		  lTablePtr->addRow(lParamDetails[i].handle,
+				    lParamDetails[i].label,
+				    lParamDetails[i].value,
+				    lParamDetails[i].type);
+		}
+	      } 
+	      else{
+		Parameter *lParamPtr = lTablePtr->findParameter(lParamDetails[i].handle);
+		// Emit a SIGNAL so that any HistoryPlots can update
+		cout << "ARPDBG: emitting signal to update parameter: " << i << endl;
+		emit paramUpdateSignal(lParamPtr->mParamHist, 
+				       lParamPtr->getId());
+	      }
 	    } //for lNumParams
 	    
 	    // Adjust width of first column holding labels      
@@ -883,6 +883,7 @@ void ControlForm::newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr,
 			     this->application()->name());
   mHistoryPlotList.append(lQwtPlot);
   lQwtPlot->show();
+  yParamPtr->mPlotCount++;
 
   // And make the connection to ensure that the graph updates
   connect(this, SIGNAL(paramUpdateSignal(ParameterHistory *, const int)), 
@@ -912,6 +913,7 @@ void ControlForm::plotSelectedSlot(HistoryPlot *plot){
     plot->addPlot(mParamToAdd->mParamHist,
 		  mParamToAdd->getLabel(), 
 		  mParamToAdd->getId());
+    mParamToAdd->mPlotCount++;
     mUserChoosePlotMode = false;
     mParamToAdd = NULL;
   }
