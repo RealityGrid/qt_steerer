@@ -43,8 +43,8 @@
 
 Parameter::Parameter(int aId, int aType, bool aSteerable,
 		     QString aLabel)
-  : mSteerable(aSteerable), mRegisteredFlag(true), mPresentFlag(true), 
-    mRowIndex(-1), mId(aId), mType(aType), 
+  : mPlotCount(0),mSteerable(aSteerable), mRegisteredFlag(true),
+    mPresentFlag(true), mRowIndex(-1), mId(aId), mType(aType), 
     mLabel(aLabel)
 {
   DBGCON("Parameter constructor");
