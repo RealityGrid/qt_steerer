@@ -53,14 +53,12 @@ private:
     /// Pointer to the parent HistoryPlot object
     HistoryPlot      *mHistPlot;
     /// Pointer to the parent QwtPlot object in which we will draw
-    QwtPlot   *mPlotter;
+    QwtPlot          *mPlotter;
+    /// Pointer to the ParameterHistory object holding 
+    /// data for abscissa
     ParameterHistory *mXParamHist;
     /// Holds the label for the y axis or key
     QString mLabely;
-    /// Holds the handle of the parameter used for the abscissa
-    int xparamID;
-    /// Holds the handle of the parameter used for the ordinate
-    int mYparamID;
 
     /// The Qwt identifier for the curve showing the history of the 
     /// parameter prior to the time the steerer connected
@@ -105,7 +103,10 @@ public:
     /// Pointer to the array holding the array of logged values of
     /// the parameter being plotted
     ParameterHistory *mYParamHist;
-
+    /// Holds the handle of the parameter used for the abscissa
+    int xparamID;
+    /// Holds the handle of the parameter used for the ordinate
+    int mYparamID;
 };
 
 #endif
