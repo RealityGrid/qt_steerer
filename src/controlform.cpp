@@ -766,11 +766,17 @@ ControlForm::emitAllValuesSlot()
   {
     StEx.print();
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", 
-			 "Internal library error - detaching from application",
-			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
-			 QMessageBox::NoButton);
+
+    QMessageBox mb("RealityGrid Steerer",
+		   "Failed to emit steering command - detaching\n"
+		   "from application\n",
+		    QMessageBox::Warning,
+		    QMessageBox::Ok,
+		    QMessageBox::NoButton,
+		    QMessageBox::NoButton,
+		    this, "Modeless warning", false);
+    mb.setModal(false);
+    mb.exec();
   }
 }
 

@@ -63,7 +63,6 @@ HistorySubPlot::~HistorySubPlot()
 //---------------------------------------------------------------------------
 void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 {
-  cout << "ARPDBG: historysubplot::doPlot..." << endl;
   QwtSymbol lPlotSymbol;
   int ltmp = 0;
   bool lReplotHistory = lForceHistRedraw || 

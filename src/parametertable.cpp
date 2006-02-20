@@ -749,7 +749,8 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 
       if (!lOk)
       {
-	QMessageBox::information(0, "Invalid Parameter Value", "The entered value is not valid",
+	QMessageBox::information(0, "Invalid Parameter Value", 
+				 "The entered value is not valid",
 				 QMessageBox::Ok,
 				 QMessageBox::NoButton, 
 				 QMessageBox::NoButton);
@@ -760,7 +761,6 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
     } //lOk
   } //if kNEWVALUE_COLUMN
 
-
   } //try
 
   catch (SteererException StEx)
@@ -768,14 +768,17 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 
     StEx.print();
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal error - detaching from application",
-			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
-			 QMessageBox::NoButton);
 
-
+    QMessageBox mb("RealityGrid Steerer",
+		   "Internal error - unknown parameter type",
+		    QMessageBox::Warning,
+		    QMessageBox::Ok,
+		    QMessageBox::NoButton,
+		    QMessageBox::NoButton,
+		    this, "Modeless warning", false);
+    mb.setModal(false);
+    mb.exec();
   }
-
 
 }
 
@@ -973,11 +976,16 @@ void SteeredParameterTable::emitValuesSlot()
   {
     StEx.print();
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
-			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
-			 QMessageBox::NoButton);
-    
+
+    QMessageBox mb("RealityGrid Steerer",
+		   "Internal error - failed to emit new parameter values",
+		    QMessageBox::Warning,
+		    QMessageBox::Ok,
+		    QMessageBox::NoButton,
+		    QMessageBox::NoButton,
+		    this, "Modeless warning", false);
+    mb.setModal(false);
+    mb.exec();    
   }
 
 }

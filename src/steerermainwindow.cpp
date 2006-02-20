@@ -490,10 +490,15 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
     mCommsThread = kNULL;
     mAppList.remove();
 
-    QMessageBox::warning(0, "Steerer Error", "Internal error - attach failed",
-			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
-			 QMessageBox::NoButton);
+    QMessageBox mb("RealityGrid Steerer",
+		   "Internal error - attach failed",
+		    QMessageBox::Warning,
+		    QMessageBox::Ok,
+		    QMessageBox::NoButton,
+		    QMessageBox::NoButton,
+		    this, "Modeless warning", false);
+    mb.setModal(false);
+    mb.exec();
     
     StEx.print();
   }
