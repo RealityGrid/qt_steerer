@@ -349,12 +349,6 @@ void HistoryPlot::doPlot(){
   // allow the user to define the Y axis dims if desired
   if (mAutoYAxisSet){
     mPlotter->setAxisAutoScale(0);
-
-    // also want to update the manual upper and lower bounds to 
-    // something sensible at this point
-    const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
-    mYLowerBound = autoScaleDiv->lBound();
-    mYUpperBound = autoScaleDiv->hBound();
   }
   else{
     mPlotter->setAxisScale(0, mYLowerBound, mYUpperBound);
@@ -364,12 +358,6 @@ void HistoryPlot::doPlot(){
   if (mAutoXAxisSet){
 
     mPlotter->setAxisAutoScale(mPlotter->xBottom);
-
-    // also want to update the manual upper and lower bounds to 
-    // something sensible at this point
-    const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(mPlotter->xBottom);
-    mXLowerBound = autoScaleDiv->lBound();
-    mXUpperBound = autoScaleDiv->hBound();
   }
   else{
     mPlotter->setAxisScale(mPlotter->xBottom, mXLowerBound, mXUpperBound);
@@ -646,6 +634,15 @@ void HistoryPlot::updateSlot(){
   mPlotter->setMarkerYPos(mY, 0.0);
 
   mPlotter->replot();
+
+  // also want to update the manual upper and lower bounds to 
+  // something sensible at this point
+  const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
+  mYLowerBound = autoScaleDiv->lBound();
+  mYUpperBound = autoScaleDiv->hBound();
+  autoScaleDiv = mPlotter->axisScale(mPlotter->xBottom);
+  mXLowerBound = autoScaleDiv->lBound();
+  mXUpperBound = autoScaleDiv->hBound();
 
   return;
 }
