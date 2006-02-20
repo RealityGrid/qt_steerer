@@ -378,7 +378,8 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 	
 	if (!lOk)
 	{
-	  QMessageBox::information(0, "Invalid Frequency", "The entered value is not valid",
+	  QMessageBox::information(0, "Invalid Frequency", 
+				   "The entered value is not valid",
 				   QMessageBox::Ok,
 				   QMessageBox::NoButton, 
 				   QMessageBox::NoButton);
@@ -397,11 +398,16 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 
     StEx.print();
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal error - detaching from application",
-			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
-			 QMessageBox::NoButton);
 
+    QMessageBox mb("RealityGrid Steerer",
+		   "Internal error - IOType not valid",
+		   QMessageBox::Warning,
+		   QMessageBox::Ok,
+		   QMessageBox::NoButton,
+		   QMessageBox::NoButton,
+		   this, "Modeless warning", false);
+    mb.setModal(false);
+    mb.exec();    
   }
 
 
@@ -529,7 +535,7 @@ IOTypeTable::emitValuesSlot()
     {  
       mMutexPtr->lock();
       // "emit" values to steered application
-      lReGStatus = Emit_control(getSimHandle(),				//ReG library
+      lReGStatus = Emit_control(getSimHandle(),	       	//ReG library
 				0,
 				NULL,
 				NULL);
@@ -547,7 +553,8 @@ IOTypeTable::emitValuesSlot()
   {
     StEx.print();
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
+    QMessageBox::warning(0, "Steerer Error", 
+			 "Failed to emit new parameter values - detaching from application",
 			 QMessageBox::Ok,
 			 QMessageBox::NoButton, 
 			 QMessageBox::NoButton);
@@ -772,14 +779,19 @@ void IOTypeTable::createButtonPressedSlot(){
     delete [] lCmdParamArray;
 
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);    
+    QMessageBox::warning(0, "Steerer Error", 
+			 "Failed to emit commands to create "
+			 "checkpoint - detaching from application", 
+			 QMessageBox::Ok, QMessageBox::NoButton, 
+			 QMessageBox::NoButton);    
   }
 }
 
 /** MR: this slot will replace the current emitRestartSlot
  */
 void IOTypeTable::restartButtonPressedSlot(){
-  // this slot will only get called for the Create button form, so no need to worry about the other table
+  // this slot will only get called for the Create button form, 
+  // so no need to worry about the other table
   int *lCommandArray = kNULL;
   char **lCmdParamArray = kNULL;
   ChkPtForm *lChkPtForm = kNULL;
@@ -806,7 +818,8 @@ void IOTypeTable::restartButtonPressedSlot(){
           // Get number log entries for this checkpoint
           int lNumEntries = 0;
           mMutexPtr->lock();
-          if (Get_chk_log_number(getSimHandle(), lCmdId, &lNumEntries) != REG_SUCCESS)
+          if (Get_chk_log_number(getSimHandle(), 
+				 lCmdId, &lNumEntries) != REG_SUCCESS)
             THROWEXCEPTION("Get_chk_log_number");
           mMutexPtr->unlock();
 
@@ -817,10 +830,13 @@ void IOTypeTable::restartButtonPressedSlot(){
 
             if (lChkPtForm->getLibReturnStatus() == REG_SUCCESS){
               if (lChkPtForm->exec() == QDialog::Accepted){
-                DBGMSG1("ChkPt accepted, tag = ", lChkPtForm->getChkTagSelected());
-                sprintf(lCmdParamArray[0], "IN %s", lChkPtForm->getChkTagSelected());
+                DBGMSG1("ChkPt accepted, tag = ", 
+			lChkPtForm->getChkTagSelected());
+                sprintf(lCmdParamArray[0], "IN %s", 
+			lChkPtForm->getChkTagSelected());
 
-                if (Emit_control(getSimHandle(), 1, lCommandArray, lCmdParamArray) != REG_SUCCESS){
+                if (Emit_control(getSimHandle(), 1, lCommandArray, 
+				 lCmdParamArray) != REG_SUCCESS){
                   THROWEXCEPTION("Emit_control");
                 }
                 DBGMSG("Sent Restart Commands");
@@ -837,7 +853,11 @@ void IOTypeTable::restartButtonPressedSlot(){
             
           } // if lNumEntries > 0
           else {
-            QMessageBox::information(0, "CheckPoint Restart", "No checkpoints found in log", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+            QMessageBox::information(0, "CheckPoint Restart", 
+				     "No checkpoints found in log", 
+				     QMessageBox::Ok, 
+				     QMessageBox::NoButton, 
+				     QMessageBox::NoButton);
           }
         } // if (lOk)
 
@@ -861,8 +881,11 @@ void IOTypeTable::restartButtonPressedSlot(){
       
     } // if mRestartRowIndexNew > kNULL_INDX
     else {
-      QMessageBox::information(0, "Steerer Restart Functionality", "Please select checkpoint IOType for application to use for restart",
-                               QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+      QMessageBox::information(0, "Steerer Restart Functionality", 
+			       "Please select checkpoint IOType for "
+			       "application to use for restart",
+                               QMessageBox::Ok, QMessageBox::NoButton, 
+			       QMessageBox::NoButton);
     }
 
   } // try
@@ -876,7 +899,10 @@ void IOTypeTable::restartButtonPressedSlot(){
     delete lChkPtForm;
 
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+    QMessageBox::warning(0, "Steerer Error", 
+			 "Internal library error - detaching from application", 
+			 QMessageBox::Ok, QMessageBox::NoButton, 
+			 QMessageBox::NoButton);
   }  
   
 }
@@ -1022,10 +1048,12 @@ void IOTypeTable::consumeButtonPressedSlot(){
     delete[] lCmdParamArray;
     
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+    QMessageBox::warning(0, "Steerer Error", 
+			 "Internal library error - detaching from application", 
+			 QMessageBox::Ok, QMessageBox::NoButton, 
+			 QMessageBox::NoButton);
   }
 
-  
 }
 
 void IOTypeTable::emitButtonPressedSlot(){
@@ -1087,7 +1115,10 @@ void IOTypeTable::emitButtonPressedSlot(){
     delete[] lCmdParamArray;
 
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application", QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton);
+    QMessageBox::warning(0, "Steerer Error", 
+			 "Failed to emit commands - detaching from application", 
+			 QMessageBox::Ok, QMessageBox::NoButton, 
+			 QMessageBox::NoButton);
   }
 }
 
