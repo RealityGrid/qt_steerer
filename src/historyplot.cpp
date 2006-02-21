@@ -265,7 +265,7 @@ void HistoryPlot::fileDataSave(){
   // ensure the user gave us a sensible file
   if (!lFileName.isNull()){
 
-    // ensure the file has a .jpg extension
+    // ensure the file has a .dat extension
     if (!lFileName.endsWith(".dat"))
       lFileName.append(".dat");
 
@@ -280,15 +280,24 @@ void HistoryPlot::fileDataSave(){
 
     // Header for data
     ts << "# Data exported from RealityGrid Qt Steering Client" << endl;
-    ts << "# for " << this->caption() << endl;
+    ts << "# Seq no."; 
+    plot = mSubPlotList.first();
+    while(plot){
+      ts << ", " << plot->getCurveLabel();
+      plot = mSubPlotList.next();
+    }    
+    ts << endl;
 
     // Work out how many points we've got of 'historical data' - compare 
     // the no. available for each ordinate and use the smaller of the two.
-    int lNumPts = 0;
-    for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
-      if(lNumPts < plot->mYParamHist->mPreviousHistArraySize){
+    plot = mSubPlotList.first();
+    int lNumPts = plot->mYParamHist->mPreviousHistArraySize;
+    plot = mSubPlotList.next();
+    while(plot){
+      if(lNumPts > plot->mYParamHist->mPreviousHistArraySize){
 	lNumPts = plot->mYParamHist->mPreviousHistArraySize;
       }
+      plot = mSubPlotList.next();
     }
     if(mXParamHist->mPreviousHistArraySize < lNumPts){
       lNumPts = mXParamHist->mPreviousHistArraySize;
@@ -302,16 +311,18 @@ void HistoryPlot::fileDataSave(){
 	ts << QString("  %1").arg((plot->mYParamHist->mPtrPreviousHistArray)[i], 
 				  0, 'e', 8);
       }
-
       ts << endl;
     }
 
     // Now do the data we've collected whilst we've been attached
-    lNumPts = 0;
-    for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
-      if(lNumPts < plot->mYParamHist->mArrayPos){
+    plot = mSubPlotList.first();
+    lNumPts = plot->mYParamHist->mArrayPos;
+    plot = mSubPlotList.next();
+    while(plot){
+      if(lNumPts > plot->mYParamHist->mArrayPos){
 	lNumPts = plot->mYParamHist->mArrayPos;
       }
+      plot = mSubPlotList.next();
     }
     if(mXParamHist->mArrayPos < lNumPts){
       lNumPts = mXParamHist->mArrayPos;
