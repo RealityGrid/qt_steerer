@@ -73,9 +73,14 @@ public:
   ControlForm(QWidget *aParent, const char *aName, int aSimHandle, 
 	      Application *aApplication, QMutex *aMutex);
   ~ControlForm();
-
-  void updateParameters();
+  /// Update the parameter details for this application
+  /// @param isStatusMsg Whether this update results from a status
+  /// message
+  void updateParameters(const bool isStatusMsg);
+  /// Update the IOType or ChkTypes for this application
   void updateIOTypes(bool aChkPtType = false);
+  /// Called when application receives a parameter log message (i.e.
+  /// log information for before the steering client attached)
   void updateParameterLog();
 
   /// Disable all buttons on UI
@@ -97,31 +102,33 @@ public:
   /// Set the label on the 'pause' button to reflect
   /// whether app is running or is paused.
   void setPauseButtonLabel(const QString aLabel);
-  /**
-   * getter method for the Application being controlled by
-   * this form
-   *
-   * @return        pointer to Application object.
-   */
+  /// Getter method for the Application being controlled by
+  /// this form
+  /// @return pointer to Application object.
   Application *application();
-  /** Getter method for the monitored parameters table */
+  /// Getter method for the monitored parameters table
   ParameterTable *getMonParamTable();
-  /** Getter method for the steerable parameters table */
+  /// Getter method for the steerable parameters table
   SteeredParameterTable *getSteeredParamTable();
   void newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr, 
 		      QString xLabel, QString yLabel);
 
-  /**
-   * Method to show or hide the checkpoint table and associated label
-   * and buttons.
-   */
+  /// Method to show or hide the checkpoint table and associated label
+  /// and buttons.
   void hideChkPtTable(bool flag);
+  /// Method to show or hide the IOTypes table and associated label
+  /// and buttons.
   void hideIOTable(bool flag);
+  /// Method to show or hide the steered-params table and associated
+  /// label and buttons.
   void hideSteerTable(bool flag);
+  /// Method to show or hide the monitored-params table and associated
+  /// label and buttons.
   void hideMonTable(bool flag);
 
 private:
-  void updateParameters(bool aSteeredFlag);
+  void updateParameters(const bool aSteeredFlag,
+			const bool isStatusMsg);
   void disableButtons();
   
 protected slots:
