@@ -48,32 +48,13 @@ Parameter::Parameter(int aId, int aType, bool aSteerable,
     mLabel(aLabel)
 {
   DBGCON("Parameter constructor");
-  // Create a parameter object - this holds information about a steered or monitored parameter
-  // Note that not all data is stored in the class - some is simply displayed ( and updated)
-  // in the gui (in table)
-
-  // mRowIndex stored the index of the row in the table that diaplays this parameter - this
-  // is needed to update the table when the parameter data changes
-
-  // mId is the parameter handle assigned by ReG library
-  // mType is the type of the parameter data
-
-  // Note that it is possible for an application to unregister a parameter 
-  // it has previously registered - mRegisteredFlag holds this state 
-  // mPresentFlag is used to identify unregistered parameters
-  
-  //ARPDBG LOGGING if(!mSteerable){
-    mParamHist = new ParameterHistory;
-  //ARPDBG LOGGING}
+  mParamHist = new ParameterHistory;
 }
 
 Parameter::~Parameter()
 {
   DBGDST("Parameter");
-  //ARPDBG LOGGING if(!mSteerable){
-    delete mParamHist;
-  //ARPDBG LOGGING}
-
+  delete mParamHist;
 }
 
 bool
@@ -107,9 +88,11 @@ void
 Parameter::printParameter(QTable *lTablePtr) const
 {
   printf("Parameter handle=%d, index=%d\n", getId(), getRowIndex());
-  printf("   Value is %s \n", lTablePtr->text(getRowIndex(), kVALUE_COLUMN).latin1());
+  printf("   Value is %s \n", 
+	 lTablePtr->text(getRowIndex(), kVALUE_COLUMN).latin1());
   if (mSteerable)
-    printf("   NewValue is %s \n", lTablePtr->text(getRowIndex(), kNEWVALUE_COLUMN).latin1());
+    printf("   NewValue is %s \n", 
+	   lTablePtr->text(getRowIndex(), kNEWVALUE_COLUMN).latin1());
 }
 
 int 
@@ -128,12 +111,6 @@ int
 Parameter::getRowIndex() const  
 {
   return mRowIndex;
-}
-
-bool 
-Parameter::isPresent() const 
-{ 
-  return mPresentFlag; 
 }
  
 bool 
@@ -154,14 +131,6 @@ Parameter::unRegister()
   mRegisteredFlag = false; 
 }
 
-void 
-Parameter::setIsPresent()
-{
-  // set this as used later to identify unRegistered parameter
-  mPresentFlag = true;
-}
-
-// MR:
 void Parameter::setMinMaxStrings(const char *min, const char *max){
   // Make deep copy of the passed strings
   mMinStr = min;
