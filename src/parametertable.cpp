@@ -136,7 +136,8 @@ ParameterTable::getNumParameters() const
 }
 
 bool 
-ParameterTable::updateRow(const int lHandle, const char *lVal)
+ParameterTable::updateRow(const int lHandle, const char *lVal,
+			  const bool isStatusMsg)
 {
   // Search list of existing parameters for this lHandle
   // If found update it now
@@ -144,9 +145,6 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
   Parameter *lParamPtr;
   if ((lParamPtr = findParameter(lHandle)) != kNULL)
   {
-    // set flag used later to indicate parameter has not be unregistered
-    lParamPtr->setIsPresent();
-
     // update the parameter value and call updateCell to make sure 
     // display is updated immediately
     // Note: we could make the QTableItem displayed in this cell a 
@@ -172,9 +170,9 @@ ParameterTable::updateRow(const int lHandle, const char *lVal)
 
     updateCell(lParamPtr->getRowIndex(),kVALUE_COLUMN);
 
-    // Log values of all parameters except those that are strings
-    if( lParamPtr->getType() != REG_CHAR){
-      // MR: add the string value to the parameter's history
+    // If this update is a result of a status message then log values 
+    // of all parameters except those that are strings
+    if( isStatusMsg && (lParamPtr->getType() != REG_CHAR) ){
       lParamPtr->mParamHist->updateParameter(lVal);
     }
 
@@ -499,9 +497,9 @@ void ParameterTable::updateParameterLog(){
 
     mMutexPtr->lock();
     status = Get_param_log(lhandle,    //ReG library
-		  lParamPtr->getId(),
-		  &(dum_ptr),
-		  &(dum_int));
+			   lParamPtr->getId(),
+			   &(dum_ptr),
+			   &(dum_int));
     mMutexPtr->unlock();
 
     if(status == REG_SUCCESS){
