@@ -59,10 +59,22 @@ public:
   virtual void clearAndDisableForDetach(const bool aUnRegister = true);
   /// Update the information shown in an existing row in the 
   /// parameter table
-  virtual bool updateRow(const int lHandle, const char *lVal);
+  /// @param lHandle The handle of the parameter to update
+  /// @param lVal The value of the parameter (as a char*)
+  /// @param isStatusMsg Whether this update has been forced by receipt
+  /// of a status message
+  virtual bool updateRow(const int lHandle, 
+			 const char *lVal,
+			 const bool isStatusMsg);
   /// Add a row to the parameter table
+  /// @param lHandle The handle of the parameter to add a row for
+  /// @param lLabel The label of this parameter
+  /// @param lVal The value of the parameter (as a char*)
+  /// @param lType The type of this parameter encoded as an int
   virtual void addRow(const int lHandle, const char *lLabel, 
 		      const char *lVal, const int lType);
+  /// Update the full log of the parameter values (i.e. for the 
+  /// period before the steering client attached)
   void updateParameterLog();
   /// Get a ptr to Parameter from its handle
   Parameter *findParameter(int aId);
@@ -72,8 +84,8 @@ public slots:
   virtual void contextMenuSlot(int row, int column, const QPoint &pnt);
   void requestParamHistorySlot(int row);
   void drawGraphSlot(int popupMenuID);
-  /** Slot called when the user selects the "Draw Graph" option from
-   *  the table's context menu */
+  /// Slot called when the user selects the "Draw Graph" option from
+  /// the table's context menu
   void addGraphSlot(int popupMenuID);
 
 protected:
