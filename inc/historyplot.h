@@ -68,8 +68,6 @@ private:
     ParameterHistory *mXParamHist;
     /// The QwtPlot object for this history plot
     QwtPlot *mPlotter;
-    /// The class dealing with plotting the curve for this history plot
-    HistorySubPlot *mSubPlot;
     /// Holds the label for the x axis
     char mLabelx[kCHKPT_PARAM_LEN];
     /// Holds the handle of the parameter used for the abscissa
