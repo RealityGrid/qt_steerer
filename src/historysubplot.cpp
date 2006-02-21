@@ -227,3 +227,8 @@ void HistorySubPlot::toggleLogAxisY()
 {
 }
 
+//---------------------------------------------------------------------------
+QString HistorySubPlot::getCurveLabel()
+{
+  return mLabely;
+}

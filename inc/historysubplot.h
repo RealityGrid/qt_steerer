@@ -58,7 +58,7 @@ private:
     /// data for abscissa
     ParameterHistory *mXParamHist;
     /// Holds the label for the y axis or key
-    QString mLabely;
+    QString           mLabely;
 
     /// The Qwt identifier for the curve showing the history of the 
     /// parameter prior to the time the steerer connected
@@ -98,6 +98,7 @@ public:
     void graphDisplayCurves();
     void toggleLogAxisX();
     void toggleLogAxisY();
+    QString getCurveLabel();
 
     /// Pointer to the array holding the array of logged values of
     /// the parameter being plotted
