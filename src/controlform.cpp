@@ -313,13 +313,13 @@ ControlForm::~ControlForm()
 }
 
 void
-ControlForm::updateParameters()
+ControlForm::updateParameters(const bool isStatusMsg)
 {
   // update monitored parameters
-  updateParameters(false);
+  updateParameters(false, isStatusMsg);
   
   // update steered parameters
-  updateParameters(true);
+  updateParameters(true, isStatusMsg);
 
   if(!mHistoryPlotList.isEmpty()){
     // Emit a SIGNAL so that any HistoryPlots can update
@@ -329,7 +329,8 @@ ControlForm::updateParameters()
 
 
 void
-ControlForm::updateParameters(bool aSteeredFlag)
+ControlForm::updateParameters(const bool aSteeredFlag,
+			      const bool isStatusMsg)
 {
   // call ReG library routines to get all parameter data and
   // update table displaying paremeters on gui
@@ -377,7 +378,8 @@ ControlForm::updateParameters(bool aSteeredFlag)
 	    for (int i=0; i<lNumParams; i++){
 	      //check if already exists - if so only update value
 	      if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
-					 lParamDetails[i].value))){
+					 lParamDetails[i].value,
+					 isStatusMsg))){
 
 		// must be new parameter so add it
 		if (aSteeredFlag){

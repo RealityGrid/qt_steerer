@@ -466,7 +466,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       
       DBGMSG("Application::processNextMessage Got param defs message");
       // update parameter list and table
-      mControlForm->updateParameters();
+      mControlForm->updateParameters(false);
 
       break;
       
@@ -478,7 +478,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       bool detached;
       detached = false;
       // update parameter list and table
-      mControlForm->updateParameters();
+      mControlForm->updateParameters(true);
       
       // update IOType list and table (needed for frequency update)
       mControlForm->updateIOTypes(false);	// sample types
