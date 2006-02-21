@@ -44,7 +44,13 @@
 class QTable;
 
 /// Container for information on a single parameter registered by a 
-/// steerable application.
+/// steerable application. The parameter object holds information about 
+/// a steered or monitored parameter.
+/// Note that not all data is stored in the class - some is simply 
+/// displayed ( and updated) in the gui (in a ParameterTable).
+/// Note that it is theoretically possible for an application to 
+/// unregister a parameter it has previously registered 
+/// - mRegisteredFlag holds this state 
 /// @author Mark Riding
 /// @author Andrew Porter
 /// @author Sue Ramsden
@@ -66,7 +72,6 @@ public:
   /// Get the index of the row of the table displaying
   /// this parameter
   int getRowIndex() const;
-  bool isPresent() const;
   /// In case parameter has been unregistered
   bool isRegistered() const;
   /// Get whether or not this parameter is steerable
@@ -76,7 +81,6 @@ public:
   bool checkRegistered();
 
   void setIndex(int aIndex);
-  void setIsPresent();
   void unRegister();
 
   void setMinMaxStrings(const char *min, const char *max);
@@ -86,15 +90,19 @@ public:
   QString getMaxString();
   /// Return string containing the label of the parameter
   QString getLabel();
-
+  /// Pointer to the ParameterHistory object for this parameter
   ParameterHistory  *mParamHist;
 
 private:
   /// Whether or not this parameter is steerable
   const	bool	mSteerable;
+  /// Whether or not this parameter is currently registered by
+  /// the steered application
   bool		mRegisteredFlag;
   bool		mPresentFlag;
-
+  /// Stores the index of the row in the table that diaplays this 
+  /// parameter - this is needed to update the table when the 
+  /// parameter data changes
   int		mRowIndex;
   /// The handle of this parameter as assigned by the steering lib
   const int	mId;
