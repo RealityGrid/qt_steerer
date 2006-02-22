@@ -77,6 +77,7 @@ public:
   /// period before the steering client attached)
   void updateParameterLog();
   /// Get a ptr to Parameter from its handle
+  /// @param aId The handle of the parameter to look up
   Parameter *findParameter(int aId);
 
 public slots:
@@ -101,9 +102,6 @@ protected:
   QPtrList<Parameter>   mParamList;
   /// Pointer to table of monitored parameters
   ParameterTable       *mMonParamTable;
-  /// Flag recording whether or not we've already fetched the full
-  /// history of the Sequence Number parameter for this app.
-  bool                  mFetchedSeqNumHistory;
   /// Pointer to mutex used to control calls to steering library
   QMutex               *mMutexPtr;
 

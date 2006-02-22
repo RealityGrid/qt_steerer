@@ -49,6 +49,7 @@ Parameter::Parameter(int aId, int aType, bool aSteerable,
 {
   DBGCON("Parameter constructor");
   mParamHist = new ParameterHistory;
+  mHaveFullHistory = false;
 }
 
 Parameter::~Parameter()

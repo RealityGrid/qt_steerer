@@ -73,11 +73,6 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
   setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
   mMonParamTable = NULL;
-
-  // Flag that says whether or not we've retrieved the full history of 
-  // the sequence number parameter.  Important because we often plot 
-  // all parameter histories against this.
-  mFetchedSeqNumHistory = false;
 }  
 
 ParameterTable::~ParameterTable()
@@ -356,12 +351,12 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 }
 
 //------------------------------------------------------------------
-/** Slot called when the user requests a context menu for this table
- */
+/* Slot called when the user requests a context menu for this table */
 void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
   // Pop up a context menu which will allow the user to view a graph
   // of the current variable / parameter's history
   Parameter* paramPtr;
+  int        id;
 
   if( !(paramPtr = findParameterHandleFromRow(row)) )return;
 
@@ -370,8 +365,14 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 
   QPopupMenu popupMenu;
 
-  popupMenu.insertItem(QString("Fetch full &history of this parameter"), this, 
-  		       SLOT(requestParamHistorySlot(int)), CTRL+Key_H, row, 0);
+  id = popupMenu.insertItem(QString("Fetch full &history of this parameter"), 
+			    this, 
+			    SLOT(requestParamHistorySlot(int)), 
+			    CTRL+Key_H, row, 0);
+
+  if( (id >= 0) && paramPtr->mHaveFullHistory){
+    popupMenu.setItemEnabled(id, false);
+  }
 
   popupMenu.insertItem(QString("&Draw history graph"), this, 
 		       SLOT(drawGraphSlot(int)), CTRL+Key_D, row, 0);
@@ -398,29 +399,32 @@ void ParameterTable::requestParamHistorySlot(int row){
   // Check to see whether or not we have fetched the history of the
   // sequence number.  If not then fetch it now 'cos we'll probably
   // need it for history plots.
-  if(!mFetchedSeqNumHistory){
-
-    Parameter *lSeqParameter;
-    if( tParameter->isSteerable() ){
-      // If this is a steered parameter then we need to get the first row
-      // of the monitored parameter table, not this one.
-      lSeqParameter = mMonParamTable->findParameterHandleFromRow(0);
-    }
-    else{
-      lSeqParameter = this->findParameterHandleFromRow(0);
-    }
+  Parameter *lSeqParameter;
+  if( tParameter->isSteerable() ){
+    // If this is a steered parameter then we need to get the first row
+    // of the monitored parameter table, not this one.
+    lSeqParameter = mMonParamTable->findParameterHandleFromRow(0);
+  }
+  else{
+    lSeqParameter = this->findParameterHandleFromRow(0);
+  }
+  if( !(lSeqParameter->mHaveFullHistory) ){
     mMutexPtr->lock();
     Emit_retrieve_param_log_cmd( this->getSimHandle() ,
 				 lSeqParameter->getId());  //ReG library
     mMutexPtr->unlock();
-
-    mFetchedSeqNumHistory = true;
+    lSeqParameter->mHaveFullHistory = true;
   }
 
-  mMutexPtr->lock();
-  Emit_retrieve_param_log_cmd( this->getSimHandle() ,
-			       tParameter->getId());	//ReG library
-  mMutexPtr->unlock();
+
+  if( !(tParameter->mHaveFullHistory) ){
+
+    mMutexPtr->lock();
+    Emit_retrieve_param_log_cmd( this->getSimHandle() ,
+				 tParameter->getId());	//ReG library
+    mMutexPtr->unlock();
+    tParameter->mHaveFullHistory = true;
+  }
 
   this->updateParameterLog();
 }
@@ -505,10 +509,14 @@ void ParameterTable::updateParameterLog(){
     if(status == REG_SUCCESS){
       lParamPtr->mParamHist->mPtrPreviousHistArray = dum_ptr;
       lParamPtr->mParamHist->mPreviousHistArraySize = dum_int;
+      //cout << "ARPDBG: handle = "<< lParamPtr->getId() << 
+      //", size of history = "  <<
+      //lParamPtr->mParamHist->mPreviousHistArraySize << endl;
+      //for(int i=0; i < dum_int; i++){
+      //  cout << QString("  %1").arg(dum_ptr[i], 0, 'e', 8);
+      //}
+      //cout << endl << "-------------------------------" << endl;
     }
-    //cout << "ARPDBG: handle = "<< lParamPtr->getId() << 
-    //  ", size of history = "  <<
-    //  lParamPtr->mParamHist->mPreviousHistArraySize << endl;
 
     // This allows user to see that we're receiving data but
     // slows things down so left out for the minute.

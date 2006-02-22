@@ -92,6 +92,9 @@ public:
   QString getLabel();
   /// Pointer to the ParameterHistory object for this parameter
   ParameterHistory  *mParamHist;
+  /// Whether or not the steering client has retrieved the full
+  /// history of this parameter
+  bool mHaveFullHistory;
 
 private:
   /// Whether or not this parameter is steerable
