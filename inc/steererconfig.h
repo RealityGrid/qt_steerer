@@ -36,7 +36,7 @@
 #define _STEERERCONFIG_H_
 
 using namespace std;
-
+#include "ReG_Steer_Common.h"
 #include <qdom.h>
 
 /** @file steererconfig.h
@@ -50,10 +50,9 @@ class SteererConfig {
   
   /** Address of the top-level registry */
   QString mTopLevelRegistry;
-  /** Path of directory holding the CA certificates */
-  QString mCACertsPath;
-  /** Location of the PEM file holding user's private key and certificate */
-  QString mPrivateKeyCertFile;
+  /// Struct holding info for authentication to registry (via either
+  /// ssl or WSSE)
+  struct reg_security_info mRegistrySecurity;
   /** The passphrase for the user's private key */
   QString mKeyPassphrase;
   /** Whether automatic polling should be switched on by default */

@@ -68,7 +68,7 @@ Application::Application(QWidget *aParent, const char *aName,
   mIsLocal = aIsLocal;
 
   // construct form for steering one application
-  DBGCON("Application");
+  REG_DBGCON("Application");
   
   // create some layouts for positioning
   QHBoxLayout *lFormLayout = new QHBoxLayout(this, 6, 6);
@@ -105,7 +105,7 @@ Application::Application(QWidget *aParent, const char *aName,
 
 Application::~Application()
 {
-  DBGDST("Application");
+  REG_DBGDST("Application");
   // send detach to application if still attached
   if (!mDetachedFlag)
     detachFromApplication();
@@ -120,7 +120,7 @@ void Application::detachFromApplication()
   // detach via sim_detach so library clean up happens
   int lSimHandle = mSimHandle;
 
-  DBGMSG("Do Sim_detach");
+  REG_DBGMSG("Do Sim_detach");
   int lReGStatus = REG_FAILURE;
 
   mMutexPtr->lock();
@@ -129,7 +129,7 @@ void Application::detachFromApplication()
 
   // note Sim_Detach always returns REG_SUCCESS surrrently!
   if (lReGStatus != REG_SUCCESS)
-    DBGEXCP("Sim_detach");
+    REG_DBGEXCP("Sim_detach");
 
   // flag as detached so destructor knows not to detach
   mDetachedFlag = true;
@@ -351,7 +351,7 @@ int
 Application::emitSingleCmd(int aCmdId)
 {
   // send single command to application using ReG library
-  DBGMSG1("Send Cmd id ",aCmdId);
+  REG_DBGMSG1("Send Cmd id ",aCmdId);
   int lReGStatus = REG_FAILURE;
 
   //  int lCommandArray[1];
@@ -423,7 +423,7 @@ Application::customEvent(QCustomEvent *aEvent)
   }
   else
   {
-    DBGMSG("Application::customEvent -  unexpected event type");
+    REG_DBGMSG("Application::customEvent -  unexpected event type");
   }
 }
 
@@ -445,26 +445,26 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 
   try
   {
-    DBGMSG1("Application::processNextMessage, msg type = ", aMsgType);
+    REG_DBGMSG1("Application::processNextMessage, msg type = ", aMsgType);
     switch(aMsgType){
 
     case IO_DEFS:
     
-      DBGMSG("Application::processNextMessage Got IOdefs message");
+      REG_DBGMSG("Application::processNextMessage Got IOdefs message");
       // update IOType list and table
       mControlForm->updateIOTypes(false);
       break;
 
     case CHK_DEFS:
 
-      DBGMSG("Application::processNextMessage Got Chkdefs message");
+      REG_DBGMSG("Application::processNextMessage Got Chkdefs message");
       // update IOType list and table
       mControlForm->updateIOTypes(true);
       break;
 
     case PARAM_DEFS:
       
-      DBGMSG("Application::processNextMessage Got param defs message");
+      REG_DBGMSG("Application::processNextMessage Got param defs message");
       // update parameter list and table
       mControlForm->updateParameters(false);
 
@@ -472,7 +472,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       
     case STATUS:
 
-      DBGMSG("Application::processNextMessage Got status message");
+      REG_DBGMSG("Application::processNextMessage Got status message");
       int  num_cmds;
       int  *commands;
       bool detached;
@@ -490,14 +490,14 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       // now deal with commands
       for(int i=0; i<num_cmds && !detached; i++){
   
-	DBGMSG2("Recd Cmd", i, commands[i]);
+	REG_DBGMSG2("Recd Cmd", i, commands[i]);
 	int lSimHandle = mSimHandle;
 		      
 	switch(commands[i]){
 	  
 	case REG_STR_DETACH:
 	  {
-	  DBGMSG("Application::processNextMessage Received "
+	  REG_DBGMSG("Application::processNextMessage Received "
 		 "detach command from application");
 	  detached = true;
 	  mMutexPtr->lock();
@@ -518,7 +518,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
  
 	case REG_STR_STOP:
 	  {
-	  DBGMSG("Application::processNextMessage Received stop "
+	  REG_DBGMSG("Application::processNextMessage Received stop "
 		 "command from application");
 	  detached = true;
 	  mMutexPtr->lock();
@@ -545,29 +545,31 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       break;
 
     case STEER_LOG: 
-      DBGMSG("Application::processNextMessage Got steer_log message");
+      REG_DBGMSG("Application::processNextMessage Got steer_log message");
       mControlForm->updateParameterLog();
       break;
 
     case MSG_NOTSET:
-      DBGMSG("Application::processNextMessage No msg to process");
+      REG_DBGMSG("Application::processNextMessage No msg to process");
       break;
 
     case CONTROL:
-      DBGMSG("Application::processNextMessage Got control message");
+      REG_DBGMSG("Application::processNextMessage Got control message");
       break;
 	    
     case SUPP_CMDS:
-      DBGMSG("Application::processNextMessage Got supp_cmds message");
+      REG_DBGMSG("Application::processNextMessage Got supp_cmds message");
       break;
 
     case MSG_ERROR:
-      DBGMSG("Application::processNextMessage Got error when attempting to get next message");
+      REG_DBGMSG("Application::processNextMessage Got error when "
+		 "attempting to get next message");
       THROWEXCEPTION("Attempt to get next message failed");
       break;
 
     default:
-      DBGMSG("Application::processNextMessage Unrecognised msg returned by Get_next_message");
+      REG_DBGMSG("Application::processNextMessage Unrecognised "
+		 "msg returned by Get_next_message");
       break;
 
   } //switch(aMsgType)

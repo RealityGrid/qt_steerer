@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  ParameterTable and SteeredParameterTable classes for QT steerer GUI.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -27,12 +25,14 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
     
 ---------------------------------------------------------------------------*/
 
-
+/** @file parametertable.cpp
+    @brief ParameterTable and SteeredParameterTable classes for QT steerer GUI.
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 #include "types.h"
 #include "debug.h"
 #include "ReG_Steer_Steerside.h"
@@ -55,7 +55,7 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
   : Table(aParent, aName, aSimHandle), mMutexPtr(aMutex), 
     mParent((ControlForm*)aParent)
 {
-  DBGCON("ParameterTable");
+  REG_DBGCON("ParameterTable");
 
   // setAutoDelete so QT deletes each obj in list when the list is deleted
   mParamList.setAutoDelete( TRUE );
@@ -78,7 +78,7 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
 ParameterTable::~ParameterTable()
 {
   unsigned int i;
-  DBGDST("~ParameterTable");
+  REG_DBGDST("~ParameterTable");
 
   // Delete plot list first because the QwtPlotter objects have references to 
   // data in the Parameter objects.  Auto delete means associated objects
@@ -220,7 +220,7 @@ ParameterTable::addRow(const int lHandle,
   mParamList.append(lParamPtr);
   incrementRowIndex();
   
-  DBGMSG1("mMaxRowIndexPtr", getMaxRowIndex());
+  REG_DBGMSG1("mMaxRowIndexPtr", getMaxRowIndex());
 	
 }
 
@@ -582,7 +582,7 @@ SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName
 					     QMutex *aMutex)
   : ParameterTable(aParent, aName, aSimHandle, aMutex)
 {
-  DBGCON("SteeredParameterTable");
+  REG_DBGCON("SteeredParameterTable");
 
   mMonParamTable = aTable;
 
@@ -593,7 +593,7 @@ SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName
 
 SteeredParameterTable::~SteeredParameterTable()
 {
-  DBGDST("SteeredParameterTable");
+  REG_DBGDST("SteeredParameterTable");
 }
   
 void
@@ -824,7 +824,7 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
   mParamList.append(lParamPtr);
   incrementRowIndex();
 	     
-  DBGMSG1("Steer MaxRowIndex Ptr", getMaxRowIndex());
+  REG_DBGMSG1("Steer MaxRowIndex Ptr", getMaxRowIndex());
    
 }
 
@@ -937,7 +937,7 @@ SteeredParameterTable::setNewParamValuesInLib()
     throw StEx;
   }
   
-  DBGMSG1("setNewParamValues, lCount = ", lCount);
+  REG_DBGMSG1("setNewParamValues, lCount = ", lCount);
   return lIndex;
 
 } // ::setNewParamValuesInLib()

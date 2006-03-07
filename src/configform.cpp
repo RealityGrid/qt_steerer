@@ -1,8 +1,6 @@
 /*----------------------------------------------------------------------------
-  ConfigForm class header file for QT steerer GUI. 
-
-  (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
-  all rights reserved.
+  (C) Copyright 2002, 2004, 2005, 2006 University of Manchester, 
+  United Kingdom, all rights reserved.
 
   This software is produced by the Supercomputing, Visualization and
   e-Science Group, Manchester Computing, University of Manchester
@@ -27,11 +25,15 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
     
 ---------------------------------------------------------------------------*/
 
+/** @file configform.cpp
+    @brief Implementation of the ConfigForm class
+
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
  
 #include "configform.h"
 #include "utility.h"
@@ -55,15 +57,13 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
   : QDialog( parent, name, modal, f ), 
     mApplyButton(kNULL), mCancelButton(kNULL)
 {
-  //  mMinVal_Sec = 0.001*kMIN_POLLING_INT;
-  //  mMaxVal_Sec = 0.001*kMAX_POLLING_INT;
   mMinVal_Sec = 0.05f;
   mMaxVal_Sec = 2.0f;
 
-  DBGMSG1("ARPDBG: min val = ", mMinVal_Sec);
-  DBGMSG1("ARPDBG: max val = ", mMaxVal_Sec);
+  REG_DBGMSG1("ARPDBG: min val = ", mMinVal_Sec);
+  REG_DBGMSG1("ARPDBG: max val = ", mMaxVal_Sec);
 
-  DBGCON("ConfigForm");
+  REG_DBGCON("ConfigForm");
 
   // note aCurrentIntervalValue is in milliseconds - convert to 
   // seconds for GUI entry
@@ -113,7 +113,7 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
 
 ConfigForm::~ConfigForm()
 {
-  DBGDST("ConfigForm");
+  REG_DBGDST("ConfigForm");
 }
 
 int

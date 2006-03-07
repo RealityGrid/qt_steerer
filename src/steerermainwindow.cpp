@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  SteererMainWindow class for QT steerer GUI.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -27,17 +25,18 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
-    
 ---------------------------------------------------------------------------*/
+
+/** @file steerermainwindow.cpp
+    @brief SteererMainWindow class for QT steerer GUI.
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 
 #include "types.h"
 #include "debug.h"
 #include "ReG_Steer_Steerside.h"
-
 #include "exception.h"
-
 #include "steerermainwindow.h"
 #include "commsthread.h"
 #include "application.h"
@@ -79,7 +78,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     mQuitAction(kNULL) 
     
 {
-  DBGCON("SteererMainWindow");
+  REG_DBGCON("SteererMainWindow");
   setCaption( "ReG Steerer" );
 
   //make a central widget to contain the other widgets
@@ -221,6 +220,11 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mSteererConfig->readSecurityConfig(QString(getenv("HOME")) + 
 			     "/RealityGrid/etc/security.conf");
 
+  mSteererConfig->mRegistrySecurity.use_ssl = 0;
+  if(mSteererConfig->mTopLevelRegistry.startsWith("https://")){
+    mSteererConfig->mRegistrySecurity.use_ssl = 1;
+  }
+
   // create commsthread so can set checkinterval 
   // - thread is started on first attach
   mCommsThread = new CommsThread(this, &mReGMutex, 
@@ -248,7 +252,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
 SteererMainWindow::~SteererMainWindow()
 {
-  DBGDST("SteererMainWindow");
+  REG_DBGDST("SteererMainWindow");
   cleanUp();
 }
 
@@ -293,14 +297,14 @@ SteererMainWindow::customEvent(QCustomEvent *aEvent)
   // only expect events with type (User+kSIGNAL_EVENT)
   if (aEvent->type() == QEvent::User+kSIGNAL_EVENT)
   {
-      DBGMSG("Steerer cleaning up..."); //SMR XXX make sure is correct event... to do
+      REG_DBGMSG("Steerer cleaning up..."); //SMR XXX make sure is correct event... to do
       // detach from all apps and exit
       cleanUp();
       qApp->exit(0);
   }
   else
   {
-    DBGMSG("SteererMainWindow::customEvent - unexpected event type");
+    REG_DBGMSG("SteererMainWindow::customEvent - unexpected event type");
   }
 
 }
@@ -370,7 +374,7 @@ void SteererMainWindow::attachGridAppSlot()
     {
       if ( lAttachForm->exec() == QDialog::Accepted ) 
       {
-        DBGMSG1("attach accepted, sim = ",  lAttachForm->getSimGSMSelected());
+        REG_DBGMSG1("attach accepted, sim = ",  lAttachForm->getSimGSMSelected());
         simAttachApp(lAttachForm->getSimGSMSelected());
       }
     } 
@@ -408,7 +412,7 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
   int lReGStatus = REG_FAILURE;
   int lSimHandle = -1;
   bool ok;
-
+  struct reg_security_info sec;
   try
   {
     QString idStr(aSimID);
@@ -420,11 +424,15 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 					   QString::null, &ok, this );
       if ( !ok ) return; // Cancel if user didn't press OK
 #ifdef REG_WSRF
+      Wipe_security_info(&sec);
+      strncpy(sec.passphrase, text.ascii(), REG_MAX_STRING_LENGTH);
+      snprintf(sec.userDN, REG_MAX_STRING_LENGTH, "%s", getenv("USER"));
+      strncpy(sec.caCertsPath, 
+	      mSteererConfig->mRegistrySecurity.caCertsPath, 
+	      REG_MAX_STRING_LENGTH);
       // WSRF support only for version >= 2.0
       mReGMutex.lock();
-      lReGStatus = Sim_attach_secure(aSimID, getenv("USER"), 
-				     text.ascii(), 
-				     mSteererConfig->mCACertsPath,
+      lReGStatus = Sim_attach_secure(aSimID, &sec,
 				     &lSimHandle); // ReG library
       mReGMutex.unlock();
 #endif
@@ -437,12 +445,13 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 
     if (lReGStatus == REG_SUCCESS)
     {
-      DBGMSG1("Attached: mSimHandle = ",lSimHandle);
+      REG_DBGMSG1("Attached: mSimHandle = ",lSimHandle);
       
       mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal, 
 				      &mReGMutex));
 
-      // get supported command list from library and enable buttons appropriately
+      // get supported command list from library and enable buttons 
+      // appropriately
       mAppList.current()->enableCmdButtons();
 
       mAppTabs->addTab(mAppList.current(), QString(aSimID));      
@@ -455,7 +464,7 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       // resize - only do for first app attached
       if(mAppList.count() == 1)resize(525, 700);
 
-      DBGMSG("posted now start commsthread");
+      REG_DBGMSG("posted now start commsthread");
       // set off comms thread if it's not already running
       // process messages form all steered applications	
       if (!isThreadRunning())
@@ -478,7 +487,7 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
     else
     {
       statusBar()->message( "Failed to attach" );
-      DBGMSG("Sim_attach failed");
+      REG_DBGMSG("Sim_attach failed");
     }
     
   } //try
@@ -516,11 +525,11 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   // If this was last application being steered, stop the CommsThread
   if((mAppList.count() == 1) && isThreadRunning() ){
 
-    DBGMSG("closeApplicationSlot: stopping comms thread");
+    REG_DBGMSG("closeApplicationSlot: stopping comms thread");
     mCommsThread->stop();
   }
 
-  DBGMSG("closeApplicationSlot: deleting Application...");
+  REG_DBGMSG("closeApplicationSlot: deleting Application...");
 
   for(i=0; i<mAppList.count(); i++){
     if(aSimHandle == mAppList.at(i)->getHandle()){
@@ -536,7 +545,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
   // If this was last application being steered, resize the window...
   if(mAppList.count() == 0){
 
-    DBGMSG("closeApplicationSlot: re-sizing window...");
+    REG_DBGMSG("closeApplicationSlot: re-sizing window...");
     resizeForNoAttached();
     statusBar()->message( "www.realitygrid.org");
   }
@@ -565,7 +574,7 @@ SteererMainWindow::editTabTitleSlot()
 void
 SteererMainWindow::quitSlot()
 {
-  DBGMSG("In quit slot");
+  REG_DBGMSG("In quit slot");
 
    // detach from all apps and exit
    cleanUp();
@@ -583,10 +592,10 @@ SteererMainWindow::readMsgSlot()
   int	lSimHandle = -1;
   int   lMsgType = 0;
 
-  DBGMSG("In SteererMainWindow run");
+  REG_DBGMSG("In SteererMainWindow run");
     
   if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)	//ReG library
-    DBGEXCP("Get_next_message");
+    REG_DBGEXCP("Get_next_message");
 
     
   if (lMsgType != MSG_NOTSET)
@@ -607,12 +616,12 @@ SteererMainWindow::configureSteererSlot()
 
   if ( lConfigForm->exec() == QDialog::Accepted ) 
   {
-    DBGMSG1("config applied, interval= ", lConfigForm->getIntervalValue());
+    REG_DBGMSG1("config applied, interval= ", lConfigForm->getIntervalValue());
      mCommsThread->setCheckInterval(lConfigForm->getIntervalValue());
    
   }
   else
-    DBGMSG("Config cancelled");
+    REG_DBGMSG("Config cancelled");
   
   delete lConfigForm;
 
@@ -652,7 +661,7 @@ void SteererMainWindow::statusBarMessageSlot(Application *aApp,
 void 
 SteererMainWindow::tabChangedSlot(QWidget *aWidget)
 {
-  DBGMSG("Tab changed");
+  REG_DBGMSG("Tab changed");
   Application *aApp;
   aApp = (Application *)aWidget;
 

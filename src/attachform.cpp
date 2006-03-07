@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  AttachForm class header file for QT steerer GUI. 
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -27,11 +25,13 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
-    
 ---------------------------------------------------------------------------*/
 
+/** @file attachform.cpp
+    @brief AttachForm class header file for QT steerer GUI. 
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
  
 #include "attachform.h"
 #include "steererconfig.h"
@@ -60,13 +60,13 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mFilterLineEdit(kNULL), mAttachButton(kNULL), mCancelButton(kNULL)
 {
   struct registry_entry *entries;
-  int i;
-  int count;
-  DBGCON("AttachForm");
+  int i, count;
+  QString lString;
+  bool ok;
+  REG_DBGCON("AttachForm");
 
   // set up arrays for ReG lib call
   // max list can be is REG_MAX_NUM_STEERED_SIM
-
   mSimName = new char *[REG_MAX_NUM_STEERED_SIM];
   mSimGSH = new char *[REG_MAX_NUM_STEERED_SIM];
 
@@ -78,24 +78,31 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   // Get the passphrase for the user's key if registry is using
   // SSL
   SteererConfig *lConfig = ((SteererMainWindow *)parent)->getConfig();
-  if( lConfig->mTopLevelRegistry.startsWith("https") &&
-     lConfig->mKeyPassphrase.isEmpty() ){
-    bool ok;
+  if( !(lConfig->mRegistrySecurity.passphrase[0]) ){
 
-    lConfig->mKeyPassphrase = QInputDialog::getText("RealityGrid Steerer", 
-						    "Enter passphrase for X.509 key:", 
-						    QLineEdit::Password,
-						    QString::null, &ok, this );
-    if ( !ok ) return; // Cancel if user didn't press OK
+    if( lConfig->mRegistrySecurity.use_ssl){
+
+      lString = QInputDialog::getText("RealityGrid Steerer", 
+				      "Enter passphrase for X.509 key:", 
+				      QLineEdit::Password,
+				      QString::null, &ok, this );
+      if ( !ok ) return; // Cancel if user didn't press OK
+    }
+    else{
+      lString = QInputDialog::getText("RealityGrid Steerer", 
+				      "Enter passphrase for registry:", 
+				      QLineEdit::Password,
+				      QString::null, &ok, this );
+      if ( !ok ) return; // Cancel if user didn't press OK
+    }
+    strncpy(lConfig->mRegistrySecurity.passphrase,
+	    lString.ascii(), REG_MAX_STRING_LENGTH);
   }
-
   // Now find out what's in the registry...
 #ifdef REG_WSRF
   //..._secure only available in steering library >= 2.0
   mLibReturnStatus = Get_registry_entries_secure(lConfig->mTopLevelRegistry,
-						 lConfig->mKeyPassphrase,
-						 lConfig->mPrivateKeyCertFile,
-						 lConfig->mCACertsPath,
+						 &(lConfig->mRegistrySecurity),
 						 &mNumSims,  
 						 &entries);
 #else
@@ -151,8 +158,8 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     // (via  aSimIndexSelected) to identify the aSimGSH selected
     for (int i=0; i<mNumSims; i++)
     {      
-      DBGMSG1("mSimName ", mSimName[i]);
-      DBGMSG1("mSimGSH ", mSimGSH[i]);
+      REG_DBGMSG1("mSimName ", mSimName[i]);
+      REG_DBGMSG1("mSimGSH ", mSimGSH[i]);
 
       mTable->insertRows(mTable->numRows(),1);
       mTable->setItem(mTable->numRows()-1, 0, 
@@ -209,7 +216,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 
 AttachForm::~AttachForm()
 {
-  DBGDST("AttachForm");
+  REG_DBGDST("AttachForm");
   cleanUp();
 }
 
@@ -252,7 +259,7 @@ AttachForm::attachSlot()
 {
   int lCurrentItem;
   int lNumSel = mTable->numSelections();
-  DBGMSG1("Have selections... ", lNumSel); 
+  REG_DBGMSG1("Have selections... ", lNumSel); 
   if(!lNumSel || lNumSel > 1){
     // no item in the list has been selected
     QMessageBox::information(0, "Nothing selected", 
@@ -267,7 +274,7 @@ AttachForm::attachSlot()
   lCurrentItem = lSel.anchorRow();
 
   mSimGSHSelected = mSimGSH[lCurrentItem];
-  DBGMSG1("selected app GSH: ",mSimGSHSelected);
+  REG_DBGMSG1("selected app GSH: ",mSimGSHSelected);
   QDialog::accept();
 }
 
@@ -275,7 +282,7 @@ AttachForm::attachSlot()
 void
 AttachForm::filterSlot()
 {
-  DBGMSG1("FSLot: mNumSims: ", mNumSims);
+  REG_DBGMSG1("FSLot: mNumSims: ", mNumSims);
   int i;
 
   int lLen = mFilterLineEdit->text().length();
@@ -288,7 +295,7 @@ AttachForm::filterSlot()
 
   for (int i=0; i<mNumSims; i++){
   
-    DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
+    REG_DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
     if (strstr(mSimName[i], mFilterLineEdit->text().latin1()) != kNULL){
 
       mTable->insertRows(mTable->numRows(),1);
@@ -312,7 +319,7 @@ AttachForm::filterSlot()
  *  environment variable itself too?
  */
 void AttachForm::editHandleSlot(int row, int col){
-      DBGMSG2("", row, col);
+      REG_DBGMSG2("", row, col);
 
       const char *temp = mTable->text(row, col).latin1();
       strcpy(mSimGSH[row], temp);

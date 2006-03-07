@@ -1,10 +1,4 @@
 /*----------------------------------------------------------------------------
-  CommsThread and CommsThreadEvent classes for QT steerer GUI.
-  CommsThread periodically calls the ReG library routines to look for
-  information received from steered applications.  CommsThreadEvent
-  encapsulates an event to communicate to the GUI thread that it must
-  process information from the steered application.
-    
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -32,10 +26,21 @@
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
 
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
-   
 ---------------------------------------------------------------------------*/
 
+/** @file commsthread.cpp
+    @brief Contains the implementation of the thread that polls for messages
+    from the steered application(s)
+
+    CommsThread and CommsThreadEvent classes for QT steerer GUI.
+    CommsThread periodically calls the ReG library routines to look for
+    information received from steered applications.  CommsThreadEvent
+    encapsulates an event to communicate to the GUI thread that it must
+    process information from the steered application.
+
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 
 #include "types.h"
 #include "debug.h"
@@ -105,7 +110,7 @@ CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex,
   : mSteerer(aSteerer), mKeepRunningFlag(true), 
     mCheckInterval(aCheckInterval), mMutexPtr(aMutex)
 {
-  DBGCON("CommsThread constructor");
+  REG_DBGCON("CommsThread constructor");
   gCommsThreadPtr = this; 
   // Set polling interval automatically
   mUseAutoPollInterval = aSteerer->autoPollingOn();
@@ -126,7 +131,7 @@ CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex,
 
 CommsThread::~CommsThread()
 {
-  DBGDST("CommsThread");
+  REG_DBGDST("CommsThread");
 
   // must stop a thread running before it is deleted...
   if (running())
@@ -136,7 +141,7 @@ CommsThread::~CommsThread()
 void
 CommsThread::handleSignal()
 {
-  DBGMSG("CommsThread::handleSignal - send event to main thread");
+  REG_DBGMSG("CommsThread::handleSignal - send event to main thread");
 
   QCustomEvent *lEvent = new QCustomEvent(QEvent::User + kSIGNAL_EVENT);
   postEvent(mSteerer, lEvent);
@@ -169,10 +174,10 @@ CommsThread::stop()
   // thread must have finished running before destruction - so wait for finish
   while (!finished())
   {
-    DBGMSG("CommsThread::stop() - waiting for run completion");
+    REG_DBGMSG("CommsThread::stop() - waiting for run completion");
     wait(1000);  //1000 milliseconds
   }
-  DBGMSG("CommsThread: Thread is stopped");
+  REG_DBGMSG("CommsThread: Thread is stopped");
 
   // reset flag for next run()
   setKeepRunning(true);
@@ -192,7 +197,7 @@ CommsThread::run()
   int   num_cmds = 0;
   int   status = REG_FAILURE;
   int   commands[REG_MAX_NUM_STR_CMDS];
-  DBGMSG("CommsThread starting");
+  REG_DBGMSG("CommsThread starting");
   
   // add sleep to give GUI chance to finsh posting new form SMR XXX thread bug fix
   msleep(3000);
@@ -200,28 +205,28 @@ CommsThread::run()
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
-    //    DBGMSG1("CommsThread Polling now, count = ", mPollCount);
+    //    REG_DBGMSG1("CommsThread Polling now, count = ", mPollCount);
 
     // This section automatically adjusts the polling interval
     // to keep up with the attached application(s)
     if(mUseAutoPollInterval && (mPollCount == mPollAdjustInterval)){
 
       lPollRatio = (float)mMsgCount/(float)mPollCount;
-      //DBGMSG1("CommsThread: poll ratio = ", lPollRatio);
+      //REG_DBGMSG1("CommsThread: poll ratio = ", lPollRatio);
 
       if(lPollRatio > 0.85){
 
 	if(mCheckInterval > kMIN_POLLING_INT){
 	  // Reduce polling interval faster than we increase it
 	  mCheckInterval -= (int)(0.66*mCheckInterval);
-	  DBGMSG1("CommsThread: reducing poll interval to ", mCheckInterval);
+	  REG_DBGMSG1("CommsThread: reducing poll interval to ", mCheckInterval);
 	  // Adjust how many calls we average over to try and ensure
 	  // we check about every 2 seconds
 	  mPollAdjustInterval = (int)(1500.0/(float)mCheckInterval);
 	  if(mPollAdjustInterval < mMinPollAdjustInterval){
 	    mPollAdjustInterval = mMinPollAdjustInterval;
 	  }
-	  //DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
+	  //REG_DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
 	}
       }
       else if(lPollRatio < 0.5){
@@ -230,14 +235,14 @@ CommsThread::run()
 	  // Not getting messages very often so increase the interval
 	  // between polls
 	  mCheckInterval += (int)(0.5*mCheckInterval) + 1;
-	  //DBGMSG1("CommsThread: increasing poll interval to ", mCheckInterval);
+	  //REG_DBGMSG1("CommsThread: increasing poll interval to ", mCheckInterval);
 	  // Adjust how many calls we average over to try and ensure
 	  // we check about every 2 seconds
 	  mPollAdjustInterval = (int)(1500.0/(float)mCheckInterval);
 	  if(mPollAdjustInterval < mMinPollAdjustInterval){
 	    mPollAdjustInterval = mMinPollAdjustInterval;
 	  }
-	  //DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
+	  //REG_DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
 	}
       }
       mPollCount = 0;
@@ -252,7 +257,7 @@ CommsThread::run()
     // Get_next_message always returns  REG_SUCCESS currently
     if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS){  //ReG library
       mMutexPtr->unlock();
-      DBGEXCP("Get_next_message error");
+      REG_DBGEXCP("Get_next_message error");
     }
     mMutexPtr->unlock();
 
@@ -271,7 +276,7 @@ CommsThread::run()
 
       case IO_DEFS:
       
-	DBGMSG("CommsThread: Got IOdefs message");
+	REG_DBGMSG("CommsThread: Got IOdefs message");
 
 	// hold qt library mutex for library call
 	mMutexPtr->lock();
@@ -281,7 +286,7 @@ CommsThread::run()
 
       case CHK_DEFS:
 	
-	DBGMSG("CommsThread: Got Chkdefs message");
+	REG_DBGMSG("CommsThread: Got Chkdefs message");
 	mMutexPtr->lock();
 	status = Consume_ChkType_defs(lSimHandle); //ReG library 
 	mMutexPtr->unlock();
@@ -289,7 +294,7 @@ CommsThread::run()
 
       case PARAM_DEFS:
       
-	DBGMSG("CommsThread: Got param defs message");
+	REG_DBGMSG("CommsThread: Got param defs message");
 	mMutexPtr->lock();
 	status = Consume_param_defs(lSimHandle); //ReG library 
 	mMutexPtr->unlock();
@@ -297,7 +302,7 @@ CommsThread::run()
       
       case STATUS:
 
-	DBGMSG("CommsThread: Got status message");
+	REG_DBGMSG("CommsThread: Got status message");
 	mMutexPtr->lock();
 	status = Consume_status(lSimHandle,   //ReG library 
 				&app_seqnum,
@@ -306,32 +311,32 @@ CommsThread::run()
 	break;
 
       case STEER_LOG: 
-	DBGMSG("CommsThread: Got steer_log message");
+	REG_DBGMSG("CommsThread: Got steer_log message");
 	mMutexPtr->lock();
 	status = Consume_log(lSimHandle);   //ReG library 
 	mMutexPtr->unlock();
 	break;
 
       case MSG_NOTSET:
-	DBGMSG("CommsThread: No msg to process");
+	REG_DBGMSG("CommsThread: No msg to process");
 	break;
 
       case CONTROL:
-	DBGMSG("CommsThread: Got control message");
+	REG_DBGMSG("CommsThread: Got control message");
 	break;
 	    
       case SUPP_CMDS:
-	DBGMSG("CommsThread: Got supp_cmds message");
+	REG_DBGMSG("CommsThread: Got supp_cmds message");
 	break;
 
       case MSG_ERROR:
-	DBGMSG("CommsThread: Got error when attempting to get next message");
+	REG_DBGMSG("CommsThread: Got error when attempting to get next message");
 	//ARPDBG - this from application.cpp - don't have it here
 	//THROWEXCEPTION("Attempt to get next message failed");
 	break;
 
       default:
-	DBGMSG("Unrecognised msg returned by Get_next_message");
+	REG_DBGMSG("Unrecognised msg returned by Get_next_message");
 	break;
 
       } //switch(aMsgType)
@@ -350,14 +355,14 @@ CommsThread::run()
 	  postEvent(lApp, lEvent);
 	}
 	else{
-	  DBGMSG("CommsThread::run: NULL application pointer!");
+	  REG_DBGMSG("CommsThread::run: NULL application pointer!");
 	}
       }
     }
     msleep(mCheckInterval);  // sleep for mCheckInterval milliseconds
 
   }
-  DBGMSG("Leaving CommsThread::run");
+  REG_DBGMSG("Leaving CommsThread::run");
 }
 
 void
@@ -387,13 +392,13 @@ CommsThreadEvent::CommsThreadEvent(int aMsgType)
   : QCustomEvent(QEvent::User + kMSG_EVENT), mMsgType(aMsgType)
 { 
   // class to extend QCustomEvent to hold mMsgType
-  DBGCON("CommsThreadEvent");
+  REG_DBGCON("CommsThreadEvent");
   mNumCmds = 0;
 }
 
 CommsThreadEvent::~CommsThreadEvent()
 {
-  DBGDST("CommsThreadEvent");
+  REG_DBGDST("CommsThreadEvent");
 }
 
 /** Returns the type of the message that generated this event */

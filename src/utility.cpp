@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  Utility classes for QT steerer GUI
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -27,11 +25,13 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
-    
 ---------------------------------------------------------------------------*/
 
+/** @file utility.cpp
+    @brief Utility classes for QT steerer GUI
+    @author Sue Riding
+    @author Mark Riding
+    @author Andrew Porter */
 
 #include "utility.h"
 #include "types.h"
@@ -46,7 +46,7 @@
 TableLabel::TableLabel(const QString & text, QWidget * parent)
   : QLabel(text, parent)
 {
-  DBGCON("TableLabel");
+  REG_DBGCON("TableLabel");
   QFont lFont = font();
   lFont.setWeight(QFont::DemiBold);
   lFont.setPointSize(lFont.pointSize()-1);
@@ -56,7 +56,7 @@ TableLabel::TableLabel(const QString & text, QWidget * parent)
 
 TableLabel::~TableLabel()
 {
-  DBGDST("TableLabel");
+  REG_DBGDST("TableLabel");
 }
 
 
@@ -65,7 +65,7 @@ TableLabel::~TableLabel()
 AttachListItem::AttachListItem(int aSimIndex, const QString &text)
   : QListBoxItem(), mSimIndex(aSimIndex)
 {
-  DBGCON("AttachListItem");
+  REG_DBGCON("AttachListItem");
   setText( text );
   printf("constucted AttachListItem mSimIndex = %d\n", mSimIndex);
 
@@ -73,7 +73,7 @@ AttachListItem::AttachListItem(int aSimIndex, const QString &text)
 
 AttachListItem::~AttachListItem()
 {
-  DBGDST("AttachListItem");
+  REG_DBGDST("AttachListItem");
 }
 
 int

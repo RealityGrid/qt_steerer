@@ -1,7 +1,4 @@
 /*----------------------------------------------------------------------------
-  Table class for QT steerer GUI.
-  This is an abstract base class.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -28,20 +25,23 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
-    
 ---------------------------------------------------------------------------*/
+
+/** @file table.cpp
+    @brief Table class for QT steerer GUI. This is an abstract base class.
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 
 #include "table.h"
 #include "types.h"
 #include "debug.h"
 
 Table::Table(QWidget *aParent, const char *aName, int aSimHandle)
-  : QTable(aParent, aName),  mSimHandle(aSimHandle), mInitNumRows(0), mMaxRowIndex(0),
-  mAppAttached(true)
+  : QTable(aParent, aName),  mSimHandle(aSimHandle), mInitNumRows(0), 
+    mMaxRowIndex(0), mAppAttached(true)
 {
-  DBGCON("Table");
+  REG_DBGCON("Table");
 
   // Note: used mNumInitRows to force table to have rows before any data received.
   // This workaround as if have zero rows until parameters consumed and hence displayed, the table always
@@ -56,7 +56,7 @@ Table::Table(QWidget *aParent, const char *aName, int aSimHandle)
 
 Table::~Table()
 {
-  DBGDST("Table");
+  REG_DBGDST("Table");
 }
 
 

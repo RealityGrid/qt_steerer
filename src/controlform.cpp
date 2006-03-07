@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  ControlForm class for QT steerer GUI.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -27,14 +25,15 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
   
 ---------------------------------------------------------------------------*/
 
 /** 
  * @file controlform.cpp
  * @brief Implementation of class for showing details of attached app
+ * @author Sue Ramsden
+ * @author Mark Riding
+ * @author Andrew Porter
  */
 
 #include "types.h"
@@ -76,7 +75,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
     mPauseButton(kNULL), mConsumeDataButton(kNULL), 
     mEmitDataButton(kNULL), mMutexPtr(aMutex)
 { 
-  DBGCON("ControlForm");
+  REG_DBGCON("ControlForm");
 
   mHistoryPlotList.setAutoDelete( TRUE );
 
@@ -309,7 +308,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
 ControlForm::~ControlForm()
 {
-  DBGDST("ControlForm");
+  REG_DBGDST("ControlForm");
 }
 
 void
@@ -483,7 +482,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
     if(lStatus != REG_SUCCESS)		
       THROWEXCEPTION("Get_iotype_number");
     
-    DBGMSG1("Number IO/Chk Types: Monitored = ", lNumTypes);
+    REG_DBGMSG1("Number IO/Chk Types: Monitored = ", lNumTypes);
     
     if (lNumTypes>0)
     {

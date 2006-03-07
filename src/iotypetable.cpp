@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  IOTypeTable class for QT steerer GUI.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -27,16 +25,17 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
     
 ---------------------------------------------------------------------------*/
 
+/** @file iotypetable.cpp
+    @brief IOTypeTable class for QT steerer GUI.
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 
 #include "types.h"
 #include "debug.h"
-//#include "ReG_Steer_Steerside.h"
-
 #include "chkptform.h"
 #include "exception.h"
 #include "iotypetable.h"
@@ -53,7 +52,7 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
     mRestartRowIndex(kNULL_INDX), mRestartRowIndexNew(kNULL_INDX),
     mMutexPtr(aMutex)
 {
-  DBGCON("IOTypeTable constructor");
+  REG_DBGCON("IOTypeTable constructor");
 
   // set so list items automatically deleted
   mIOTypeList.setAutoDelete( TRUE );
@@ -99,7 +98,7 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
 
 IOTypeTable::~IOTypeTable()
 {
-  DBGDST("IOTypeTable");
+  REG_DBGDST("IOTypeTable");
 }
 
 void
@@ -225,7 +224,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
   // should never have INOUT type for sample
   if (!mChkPtTypeFlag && lType == REG_IO_INOUT)
   {
-    DBGMSG("Ignoring sample with type REG_IO_INOUT");
+    REG_DBGMSG("Ignoring sample with type REG_IO_INOUT");
     return;
   }
 
@@ -513,7 +512,7 @@ IOTypeTable::setNewFreqValuesInLib()
     throw StEx;
   }
 
-  DBGMSG1("do set_iottype_freq ",lIndex);
+  REG_DBGMSG1("do set_iottype_freq ",lIndex);
 
   return lIndex;
 
@@ -545,7 +544,7 @@ IOTypeTable::emitValuesSlot()
 	THROWEXCEPTION("Emit_contol");
     }
     else
-      DBGMSG("No new freq to send");
+      REG_DBGMSG("No new freq to send");
 
   } //try
 
@@ -569,7 +568,7 @@ IOTypeTable::emitValuesSlot()
  *  Only deal with the checkpoint table
  */
 void IOTypeTable::selectionChangedSlot(){
-    DBGMSG("\nIOTypeTable::selectionChanged called\n");
+    REG_DBGMSG("\nIOTypeTable::selectionChanged called\n");
     
     if (!getAppAttached())
       return;
@@ -759,7 +758,7 @@ void IOTypeTable::createButtonPressedSlot(){
           THROWEXCEPTION("Emit_control");
         }
       }
-      DBGMSG1("Sent Sample Commands", lCount);
+      REG_DBGMSG1("Sent Sample Commands", lCount);
 
       // clean up
       delete[] lCommandArray;
@@ -797,7 +796,7 @@ void IOTypeTable::restartButtonPressedSlot(){
   ChkPtForm *lChkPtForm = kNULL;
 
   try {
-    DBGMSG1("populate: mRestartrowIndex is", mRestartRowIndexNew);
+    REG_DBGMSG1("populate: mRestartrowIndex is", mRestartRowIndexNew);
 
     if (mRestartRowIndexNew > kNULL_INDX){
       // populate the array of commands and array of command parameters
@@ -830,7 +829,7 @@ void IOTypeTable::restartButtonPressedSlot(){
 
             if (lChkPtForm->getLibReturnStatus() == REG_SUCCESS){
               if (lChkPtForm->exec() == QDialog::Accepted){
-                DBGMSG1("ChkPt accepted, tag = ", 
+                REG_DBGMSG1("ChkPt accepted, tag = ", 
 			lChkPtForm->getChkTagSelected());
                 sprintf(lCmdParamArray[0], "IN %s", 
 			lChkPtForm->getChkTagSelected());
@@ -839,10 +838,10 @@ void IOTypeTable::restartButtonPressedSlot(){
 				 lCmdParamArray) != REG_SUCCESS){
                   THROWEXCEPTION("Emit_control");
                 }
-                DBGMSG("Sent Restart Commands");
+                REG_DBGMSG("Sent Restart Commands");
               } // QDialog::Accepted
               else {
-                DBGMSG("Cancelled restart chktag selector");
+                REG_DBGMSG("Cancelled restart chktag selector");
               }
             } // lChkPtForm->getLibReturnStatus() == REG_SUCCESS
             else {
@@ -866,7 +865,7 @@ void IOTypeTable::restartButtonPressedSlot(){
           
       } // if isRowSelected(mRestartRowIndexNew)
       else {
-        DBGMSG("mRestartRowIndexNew row not selected - resetting");
+        REG_DBGMSG("mRestartRowIndexNew row not selected - resetting");
       }
 
       // reset regardless of errors
@@ -940,7 +939,7 @@ int IOTypeTable::populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParam
   }
 
   if (aMaxCmds != lNumAdded)
-    DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
+    REG_DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
 
   // return the actual number of commands added
   return lNumAdded;
@@ -982,7 +981,7 @@ int IOTypeTable::populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdPa
   }
 
   if (aMaxCmds != lNumAdded)
-    DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
+    REG_DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
 
   // return the actual number of commands added
   return lNumAdded;
@@ -994,7 +993,7 @@ void IOTypeTable::consumeButtonPressedSlot(){
 
   // search through the table and find any highlighted entries,
   // read in data for those
-  DBGMSG("consumeButtonPressedSlot");
+  REG_DBGMSG("consumeButtonPressedSlot");
   
   // this slot will get called for the CheckPoint IOTypes table
   // as well, so ignore those events
@@ -1025,7 +1024,7 @@ void IOTypeTable::consumeButtonPressedSlot(){
           THROWEXCEPTION("Emit_control");
         }
       }
-      DBGMSG1("Sent Sample Commands", lCount);
+      REG_DBGMSG1("Sent Sample Commands", lCount);
 
       // clean up
       delete[] lCommandArray;
@@ -1061,7 +1060,7 @@ void IOTypeTable::emitButtonPressedSlot(){
 
   // search through the table and find any highlighted entries,
   // write data out for those
-  DBGMSG("emitButtonPressedSlot");
+  REG_DBGMSG("emitButtonPressedSlot");
 
   // this slot will get called for the CheckPoint IOTypes table
   // as well, so ignore those events
@@ -1084,15 +1083,18 @@ void IOTypeTable::emitButtonPressedSlot(){
         strcpy(lCmdParamArray[i], " ");
       }
 
-      int lNumAdded = populateCommandRequestArrayOfType(lCommandArray, lCmdParamArray, lCount, 0, REG_IO_OUT);
-
+      int lNumAdded = populateCommandRequestArrayOfType(lCommandArray, 
+							lCmdParamArray, 
+							lCount, 0, 
+							REG_IO_OUT);
       // library call to emit application
       if (lNumAdded > 0){
-        if (Emit_control(getSimHandle(), lNumAdded, lCommandArray, lCmdParamArray) != REG_SUCCESS){
+        if (Emit_control(getSimHandle(), lNumAdded, lCommandArray, 
+			 lCmdParamArray) != REG_SUCCESS){
           THROWEXCEPTION("Emit_control");
         }
       }
-      DBGMSG1("Sent Sample Commands", lCount);
+      REG_DBGMSG1("Sent Sample Commands", lCount);
 
       // clean up
       delete[] lCommandArray;

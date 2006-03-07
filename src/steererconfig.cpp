@@ -1,7 +1,4 @@
 /*----------------------------------------------------------------------------
-    Application Class for QT launcher GUI.
-    Implementation
-
     (C)Copyright 2003 The University of Manchester, United Kingdom,
     all rights reserved.
 
@@ -32,13 +29,12 @@
     email:  sve@man.ac.uk
     Tel:    +44 161 275 6095
     Fax:    +44 161 275 6800    
-
-    Initial version by: M Riding, 29.09.2003
-    
 ---------------------------------------------------------------------------*/
 
 /** @file SteererConfig.cpp
- *  @brief Holds configuration data for the steering client */
+ *  @brief Holds configuration data for the steering client 
+ *  @author Mark Riding 
+ *  @author Andrew Porter */
 
 #include <iostream>
 #include <qfile.h>
@@ -51,8 +47,6 @@ using namespace std;
 /** Constructor */
 SteererConfig::SteererConfig(){
   mTopLevelRegistry = "";
-  mCACertsPath = "";
-  mPrivateKeyCertFile = "";
   mKeyPassphrase = "";
   mAutoPollingOn = true;
   mPollingIntervalSecs = 0.1;
@@ -60,6 +54,8 @@ SteererConfig::SteererConfig(){
   mShowSteerParamTable = true;
   mShowIOTypeTable = true;
   mShowChkTypeTable = true;
+
+  Wipe_security_info(&mRegistrySecurity);
 }
 
 /** Destructor */
@@ -114,7 +110,8 @@ void SteererConfig::readConfig(QString fileName){
     flag = getElementAttrValue(nodeList.item(0).toElement(),
 			       "pollingInterval");
     mPollingIntervalSecs = flag.toFloat();
-    cout << "Default fixed polling interval is " << mPollingIntervalSecs << endl;
+    cout << "Default fixed polling interval is " << 
+      mPollingIntervalSecs << endl;
   }
 
   // GUI display section
@@ -173,34 +170,18 @@ void SteererConfig::readConfig(QString fileName){
  */
 void SteererConfig::readSecurityConfig(QString fileName){
 
-  QDomDocument doc( "steererSecurityConfigDocument" );
-  QFile        configFile(fileName);
+  QFile configFile(fileName);
 
-  // Parse file
-  if ( !configFile.open( IO_ReadOnly ) ){
-    cout << "Input file " << configFile.name() << " does not exist :-(" <<endl;
+  if(!configFile.exists() || 
+     (Get_security_config(fileName.ascii(), &mRegistrySecurity) 
+      != REG_SUCCESS) ){
+    QMessageBox::critical( NULL, "Error with security configuration file",
+			   "File "+fileName+" does not exist\n"
+			   "or cannot be parsed.\n\n",
+			   QMessageBox::Ok, 0, 0 );
     return;
   }
-  if ( !doc.setContent( &configFile ) ) {
-    configFile.close();
-    return;
-  }
-  configFile.close();
-
-  // Root element
-  QDomElement docElem = doc.documentElement();
-  if(docElem.tagName().contains("Security_config")){
-
-    mCACertsPath = getElementAttrValue(docElem, "caCertsPath");
-    cout << "Path to dir holding CA certs. is " << mCACertsPath << endl;
-
-    mPrivateKeyCertFile = getElementAttrValue(docElem, "privateKeyCertFile");
-    cout << "Path to file holding user's key and cert. is " << 
-      mPrivateKeyCertFile << endl;
-  }
-  else{
-    cout << "Failed to find Security section in config. file" << endl;
-  }
+  return;
 }
 
 //----------------------------------------------------------------------

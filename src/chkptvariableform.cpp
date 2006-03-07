@@ -58,7 +58,7 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
   : QDialog( parent, name, modal, f ), mCancelButton(kNULL)
 {
 
-  DBGCON("ChkPtVariableForm");
+  REG_DBGCON("ChkPtVariableForm");
 
     this->setCaption( "CheckPoint Parameters Table" );
     resize( 350, 350 );
@@ -110,7 +110,7 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
 
 ChkPtVariableForm::~ChkPtVariableForm()
 {
-  DBGDST("ChkVariablePtForm");
+  REG_DBGDST("ChkVariablePtForm");
   cleanUp();
 }
 

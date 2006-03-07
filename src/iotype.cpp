@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  IOType class for QT steerer GUI. 
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -27,10 +25,15 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
    
 ---------------------------------------------------------------------------*/
+
+/** @file iotype.cpp
+    @brief IOType class for QT steerer GUI. 
+
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 
 #include "types.h"
 #include "debug.h"
@@ -39,7 +42,7 @@
 IOType::IOType(int aId, int aIOTypeType)
   : mId(aId), mType(aIOTypeType), mNewFrequency(kNULL_FREQ)
 {
-  DBGCON("IOType");
+  REG_DBGCON("IOType");
   // Create an iotype object - this holds information about a sample or checkpont IOType.
   // Note that not all data is stored in the class - some is simply displayed ( and updated)
   // in the gui (in table)
@@ -62,13 +65,13 @@ IOType::IOType(int aId, int aIOTypeType)
 
 IOType::~IOType()
 {
-   DBGDST("IOType");
+   REG_DBGDST("IOType");
 }
 
 void 
 IOType::printIOType() const
 {
-  DBGMSG2("IOType handle/Type", getId(), getType());
+  REG_DBGMSG2("IOType handle/Type", getId(), getType());
 }
 
 int

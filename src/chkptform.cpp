@@ -58,7 +58,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     mRestartButton(kNULL), mCancelButton(kNULL), mMutexPtr(aMutex)
 {
 
-  DBGCON("ChkPtForm");
+  REG_DBGCON("ChkPtForm");
 
   //  set up arrays for ReG lib call
   mLogEntries = new Output_log_struct[mNumEntries];
@@ -90,7 +90,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     ChkPtListItem *lListItem;
     for (int i=0; i<mNumEntries; i++)
     {      
-      DBGMSG1("ChkTag ", mLogEntries[i].chk_tag);
+      REG_DBGMSG1("ChkTag ", mLogEntries[i].chk_tag);
 
       // QString(const char *) is deep copy
       lListItem = new ChkPtListItem(i, QString( mLogEntries[i].chk_tag));
@@ -145,7 +145,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
 
 ChkPtForm::~ChkPtForm()
 {
-  DBGDST("ChkPtForm");
+  REG_DBGDST("ChkPtForm");
   cleanUp();
 }
 
@@ -187,9 +187,9 @@ ChkPtForm::restartSlot()
       lSelected = true;
       lTmpPtr = (ChkPtListItem *)mListBox->item(lCurrentItem);
       
-      DBGMSG1("selected app index: ",lTmpPtr->getEntryIndex());
+      REG_DBGMSG1("selected app index: ",lTmpPtr->getEntryIndex());
       mIndexSelected = lTmpPtr->getEntryIndex();
-      DBGMSG1("selected chkpt: ", mLogEntries[mIndexSelected].chk_tag);
+      REG_DBGMSG1("selected chkpt: ", mLogEntries[mIndexSelected].chk_tag);
 
       QDialog::accept();
     }
@@ -225,7 +225,7 @@ ChkPtForm::filterSlot()
   {
     for (int i=0; i<mNumSims; i++)
     {  
-      DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
+      REG_DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
       if (strstr(mSimName[i], mFilterLineEdit->text().latin1()) != kNULL)
       {
 	lListItem = new ChkPtListItem(i, QString(mSimName[i]));
@@ -274,7 +274,7 @@ void ChkPtForm::viewChkPtParametersDblClkSlot(QListBoxItem *t){
 ChkPtListItem::ChkPtListItem(int aEntryIndex, const QString &text)
   : QListBoxItem(), mEntryIndex(aEntryIndex)
 {
-  DBGCON("ChkPtListItem");
+  REG_DBGCON("ChkPtListItem");
   setText( text );
   printf("constucted ChkPtListItem mEntryIndex = %d\n", mEntryIndex);
 
@@ -282,7 +282,7 @@ ChkPtListItem::ChkPtListItem(int aEntryIndex, const QString &text)
 
 ChkPtListItem::~ChkPtListItem()
 {
-  DBGDST("ChkPtListItem");
+  REG_DBGDST("ChkPtListItem");
 }
 
 int

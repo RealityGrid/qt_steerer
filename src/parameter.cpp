@@ -1,7 +1,4 @@
 /*----------------------------------------------------------------------------
-  Parameter class for QT steerer GUI.
-  Class represents a steered or monitored parameter.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -28,12 +25,17 @@
   AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE PROGRAM PROVE
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
-
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
     
 ---------------------------------------------------------------------------*/
 
+/** @file parameter.cpp
+    @brief Parameter class for QT steerer GUI.
+ 
+    Class represents a steered or monitored parameter.
 
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 #include "parameter.h"
 #include "types.h"
 #include "debug.h"
@@ -47,15 +49,15 @@ Parameter::Parameter(int aId, int aType, bool aSteerable,
     mPresentFlag(true), mRowIndex(-1), mId(aId), mType(aType), 
     mLabel(aLabel)
 {
-  DBGCON("Parameter constructor");
+  REG_DBGCON("Parameter constructor");
   mParamHist = new ParameterHistory;
   mHaveFullHistory = false;
 }
 
 Parameter::~Parameter()
 {
-  DBGDST("Parameter");
-  delete mParamHist;
+  REG_DBGDST("Parameter");
+ delete mParamHist;
 }
 
 bool

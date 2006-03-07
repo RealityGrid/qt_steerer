@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  The QT steerer GUI main.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -28,11 +26,13 @@
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
 
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
-   
 ---------------------------------------------------------------------------*/
 
-
+/** @file steerer.cpp
+    @brief The QT steerer GUI main.
+    @author Sue Ramsden
+    @author Mark Riding
+    @author Andrew Porter */
 #include <qapplication.h>
 #include <signal.h>
 
@@ -73,7 +73,7 @@ int failedNewHandler(size_t size)
 	cerr << "Run out of memory - steerer quitting..." << endl;
 	delete gSteererMainWindowSelfPtr;
 	if (Steerer_finalize() != REG_SUCCESS)
-	  DBGEXCP("Steerer_finalize failed");
+	  REG_DBGEXCP("Steerer_finalize failed");
 	exit(0);
 }
 
@@ -124,7 +124,7 @@ extern "C" void signalHandler(int aSignal)
   cout << "Steerer quitting..." << endl;
   delete gSteererMainWindowSelfPtr;
   if (Steerer_finalize() != REG_SUCCESS)
-    DBGEXCP("Steerer_finalize failed");
+    REG_DBGEXCP("Steerer_finalize failed");
   exit(0);
 }
 
@@ -164,21 +164,21 @@ int main( int argc, char ** argv )
   int result = 1;
 
   // output some ReG library constants
-  DBGLOG("ReG steering library info:");
-  DBGLOG1("REG_MAX_NUM_FILES", REG_MAX_NUM_FILES);
-  DBGLOG1("REG_MAX_NUM_STR_CMDS", REG_MAX_NUM_STR_CMDS);
-  DBGLOG1("REG_MAX_NUM_STR_PARAMS", REG_MAX_NUM_STR_PARAMS);
-  DBGLOG1("REG_MAX_STRING_LENGTH",REG_MAX_STRING_LENGTH);
-  DBGLOG1("REG_MAX_LINE_LEN ",REG_MAX_LINE_LEN );
-  DBGLOG1("REG_MAX_MSG_SIZE",REG_MAX_MSG_SIZE);
+  REG_DBGLOG("ReG steering library info:");
+  REG_DBGLOG1("REG_MAX_NUM_FILES", REG_MAX_NUM_FILES);
+  REG_DBGLOG1("REG_MAX_NUM_STR_CMDS", REG_MAX_NUM_STR_CMDS);
+  REG_DBGLOG1("REG_MAX_NUM_STR_PARAMS", REG_MAX_NUM_STR_PARAMS);
+  REG_DBGLOG1("REG_MAX_STRING_LENGTH",REG_MAX_STRING_LENGTH);
+  REG_DBGLOG1("REG_MAX_LINE_LEN ",REG_MAX_LINE_LEN );
+  REG_DBGLOG1("REG_MAX_MSG_SIZE",REG_MAX_MSG_SIZE);
 
   #ifdef UNICORE_DEMO
-    DBGLOG("UNICORE_DEMO defined");
+    REG_DBGLOG("UNICORE_DEMO defined");
   #else
-    DBGLOG("UNICORE_DEMO not defined\n");
+    REG_DBGLOG("UNICORE_DEMO not defined\n");
   #endif
 
-  DBGLOG("Steerer starting...\n");
+  REG_DBGLOG("Steerer starting...\n");
 
   // note no need to lock mutex  here as commsthread not running
   
@@ -213,10 +213,10 @@ int main( int argc, char ** argv )
     
     delete lSteererMainWindow;
 
-    DBGLOG("Steerer quitting.");
+    REG_DBGLOG("Steerer quitting.");
 
     if (Steerer_finalize() != REG_SUCCESS)		//ReG library
-      DBGEXCP("Steerer_finalize failed");
+      REG_DBGEXCP("Steerer_finalize failed");
 
     return result;
 

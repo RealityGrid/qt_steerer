@@ -41,39 +41,39 @@ using namespace std;
 // some simple different cerrs for debug versions
 
 #if DBG_VERSION
-  #define DBGMSG(x) cerr << "DBG: " << x << endl; 
-  #define DBGMSG1(x,n) cerr << "DBG: " << x <<  n << endl;
-  #define DBGMSG2(x,n,m) cerr << "DBG: " << x <<  n << m << endl;
+  #define REG_DBGMSG(x) cerr << "DBG: " << x << endl; 
+  #define REG_DBGMSG1(x,n) cerr << "DBG: " << x <<  n << endl;
+  #define REG_DBGMSG2(x,n,m) cerr << "DBG: " << x <<  n << m << endl;
 
-  #define DBGCON(x)
-  #define DBGDST(x)
+  #define REG_DBGCON(x)
+  #define REG_DBGDST(x)
 
-  #define DBGEXCP(x) cerr << "DBG: EXCP: " << x << endl;
-  #define DBGLOG(x) cerr << "DBGLOG: " << x << endl;
-  #define DBGLOG1(x, n) cerr << "DBGLOG: " << x << " " << n << endl;
+  #define REG_DBGEXCP(x) cerr << "DBG: EXCP: " << x << endl;
+  #define REG_DBGLOG(x) cerr << "DBGLOG: " << x << endl;
+  #define REG_DBGLOG1(x, n) cerr << "DBGLOG: " << x << " " << n << endl;
 
 #elif DBG_CONS
-  #define DBGMSG(x)
-  #define DBGMSG1(x,n)
-  #define DBGMSG2(x,n,m)
+  #define REG_DBGMSG(x)
+  #define REG_DBGMSG1(x,n)
+  #define REG_DBGMSG2(x,n,m)
 
-  #define DBGCON(x) cerr << "DBG: CTOR: constructor - " << x << endl;
-  #define DBGDST(x) cerr << "DBG: DTOR: destructor -" << x << endl;
+  #define REG_DBGCON(x) cerr << "DBG: CTOR: constructor - " << x << endl;
+  #define REG_DBGDST(x) cerr << "DBG: DTOR: destructor -" << x << endl;
 
-  #define DBGEXCP(x) cerr << "DBG: EXCP: " << x << endl;
-  #define DBGLOG(x) cerr << "DBGLOG: " << x << endl;
-  #define DBGLOG1(x, n) cerr << "DBGLOG: " << x << " " << n << endl;
+  #define REG_DBGEXCP(x) cerr << "DBG: EXCP: " << x << endl;
+  #define REG_DBGLOG(x) cerr << "DBGLOG: " << x << endl;
+  #define REG_DBGLOG1(x, n) cerr << "DBGLOG: " << x << " " << n << endl;
 
 #else
-  #define DBGMSG(x)
-  #define DBGMSG1(x,n)
-  #define DBGMSG2(x,n,m)
-  #define DBGCON(x)
-  #define DBGDST(x)
+  #define REG_DBGMSG(x)
+  #define REG_DBGMSG1(x,n)
+  #define REG_DBGMSG2(x,n,m)
+  #define REG_DBGCON(x)
+  #define REG_DBGDST(x)
 
-  #define DBGEXCP(x) 
-  #define DBGLOG(x) 
-  #define DBGLOG1(x, n) 
+  #define REG_DBGEXCP(x) 
+  #define REG_DBGLOG(x) 
+  #define REG_DBGLOG1(x, n) 
 
 #endif
 

@@ -1,6 +1,4 @@
 /*----------------------------------------------------------------------------
-  HistoryPlot class for QT steerer GUI.
-
   (C) Copyright 2002, 2004, University of Manchester, United Kingdom,
   all rights reserved.
 
@@ -28,13 +26,13 @@
   DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING, REPAIR OR
   CORRECTION.
 
-  Authors........: Mark Riding, Andrew Porter, Sue Ramsden
-
 ---------------------------------------------------------------------------*/
 
 /** @file historyplot.cpp
     @brief Source file for HistoryPlot class - container for one or more
-    history plots on a single canvas */
+    history plots on a single canvas 
+    @author Mark Riding
+    @author Andrew Porter */
 #include <iostream>
 using namespace std;
 
@@ -214,7 +212,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 //--------------------------------------------------------------------
 HistoryPlot::~HistoryPlot()
 {
-  DBGDST("HistoryPlot");
+  REG_DBGDST("HistoryPlot");
   delete mPicker;
 }
 
