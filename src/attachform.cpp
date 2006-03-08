@@ -75,11 +75,12 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mSimGSH[i] = new char[REG_MAX_STRING_LENGTH + 1];
   }
 
-  // Get the passphrase for the user's key if registry is using
-  // SSL
   SteererConfig *lConfig = ((SteererMainWindow *)parent)->getConfig();
+#ifdef REG_WSRF
   if( !(lConfig->mRegistrySecurity.passphrase[0]) ){
 
+    // Get the passphrase for the user's key if registry is using
+    // SSL
     if( lConfig->mRegistrySecurity.use_ssl){
 
       lString = QInputDialog::getText("RealityGrid Steerer", 
@@ -99,7 +100,6 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 	    lString.ascii(), REG_MAX_STRING_LENGTH);
   }
   // Now find out what's in the registry...
-#ifdef REG_WSRF
   //..._secure only available in steering library >= 2.0
   mLibReturnStatus = Get_registry_entries_secure(lConfig->mTopLevelRegistry,
 						 &(lConfig->mRegistrySecurity),

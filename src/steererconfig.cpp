@@ -40,7 +40,9 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qstring.h>
+#include <qmessagebox.h>
 #include "steererconfig.h"
+#include "ReG_Steer_Utils.h"
 
 using namespace std;
 
