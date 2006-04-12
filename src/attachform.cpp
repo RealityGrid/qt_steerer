@@ -59,7 +59,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL), 
     mFilterLineEdit(kNULL), mAttachButton(kNULL), mCancelButton(kNULL)
 {
-  struct registry_entry *entries;
+  struct registry_contents content;
   int i, count;
   QString lString;
   bool ok;
@@ -103,26 +103,26 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   //..._secure only available in steering library >= 2.0
   mLibReturnStatus = Get_registry_entries_secure(lConfig->mTopLevelRegistry,
 						 &(lConfig->mRegistrySecurity),
-						 &mNumSims,  
-						 &entries);
+						 &content);
 #else
   mLibReturnStatus = Get_registry_entries((char *)(lConfig->mTopLevelRegistry.ascii()),
-					  &mNumSims,  
-					  &entries);
+					  &content);
 #endif // defined REG_WSRF
 
   if(mLibReturnStatus != REG_SUCCESS) return;
 
   count = 0;
-  for (i=0; i<mNumSims; i++){
-    if(!strcmp(entries[i].service_type, "SWS") ||
-       !strcmp(entries[i].service_type, "SGS")){
-      sprintf(mSimName[count], "%s %s %s", entries[i].application,
-	      entries[i].user, entries[i].start_date_time);
-      sprintf(mSimGSH[count], "%s", entries[i].gsh);
+  for (i=0; i<content.numEntries; i++){
+    if(!strcmp(content.entries[i].service_type, "SWS") ||
+       !strcmp(content.entries[i].service_type, "SGS")){
+      sprintf(mSimName[count], "%s %s %s", content.entries[i].application,
+	      content.entries[i].user, content.entries[i].start_date_time);
+      sprintf(mSimGSH[count], "%s", content.entries[i].gsh);
       count++;
     }
   }
+  Delete_registry_table(&content);
+
   mNumSims = count;
 
   // only continue if there is some info to show
