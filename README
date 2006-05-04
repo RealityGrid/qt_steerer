@@ -37,6 +37,9 @@ This will produce the Makefiles (for link against shared libraries)
 
 6. In top level directory type:
 make
+make install
+(This puts example steerer.conf and security.conf files into ~/RealityGrid/etc
+- you WILL NEED TO EDIT THEM to suit your particular machine.)
 
 7. To run type:
 steerer
