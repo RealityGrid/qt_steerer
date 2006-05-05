@@ -119,7 +119,7 @@ figure~\ref{fig:startup_screen}.
 \label{fig:steerer_menu}
 \end{figure}
 
-The Steerer menu has five options:
+The Steerer menu (figure~\ref{fig:steerer_menu}) has six options:
 \begin{itemize}
 \item Local Attach: attach to a local steerable job, 
 communicated with by means of a local, shared file system. 
@@ -132,6 +132,7 @@ steerer polls the computational job. Shortcut Ctrl+P;
 \item Turn on/off auto polling interval: toggle whether or not 
 to allow the client to automatically adjust the polling 
 interval. Shortcut Alt+P;
+\item Edit the title of the current tab. Shortcut Ctrl+E;
 \item Quit: Quits the application. Shortcut Ctrl+Q.
 \end{itemize}
 
@@ -149,6 +150,15 @@ library.)  Allowing the steering client to automatically configure the
 polling interval is recommended although users should still ensure
 that applications are not generating more than about two status
 messages per second.
+
+Editing the tab title is particularly useful when the steering client
+is attached to multiple applications (see
+section~\ref{sec:multiple_sims}).  It allows the user to give more
+meaningful names to the tabs being used to display information from
+each application.  (By default, each tab title is either the address
+of the Grid Service representing the application or the directory from
+which message files are being read, depending on whether SOAP-based or
+file-based steering is being used, respectively.)
 
 \end{subsection}
 
@@ -446,7 +456,7 @@ steerable pararmeters by means of 2D plots.  This functionality is
 accessed by right-clicking on a parameter in either the Monitored or
 Steerable Parameters tables on the main window.  Selecting the `Draw
 History Graph' option from the resulting context menu
-(figure~\ref{fig:limits_tool_tip}) causes a dialog to appear allowing
+(figure~\ref{fig:hist_graph_context_menu}) causes a dialog to appear allowing
 the user to choose which parameter to plot the chosen one against.
 (Parameters are specified using the label with which they were
 registered.)  Once the user has completed this dialog a new window
@@ -539,6 +549,7 @@ continuously monitor long runs.
 %--------------------------------------------------------------
 
 \begin{section}{Steering multiple simulations}
+\label{sec:multiple_sims}
 
 The steering client is capable of steering a number of simulations
 simultaneously.  These simulations may be local, remote or a mixture
