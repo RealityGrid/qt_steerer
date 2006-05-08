@@ -216,9 +216,9 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   // Read configuration file (if any)
   mSteererConfig = new SteererConfig();
   mSteererConfig->readConfig(QString(getenv("HOME")) + 
-			     "/RealityGrid/etc/steerer.conf");
+			     "/.realitygrid/steerer.conf");
   mSteererConfig->readSecurityConfig(QString(getenv("HOME")) + 
-			     "/RealityGrid/etc/security.conf");
+			     "/.realitygrid/security.conf");
 
   mSteererConfig->mRegistrySecurity.use_ssl = 0;
   if(mSteererConfig->mTopLevelRegistry.startsWith("https://")){
