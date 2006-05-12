@@ -61,11 +61,11 @@ OBJECTS_DIR  = obj
 
 # The $$() notation ensures that the environment variable
 # is expanded and used in the qmake expression
-!exists( $$(HOME)/RealityGrid/etc/steerer.conf ){
+!exists( $$(HOME)/.realitygrid/steerer.conf ){
   message("steerer.conf isn't already installed")
   CONF_FILES = conf/steerer.conf
 }
-!exists( $$(HOME)/RealityGrid/etc/security.conf ){
+!exists( $$(HOME)/.realitygrid/security.conf ){
   message("security.conf isn't already installed")
   isEmpty(CONF_FILES){
     CONF_FILES = conf/security.conf
@@ -76,7 +76,7 @@ OBJECTS_DIR  = obj
 }
 !isEmpty( CONF_FILES ){
   message("Creating install target for config file(s)")
-  config_files.path = ${HOME}/RealityGrid/etc 
+  config_files.path = ${HOME}/.realitygrid
   config_files.files = $$join(CONF_FILES, " ", " ")
   INSTALLS += config_files
 }
