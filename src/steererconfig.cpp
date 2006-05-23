@@ -91,11 +91,24 @@ void SteererConfig::readConfig(QString fileName){
   QDomElement docElem = doc.documentElement();
 
   // Address of top-level registry
-  mTopLevelRegistry =  getElementAttrValue(docElem, "topLevelRegistry");
-  cout << "Top-level registry is " << mTopLevelRegistry << endl;
+  QDomNodeList nodeList = docElem.elementsByTagName("Registry");
+  if(nodeList.count() != 1){
+    cout << "Failed to find Registry section in config. file" << endl;
+  }
+  else{
+    mTopLevelRegistry = getElementAttrValue(nodeList.item(0).toElement(),
+			       "address");
+    cout << "Top-level registry is " << mTopLevelRegistry << endl;
+
+    flag = getElementAttrValue(nodeList.item(0).toElement(),
+			       "username");
+    strncpy(mRegistrySecurity.userDN, flag.ascii(), REG_MAX_STRING_LENGTH);
+    cout << "          username is " << QString(mRegistrySecurity.userDN) 
+	 << endl;
+  }
 
   // Polling configuration section
-  QDomNodeList nodeList = docElem.elementsByTagName("Polling");
+  nodeList = docElem.elementsByTagName("Polling");
   if(nodeList.count() != 1){
     cout << "Failed to find Polling section in config. file" << endl;
   }
