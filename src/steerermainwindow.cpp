@@ -211,18 +211,18 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
 
-  statusBar()->message( "www.realitygrid.org");
+  statusBar()->message("www.realitygrid.org");
 
   // Read configuration file (if any)
   mSteererConfig = new SteererConfig();
   mSteererConfig->readConfig(QString(getenv("HOME")) + 
 			     "/.realitygrid/steerer.conf");
-  mSteererConfig->readSecurityConfig(QString(getenv("HOME")) + 
-			     "/.realitygrid/security.conf");
 
   mSteererConfig->mRegistrySecurity.use_ssl = 0;
   if(mSteererConfig->mTopLevelRegistry.startsWith("https://")){
     mSteererConfig->mRegistrySecurity.use_ssl = 1;
+    mSteererConfig->readSecurityConfig(QString(getenv("HOME")) + 
+				       "/.realitygrid/security.conf");
   }
 
   // create commsthread so can set checkinterval 
@@ -702,7 +702,6 @@ SteererMainWindow::tabChangedSlot(QWidget *aWidget)
 
 void SteererMainWindow::hideChkPtTableSlot()
 {
-  cout << "ARPDBG - SteererMainWindow::hideChkPtTableSlot" << endl;
   Application *aApp;
 
   if( (aApp = (Application *)(mAppTabs->currentPage())) ){
@@ -725,7 +724,6 @@ void SteererMainWindow::hideChkPtTableSlot()
 
 void SteererMainWindow::hideIOTableSlot()
 {
-  cout << "ARPDBG - SteererMainWindow::hideIOTableSlot" << endl;
   Application *aApp;
 
   if( (aApp = (Application *)(mAppTabs->currentPage())) ){
@@ -748,7 +746,6 @@ void SteererMainWindow::hideIOTableSlot()
 
 void SteererMainWindow::hideSteerTableSlot()
 {
-  cout << "ARPDBG - SteererMainWindow::hideSteerTableSlot" << endl;
   Application *aApp;
 
   if( (aApp = (Application *)(mAppTabs->currentPage())) ){
@@ -771,7 +768,6 @@ void SteererMainWindow::hideSteerTableSlot()
 
 void SteererMainWindow::hideMonTableSlot()
 {
-  cout << "ARPDBG - SteererMainWindow::hideMonTableSlot" << endl;
   Application *aApp;
 
   if( (aApp = (Application *)(mAppTabs->currentPage())) ){
