@@ -393,6 +393,7 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
  *  be pulled back from the application
  */
 void ParameterTable::requestParamHistorySlot(int row){
+  int status;
   // First obtain the appropriate parameter (and therefore its history)
   Parameter *tParameter = findParameterHandleFromRow(row);
 
@@ -410,23 +411,35 @@ void ParameterTable::requestParamHistorySlot(int row){
   }
   if( !(lSeqParameter->mHaveFullHistory) ){
     mMutexPtr->lock();
-    Emit_retrieve_param_log_cmd( this->getSimHandle() ,
-				 lSeqParameter->getId());  //ReG library
+    status = Emit_retrieve_param_log_cmd(this->getSimHandle() ,
+					 lSeqParameter->getId()); //ReG library
     mMutexPtr->unlock();
-    lSeqParameter->mHaveFullHistory = true;
+    if(status == REG_SUCCESS){
+      lSeqParameter->mHaveFullHistory = true;
+    }
+    else{
+      cout << "requestParamHistorySlot: call to "
+	"Emit_retrieve_param_log_cmd for SEQUENCE_NUM failed" << endl;
+    }
   }
 
 
   if( !(tParameter->mHaveFullHistory) ){
 
     mMutexPtr->lock();
-    Emit_retrieve_param_log_cmd( this->getSimHandle() ,
-				 tParameter->getId());	//ReG library
+    status = Emit_retrieve_param_log_cmd(this->getSimHandle() ,
+					 tParameter->getId());//ReG library
     mMutexPtr->unlock();
-    tParameter->mHaveFullHistory = true;
+    if(status == REG_SUCCESS){
+      tParameter->mHaveFullHistory = true;
+    }
+    else{
+      cout << "requestParamHistorySlot: call to "
+	"Emit_retrieve_param_log_cmd failed" << endl;
+    }
   }
 
-  this->updateParameterLog();
+  if(mParent)mParent->updateParameterLog();
 }
 
 //----------------------------------------------------------------
