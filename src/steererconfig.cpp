@@ -41,6 +41,7 @@
 #include <qdir.h>
 #include <qstring.h>
 #include <qmessagebox.h>
+#include "debug.h"
 #include "steererconfig.h"
 #include "ReG_Steer_Utils.h"
 
@@ -98,7 +99,7 @@ void SteererConfig::readConfig(QString fileName){
   else{
     mTopLevelRegistry = getElementAttrValue(nodeList.item(0).toElement(),
 			       "address");
-    cout << "Top-level registry is " << mTopLevelRegistry << endl;
+    REG_DBGMSG1("Top-level registry is ", mTopLevelRegistry);
 
     flag = getElementAttrValue(nodeList.item(0).toElement(),
 			       "username");
@@ -117,16 +118,16 @@ void SteererConfig::readConfig(QString fileName){
 			       "autoPolling");
     mAutoPollingOn = (flag.contains("on") == 1);
     if(mAutoPollingOn){
-      cout << "Automatic polling is ON" << endl;
+      REG_DBGMSG("Automatic polling is ON");
     } else {
-      cout << "Automatic polling is OFF" << endl;
+      REG_DBGMSG("Automatic polling is OFF");
     }
 
     flag = getElementAttrValue(nodeList.item(0).toElement(),
 			       "pollingInterval");
     mPollingIntervalSecs = flag.toFloat();
-    cout << "Default fixed polling interval is " << 
-      mPollingIntervalSecs << endl;
+    REG_DBGMSG1("Default fixed polling interval is ",
+		mPollingIntervalSecs);
   }
 
   // GUI display section
@@ -141,9 +142,9 @@ void SteererConfig::readConfig(QString fileName){
     mShowMonParamTable = (flag.contains("on") == 1);
 
     if(mShowMonParamTable){
-      cout << "Display of monitored params. table is ON" << endl;
+      REG_DBGMSG("Display of monitored params. table is ON");
     } else {
-      cout << "Display of monitored params. table is OFF" << endl;
+      REG_DBGMSG("Display of monitored params. table is OFF");
     }
 
     // steered parameters table
@@ -151,9 +152,9 @@ void SteererConfig::readConfig(QString fileName){
 			       "showSteerParamTable");
     mShowSteerParamTable = (flag.contains("on") == 1);
     if(mShowSteerParamTable){
-      cout << "Display of steered params. table is ON" << endl;
+      REG_DBGMSG("Display of steered params. table is ON");
     } else {
-      cout << "Display of steered params. table is OFF" << endl;
+      REG_DBGMSG("Display of steered params. table is OFF");
     }
 
     // IOTypes table
@@ -161,9 +162,9 @@ void SteererConfig::readConfig(QString fileName){
 			       "showIOTypesTable");
     mShowIOTypeTable = (flag.contains("on") == 1);
     if(mShowIOTypeTable){
-      cout << "Display of IOTypes table is ON" << endl;
+      REG_DBGMSG("Display of IOTypes table is ON");
     } else {
-      cout << "Display of IOTypes table is OFF" << endl;
+      REG_DBGMSG("Display of IOTypes table is OFF");
     }
 
     // ChkTypes table
@@ -171,9 +172,9 @@ void SteererConfig::readConfig(QString fileName){
 			       "showChkTypesTable");
     mShowChkTypeTable = (flag.contains("on") == 1);
     if(mShowChkTypeTable){
-      cout << "Display of ChkTypes table is ON" << endl;
+      REG_DBGMSG("Display of ChkTypes table is ON");
     } else {
-      cout << "Display of ChkTypes table is OFF" << endl;
+      REG_DBGMSG("Display of ChkTypes table is OFF");
     }
   }
 
