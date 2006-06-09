@@ -41,8 +41,8 @@ isEmpty( STEER_HOME ){
 }
 
 ## debug modes DBG_VERSION DBG_CONS
-DEFINES     += DBG_VERSION
-CONFIG      += qt thread
+#DEFINES     += DBG_VERSION
+CONFIG      += qt thread release
 INCLUDEPATH = ${REG_STEER_HOME}/include ./inc 
 INCLUDEPATH += ${REG_XML_INCDIR} ${REG_QWT_INCDIR}
 LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer
