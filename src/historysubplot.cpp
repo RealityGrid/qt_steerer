@@ -52,7 +52,7 @@ HistorySubPlot::HistorySubPlot(HistoryPlot *lHistPlot,
   mCurveID         = CURVE_UNSET;
   mHistCurveID     = CURVE_UNSET;
   mPreviousLogSize = 0;
-  cout << "ARPDBG: HistorySubPlot: colour = " << mColour << endl;
+  //cout << "ARPDBG: HistorySubPlot: colour = " << mColour << endl;
 }
 
 //---------------------------------------------------------------------------

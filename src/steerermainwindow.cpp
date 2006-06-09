@@ -717,9 +717,6 @@ void SteererMainWindow::hideChkPtTableSlot()
       aApp->setChkTableVisible(true);
     }
   }
-  else{
-    cout << "ARPDBG - no visible widget??" << endl;
-  }
 }
 
 void SteererMainWindow::hideIOTableSlot()
@@ -738,9 +735,6 @@ void SteererMainWindow::hideIOTableSlot()
       mHideIOTableAction->setMenuText("Hide &IO table");
       aApp->setIOTableVisible(true);
     }
-  }
-  else{
-    cout << "ARPDBG - no visible widget??" << endl;
   }
 }
 
@@ -761,9 +755,6 @@ void SteererMainWindow::hideSteerTableSlot()
       aApp->setSteerTableVisible(true);
     }
   }
-  else{
-    cout << "ARPDBG - no visible widget??" << endl;
-  }
 }
 
 void SteererMainWindow::hideMonTableSlot()
@@ -782,9 +773,6 @@ void SteererMainWindow::hideMonTableSlot()
       mHideMonTableAction->setMenuText("Hide &Monitored Params table");
       aApp->setMonTableVisible(true);
     }
-  }
-  else{
-    cout << "ARPDBG - no visible widget??" << endl;
   }
 }
 
