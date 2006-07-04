@@ -96,6 +96,36 @@ regServiceGroup/54351518137034689"/>
 \label{fig:steerer_conf}
 \end{figure}
 
+As of version 2.0 of the RealityGrid Steering Library, the use of
+OGSI-based Grid Services has been superceded by WSRF-based Web
+Services.  As part of this change, both the Registry and the Steering
+Web Service (SWS) itself may be secured using both SSL and a
+WS-Security-based username/password scheme. If SSL is being used then
+the steering client obtains the location of the certificates of the
+Certificate Authorities that it trusts and the file containing the
+user's private key and certificate from the `security.conf' file
+(figure~\ref{fig:security_conf}). The file containing the user's key
+{\em and} certificate may be constructed by simply concatenating the
+two separate pem-format files that hold the two items: 
+\begin{verbatim}
+  cat userCert.pem > userCertAndKey.pem
+  cat userKey.pem >> userCertAndKey.pem
+\end{verbatim}
+Like steerer.conf, the security.conf file should be installed in the user's
+\texttt{$\sim$/.realitygrid} directory.
+
+\begin{figure}
+\begin{verbatim}
+  <?xml version="1.0"?>
+  <Security_config>
+    <caCertsPath value="/etc/grid-security/certificates"/>
+    <privateKeyCertFile value="/home/myname/.globus/usercertandkey.pem"/>
+  </Security_config>
+\end{verbatim}
+\caption{An example of the contents of the security configuration file.}
+\label{fig:security_conf}
+\end{figure}
+
 \end{section}
 
 %--------------------------------------------------------------------
@@ -209,7 +239,7 @@ application. Should the attach fail then check that the handle you've
 specified is correct and that the application you are attempting to
 connect to is up and running.  (A good way of doing the latter is to
 check that the \texttt{sws:machineName} ResourceProperty of the
-Steering Web Service (SWS) has been set.  If it hasn't then the job
+Steering Web Service has been set.  If it hasn't then the job
 has failed to contact the Web Service and you should look at its
 stderr output.)
 
@@ -478,7 +508,7 @@ figure~\ref{fig:eg_param_hist_plot}.  The graph is constructed simply
 by connecting adjacent ordinates with straight lines --- no fitting is
 performed.
 
-\begin{figure}[p]
+\begin{figure}
 \centerline{\includegraphics[width=11cm]{hist_plot_2curves.eps}}
 \caption{Example Parameter History Graph}
 \label{fig:eg_param_hist_plot}
@@ -539,7 +569,7 @@ Symbols are displayed by default if the graph is of an appropriate
 scale --- if resolution does not permit then they are automatically
 hidden.
 
-\begin{figure}[p]
+\begin{figure}
 \centerline{\includegraphics[width=9cm]{hist_plot_menus.eps}}
 \caption{The File and Graph menus of the Parameter History Graph window}
 \label{fig:param_hist_menus}
