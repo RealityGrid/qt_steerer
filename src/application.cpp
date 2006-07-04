@@ -579,6 +579,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
   catch (SteererException StEx)
   {
     StEx.print();
+    cout << "Continuing after exception..." << endl;
 
     /* ARPDBG - this is draconian
     // detach from application (or at least attempt to)
