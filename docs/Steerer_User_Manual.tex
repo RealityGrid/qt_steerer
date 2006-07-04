@@ -27,6 +27,7 @@ Author & Comments & Date \\
 Andrew Porter & As released with v.1.1 of the RealityGrid steering software. & 29th April 2004 \\
 Andrew Porter & Extensions for tabbed steering and additional graphing features. & 25th November 2004 \\
 Andrew Porter & As released with v.1.2 of the RealityGrid steering software. & 25th April 2006\\
+Andrew Porter & As released with v.2.0 of the RealityGrid steering software. & 4th July 2006\\
 \hline\hline
 \end{tabular}
 \end{center}
@@ -41,9 +42,9 @@ Andrew Porter & As released with v.1.2 of the RealityGrid steering software. & 2
 \begin{section}{Introduction}
 
 The RealityGrid Steerer is a generic user interface for performing
-computational steering on (computational) jobs which have been
+computational steering of (computational) jobs which have been
 instrumented using the RealityGrid Steering API. This document aims to
-give new users an overview of how to use the steerer, and to explain
+give new users an overview of how to use the steerer and to explain
 the functionality which it offers.
 
 \end{section}
@@ -54,24 +55,33 @@ the functionality which it offers.
 \label{sec:config}
 
 Several configuration options for the steering client are set by means
-of a file, `steerer.conf,' which should be installed in
-the user's \texttt{$\sim$/.realitygrid} directory. An example of this
-file is shown in figure~\ref{fig:steerer_conf}.  The configuration
-file specifies the address of the top-level registry (where the
-steerer searches for available jobs to steer when using Grid Services)
-and has sections for the control of the appearance of the main GUI
-window and the frequency with which the steerer polls for status
-messages.  The pollingInterval is specified in seconds and has a
-maximum value of two.
+of a file, `steerer.conf,' which should be installed in the user's
+\texttt{$\sim$/.realitygrid} directory. An example of this file is
+shown in figure~\ref{fig:steerer_conf}.  The configuration file
+specifies the address of the top-level registry (where the steerer
+searches for available jobs to steer when using Web Services) and has
+sections for the control of the appearance of the main GUI window and
+the frequency with which the steerer polls for status messages.  The
+pollingInterval is specified in seconds and has a maximum value of
+two. If autoPolling is on then the pollingInterval field only gives
+the initial value --- the steering client is free to change it.
 
 \begin{figure}
-\begin{verbatim}
-<?xml version="1.0"?>
+\begin{verbatim}<?xml version="1.0"?>
 <Steerer_config>
-  <topLevelRegistry value="http://a.machine.ac.uk:30010/Session/
-ServiceGroupRegistration/service?3893432997"/>
+  <Registry>
+    <!-- location of registry.  If it uses SSL then security.conf must hold
+         name of certificate+key file and location of CA certs. -->
+    <address value="http://a.machine.ac.uk:30035/Session/regServiceGroup/
+regServiceGroup/54351518137034689"/>
+    <!-- username is only used when registry is not using SSL -->
+    <username value="andy"/>
+  </Registry>
   <Polling>
+    <!-- whether or not to allow the steering client to control how often
+         it polls for new status messages -->
     <autoPolling value="on"/>
+    <!-- Initial polling interval in seconds -->
     <pollingInterval value="0.5"/>
   </Polling>
   <Display>
@@ -125,7 +135,7 @@ The Steerer menu (figure~\ref{fig:steerer_menu}) has six options:
 communicated with by means of a local, shared file system. 
 Shortcut Ctrl+A;
 \item Grid Attach: attach to a steerable job located on 
-any machine, communicated with by means of a Grid-Service 
+any machine, communicated with by means of a Web-Service 
 interface. Shortcut Ctrl+G;
 \item Set Polling Interval: set how often (in seconds) the 
 steerer polls the computational job. Shortcut Ctrl+P;
@@ -156,7 +166,7 @@ is attached to multiple applications (see
 section~\ref{sec:multiple_sims}).  It allows the user to give more
 meaningful names to the tabs being used to display information from
 each application.  (By default, each tab title is either the address
-of the Grid Service representing the application or the directory from
+of the Web Service representing the application or the directory from
 which message files are being read, depending on whether SOAP-based or
 file-based steering is being used, respectively.)
 
@@ -170,16 +180,17 @@ file-based steering is being used, respectively.)
 \label{fig:dir_browser}
 \end{figure}
 
-Selecting Local Attach from the Steerer menu will open a file-system
+Selecting `Local Attach' from the Steerer menu will open a file-system
 browser (figure~\ref{fig:dir_browser}) that allows you to choose the
 directory to use for communication with the application that you wish
 to steer.  This directory must match that passed to the application by
 way of the REG\_\-STEER\_\-DIRECTORY environment variable.  On
 pressing OK the main RealityGrid Steerer window should be displayed.
 Should the steerer fail to find an application to attach to then the
-Steerer start-up screen will be displayed with a `Failed to attach'
-message displayed.  If this occurs then check that you have selected
-the correct directory and that the application is actually running.
+Steerer start-up screen will have a `Failed to attach' message
+displayed at the bottom of it.  If this occurs then check that you
+have selected the correct directory and that the application is
+actually up and running.
 
 \begin{figure}
 \centerline{\includegraphics{grid_attach.eps}}
@@ -187,7 +198,7 @@ the correct directory and that the application is actually running.
 \label{fig:grid_attach}
 \end{figure}
 
-Selecting Grid Attach will bring up a small dialog box
+Selecting `Grid Attach' will bring up a small dialog box
 (figure~\ref{fig:grid_attach}) listing all available RealityGrid
 applications and their addresses (handles) in a table.  (This
 information is obtained by querying the registry specified in the
@@ -197,9 +208,10 @@ and clicking on the Attach button, a Steerer is created for the chosen
 application. Should the attach fail then check that the handle you've
 specified is correct and that the application you are attempting to
 connect to is up and running.  (A good way of doing the latter is to
-check that the \texttt{SGS:Machine\_address} ServiceDataElement of the
-Grid Service has been set.  If it hasn't then the job has failed to
-contact the Grid Service and you should look at its stderr output.)
+check that the \texttt{sws:machineName} ResourceProperty of the
+Steering Web Service (SWS) has been set.  If it hasn't then the job
+has failed to contact the Web Service and you should look at its
+stderr output.)
 
 It is also possible (on Linux/UNIX systems) to specify the handle to
 connect to on the command line when launching the steerer.
@@ -370,7 +382,7 @@ running job when either the `Tell Freq's' button or the `Tell All'
 button in the Commands button panel is clicked.
 
 There are slight differences in the steerer main window depending on
-whether local (file-based) or remote steering (using the grid-service
+whether local (file-based) or remote steering (using the web-service
 framework) is being performed.
 
 %--------------------------
@@ -389,7 +401,7 @@ selected checkpoint type.  After clicking on the Restart button for a
 valid checkpoint type, a dialog (figure~\ref{fig:chk_list_dialog}) is
 presented listing all of the recorded checkpoint instances for that
 type. You can select a checkpoint instance from the list, and instruct
-the application to restart from it by clicking on the 'Restart'
+the application to restart from it by clicking on the `Restart'
 button. Clicking on `Cancel' quits the dialog without doing anything.
 
 \begin{figure}
@@ -466,8 +478,8 @@ figure~\ref{fig:eg_param_hist_plot}.  The graph is constructed simply
 by connecting adjacent ordinates with straight lines --- no fitting is
 performed.
 
-\begin{figure}
-\centerline{\includegraphics{hist_plot_2curves.eps}}
+\begin{figure}[p]
+\centerline{\includegraphics[width=11cm]{hist_plot_2curves.eps}}
 \caption{Example Parameter History Graph}
 \label{fig:eg_param_hist_plot}
 \end{figure}
@@ -481,10 +493,10 @@ that if a parameter is plotted against anything other than the
 SEQUENCE\_NUM then the user must also request that the full history of
 the parameter being used as the abscissa be fetched.
 
-The history of more than one parameter may displayed in a single
+The history of more than one parameter may be displayed in a single
 graph.  Once one or more history graphs are already open, the
 parameter context menu has an additional `Add to History Graph'
-option. On selecting this option the user must click on the canvas of
+option. On selecting this option the user must click on the {\em canvas} of
 the graph to which they wish to add the plot.
 
 There are two menus available in a History graph window 
@@ -501,7 +513,7 @@ Shortcut Ctrl+t;
 The Graph menu has nine options:
 \begin{itemize}
 \item Auto Y Axis: allows the application to automatically determine 
-the extents of the y-axis. This menu item toggles on and off. 
+limits for the y-axis. This menu item toggles on and off. 
 Shortcut Ctrl+A;
 \item Define Y upper-bound: if Auto Y axis is not selected, this 
 menu item becomes available. By selecting it, a dialog appears 
@@ -515,7 +527,7 @@ logarithmic axis.  Manual limits cannot be set for the logarithmic
 axis and therefore those options will be disabled as appropriate. 
 Shortcut Ctrl+O;
 \item Auto X Axis: allows the application to automatically 
-determine the extents of the x-axis. This menu item toggles on and 
+determine limits for the x-axis. This menu item toggles on and 
 off. Shortcut Alt+A;
 \item Define X upper-bound: as for Y upper bound. Shortcut Alt+U;
 \item Define X lower-bound: as for Y lower bound. Shortcut Alt+L;
@@ -527,8 +539,8 @@ Symbols are displayed by default if the graph is of an appropriate
 scale --- if resolution does not permit then they are automatically
 hidden.
 
-\begin{figure}
-\centerline{\includegraphics{hist_plot_menus.eps}}
+\begin{figure}[p]
+\centerline{\includegraphics[width=9cm]{hist_plot_menus.eps}}
 \caption{The File and Graph menus of the Parameter History Graph window}
 \label{fig:param_hist_menus}
 \end{figure}
@@ -539,7 +551,7 @@ being plotted) and therefore if it is connected to a running
 simulation for an extended period it may accumulate a considerable
 amount of data.  Displaying a history plot of a large data set
 obviously uses some computational resource, particularly if the plot
-is being updated frequently.  Therefore may become necessary (in order to
+is being updated frequently.  It may therefore become necessary (in order to
 maximise the responsiveness of the steering client) to close history plots
 while not in use if the steering client is being used to
 continuously monitor long runs.
@@ -554,7 +566,7 @@ continuously monitor long runs.
 The steering client is capable of steering a number of simulations
 simultaneously.  These simulations may be local, remote or a mixture
 of both.  Connecting to additional simulations is straightforward; use
-the Local Attach or Grid Attach options and proceed as normal.  When
+the `Local Attach' or `Grid Attach' options and proceed as normal.  When
 the client is successfully attached to a second application then a
 second tab will be added to the main window, as shown in
 figure~\ref{fig:tabbed}.
@@ -565,8 +577,8 @@ figure~\ref{fig:tabbed}.
 \label{fig:tabbed}
 \end{figure}
 
-Initially, the tab is labelled with either the directory or GSH of the
-SGS being used to contact the simulation.  This may be edited by
+Initially, the tab is labelled with either the directory or address of the
+SWS being used to contact the simulation.  This may be edited by
 selecting the `Edit tab title' option from the Steerer menu (shortcut
 Ctrl-E).
 
@@ -589,8 +601,8 @@ interval must be greater than approximately 0.05 seconds.
 \begin{section}{Acknowledgements}
 
 The RealityGrid Steerer is mainly the work of Sue Ramsden, with some
-further enhancements by Mark Riding and Andrew Porter. The steerer is
-built using the RealityGrid Steering API, by Andrew Porter.
+further enhancements by Mark Riding and Andrew Porter. The steerer makes
+use of the RealityGrid Steering API, by Andrew Porter.
 
 \end{section}
 
