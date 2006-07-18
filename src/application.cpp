@@ -42,6 +42,7 @@
 #include "debug.h"
 #include "commsthread.h"
 #include "ReG_Steer_Steerside.h"
+#include "ReG_Steer_Steerside_WSRF.h"
 #include "exception.h"
 #include "steerermainwindow.h"
 
@@ -55,6 +56,7 @@
 #include <qtooltip.h>
 #include <qwidget.h>
 #include <qpopupmenu.h>
+#include <qdom.h>
 
 Application::Application(QWidget *aParent, const char *aName, 
 			 int aSimHandle, bool aIsLocal, QMutex *aMutex)
@@ -602,15 +604,105 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 void Application::emitGridRestartCmdSlot(){
   // First of all get the user to enter the GSH
   bool ok = false;
+
+#ifdef REG_WSRF
+  struct soap mySoap;
+  char       *rpDoc;
+
+  try{
+
+    QString text = QInputDialog::getText(
+					 tr( "End Point Reference" ),
+					 tr( "Please enter the EPR of the Checkpoint node" ),
+					 QLineEdit::Normal, QString::null, &ok, this );
+
+    if(!ok || text.isEmpty())return;
+
+    soap_init(&mySoap);
+    if( Get_resource_property_doc(&mySoap,
+				  text.ascii(),
+				  "", // Username
+				  "", // passphrase
+				  &rpDoc) != REG_SUCCESS ){
+
+      THROWEXCEPTION("Call to get ResourcePropertyDocument on " 
+		     + text + " failed");
+    }
+
+    QDomDocument doc("parsedDoc");
+    doc.setContent(QString(rpDoc));
+    QDomElement docElem = doc.documentElement();
+    QDomNodeList list = docElem.elementsByTagName("Chk_UID");
+    if(list.count() != 1) 
+      THROWEXCEPTION("Did not find only one Chk_UID element in the RP "
+		     "Doc from node " + text);
+
+    QDomText uidNode = list.item(0).firstChild().toText();
+    if( uidNode.isNull() )
+      THROWEXCEPTION("Failed to get value of UID for node " + text);
+    
+    // Get the UID of the checkpoint node as a QString
+    text = uidNode.nodeValue();
+
+    // Now get the handle of this checkpoint
+    list = docElem.elementsByTagName("Chk_type");
+    if(list.count() != 1) 
+      THROWEXCEPTION("Did not find only one Chk_type element in the RP "
+		     "Doc from node " + text);
+
+    uidNode = list.item(0).firstChild().toText();
+    if( uidNode.isNull() ) 
+      THROWEXCEPTION("Failed to get Chk_type value for node " + text);
+
+    QString lChkHandle = uidNode.nodeValue();
+
+    soap_end(&mySoap);
+    soap_done(&mySoap);
+
+    int  lCommandArray[1];
+    char **lCmdParamArray = new char*[1];
+    lCmdParamArray[0] = new char[REG_MAX_STRING_LENGTH];
+    sprintf(lCmdParamArray[0], "IN %s", text.ascii());
+    lCommandArray[0] = lChkHandle.toInt();
+
+    Emit_control(mSimHandle, 1,
+		 lCommandArray, lCmdParamArray); // ReG library
+
+    delete[] lCmdParamArray[0];
+    delete [] lCmdParamArray;
+  }
+
+  catch (SteererException StEx)
+  {
+    QMessageBox mb("RealityGrid Steerer",
+		   StEx.getErrorMsg(),
+		   QMessageBox::Warning,
+		   QMessageBox::Ok,
+		   QMessageBox::NoButton,
+		   QMessageBox::NoButton,
+		   this, "Modeless warning", false);
+    mb.setModal(false);
+    mb.exec(); 
+
+    soap_end(&mySoap);
+    soap_done(&mySoap);
+  }
+
+#else
   QString text = QInputDialog::getText(
                     tr( "Grid Service Handle" ),
                     tr( "Please enter the GSH" ),
                     QLineEdit::Normal, QString::null, &ok, this );
 
+  if(!ok || text.isEmpty())return;
+
   // Now issue a restart steer library call with that GSH
   mMutexPtr->lock();
   Emit_restart_cmd(mSimHandle, (char*)text.latin1());
   mMutexPtr->unlock();
+#endif // def REG_WSRF
+
+  return;
 }
 
 int Application::getHandle(){
