@@ -198,14 +198,13 @@ ChkPtForm::restartSlot()
   if (!lSelected)
   {
     // no item in the list has been selected
-    QMessageBox::information(0, "Nothing selected", "Please select an item in the list",
+    QMessageBox::information(0, "Nothing selected", 
+			     "Please select an item in the list",
 			     QMessageBox::Ok,
 			     QMessageBox::NoButton, 
 			     QMessageBox::NoButton);
     
-
   }
-    
 
 }
 
