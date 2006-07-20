@@ -197,52 +197,58 @@ CommsThread::run()
   int   num_cmds = 0;
   int   status = REG_FAILURE;
   int   commands[REG_MAX_NUM_STR_CMDS];
+  const float maxSuccessFraction = 0.9;
+  const float minSuccessFraction = 0.6;
   REG_DBGMSG("CommsThread starting");
   
   // add sleep to give GUI chance to finsh posting new form SMR XXX thread bug fix
-  msleep(3000);
+  msleep(1000);
 
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
-    //    REG_DBGMSG1("CommsThread Polling now, count = ", mPollCount);
-
     // This section automatically adjusts the polling interval
     // to keep up with the attached application(s)
     if(mUseAutoPollInterval && (mPollCount == mPollAdjustInterval)){
 
       lPollRatio = (float)mMsgCount/(float)mPollCount;
-      //REG_DBGMSG1("CommsThread: poll ratio = ", lPollRatio);
-
-      if(lPollRatio > 0.85){
+      cout << "CommsThread: mMsgCount = " << mMsgCount << endl;
+      cout << "CommsThread: mPollCount = " << mPollCount << endl;
+      cout << "CommsThread: poll ratio = " << lPollRatio << endl;
+      cout << "CommsThread: interval = " << mCheckInterval << endl;
+      if(lPollRatio > maxSuccessFraction){
 
 	if(mCheckInterval > kMIN_POLLING_INT){
 	  // Reduce polling interval faster than we increase it
-	  mCheckInterval -= (int)(0.66*mCheckInterval);
-	  REG_DBGMSG1("CommsThread: reducing poll interval to ", mCheckInterval);
+	  mCheckInterval -= (int)(0.35*mCheckInterval);
+	  cout << "CommsThread: reducing poll interval to " 
+	       << mCheckInterval << endl;
 	  // Adjust how many calls we average over to try and ensure
 	  // we check about every 2 seconds
 	  mPollAdjustInterval = (int)(1500.0/(float)mCheckInterval);
 	  if(mPollAdjustInterval < mMinPollAdjustInterval){
 	    mPollAdjustInterval = mMinPollAdjustInterval;
 	  }
-	  //REG_DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
+	  cout << "CommsThread: poll adjust interval = " << 
+	    mPollAdjustInterval << endl;
 	}
       }
-      else if(lPollRatio < 0.5){
+      else if(lPollRatio < minSuccessFraction){
 
 	if(mCheckInterval < kMAX_POLLING_INT){
 	  // Not getting messages very often so increase the interval
 	  // between polls
-	  mCheckInterval += (int)(0.5*mCheckInterval) + 1;
-	  //REG_DBGMSG1("CommsThread: increasing poll interval to ", mCheckInterval);
+	  mCheckInterval += (int)(0.2*mCheckInterval) + 1;
+	  cout << "CommsThread: increasing poll interval to " << 
+	    mCheckInterval << endl;
 	  // Adjust how many calls we average over to try and ensure
 	  // we check about every 2 seconds
 	  mPollAdjustInterval = (int)(1500.0/(float)mCheckInterval);
 	  if(mPollAdjustInterval < mMinPollAdjustInterval){
 	    mPollAdjustInterval = mMinPollAdjustInterval;
 	  }
-	  //REG_DBGMSG1("CommsThread: poll adjust interval = ", mPollAdjustInterval);
+	  cout << "CommsThread: poll adjust interval = " << 
+	    mPollAdjustInterval << endl;
 	}
       }
       mPollCount = 0;
@@ -264,13 +270,17 @@ CommsThread::run()
     // Protect this count to prevent overflow when not using auto. poll interv.
     if(mUseAutoPollInterval)mPollCount++;
 
+    if(lMsgType == MSG_ERROR){
+      REG_DBGMSG("CommsThread: Got error when attempting to get "
+		 "next message");
+      continue;
+    }
+
     if (lMsgType != MSG_NOTSET){
 
       // Protect this count to prevent overflow when not using auto. 
       // poll interval
       if(mUseAutoPollInterval)mMsgCount++;
-
-      //SMR XXX  validate lMsgType SMR XXX to do
 
       switch(lMsgType){
 
@@ -280,7 +290,7 @@ CommsThread::run()
 
 	// hold qt library mutex for library call
 	mMutexPtr->lock();
-	status = Consume_IOType_defs(lSimHandle);	//ReG library 
+	status = Consume_IOType_defs(lSimHandle); //ReG library 
 	mMutexPtr->unlock();
 	break;
 
@@ -329,14 +339,9 @@ CommsThread::run()
 	REG_DBGMSG("CommsThread: Got supp_cmds message");
 	break;
 
-      case MSG_ERROR:
-	REG_DBGMSG("CommsThread: Got error when attempting to get next message");
-	//ARPDBG - this from application.cpp - don't have it here
-	//THROWEXCEPTION("Attempt to get next message failed");
-	break;
-
       default:
-	REG_DBGMSG("Unrecognised msg returned by Get_next_message");
+	cout << "Unrecognised msg returned by Get_next_message: " <<
+	  lMsgType << endl;
 	break;
 
       } //switch(aMsgType)
