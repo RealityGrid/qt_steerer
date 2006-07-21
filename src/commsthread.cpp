@@ -118,8 +118,8 @@ CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex,
   mMsgCount = 0;
   // How many polls to average over in order to decide whether
   // or not to adjust the polling interval
-  mPollAdjustInterval = 4; 
-  mMinPollAdjustInterval = 4;
+  mPollAdjustInterval = 20; 
+  mMinPollAdjustInterval = 20;
 
   signal(SIGINT, threadSignalHandler);	//ctrl-c
   signal(SIGTERM, threadSignalHandler);	//kill (note cannot (and should not) catch kill -9)  
@@ -199,19 +199,40 @@ CommsThread::run()
   int   commands[REG_MAX_NUM_STR_CMDS];
   const float maxSuccessFraction = 0.9;
   const float minSuccessFraction = 0.6;
+
+  const int AVERAGING_WINDOW = 50;
+  float reciprocal_AVERAGING_WINDOW = 1.0/(float)AVERAGING_WINDOW;
+  short pollResults[AVERAGING_WINDOW];
+  int   pollResultsIndex = -1;
+  int   i, sum;
+
   REG_DBGMSG("CommsThread starting");
-  
+
+  // Initialize averaging window
+  for(i=0; i<AVERAGING_WINDOW; i++){
+    pollResults[i] = 0;
+  }
+
   // add sleep to give GUI chance to finsh posting new form SMR XXX thread bug fix
   msleep(1000);
 
   // keep running until flagged to stop
   while (mKeepRunningFlag)
   {
+    pollResultsIndex++;
+    if(pollResultsIndex >= AVERAGING_WINDOW)pollResultsIndex = 0;
+
     // This section automatically adjusts the polling interval
     // to keep up with the attached application(s)
     if(mUseAutoPollInterval && (mPollCount == mPollAdjustInterval)){
 
-      lPollRatio = (float)mMsgCount/(float)mPollCount;
+      sum = 0;
+      for(i=0; i<AVERAGING_WINDOW; i++){
+	sum += pollResults[i];
+      }
+      lPollRatio = (float)sum/(float)AVERAGING_WINDOW;
+
+      //lPollRatio = (float)mMsgCount/(float)mPollCount;
       cout << "CommsThread: mMsgCount = " << mMsgCount << endl;
       cout << "CommsThread: mPollCount = " << mPollCount << endl;
       cout << "CommsThread: poll ratio = " << lPollRatio << endl;
@@ -270,6 +291,8 @@ CommsThread::run()
     // Protect this count to prevent overflow when not using auto. poll interv.
     if(mUseAutoPollInterval)mPollCount++;
 
+    pollResults[pollResultsIndex] = 0;
+
     if(lMsgType == MSG_ERROR){
       REG_DBGMSG("CommsThread: Got error when attempting to get "
 		 "next message");
@@ -281,6 +304,7 @@ CommsThread::run()
       // Protect this count to prevent overflow when not using auto. 
       // poll interval
       if(mUseAutoPollInterval)mMsgCount++;
+      pollResults[pollResultsIndex] = 1;
 
       switch(lMsgType){
 
