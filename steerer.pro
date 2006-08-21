@@ -45,7 +45,7 @@ isEmpty( STEER_HOME ){
 CONFIG      += qt thread release
 INCLUDEPATH = ${REG_STEER_HOME}/include ./inc 
 INCLUDEPATH += ${REG_XML_INCDIR} ${REG_QWT_INCDIR}
-LIBS        += -L${REG_STEER_HOME}/lib32 -lReG_Steer
+LIBS        += -L${REG_STEER_HOME}/lib32
 # We check for existance of ReG_Steer_Utils library as indication
 # of whether we have version 1.2 or version 2.0+ of steering
 # library
@@ -54,6 +54,14 @@ exists( $$(REG_STEER_HOME)/lib32/libReG_Steer_Utils* ){
   DEFINES     += WITH_OPENSSL
   LIBS        += -lReG_Steer_Utils -lssl -lcrypto
 }
+
+LIBS += -lReG_Steer
+
+exists( $$(REG_STEER_HOME)/lib32/libReG_Steer_SOAP* ){
+  message("ReG_Steer_SOAP library found")
+  LIBS += -lReG_Steer_SOAP
+}
+
 LIBS        += -L${REG_XML_LIBDIR} -lxml2
 LIBS        += -L${REG_QWT_LIBDIR} -lqwt
 MOC_DIR      = moc
