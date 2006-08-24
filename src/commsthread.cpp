@@ -190,6 +190,7 @@ CommsThread::run()
   // this is the routine that is call when CommsThread->start() is called.
   // this routine runs until flagged to stop
   Application *lApp;
+  bool  lrecvdFirstStatusMsg = false;
   int	lSimHandle = REG_SIM_HANDLE_NOTSET ;
   int   lMsgType = MSG_NOTSET;
   float lPollRatio;
@@ -210,7 +211,8 @@ CommsThread::run()
   {
     // This section automatically adjusts the polling interval
     // to keep up with the attached application(s)
-    if(mUseAutoPollInterval && (mPollCount == mPollAdjustInterval)){
+    if(lrecvdFirstStatusMsg && mUseAutoPollInterval && 
+       (mPollCount == mPollAdjustInterval)){
 
       lPollRatio = (float)mMsgCount/(float)mPollCount;
       //cout << "CommsThread: mMsgCount = " << mMsgCount << endl;
@@ -268,8 +270,12 @@ CommsThread::run()
     }
     mMutexPtr->unlock();
 
+    if(!lrecvdFirstStatusMsg){
+      lrecvdFirstStatusMsg = (lMsgType == STATUS);
+    }
+
     // Protect this count to prevent overflow when not using auto. poll interv.
-    if(mUseAutoPollInterval)mPollCount++;
+    if(mUseAutoPollInterval && lrecvdFirstStatusMsg)mPollCount++;
 
     if(lMsgType == MSG_ERROR){
       REG_DBGMSG("CommsThread: Got error when attempting to get "
