@@ -81,7 +81,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 
     // Get the passphrase for the user's key if registry is using
     // SSL
-    if( lConfig->mRegistrySecurity.use_ssl){
+    if( lConfig->mRegistrySecurity.use_ssl == REG_TRUE){
 
       lString = QInputDialog::getText("RealityGrid Steerer", 
 				      "Enter passphrase for X.509 key:", 
