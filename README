@@ -20,11 +20,11 @@ How to install:
    'staticlib' to the CONFIG options in the qwt.pro file to get
    a static library.
 
-4. Set the environment variables REG_QWT_LIBDIR and REG_QWT_INCDIR to
-   point to the location of the library and header files, respectively,
-   for Qwt.
+4. In the current shell, set the environment variables REG_QWT_LIBDIR and 
+   REG_QWT_INCDIR to point to the location of the library and header files, 
+   respectively, for Qwt.
 
-5. In the top level directory (the one containing this file) type:
+5. Change to the top level directory (the one containing this file) and type:
 
  For Linux:
   qmake "QMAKE_CXXFLAGS_RELEASE+=-fexceptions" -o Makefile steerer.pro
