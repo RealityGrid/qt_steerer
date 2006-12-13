@@ -40,6 +40,15 @@ isEmpty( STEER_HOME ){
   error("REG_STEER_HOME environment variable not set")
 }
 
+CHECK_ENV = $$(REG_QWT_INCDIR)
+isEmpty( CHECK_ENV ){
+  error("REG_QWT_INCDIR environment variable not set")
+}
+CHECK_ENV = $$(REG_QWT_LIBDIR)
+isEmpty( CHECK_ENV ){
+  error("REG_QWT_LIBDIR environment variable not set")
+}
+
 ## debug modes DBG_VERSION DBG_CONS
 #DEFINES     += DBG_VERSION
 CONFIG      += qt thread release
