@@ -40,7 +40,7 @@
 #include "types.h"
 #include "debug.h"
 
-#include <qtable.h>
+#include <q3table.h>
 
 
 Parameter::Parameter(int aId, int aType, bool aSteerable,
@@ -88,7 +88,7 @@ Parameter::isSteerable() const
 
 
 void
-Parameter::printParameter(QTable *lTablePtr) const
+Parameter::printParameter(Q3Table *lTablePtr) const
 {
   printf("Parameter handle=%d, index=%d\n", getId(), getRowIndex());
   printf("   Value is %s \n", 

@@ -46,7 +46,7 @@ class ConfigForm: public QDialog
        
 public:
   ConfigForm(int aCurrentIntervalValue, QWidget *parent = 0, const char *name = "configform",
-	     bool modal = TRUE, WFlags f = 0 );
+	     bool modal = TRUE, Qt::WFlags f = 0 );
   ~ConfigForm();
 
   int getIntervalValue() const;

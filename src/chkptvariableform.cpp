@@ -39,22 +39,25 @@
 #include "debug.h"
 
 #include <qapplication.h>
-#include <qhbox.h>
-#include <qtable.h>
+#include <q3hbox.h>
+#include <q3table.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
 #include <qpainter.h>
 #include <qpushbutton.h>
 #include <qtooltip.h>
-#include <qvbox.h>
+#include <q3vbox.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 
 
 
 ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
 		     QWidget *parent, const char *name,
-		     bool modal, WFlags f)
+		     bool modal, Qt::WFlags f)
   : QDialog( parent, name, modal, f ), mCancelButton(kNULL)
 {
 
@@ -64,25 +67,25 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
     resize( 350, 350 );
     
     // create the layouts for the form
-    QHBoxLayout *lFormLayout = new QHBoxLayout(this, 10, 10, "chkptvariableformlayout");
-    QVBoxLayout *lTableLayout = new QVBoxLayout(6, "chkptvariabletablelayout");
-    QVBoxLayout *lButtonLayout = new QVBoxLayout(6, "chkptvariablebuttonlayout");
+    Q3HBoxLayout *lFormLayout = new Q3HBoxLayout(this, 10, 10, "chkptvariableformlayout");
+    Q3VBoxLayout *lTableLayout = new Q3VBoxLayout(6, "chkptvariabletablelayout");
+    Q3VBoxLayout *lButtonLayout = new Q3VBoxLayout(6, "chkptvariablebuttonlayout");
     
     lTableLayout->addWidget(new TableLabel("CheckPoint Parameters", this));
-    mTable = new QTable(0,2,this);
-    mTable->setSelectionMode( QTable::Single );
+    mTable = new Q3Table(0,2,this);
+    mTable->setSelectionMode( Q3Table::Single );
     mTable->verticalHeader()->hide();
     mTable->setLeftMargin(0);
 
     mTable->horizontalHeader()->setLabel(0, "Parameter Label");
     mTable->horizontalHeader()->setLabel(1, "Value"); 
         
-    QTableItem *lTableItem = NULL;
-    QTableItem *lTableItem2 = NULL;
+    Q3TableItem *lTableItem = NULL;
+    Q3TableItem *lTableItem2 = NULL;
     for (int i=0; i<outputLogStruct->num_param; i++)
     {      
-      lTableItem = new ChkPtVarTableItem(mTable, QTableItem::Never, QString(outputLogStruct->param_labels[i]));
-      lTableItem2 = new ChkPtVarTableItem(mTable, QTableItem::Never, QString(outputLogStruct->param_values[i]));
+      lTableItem = new ChkPtVarTableItem(mTable, Q3TableItem::Never, QString(outputLogStruct->param_labels[i]));
+      lTableItem2 = new ChkPtVarTableItem(mTable, Q3TableItem::Never, QString(outputLogStruct->param_values[i]));
       mTable->insertRows(mTable->numRows());
       mTable->setItem(mTable->numRows()-1, 0, lTableItem );
       mTable->setItem(mTable->numRows()-1, 1, lTableItem2 );

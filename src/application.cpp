@@ -42,12 +42,11 @@
 #include "debug.h"
 #include "commsthread.h"
 #include "ReG_Steer_Steerside.h"
-#include "ReG_Steer_Steerside_WSRF.h"
 #include "exception.h"
 #include "steerermainwindow.h"
 
 #include <qapplication.h>
-#include <qgroupbox.h>
+#include <q3groupbox.h>
 #include <qinputdialog.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -55,8 +54,12 @@
 #include <qpushbutton.h>
 #include <qtooltip.h>
 #include <qwidget.h>
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 #include <qdom.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QCustomEvent>
+#include <QEvent>
 
 Application::Application(QWidget *aParent, const char *aName, 
 			 int aSimHandle, bool aIsLocal, QMutex *aMutex)
@@ -73,12 +76,12 @@ Application::Application(QWidget *aParent, const char *aName,
   REG_DBGCON("Application");
   
   // create some layouts for positioning
-  QHBoxLayout *lFormLayout = new QHBoxLayout(this, 6, 6);
+  Q3HBoxLayout *lFormLayout = new Q3HBoxLayout(this, 6, 6);
   ///  QVBoxLayout *lButtonLayout = new QVBoxLayout(-1, "hb1" );
 
   // create the form which contains all the (dynamic) steered data 
   // (parameters etc)
-  mControlBox = new QGroupBox(1, Vertical, "", this, "editbox" );
+  mControlBox = new Q3GroupBox(1, Qt::Vertical, "", this, "editbox" );
   mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this, 
 				 mMutexPtr);
   lFormLayout->addWidget(mControlBox);
@@ -130,8 +133,9 @@ void Application::detachFromApplication()
   mMutexPtr->unlock();
 
   // note Sim_Detach always returns REG_SUCCESS surrrently!
-  if (lReGStatus != REG_SUCCESS)
+  if (lReGStatus != REG_SUCCESS) {
     REG_DBGEXCP("Sim_detach");
+  }
 
   // flag as detached so destructor knows not to detach
   mDetachedFlag = true;
@@ -678,8 +682,8 @@ void Application::emitGridRestartCmdSlot(){
 		   StEx.getErrorMsg(),
 		   QMessageBox::Warning,
 		   QMessageBox::Ok,
-		   QMessageBox::NoButton,
-		   QMessageBox::NoButton,
+		   Qt::NoButton,
+		   Qt::NoButton,
 		   this, "Modeless warning", false);
     mb.setModal(false);
     mb.exec(); 

@@ -45,7 +45,7 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qtooltip.h>
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 #include <qinputdialog.h>
 
 #include "historyplot.h"
@@ -205,11 +205,11 @@ ParameterTable::addRow(const int lHandle,
     double lTmp;
     sscanf(lVal, "%lf", &lTmp);
     setItem(lRowIndex, kVALUE_COLUMN, 
-	    new QTableItem(this, QTableItem::Never,  QString::number(lTmp)));
+	    new Q3TableItem(this, Q3TableItem::Never,  QString::number(lTmp)));
   }
   else{
     setItem(lRowIndex, kVALUE_COLUMN, 
-	    new QTableItem(this, QTableItem::Never,  QString( lVal)));
+	    new Q3TableItem(this, Q3TableItem::Never,  QString( lVal)));
   }
   lParamPtr->setIndex(lRowIndex);
 
@@ -236,7 +236,7 @@ ParameterTable::findParameterRowIndex(int aId)  // SMR XXX used anywhere??
 
   Parameter *lParamPtr;
 
-  QPtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
@@ -261,7 +261,7 @@ ParameterTable::findParameter(int aId)
 
   Parameter *lParamPtr;
 
-  QPtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
@@ -285,7 +285,7 @@ Parameter* ParameterTable::findParameterHandleFromRow(int row){
 
   Parameter *lParamPtr;
 
-  QPtrListIterator<Parameter> mParamIterator( mParamList );
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0){
     if (lParamPtr->getRowIndex() == row){
@@ -306,7 +306,7 @@ Parameter* ParameterTable::findParameterFromLabel(const QString &label)
 
   if( (lMonTable = mParent->getMonParamTable()) ){
   
-    QPtrListIterator<Parameter> lParamIterator( lMonTable->mParamList );
+    Q3PtrListIterator<Parameter> lParamIterator( lMonTable->mParamList );
     lParamIterator.toFirst();
     while ( (lParamPtr = lParamIterator.current()) != 0){
       if (lParamPtr->getLabel() == label){
@@ -317,7 +317,7 @@ Parameter* ParameterTable::findParameterFromLabel(const QString &label)
   }
 
   if( (lSteeredTable = mParent->getSteeredParamTable()) ){
-    QPtrListIterator<Parameter> lSteerParamIterator( lSteeredTable->mParamList );
+    Q3PtrListIterator<Parameter> lSteerParamIterator( lSteeredTable->mParamList );
     lSteerParamIterator.toFirst();
     while ( (lParamPtr = lSteerParamIterator.current()) != 0){
       if (lParamPtr->getLabel() == label){
@@ -327,7 +327,7 @@ Parameter* ParameterTable::findParameterFromLabel(const QString &label)
     }
   }
 
-  cout << "findParameterFromLabel, returning null for label" << label << endl;
+  //cout << "findParameterFromLabel, returning null for label" << label << endl;
   return kNULL;
 }
 
@@ -340,7 +340,7 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 
   Parameter *lParamPtr;
     
-  QPtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
   mParamIterator.toFirst();
 
   while ( aUnRegister && (lParamPtr = mParamIterator.current()) != 0)
@@ -363,23 +363,23 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
   // No history plot if the parameter is of type REG_CHAR or REG_BIN
   if(paramPtr->getType() == REG_CHAR || paramPtr->getType() == REG_BIN)return;
 
-  QPopupMenu popupMenu;
+  Q3PopupMenu popupMenu;
 
   id = popupMenu.insertItem(QString("Fetch full &history of this parameter"), 
 			    this, 
 			    SLOT(requestParamHistorySlot(int)), 
-			    CTRL+Key_H, row, 0);
+			    Qt::CTRL+Qt::Key_H, row, 0);
 
   if( (id >= 0) && paramPtr->mHaveFullHistory){
     popupMenu.setItemEnabled(id, false);
   }
 
   popupMenu.insertItem(QString("&Draw history graph"), this, 
-		       SLOT(drawGraphSlot(int)), CTRL+Key_D, row, 0);
+		       SLOT(drawGraphSlot(int)), Qt::CTRL+Qt::Key_D, row, 0);
 
   if( mParent->mHistoryPlotList.count() > 0 ){
     popupMenu.insertItem(QString("Add to History Graph"), this, 
-			 SLOT(addGraphSlot(int)), CTRL+Key_M, row, 0);
+			 SLOT(addGraphSlot(int)), Qt::CTRL+Qt::Key_M, row, 0);
   }
 
   popupMenu.exec(pnt);
@@ -508,7 +508,7 @@ void ParameterTable::updateParameterLog(){
   double    *dum_ptr;
   int        status;
 
-  QPtrListIterator<Parameter> lParamIterator( mParamList );
+  Q3PtrListIterator<Parameter> lParamIterator( mParamList );
   lParamIterator.toFirst();
   while ( (lParamPtr = lParamIterator.current()) != 0){
 
@@ -552,35 +552,35 @@ void ParameterTable::updateParameterLog(){
 /*************************************************************/
 
 
-class DynamicTip: public QToolTip{
-private:
-    QRect rect;
-public:
-    DynamicTip( QWidget * parent, QRect rect );
-    static void add(QWidget *widget, const QRect &rect, const QString &text);
+// class DynamicTip: public QToolTip{
+// private:
+//     QRect rect;
+// public:
+//     DynamicTip( QWidget * parent, QRect rect );
+//     static void add(QWidget *widget, const QRect &rect, const QString &text);
 
-protected:
-    void maybeTip( const QPoint & );
-};
+// protected:
+//     void maybeTip( const QPoint & );
+// };
 
-DynamicTip::DynamicTip( QWidget * parent, QRect _rect )
-    : QToolTip( parent )
-{
-  rect = _rect;
-    // no explicit initialization needed
-}
+// DynamicTip::DynamicTip( QWidget * parent, QRect _rect )
+//     : QToolTip( parent )
+// {
+//   rect = _rect;
+//     // no explicit initialization needed
+// }
 
-void DynamicTip::maybeTip( const QPoint &pos )
-{
-    if ( !parentWidget()->inherits( "SteeredParameterTable" ) )
-        return;
+// void DynamicTip::maybeTip( const QPoint &pos )
+// {
+//     if ( !parentWidget()->inherits( "SteeredParameterTable" ) )
+//         return;
 
-    QRect tmp;
-    QString str;
-    int tipOK = ((SteeredParameterTable*)parentWidget())->getTip(pos, tmp, str);
-    if (tipOK == 0)
-      tip(tmp, str);
-}
+//     QRect tmp;
+//     QString str;
+//     int tipOK = ((SteeredParameterTable*)parentWidget())->getTip(pos, tmp, str);
+//     if (tipOK == 0)
+//       tip(tmp, str);
+// }
 
 
 /*************************************************************/
@@ -646,7 +646,7 @@ SteeredParameterTable::initTable()
 	   this, SLOT( validateValueSlot(int,int) ) );
 
   // Create a DynamicTip object for this table
-  new DynamicTip(this, frameRect());
+  //new DynamicTip(this, frameRect());
 
   // ARP: add a context menu so that we can right click on a cell to 
   // draw a graph of that (steerable) parameter's history
@@ -771,8 +771,8 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 	QMessageBox::information(0, "Invalid Parameter Value", 
 				 "The entered value is not valid",
 				 QMessageBox::Ok,
-				 QMessageBox::NoButton, 
-				 QMessageBox::NoButton);
+				 Qt::NoButton, 
+				 Qt::NoButton);
 	setText( aRow, aCol, QString::null );
 	// SMR XXX - focus moves to cell below - fix so current cell remains selected - to do
       }
@@ -829,9 +829,9 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
   setText(lRowIndex, kREG_COLUMN, "Yes");
 
   setItem(lRowIndex, kVALUE_COLUMN, 
-	     new QTableItem(this, QTableItem::Never,  QString( lVal)));
+	     new Q3TableItem(this, Q3TableItem::Never,  QString( lVal)));
   setItem(lRowIndex, kNEWVALUE_COLUMN,
-	     new QTableItem(this, QTableItem::OnTyping,  QString::null));
+	     new Q3TableItem(this, Q3TableItem::OnTyping,  QString::null));
 
   lParamPtr->setIndex(lRowIndex);
   mParamList.append(lParamPtr);
@@ -859,7 +859,7 @@ SteeredParameterTable::setNewParamValuesInLib()
 
   Parameter *lParamPtr;
   int lCount=0;
-  QPtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
   mParamIterator.toFirst();
 
   int *lHandles = kNULL;
@@ -1018,7 +1018,7 @@ SteeredParameterTable::clearNewValues()
 
   Parameter *lParamPtr;
     
-  QPtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
@@ -1044,7 +1044,7 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 
   Parameter *lParamPtr;
     
-  QPtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {

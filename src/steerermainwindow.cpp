@@ -47,28 +47,33 @@
 #include <qapplication.h>
 #include <qcombobox.h>
 #include <qinputdialog.h>
-#include <qfiledialog.h>
+#include <q3filedialog.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
 #include <qpixmap.h> 
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 #include <qpushbutton.h>
 #include <qstatusbar.h>
 #include <qstring.h>
 #include <qtabwidget.h>
 #include <qtooltip.h>
 #include <qwidget.h>
-#include <qwidgetstack.h>
+#include <q3widgetstack.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QCustomEvent>
+#include <QEvent>
+#include <Q3Action>
 
 #ifndef WIN32
 #include <unistd.h>
 #endif
 
 SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
-  : QMainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
+  : Q3MainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
     mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
     mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
     mCommsThread(kNULL), 
@@ -89,45 +94,50 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   setCentralWidget(mCentralWgt);
    
   // set up actions for configure check interval, attach and quit
-  mSetCheckIntervalAction =  new QAction("Set polling interval",
-					 "Set &polling interval",
-					 CTRL+Key_P, this, "setcheckaction");
+  mSetCheckIntervalAction =  new Q3Action("Set polling interval",
+					  "Set &polling interval",
+					  Qt::CTRL+Qt::Key_P, this,
+					  "setcheckaction");
   mSetCheckIntervalAction->setToolTip(QString("Set polling interval"));
   connect(mSetCheckIntervalAction, SIGNAL(activated()), this, 
 	  SLOT(configureSteererSlot()));
 
-  mToggleAutoPollAction = new QAction("Turn on auto polling interval",
-				      "Turn on auto polling interval",
-				      ALT+Key_P, this, "toggleautopollaction");
+  mToggleAutoPollAction = new Q3Action("Turn on auto polling interval",
+				       "Turn on auto polling interval",
+				       Qt::ALT+Qt::Key_P, this,
+				       "toggleautopollaction");
   mToggleAutoPollAction->setToolTip(QString("Toggle use of auto polling interval"));
   connect(mToggleAutoPollAction, SIGNAL(activated()), this, 
 	  SLOT(toggleAutoPollSlot()));
 
-  mAttachAction = new QAction("Attach to local application", "Local &attach",
-			      CTRL+Key_A, this, "attachaction");
+  mAttachAction = new Q3Action("Attach to local application", "Local &attach",
+			       Qt::CTRL+Qt::Key_A, this, "attachaction");
   mAttachAction->setToolTip(QString("Attach to local app"));
   connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
 
 
-  mGridAttachAction = new QAction("Attach to app on Grid", "&Grid attach",
-			      CTRL+Key_G, this, "gridattachaction");
+  mGridAttachAction = new Q3Action("Attach to app on Grid", "&Grid attach",
+				   Qt::CTRL+Qt::Key_G, this,
+				   "gridattachaction");
   mGridAttachAction->setToolTip(QString("Attach to Grid app"));
   connect( mGridAttachAction, SIGNAL(activated()), this, 
 	   SLOT(attachGridAppSlot()) );
 
-  mSetTabTitleAction = new QAction("Set title of current tab", "&Edit tab title",
-				   CTRL+Key_E, this, "settabtitleaction");
+  mSetTabTitleAction = new Q3Action("Set title of current tab",
+				    "&Edit tab title",
+				    Qt::CTRL+Qt::Key_E, this,
+				    "settabtitleaction");
   mSetTabTitleAction->setToolTip(QString("Set title of current tab"));
   connect( mSetTabTitleAction, SIGNAL(activated()), this,
 	   SLOT(editTabTitleSlot()) );
 
-  mQuitAction =  new QAction("Quit (& detach)", "&Quit",
-			      CTRL+Key_Q, this, "quitaction");
+  mQuitAction =  new Q3Action("Quit (& detach)", "&Quit",
+			      Qt::CTRL+Qt::Key_Q, this, "quitaction");
   mQuitAction->setToolTip(QString("Quit (& detach)"));
   connect( mQuitAction, SIGNAL(activated()), this, SLOT(quitSlot()) );
 
   // put actions in menu
-  QPopupMenu *lConfigMenu = new QPopupMenu( this );
+  Q3PopupMenu *lConfigMenu = new Q3PopupMenu( this );
   menuBar()->insertItem( "&Steerer", lConfigMenu );
   mAttachAction->addTo(lConfigMenu);
   mGridAttachAction->addTo(lConfigMenu);
@@ -143,7 +153,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mQuitAction->setEnabled(TRUE);
 
   // Create layouts to position the widgets
-  mTopLayout = new QHBoxLayout( mCentralWgt, 2);
+  mTopLayout = new Q3HBoxLayout( mCentralWgt, 2);
   
   // set up the ReG logo
   mStackLogoLabel = new QLabel(mCentralWgt);
@@ -160,7 +170,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
    
   // SMR XXX - future add more widgets to stack for log viewing, 
   // for now only tabwidget
-  mStack = new QWidgetStack(mCentralWgt);
+  mStack = new Q3WidgetStack(mCentralWgt);
 
   // tab widget - each tab will be form for one steered application
   mAppTabs = new QTabWidget();
@@ -171,35 +181,36 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mStack->raiseWidget(mStackLogoLabel);
 
   // Second menu to configure view
-  QPopupMenu *lViewMenu = new QPopupMenu(this);
+  Q3PopupMenu *lViewMenu = new Q3PopupMenu(this);
   menuBar()->insertItem("&View", lViewMenu);
 
-  mHideChkPtTableAction = new QAction("Hide CheckPoint table", 
-				      "Hide &CheckPoint table",
-			      CTRL+Key_C, this, "hidechkaction");
+  mHideChkPtTableAction = new Q3Action("Hide CheckPoint table", 
+				       "Hide &CheckPoint table",
+				       Qt::CTRL+Qt::Key_C, this,
+				       "hidechkaction");
   connect( mHideChkPtTableAction, SIGNAL(activated()), this, 
 	   SLOT(hideChkPtTableSlot()) );
   mHideChkPtTableAction->addTo(lViewMenu);
 
-  mHideIOTableAction = new QAction("Hide IO table", 
-				   "Hide &IO table",
-				   CTRL+Key_I, this, "hideIOaction");
+  mHideIOTableAction = new Q3Action("Hide IO table", 
+				    "Hide &IO table",
+				    Qt::CTRL+Qt::Key_I, this, "hideIOaction");
   connect( mHideIOTableAction, SIGNAL(activated()), this, 
 	   SLOT(hideIOTableSlot()) );
   mHideIOTableAction->addTo(lViewMenu);
 
-  mHideSteerTableAction = new QAction("Hide Steered Params table",
-				      "Hide &Steered Params table",
-				      CTRL+Key_S, this, 
-				      "hideSteeraction");
+  mHideSteerTableAction = new Q3Action("Hide Steered Params table",
+				       "Hide &Steered Params table",
+				       Qt::CTRL+Qt::Key_S, this, 
+				       "hideSteeraction");
   connect(mHideSteerTableAction, SIGNAL(activated()), this,
 	  SLOT(hideSteerTableSlot()));
   mHideSteerTableAction->addTo(lViewMenu);
 
-  mHideMonTableAction = new QAction("Hide Monitored Params table",
-				    "Hide &Monitored Params table",
-				    CTRL+Key_M, this,
-				    "hideMonaction");
+  mHideMonTableAction = new Q3Action("Hide Monitored Params table",
+				     "Hide &Monitored Params table",
+				     Qt::CTRL+Qt::Key_M, this,
+				     "hideMonaction");
   connect(mHideMonTableAction, SIGNAL(activated()), this,
 	  SLOT(hideMonTableSlot()));
   mHideMonTableAction->addTo(lViewMenu);
@@ -343,7 +354,7 @@ SteererMainWindow::attachAppSlot()
   // other than that contained in the REG_STEER_DIRECTORY env. variable
   statusBar()->clear();
 
-  QString newDir = QFileDialog::getExistingDirectory(getenv("REG_STEER_DIRECTORY"),
+  QString newDir = Q3FileDialog::getExistingDirectory(getenv("REG_STEER_DIRECTORY"),
 						     this,
 						     "get existing directory",
 						     "Choose a directory for steering connection",
@@ -355,10 +366,10 @@ SteererMainWindow::attachAppSlot()
   if ( !newDir.isEmpty() ) {
     // User entered something and pressed OK
     // Attempt to attach simulation
-    simAttachApp((char *)newDir.latin1(), true);
+    simAttachApp((char*)newDir.latin1(), true);
   }  
   else {
-    simAttachApp("", true);
+    simAttachApp((char*) "", true);
   }
 }
 
@@ -620,11 +631,11 @@ SteererMainWindow::configureSteererSlot()
      mCommsThread->setCheckInterval(lConfigForm->getIntervalValue());
    
   }
-  else
+  else {
     REG_DBGMSG("Config cancelled");
-  
-  delete lConfigForm;
+  }
 
+  delete lConfigForm;
 }
 
 void SteererMainWindow::toggleAutoPollSlot()

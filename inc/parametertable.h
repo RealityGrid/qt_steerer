@@ -43,6 +43,8 @@
 #include "parameter.h"
 #include "qpoint.h"
 #include "qmutex.h"
+//Added by qt3to4:
+#include <Q3PtrList>
 #include "historyplot.h"
 #include "controlform.h"
 
@@ -99,7 +101,7 @@ protected:
   /// Lookup Parameter from its label
   Parameter *findParameterFromLabel(const QString &aLabel);
   /// List of the parameters associated with this application
-  QPtrList<Parameter>   mParamList;
+  Q3PtrList<Parameter>   mParamList;
   /// Pointer to table of monitored parameters
   ParameterTable       *mMonParamTable;
   /// Pointer to mutex used to control calls to steering library

@@ -35,44 +35,19 @@
 TEMPLATE = app
 TARGET   = steerer
 
-STEER_HOME = $$(REG_STEER_HOME)
-isEmpty( STEER_HOME ){
-  error("REG_STEER_HOME environment variable not set")
-}
-
-CHECK_ENV = $$(REG_QWT_INCDIR)
-isEmpty( CHECK_ENV ){
-  error("REG_QWT_INCDIR environment variable not set")
-}
-CHECK_ENV = $$(REG_QWT_LIBDIR)
-isEmpty( CHECK_ENV ){
-  error("REG_QWT_LIBDIR environment variable not set")
-}
 
 ## debug modes DBG_VERSION DBG_CONS
 #DEFINES     += DBG_VERSION
+QT          += qt3support
 CONFIG      += qt thread release
-INCLUDEPATH = ${REG_STEER_HOME}/include ./inc 
-INCLUDEPATH += ${REG_XML_INCDIR} ${REG_QWT_INCDIR}
-LIBS        += -L${REG_STEER_HOME}/lib32
-# We check for existance of ReG_Steer_Utils library as indication
-# of whether we have version 1.2 or version 2.0+ of steering
-# library
-exists( $$(REG_STEER_HOME)/lib32/libReG_Steer_Utils* ){
-  message("ReG_Steer_Utils library found")
-  DEFINES     += WITH_OPENSSL
-  LIBS        += -lReG_Steer_Utils -lssl -lcrypto
-}
-
+INCLUDEPATH  = /home/zzcgurh/work/RealityGrid/repos/steer_lib/include ./inc
+INCLUDEPATH += /home/zzcgurh/work/RealityGrid/build/steer_lib
+INCLUDEPATH += /usr/include/libxml2 /usr/include/qwt-qt4
+LIBS        += -L/home/zzcgurh/work/RealityGrid/build/steer_lib/lib
 LIBS += -lReG_Steer
 
-exists( $$(REG_STEER_HOME)/lib32/libReG_Steer_SOAP* ){
-  message("ReG_Steer_SOAP library found")
-  LIBS += -lReG_Steer_SOAP
-}
-
-LIBS        += -L${REG_XML_LIBDIR} -lxml2
-LIBS        += -L${REG_QWT_LIBDIR} -lqwt
+LIBS        += -lxml2
+LIBS        += -lqwt-qt4
 MOC_DIR      = moc
 OBJECTS_DIR  = obj
 
@@ -140,3 +115,5 @@ SOURCES += src/application.cpp \
            src/table.cpp \
            src/utility.cpp \
            src/historysubplot.cpp
+#The following line was inserted by qt3to4
+QT += xml  

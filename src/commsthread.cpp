@@ -51,6 +51,10 @@
 #include "ReG_Steer_Steerside.h"
 
 #include <qapplication.h>
+//Added by qt3to4:
+#include <QEvent>
+#include <QCustomEvent>
+#include <QCoreApplication>
 #include <signal.h>
 
 //file scope global pointer pointing at this CommsThread object; need this to
@@ -144,7 +148,7 @@ CommsThread::handleSignal()
   REG_DBGMSG("CommsThread::handleSignal - send event to main thread");
 
   QCustomEvent *lEvent = new QCustomEvent(QEvent::User + kSIGNAL_EVENT);
-  postEvent(mSteerer, lEvent);
+  QCoreApplication::postEvent(mSteerer, lEvent);
     
 }
 
@@ -172,7 +176,7 @@ CommsThread::stop()
   setKeepRunning(false);
 
   // thread must have finished running before destruction - so wait for finish
-  while (!finished())
+  while (!isFinished())
   {
     REG_DBGMSG("CommsThread::stop() - waiting for run completion");
     wait(1000);  //1000 milliseconds
@@ -364,7 +368,7 @@ CommsThread::run()
 
 	  CommsThreadEvent *lEvent = new CommsThreadEvent(lMsgType);
 	  if(num_cmds)lEvent->storeCommands(num_cmds, commands);
-	  postEvent(lApp, lEvent);
+	  QCoreApplication::postEvent(lApp, lEvent);
 	}
 	else{
 	  REG_DBGMSG("CommsThread::run: NULL application pointer!");

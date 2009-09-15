@@ -43,6 +43,8 @@
 
 #include <qpoint.h>
 #include <qmutex.h>
+//Added by qt3to4:
+#include <Q3PtrList>
 
 class IOTypeTable : public Table
 {
@@ -100,7 +102,7 @@ signals:
   void setEmitButtonStateSignal(const bool aEnable);
 
 private:
-  QPtrList<IOType> mIOTypeList;
+  Q3PtrList<IOType> mIOTypeList;
 
   bool	    mChkPtTypeFlag;
   int	    mRestartRowIndex;

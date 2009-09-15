@@ -42,18 +42,22 @@
 #include "ReG_Steer_Steerside.h"
 #include "ReG_Steer_Browser.h"
 
-#include <qhbox.h>
+#include <q3hbox.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qinputdialog.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qtooltip.h>
-#include <qvbox.h>
-#include <qtable.h>
+#include <q3vbox.h>
+#include <q3table.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <QLabel>
+#include <Q3VBoxLayout>
 
 AttachForm::AttachForm(QWidget *parent, const char *name,
-		       bool modal, WFlags f)
+		       bool modal, Qt::WFlags f)
   : QDialog( parent, name, modal, f ), mNumSims(0), 
     mLibReturnStatus(REG_SUCCESS), mSimGSHSelected(kNULL),
     mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL), 
@@ -132,18 +136,18 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     resize( 520, 350 );
 
     // create the layouts for the form
-    QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, 
+    Q3VBoxLayout *lFormLayout = new Q3VBoxLayout(this, 10, 10, 
 					       "attachformlayout");
-    QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
-    QVBoxLayout *lListLayout = new QVBoxLayout(6, "attachlistlayout");
-    QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "attachbuttonlayout");
+    Q3HBoxLayout *lFilterLayout = new Q3HBoxLayout(6, "filterlayout");
+    Q3VBoxLayout *lListLayout = new Q3VBoxLayout(6, "attachlistlayout");
+    Q3HBoxLayout *lButtonLayout = new Q3HBoxLayout(6, "attachbuttonlayout");
     QSpacerItem* lSpacer = new QSpacerItem( 200, 0, QSizePolicy::Expanding, 
 					    QSizePolicy::Minimum );
     
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("Steerable Applications", this));
-    mTable = new QTable(0, 2, this);
-    mTable->setSelectionMode( QTable::Single );
+    mTable = new Q3Table(0, 2, this);
+    mTable->setSelectionMode( Q3Table::Single );
     mTable->verticalHeader()->hide();
     mTable->setLeftMargin(0);
 
@@ -163,10 +167,10 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 
       mTable->insertRows(mTable->numRows(),1);
       mTable->setItem(mTable->numRows()-1, 0, 
-		      new QTableItem(mTable, QTableItem::Never, 
+		      new Q3TableItem(mTable, Q3TableItem::Never, 
 				     QString(mSimName[i])));
       mTable->setItem(mTable->numRows()-1, 1, 
-		      new QTableItem(mTable, QTableItem::WhenCurrent, 
+		      new Q3TableItem(mTable, Q3TableItem::WhenCurrent, 
 				     QString(mSimGSH[i])));
     }
     mTable->adjustColumn(0);
@@ -270,7 +274,7 @@ AttachForm::attachSlot()
     return;
   }
 
-  QTableSelection lSel = mTable->selection(0);
+  Q3TableSelection lSel = mTable->selection(0);
   lCurrentItem = lSel.anchorRow();
 
   mSimGSHSelected = mSimGSH[lCurrentItem];
@@ -300,10 +304,10 @@ AttachForm::filterSlot()
 
       mTable->insertRows(mTable->numRows(),1);
       mTable->setItem(mTable->numRows()-1, 0, 
-		      new QTableItem(mTable, QTableItem::Never, 
+		      new Q3TableItem(mTable, Q3TableItem::Never, 
 				     QString(mSimName[i])));
       mTable->setItem(mTable->numRows()-1, 1, 
-		      new QTableItem(mTable, QTableItem::OnTyping, 
+		      new Q3TableItem(mTable, Q3TableItem::OnTyping, 
 				     QString(mSimGSH[i])));
     }   
   }

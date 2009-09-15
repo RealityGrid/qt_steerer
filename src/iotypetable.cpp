@@ -42,8 +42,8 @@
 
 #include <qapplication.h>
 #include <qmessagebox.h>
-#include <qpopupmenu.h>
-#include <qtable.h>
+#include <q3popupmenu.h>
+#include <q3table.h>
 
 
 IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, 
@@ -159,7 +159,7 @@ IOTypeTable::findIOTypeRowIndex(int aId) // SMR XXX used???
 
   IOType *lIOTypePtr;
     
-  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -183,7 +183,7 @@ IOTypeTable::findIOType(int aId)
 
   IOType *lIOTypePtr;
     
-  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -254,9 +254,9 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
   setText(lRowIndex, kIO_ID_COLUMN, QString::number(lHandle) );
   setText(lRowIndex, kIO_NAME_COLUMN, lLabel);
   setItem(lRowIndex, kIO_VALUE_COLUMN, 
-	  new QTableItem(this, QTableItem::Never, QString::number(lVal)));
+	  new Q3TableItem(this, Q3TableItem::Never, QString::number(lVal)));
   setItem(lRowIndex, kIO_NEWVALUE_COLUMN,
-	  new QTableItem(this, QTableItem::OnTyping, QString::null));
+	  new Q3TableItem(this, Q3TableItem::OnTyping, QString::null));
 
   // set up the "request" column (checkbox to say which iotypes request now when hit button)
   // SMR XXXn this is WRONG!
@@ -265,10 +265,10 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
     switch(lType)
     {
       case REG_IO_IN:
-        setItem(lRowIndex, kIO_REQUEST_COLUMN, new QTableItem(this, QTableItem::Never, "Input"));
+        setItem(lRowIndex, kIO_REQUEST_COLUMN, new Q3TableItem(this, Q3TableItem::Never, "Input"));
         break;
       case REG_IO_OUT:
-        setItem(lRowIndex, kIO_REQUEST_COLUMN, new QTableItem(this, QTableItem::Never, "Output"));
+        setItem(lRowIndex, kIO_REQUEST_COLUMN, new Q3TableItem(this, Q3TableItem::Never, "Output"));
         break;
     }
   }
@@ -293,7 +293,7 @@ void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
 
   IOType *lIOTypePtr;
     
-  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -320,7 +320,7 @@ void IOTypeTable::clearNewValues()
 
   IOType *lIOTypePtr;
     
-  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -380,8 +380,8 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 	  QMessageBox::information(0, "Invalid Frequency", 
 				   "The entered value is not valid",
 				   QMessageBox::Ok,
-				   QMessageBox::NoButton, 
-				   QMessageBox::NoButton);
+				   Qt::NoButton, 
+				   Qt::NoButton);
 	  setText( aRow, aCol, QString::null );
 	  // SMR XXX make that cell the selected one -  to do setCurrentCell not work
 	}
@@ -430,7 +430,7 @@ IOTypeTable::setNewFreqValuesInLib()
 
   IOType *lIOTypePtr;
   int lCount = 0;
-  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
   int *lHandles = kNULL;
   int *lFreqs = kNULL;
   int lIndex=0;
@@ -543,9 +543,9 @@ IOTypeTable::emitValuesSlot()
       if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
     }
-    else
+    else {
       REG_DBGMSG("No new freq to send");
-
+    }
   } //try
 
   catch (SteererException StEx)
@@ -855,8 +855,8 @@ void IOTypeTable::restartButtonPressedSlot(){
             QMessageBox::information(0, "CheckPoint Restart", 
 				     "No checkpoints found in log", 
 				     QMessageBox::Ok, 
-				     QMessageBox::NoButton, 
-				     QMessageBox::NoButton);
+				     Qt::NoButton, 
+				     Qt::NoButton);
           }
         } // if (lOk)
 
@@ -883,8 +883,8 @@ void IOTypeTable::restartButtonPressedSlot(){
       QMessageBox::information(0, "Steerer Restart Functionality", 
 			       "Please select checkpoint IOType for "
 			       "application to use for restart",
-                               QMessageBox::Ok, QMessageBox::NoButton, 
-			       QMessageBox::NoButton);
+                               QMessageBox::Ok, Qt::NoButton, 
+			       Qt::NoButton);
     }
 
   } // try
@@ -917,7 +917,7 @@ int IOTypeTable::populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParam
 
   //QCheckTableItem *lCheckItem;
   IOType *lIOTypePtr;
-  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
 
   int lNumAdded = 0;
   int lIndex = aStartIndex;
@@ -938,8 +938,9 @@ int IOTypeTable::populateCommandRequestArrayNew(int *aCmdArray, char **aCmdParam
     ++mIOTypeIterator;
   }
 
-  if (aMaxCmds != lNumAdded)
-    REG_DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
+  if (aMaxCmds != lNumAdded) {
+    REG_DBGMSG("Num iotype-commands sent not same as num expected ");
+  }
 
   // return the actual number of commands added
   return lNumAdded;
@@ -953,7 +954,7 @@ int IOTypeTable::populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdPa
   // note any not added will remain checked on GUI indicating that not been sent so no need to throw excp.
 
   IOType *lIOTypePtr;
-  QPtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
 
   int lNumAdded = 0;
   int lIndex = aStartIndex;
@@ -980,8 +981,9 @@ int IOTypeTable::populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdPa
     ++mIOTypeIterator;
   }
 
-  if (aMaxCmds != lNumAdded)
-    REG_DBGMSG("Num iotype-commands sent not same as num expected ");  //log this SMR XXX
+  if (aMaxCmds != lNumAdded) {
+    REG_DBGMSG("Num iotype-commands sent not same as num expected ");
+  }
 
   // return the actual number of commands added
   return lNumAdded;

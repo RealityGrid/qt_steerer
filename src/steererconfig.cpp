@@ -43,7 +43,6 @@
 #include <qmessagebox.h>
 #include "debug.h"
 #include "steererconfig.h"
-#include "ReG_Steer_Utils.h"
 
 using namespace std;
 
@@ -78,8 +77,8 @@ void SteererConfig::readConfig(QString fileName){
   QString      flag;
 
   // Parse file
-  if ( !configFile.open( IO_ReadOnly ) ){
-    cout << "Input file " << configFile.name() << " does not exist :-(" <<endl;
+  if ( !configFile.open( QIODevice::ReadOnly ) ){
+    cout << "Input file " << fileName.ascii() << " does not exist :-(" <<endl;
     return;
   }
   if ( !doc.setContent( &configFile ) ) {
@@ -104,8 +103,8 @@ void SteererConfig::readConfig(QString fileName){
     flag = getElementAttrValue(nodeList.item(0).toElement(),
 			       "username");
     strncpy(mRegistrySecurity.userDN, flag.ascii(), REG_MAX_STRING_LENGTH);
-    cout << "          username is " << QString(mRegistrySecurity.userDN) 
-	 << endl;
+    //cout << "          username is " << QString(mRegistrySecurity.userDN) 
+    //	 << endl;
   }
 
   // Polling configuration section
@@ -208,7 +207,7 @@ QString SteererConfig::getElementAttrValue(QDomElement elem, QString name)
   QDomNodeList nodeList = elem.elementsByTagName(name);
 
   if(nodeList.count() != 1){
-    cout << "Failed to find " << name << " in config. file" << endl;
+    //cout << "Failed to find " << name << " in config. file" << endl;
   }
   else{
     tmpNode = nodeList.item(0).attributes().namedItem("value");

@@ -38,7 +38,7 @@
 #include "debug.h"
 
 Table::Table(QWidget *aParent, const char *aName, int aSimHandle)
-  : QTable(aParent, aName),  mSimHandle(aSimHandle), mInitNumRows(0), 
+  : Q3Table(aParent, aName),  mSimHandle(aSimHandle), mInitNumRows(0), 
     mMaxRowIndex(0), mAppAttached(true)
 {
   REG_DBGCON("Table");

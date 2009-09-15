@@ -36,23 +36,29 @@
 #ifndef __STEERER_MAINWINDOW_H__
 #define __STEERER_MAINWINDOW_H__
 
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3HBoxLayout>
+#include <QCustomEvent>
+#include <QLabel>
+#include <Q3PtrList>
 
-class QAction;
+class Q3Action;
 class QLabel;
 class QLayout;
 class QPixMap;
 class QPushButton;
 class QTabWidget;
 class QWidget;
-class QWidgetStack;
+class Q3WidgetStack;
 
 #include "application.h"
 #include "steererconfig.h"
 
 class CommsThread;
 
-class SteererMainWindow : public QMainWindow
+class SteererMainWindow : public Q3MainWindow
 {
   Q_OBJECT
 
@@ -103,9 +109,9 @@ private:
   /// Holds the EPR of service to attach to if specified on cmd line
   QString        cmdLineSGS;
   QWidget	*mCentralWgt;
-  QHBoxLayout	*mTopLayout;
+  Q3HBoxLayout	*mTopLayout;
 
-  QWidgetStack  *mStack;
+  Q3WidgetStack  *mStack;
   QTabWidget	*mAppTabs;
 
   QLabel	*mStackLogoLabel;
@@ -113,19 +119,19 @@ private:
 
   CommsThread	*mCommsThread;
   QMutex         mReGMutex;
-  QAction	*mSetCheckIntervalAction;
-  QAction	*mToggleAutoPollAction;
-  QAction	*mAttachAction;
-  QAction	*mGridAttachAction;
-  QAction       *mSetTabTitleAction;
-  QAction	*mQuitAction;
+  Q3Action	*mSetCheckIntervalAction;
+  Q3Action	*mToggleAutoPollAction;
+  Q3Action	*mAttachAction;
+  Q3Action	*mGridAttachAction;
+  Q3Action       *mSetTabTitleAction;
+  Q3Action	*mQuitAction;
 
-  QAction       *mHideChkPtTableAction;
-  QAction       *mHideIOTableAction;
-  QAction       *mHideSteerTableAction;
-  QAction       *mHideMonTableAction;
+  Q3Action       *mHideChkPtTableAction;
+  Q3Action       *mHideIOTableAction;
+  Q3Action       *mHideSteerTableAction;
+  Q3Action       *mHideMonTableAction;
 
-  QPtrList<Application> mAppList;
+  Q3PtrList<Application> mAppList;
   /// Holds the configuration information for the steering client
   SteererConfig *mSteererConfig;
 };

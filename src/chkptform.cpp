@@ -40,19 +40,22 @@
 #include "debug.h"
 
 #include <qapplication.h>
-#include <qhbox.h>
+#include <q3hbox.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
 #include <qpainter.h>
 #include <qpushbutton.h>
 #include <qtooltip.h>
-#include <qvbox.h>
+#include <q3vbox.h>
 #include <qmutex.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
 		     QMutex *aMutex, QWidget *parent, const char *name,
-		     bool modal, WFlags f)
+		     bool modal, Qt::WFlags f)
   : QDialog( parent, name, modal, f ), mNumEntries(aNumEntries), mLibReturnStatus(REG_SUCCESS),
     mIndexSelected(-1), mListBox(kNULL), mFilterLineEdit(kNULL), 
     mRestartButton(kNULL), mCancelButton(kNULL), mMutexPtr(aMutex)
@@ -75,15 +78,15 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     resize( 350, 350 );
     
     // create the layouts for the form
-    QHBoxLayout *lFormLayout = new QHBoxLayout(this, 10, 10, "chkptformlayout");
+    Q3HBoxLayout *lFormLayout = new Q3HBoxLayout(this, 10, 10, "chkptformlayout");
     //    QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
-    QVBoxLayout *lListLayout = new QVBoxLayout(6, "chkptlistlayout");
-    QVBoxLayout *lButtonLayout = new QVBoxLayout(6, "chkptbuttonlayout");
+    Q3VBoxLayout *lListLayout = new Q3VBoxLayout(6, "chkptlistlayout");
+    Q3VBoxLayout *lButtonLayout = new Q3VBoxLayout(6, "chkptbuttonlayout");
      
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("CheckPoint Tags", this));
-    mListBox = new QListBox(this);
-    mListBox->setSelectionMode( QListBox::Single ); 
+    mListBox = new Q3ListBox(this);
+    mListBox->setSelectionMode( Q3ListBox::Single ); 
      
     // populate the list box - each listboxitem holds array index information - this is what 
     // is used by the calling code (via  aSimIndexSelected) to identify the aSimGSH selected
@@ -114,7 +117,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     mParametersButton->setAutoDefault(FALSE);
     QToolTip::add(mParametersButton, "View Parameters for selected checkpoint");
     connect(mParametersButton, SIGNAL(clicked()), this, SLOT(viewChkPtParametersSlot()));
-    connect(mListBox, SIGNAL(doubleClicked(QListBoxItem*)), this, SLOT(viewChkPtParametersDblClkSlot(QListBoxItem*)));
+    connect(mListBox, SIGNAL(doubleClicked(Q3ListBoxItem*)), this, SLOT(viewChkPtParametersDblClkSlot(Q3ListBoxItem*)));
 
     mRestartButton = new QPushButton("Restart", this, "restartbutton"); 
     mRestartButton->setAutoDefault(FALSE);
@@ -265,13 +268,13 @@ void ChkPtForm::viewChkPtParametersSlot(){
 
 /** MR: When the user selects a checkpoint, show the variables
  */
-void ChkPtForm::viewChkPtParametersDblClkSlot(QListBoxItem *t){
+void ChkPtForm::viewChkPtParametersDblClkSlot(Q3ListBoxItem *t){
   viewChkPtParametersSlot();
 }
 
 
 ChkPtListItem::ChkPtListItem(int aEntryIndex, const QString &text)
-  : QListBoxItem(), mEntryIndex(aEntryIndex)
+  : Q3ListBoxItem(), mEntryIndex(aEntryIndex)
 {
   REG_DBGCON("ChkPtListItem");
   setText( text );
@@ -299,7 +302,7 @@ ChkPtListItem::paint( QPainter *painter )
 }
 
 int 
-ChkPtListItem::height( const QListBox* lb ) const
+ChkPtListItem::height( const Q3ListBox* lb ) const
 {
     int h = lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
     if (h > QApplication::globalStrut().height())
@@ -310,7 +313,7 @@ ChkPtListItem::height( const QListBox* lb ) const
 
 
 int 
-ChkPtListItem::width( const QListBox* lb ) const
+ChkPtListItem::width( const Q3ListBox* lb ) const
 {
     int w = lb ? lb->fontMetrics().width( text() ) + 6 : 0;
     if (w > QApplication::globalStrut().width())

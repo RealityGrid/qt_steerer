@@ -33,7 +33,11 @@
 ---------------------------------------------------------------------------*/
 
 #include "historysubplot.h"
-#include "qwt_legend.h"
+#include <qwt_legend.h>
+#include <qwt_symbol.h>
+#include <qwt_legend_item.h>
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 #include <iostream>
 using namespace std;
 
@@ -49,8 +53,8 @@ HistorySubPlot::HistorySubPlot(HistoryPlot *lHistPlot,
     mLabely(lLabely), mColour(lColour),
     mYParamHist(lYParamHist),  mYparamID(yparamID)
 {
-  mCurveID         = CURVE_UNSET;
-  mHistCurveID     = CURVE_UNSET;
+  mCurve           = new QwtPlotCurve(mLabely);
+  mHistCurve       = new QwtPlotCurve(mLabely);
   mPreviousLogSize = 0;
   //cout << "ARPDBG: HistorySubPlot: colour = " << mColour << endl;
 }
@@ -71,23 +75,33 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
   mPreviousLogSize = mYParamHist->mPreviousHistArraySize;
 
   // Insert new curves if any
-  if(mCurveID == CURVE_UNSET){
-    mCurveID = mPlotter->insertCurve(mLabely);
-    if( !(mPlotter->legendEnabled(mCurveID)) ){
-      // Only do this if not already enabled so as to prevent flicker
-      mPlotter->enableLegend(true, mCurveID);
-      mPlotter->legend()->setDisplayPolicy(QwtLegend::Fixed,
-					   (QwtLegendItem::ShowLine |
-					    QwtLegendItem::ShowText));
-    }
+  if(mCurve->plot() == NULL) {
+    mCurve->attach(mPlotter);
     this->graphDisplayCurves();
   }
 
-  if(mHistCurveID == CURVE_UNSET && 
-     mYParamHist->mPreviousHistArraySize > 0){
-    mHistCurveID = mPlotter->insertCurve(mLabely);
+//   if(mCurveID == CURVE_UNSET){
+//     mCurveID = mPlotter->insertCurve(mLabely);
+//     if( !(mPlotter->legendEnabled(mCurveID)) ){
+//       // Only do this if not already enabled so as to prevent flicker
+//       mPlotter->enableLegend(true, mCurveID);
+//       mPlotter->legend()->setDisplayPolicy(QwtLegend::FixedIdentifier,
+// 					   (QwtLegendItem::ShowLine |
+// 					    QwtLegendItem::ShowText));
+//     }
+//     this->graphDisplayCurves();
+//   }
+
+  if(mHistCurve->plot() == NULL && mYParamHist->mPreviousHistArraySize > 0) {
+    mHistCurve->attach(mPlotter);
     this->graphDisplayCurves();
   }
+
+//   if(mHistCurveID == CURVE_UNSET && 
+//      mYParamHist->mPreviousHistArraySize > 0){
+//     mHistCurveID = mPlotter->insertCurve(mLabely);
+//     this->graphDisplayCurves();
+//   }
 
   // Work out how many points we've got - compare the no. available
   // for each ordinate and use the smaller of the two.
@@ -119,14 +133,14 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
       }
       lPlotSymbol.setSize(ltmp);
       lPlotSymbol.setStyle(QwtSymbol::Diamond);
-      mPlotter->setCurveSymbol(mCurveID, lPlotSymbol);
-      mPlotter->setCurveSymbol(mHistCurveID, lPlotSymbol);
+      mCurve->setSymbol(lPlotSymbol);
+      mHistCurve->setSymbol(lPlotSymbol);
     }
   }
   if(ltmp <= 0){
-      lPlotSymbol.setStyle(QwtSymbol::None);
-      mPlotter->setCurveSymbol(mCurveID, lPlotSymbol);
-      mPlotter->setCurveSymbol(mHistCurveID, lPlotSymbol);
+      lPlotSymbol.setStyle(QwtSymbol::NoSymbol);
+      mCurve->setSymbol(lPlotSymbol);
+      mHistCurve->setSymbol(lPlotSymbol);
   }
 
   nPoints = mYParamHist->mArrayPos;
@@ -135,18 +149,17 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
   }
 
   // Shallow copy of data for plot
-  mPlotter->setCurveRawData(mCurveID, mXParamHist->ptrToArray(), 
-			    mYParamHist->ptrToArray(), nPoints);
+  mCurve->setRawData(mXParamHist->ptrToArray(), 
+		     mYParamHist->ptrToArray(), nPoints);
 
-  if(lReplotHistory){
+  if(lReplotHistory) {
     nPoints = mYParamHist->mPreviousHistArraySize;
-    if(mXParamHist->mPreviousHistArraySize < nPoints){
+    if(mXParamHist->mPreviousHistArraySize < nPoints) {
       nPoints = mXParamHist->mPreviousHistArraySize;
     }
-    if(nPoints){
-      mPlotter->setCurveRawData(mHistCurveID, 
-				mXParamHist->mPtrPreviousHistArray, 
-				mYParamHist->mPtrPreviousHistArray, nPoints);
+    if(nPoints) {
+      mHistCurve->setRawData(mXParamHist->mPtrPreviousHistArray, 
+			     mYParamHist->mPtrPreviousHistArray, nPoints);
     }
   }
 }
@@ -203,17 +216,17 @@ void HistorySubPlot::graphDisplayCurves()
 {
   // Set curve styles
   if(mHistPlot->mDisplayCurvesSet){
-    mPlotter->setCurveStyle(mCurveID, QwtCurve::Lines);
-    mPlotter->setCurvePen(mCurveID, QPen(mColour));
-    if(mHistCurveID != CURVE_UNSET){
-      mPlotter->setCurveStyle(mHistCurveID, QwtCurve::Lines);
-      mPlotter->setCurvePen(mHistCurveID, QPen(mColour));
+    mCurve->setStyle(QwtPlotCurve::Lines);
+    mCurve->setPen(QPen(mColour));
+    if(mHistCurve->plot() != NULL){
+      mHistCurve->setStyle(QwtPlotCurve::Lines);
+      mHistCurve->setPen(QPen(mColour));
     }
   }
   else{
-    mPlotter->setCurveStyle(mCurveID, QwtCurve::NoCurve);
-    if(mHistCurveID != CURVE_UNSET)mPlotter->setCurveStyle(mHistCurveID, 
-							   QwtCurve::NoCurve);
+    mCurve->setStyle(QwtPlotCurve::NoCurve);
+    if(mHistCurve->plot() != NULL)
+      mHistCurve->setStyle(QwtPlotCurve::NoCurve);
   }
 }
 

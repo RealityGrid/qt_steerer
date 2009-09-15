@@ -37,13 +37,13 @@
 #define __CHKPT_FORM_H__
 
 #include <qdialog.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qmutex.h>
 #include "ReG_Steer_Steerside.h"
 
 class QLineEdit;
 class QPushButton;
-class QListBoxItem;
+class Q3ListBoxItem;
 
 class ChkPtForm: public QDialog
 {
@@ -52,7 +52,7 @@ class ChkPtForm: public QDialog
 public:
   ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
 	    QMutex *aMutex, QWidget *parent = 0, const char *name = "chkptform",
-	    bool modal = TRUE, WFlags f = 0);
+	    bool modal = TRUE, Qt::WFlags f = 0);
   ~ChkPtForm();
 
    int getLibReturnStatus() const;
@@ -62,7 +62,7 @@ protected slots:
   void restartSlot();
   void filterSlot();
   void viewChkPtParametersSlot();
-  void viewChkPtParametersDblClkSlot(QListBoxItem *);
+  void viewChkPtParametersDblClkSlot(Q3ListBoxItem *);
 
 private:
   void cleanUp();
@@ -74,7 +74,7 @@ private:
   int			mIndexSelected;
   Output_log_struct	*mLogEntries;
 
-  QListBox		*mListBox;
+  Q3ListBox		*mListBox;
   QLineEdit		*mFilterLineEdit;
 
   /// MR: button to bring up the chkptvariableform
@@ -89,7 +89,7 @@ private:
 
 
 
-class ChkPtListItem : public QListBoxItem
+class ChkPtListItem : public Q3ListBoxItem
 {
 
 public:
@@ -99,8 +99,8 @@ public:
   int getEntryIndex() const;
 
   virtual void paint( QPainter * );
-  virtual int width( const QListBox* ) const;
-  virtual int height( const QListBox* ) const;
+  virtual int width( const Q3ListBox* ) const;
+  virtual int height( const Q3ListBox* ) const;
 
 private:
   int mEntryIndex;

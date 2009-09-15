@@ -41,7 +41,7 @@
 #include "parameterhistory.h"
 #include <qstring.h>
 
-class QTable;
+class Q3Table;
 
 /// Container for information on a single parameter registered by a 
 /// steerable application. The parameter object holds information about 
@@ -63,7 +63,7 @@ public:
 	    QString aLabel);
   ~Parameter();
   
-  void printParameter(QTable *) const;  
+  void printParameter(Q3Table *) const;  
 
   /// Get the handle of the parameter
   int getId() const;

@@ -39,31 +39,36 @@
 #define HISTORYPLOT_H
 
 #include "qlayout.h"
-#include "qframe.h"
+#include "q3frame.h"
 #include "qmenubar.h"
-#include "qfiledialog.h"
+#include "q3filedialog.h"
 #include "qthread.h"
 #include "qpixmap.h"
 #include <qwt_plot.h>
 #include <qwt_plot_picker.h>
+//Added by qt3to4:
+#include <Q3PointArray>
+#include <Q3PopupMenu>
+#include <QCloseEvent>
+#include <Q3PtrList>
 #include "types.h"
 
 class HistorySubPlot;
 class ParameterHistory;
 class QMenuBar;
-class QPopupMenu;
+class Q3PopupMenu;
 
 /** The history plot class is the main window for the
  *  graph, with the extra functionality of menus etc.
  */
-class HistoryPlot : public QFrame
+class HistoryPlot : public Q3Frame
 {
   Q_OBJECT
   
 private:
     QMenuBar   *mMenuBar;
-    QPopupMenu *mFileMenu;
-    QPopupMenu *mGraphMenu;
+    Q3PopupMenu *mFileMenu;
+    Q3PopupMenu *mGraphMenu;
     /// Pointer to ParameterHistory for abscissa
     ParameterHistory *mXParamHist;
     /// The QwtPlot object for this history plot
@@ -90,7 +95,7 @@ private:
     bool mForceHistRedraw;
 
     /// List of the sub-plots constituting this history plot
-    QPtrList<HistorySubPlot> mSubPlotList;
+    Q3PtrList<HistorySubPlot> mSubPlotList;
 
     /// Picker to handle plot selection when adding further curves
     QwtPicker *mPicker;
@@ -123,7 +128,7 @@ public slots:
     void graphDisplayCurvesSlot();
     void toggleLogAxisXSlot();
     void toggleLogAxisYSlot();
-    void canvasSelectedSlot(const QPointArray &);
+    void canvasSelectedSlot(const Q3PointArray &);
 
 signals:
     void plotClosedSignal(HistoryPlot *ptr);

@@ -43,8 +43,10 @@
 
 #include <qwidget.h>
 #include <qmutex.h>
+//Added by qt3to4:
+#include <QCustomEvent>
 
-class QGroupBox;
+class Q3GroupBox;
 class QPushButton;
 class QString;
 
@@ -136,7 +138,7 @@ private:
   bool          mIsLocal;
   QString       mStatusTxt;
   ControlForm	*mControlForm;
-  QGroupBox	*mControlBox;
+  Q3GroupBox	*mControlBox;
   SteererMainWindow *mSteerer;
 
   bool mChkTableVisible;

@@ -41,19 +41,23 @@
 #include "debug.h"
 
 #include <qvalidator.h>
-#include <qhbox.h>
+#include <q3hbox.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qtooltip.h>
-#include <qvbox.h>
+#include <q3vbox.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
+#include <QLabel>
 
 #include <math.h>
 
 ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, 
 		       const char *name,
-		       bool modal, WFlags f)
+		       bool modal, Qt::WFlags f)
   : QDialog( parent, name, modal, f ), 
     mApplyButton(kNULL), mCancelButton(kNULL)
 {
@@ -72,8 +76,8 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
   resize( 150, 150 );
     
   // create the layouts for the form
-  QVBoxLayout *lFormLayout = new QVBoxLayout(this, 10, 10, "configformlayout");
-  QHBoxLayout *lButtonLayout = new QHBoxLayout(6, "configbuttonlayout");
+  Q3VBoxLayout *lFormLayout = new Q3VBoxLayout(this, 10, 10, "configformlayout");
+  Q3HBoxLayout *lButtonLayout = new Q3HBoxLayout(6, "configbuttonlayout");
 
   lFormLayout->addWidget(new QLabel("Enter interval value (seconds) \n"
 				    "Valid range: "

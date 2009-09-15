@@ -36,8 +36,10 @@
 #define __CHKPT_VARIABLE_FORM_H__
 
 #include <qdialog.h>
-#include <qlistbox.h>
-#include <qtable.h>
+#include <q3listbox.h>
+#include <q3table.h>
+//Added by qt3to4:
+#include <QPixmap>
 #include "ReG_Steer_Steerside.h"
 
 class QLineEdit;
@@ -50,7 +52,7 @@ class ChkPtVariableForm: public QDialog
 public:
   ChkPtVariableForm(const Output_log_struct *tmp,
 	    QWidget *parent = 0, const char *name = "chkptvariableform",
-	    bool modal = FALSE, WFlags f = WGroupLeader );
+	    bool modal = FALSE, Qt::WFlags f = Qt::WGroupLeader );
 // MR: The WGroupLeader flag is very important, without it this _modeless_ dialog would be unable
 //     to do any event handling. The parent _modal_ dialog would instead get exclusive focus.
   ~ChkPtVariableForm();
@@ -64,7 +66,7 @@ private:
 
 private:
 
-  QTable		*mTable;
+  Q3Table		*mTable;
 
   QPushButton		*mCancelButton;
 
@@ -94,16 +96,16 @@ private:
  *  of each table item to be non-default
  */
 
-class ChkPtVarTableItem : public QTableItem
+class ChkPtVarTableItem : public Q3TableItem
 {
 protected:
   int myAlignment;
 public:
-  ChkPtVarTableItem(QTable *table, EditType et, const QString & text): QTableItem(table, et, text){
+  ChkPtVarTableItem(Q3Table *table, EditType et, const QString & text): Q3TableItem(table, et, text){
     myAlignment = Qt::AlignLeft;
   }
-  ChkPtVarTableItem( QTable *table, EditType et, const QString &text, const QPixmap &p )
-    : QTableItem(table, et, text, p)
+  ChkPtVarTableItem( Q3Table *table, EditType et, const QString &text, const QPixmap &p )
+    : Q3TableItem(table, et, text, p)
   {}
   void setAlignment(int newAlignment){
     myAlignment = newAlignment;

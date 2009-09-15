@@ -34,6 +34,12 @@
     @author Mark Riding
     @author Andrew Porter */
 #include <iostream>
+//Added by qt3to4:
+#include <Q3PointArray>
+#include <QCloseEvent>
+#include <Q3PopupMenu>
+#include <Q3VBoxLayout>
+#include <Q3Frame>
 using namespace std;
 
 #include "historysubplot.h"
@@ -45,8 +51,9 @@ using namespace std;
 #include "qwt_symbol.h"
 #include "qwt_picker.h"
 #include "qwt_legend.h"
-#include "qfiledialog.h"
-#include "qtextstream.h"
+#include "qwt_scale_div.h"
+#include "q3filedialog.h"
+#include "q3textstream.h"
 #include <qmessagebox.h>
 #include "qcolor.h"
 
@@ -59,7 +66,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 			 const int _xparamID, 
 			 const int _yparamID,
 			 const char *_lComponentName)
-  : mXParamHist(_mXParamHist)
+  : Q3Frame(0,0,0), mXParamHist(_mXParamHist)
 {
   // Local copies of passed parameters
   xparamID = _xparamID;
@@ -81,53 +88,53 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   // y axis is inappropriate
   //mPlotter->setAxisTitle(mPlotter->yLeft, _lLabely);
 
-  QVBoxLayout *tBL = new QVBoxLayout(this);
+  Q3VBoxLayout *tBL = new Q3VBoxLayout(this);
   mMenuBar = new QMenuBar(this, "menuBar");
 
-  mFileMenu = new QPopupMenu(this, "filePopup");
-  mFileMenu->insertItem("&Print", this, SLOT(filePrint()), CTRL+Key_P);
-  mFileMenu->insertItem("&Save", this, SLOT(fileSave()), CTRL+Key_S);
+  mFileMenu = new Q3PopupMenu(this, "filePopup");
+  mFileMenu->insertItem("&Print", this, SLOT(filePrint()), Qt::CTRL+Qt::Key_P);
+  mFileMenu->insertItem("&Save", this, SLOT(fileSave()), Qt::CTRL+Qt::Key_S);
   mFileMenu->insertItem("Save da&ta", this, SLOT(fileDataSave()), 
-			CTRL+Key_T);
+			Qt::CTRL+Qt::Key_T);
   mFileMenu->insertSeparator();
-  mFileMenu->insertItem("&Close", this, SLOT(fileQuit()), CTRL+Key_C);
+  mFileMenu->insertItem("&Close", this, SLOT(fileQuit()), Qt::CTRL+Qt::Key_C);
 
-  mGraphMenu = new QPopupMenu(this, "graphPopup");
+  mGraphMenu = new Q3PopupMenu(this, "graphPopup");
 
   mAutoYAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
-					SLOT(autoYAxisSlot()), CTRL+Key_A);
+					SLOT(autoYAxisSlot()), Qt::CTRL+Qt::Key_A);
   mYUpperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, 
 					  SLOT(graphYUpperBoundSlot()), 
-					  CTRL+Key_U);
+					  Qt::CTRL+Qt::Key_U);
   mYLowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
 					  SLOT(graphYLowerBoundSlot()),
- 					  CTRL+Key_L);
+ 					  Qt::CTRL+Qt::Key_L);
   mToggleLogYId = mGraphMenu->insertItem("Toggle use of L&og Y axis", this, 
 					 SLOT(toggleLogAxisYSlot()), 
-					 CTRL+Key_O);
+					 Qt::CTRL+Qt::Key_O);
 
   mGraphMenu->insertSeparator();
   
   mAutoXAxisId = mGraphMenu->insertItem("&Auto X Axis", this, 
-					SLOT(autoXAxisSlot()), ALT+Key_A);
+					SLOT(autoXAxisSlot()), Qt::ALT+Qt::Key_A);
   mXUpperBoundId = mGraphMenu->insertItem("Define X &upper-bound", this, 
 					  SLOT(graphXUpperBoundSlot()), 
-					  ALT+Key_U);
+					  Qt::ALT+Qt::Key_U);
   mXLowerBoundId = mGraphMenu->insertItem("Define X &lower-bound", this, 
 					  SLOT(graphXLowerBoundSlot()), 
-					  ALT+Key_L);
+					  Qt::ALT+Qt::Key_L);
   mToggleLogXId = mGraphMenu->insertItem("Toggle use of L&og X axis", this, 
 					 SLOT(toggleLogAxisXSlot()), 
-					 ALT+Key_O);
+					 Qt::ALT+Qt::Key_O);
   mGraphMenu->insertSeparator();
 
   mShowSymbolsId = mGraphMenu->insertItem("Toggle &display of symbols", this,
 					  SLOT(graphDisplaySymbolsSlot()),
-					  ALT+Key_D);
+					  Qt::ALT+Qt::Key_D);
 
   mShowCurvesId = mGraphMenu->insertItem("Toggle display of l&ines", this,
 					 SLOT(graphDisplayCurvesSlot()),
-					 ALT+Key_I);
+					 Qt::ALT+Qt::Key_I);
 
   mGraphMenu->setItemChecked(mAutoYAxisId, true);
   mGraphMenu->setItemChecked(mAutoXAxisId, true);
@@ -166,8 +173,8 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   mPicker->setSelectionFlags(QwtPicker::PointSelection | 
 			     QwtPicker::ClickSelection);
 
-  if(!( connect(mPicker, SIGNAL(selected(const QPointArray &)), 
-		this, SLOT(canvasSelectedSlot(const QPointArray &))) )){
+  if(!( connect(mPicker, SIGNAL(selected(const Q3PointArray &)), 
+		this, SLOT(canvasSelectedSlot(const Q3PointArray &))) )){
     cout << "ERROR: failed to connect signal to slot in HistoryPlot "
       "constructor" << endl;
   }
@@ -217,7 +224,7 @@ HistoryPlot::~HistoryPlot()
 }
 
 //--------------------------------------------------------------------
-void HistoryPlot::canvasSelectedSlot(const QPointArray &pos)
+void HistoryPlot::canvasSelectedSlot(const Q3PointArray &pos)
 {
   emit plotSelectedSignal(this);
 }
@@ -233,7 +240,7 @@ void HistoryPlot::filePrint(){
 //--------------------------------------------------------------------
 void HistoryPlot::fileSave(){
 
-  QString lFileName = QFileDialog::getSaveFileName(".", "Images (*.jpg)", 0, 
+  QString lFileName = Q3FileDialog::getSaveFileName(".", "Images (*.jpg)", 0, 
 						   "save file dialog", 
 						   "Choose a filename to save the image as");
   // ensure the user gave us a sensible file
@@ -257,7 +264,7 @@ void HistoryPlot::fileDataSave(){
   int     i;
   HistorySubPlot *plot;
 
-  QString lFileName = QFileDialog::getSaveFileName(".", "Data (*.dat)", 0, 
+  QString lFileName = Q3FileDialog::getSaveFileName(".", "Data (*.dat)", 0, 
 						   "save file dialog", 
 						   "Choose a name for the data file");
   // ensure the user gave us a sensible file
@@ -269,12 +276,12 @@ void HistoryPlot::fileDataSave(){
 
     QFile file(lFileName);
 
-    if( !file.open( IO_WriteOnly ) ){
+    if( !file.open( QIODevice::WriteOnly ) ){
       QMessageBox::warning( this, "Saving", "Failed to save file." );
       return;
     }
 
-    QTextStream ts( &file );
+    Q3TextStream ts( &file );
 
     // Header for data
     ts << "# Data exported from RealityGrid Qt Steering Client" << endl;
@@ -373,8 +380,8 @@ void HistoryPlot::doPlot(){
   }
 
   // Insert a horizontal line at y = 0...
-  long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
-  mPlotter->setMarkerYPos(mY, 0.0);
+  //long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
+  //mPlotter->setMarkerYPos(mY, 0.0);
 
   mPlotter->replot();
 
@@ -599,8 +606,8 @@ void HistoryPlot::toggleLogAxisXSlot(){
   // Prevent them from being turned on too
   mGraphMenu->setItemEnabled(mAutoXAxisId, !mUseLogXAxis);
 
-  mPlotter->changeAxisOptions(mPlotter->xBottom, 
-			      QwtAutoScale::Logarithmic, mUseLogXAxis);
+  //mPlotter->changeAxisOptions(mPlotter->xBottom, 
+  //			      QwtAutoScale::Logarithmic, mUseLogXAxis);
   mForceHistRedraw = true;
   // redraw the plot
   doPlot();
@@ -622,8 +629,8 @@ void HistoryPlot::toggleLogAxisYSlot(){
   // Prevent them from being turned on too
   mGraphMenu->setItemEnabled(mAutoYAxisId, !mUseLogYAxis);
 
-  mPlotter->changeAxisOptions(mPlotter->yLeft, 
-			      QwtAutoScale::Logarithmic, mUseLogYAxis);
+  //mPlotter->changeAxisOptions(mPlotter->yLeft, 
+  //			      QwtAutoScale::Logarithmic, mUseLogYAxis);
   mForceHistRedraw = true;
   // redraw the plot
   doPlot();
@@ -639,19 +646,19 @@ void HistoryPlot::updateSlot(){
   }
 
   // Insert a horizontal line at y = 0...
-  long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
-  mPlotter->setMarkerYPos(mY, 0.0);
+  //long mY = mPlotter->insertLineMarker("y = 0", QwtPlot::yLeft);
+  //mPlotter->setMarkerYPos(mY, 0.0);
 
   mPlotter->replot();
 
   // also want to update the manual upper and lower bounds to 
   // something sensible at this point
-  const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
-  mYLowerBound = autoScaleDiv->lBound();
-  mYUpperBound = autoScaleDiv->hBound();
-  autoScaleDiv = mPlotter->axisScale(mPlotter->xBottom);
-  mXLowerBound = autoScaleDiv->lBound();
-  mXUpperBound = autoScaleDiv->hBound();
+  //const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
+  //mYLowerBound = autoScaleDiv->lBound();
+  //mYUpperBound = autoScaleDiv->hBound();
+  //autoScaleDiv = mPlotter->axisScale(mPlotter->xBottom);
+  //mXLowerBound = autoScaleDiv->lBound();
+  //mXUpperBound = autoScaleDiv->hBound();
 
   return;
 }

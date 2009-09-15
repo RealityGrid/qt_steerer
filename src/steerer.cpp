@@ -44,13 +44,13 @@
 #include "steerermainwindow.h"
 
 #ifndef WIN32
-#include <qmotifplusstyle.h>
+#include <QCleanlooksStyle>
 #else
 #include <qwindowsstyle.h>
 #endif
 
 #include <signal.h>
-#include <new.h>
+#include <new>
 
 #ifndef WIN32
 #include <X11/Xlib.h>
@@ -72,8 +72,9 @@ int failedNewHandler(size_t size)
 {
 	cerr << "Run out of memory - steerer quitting..." << endl;
 	delete gSteererMainWindowSelfPtr;
-	if (Steerer_finalize() != REG_SUCCESS)
+	if (Steerer_finalize() != REG_SUCCESS) {
 	  REG_DBGEXCP("Steerer_finalize failed");
+	}
 	exit(0);
 }
 
@@ -123,8 +124,9 @@ extern "C" void signalHandler(int aSignal)
 
   cout << "Steerer quitting..." << endl;
   delete gSteererMainWindowSelfPtr;
-  if (Steerer_finalize() != REG_SUCCESS)
+  if (Steerer_finalize() != REG_SUCCESS) {
     REG_DBGEXCP("Steerer_finalize failed");
+  }
   exit(0);
 }
 
@@ -215,8 +217,9 @@ int main( int argc, char ** argv )
 
     REG_DBGLOG("Steerer quitting.");
 
-    if (Steerer_finalize() != REG_SUCCESS)		//ReG library
+    if (Steerer_finalize() != REG_SUCCESS) {
       REG_DBGEXCP("Steerer_finalize failed");
+    }
 
     return result;
 

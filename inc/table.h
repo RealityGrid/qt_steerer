@@ -38,10 +38,10 @@
 #ifndef __TABLE_H__
 #define __TABLE_H__
 
-#include <qtable.h>
+#include <q3table.h>
 
 // abstract table class
-class Table : public QTable
+class Table : public Q3Table
 {
   Q_OBJECT
 

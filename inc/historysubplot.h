@@ -39,7 +39,8 @@
 #include "parameterhistory.h"
 #include "historyplot.h"
 
-#define CURVE_UNSET 1000
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
 /** The historysubplot class deals with the plotting of a single
  *  curve on a historyplot (which may consist of more than one
@@ -52,23 +53,29 @@ class HistorySubPlot : public QObject
 private:
     /// Pointer to the parent HistoryPlot object
     HistoryPlot      *mHistPlot;
+
     /// Pointer to the parent QwtPlot object in which we will draw
     QwtPlot          *mPlotter;
+
     /// Pointer to the ParameterHistory object holding 
     /// data for abscissa
     ParameterHistory *mXParamHist;
+
     /// Holds the label for the y axis or key
     QString           mLabely;
 
-    /// The Qwt identifier for the curve showing the history of the 
+    /// The curve showing the history of the 
     /// parameter prior to the time the steerer connected
-    long    mHistCurveID;
-    /// The (QwtPlot) id for the curve showing the history of the parameter
+    QwtPlotCurve* mHistCurve;
+
+    /// The curve showing the history of the parameter
     /// we are looking after since the steerer connected to the simulation
-    long    mCurveID;
+    QwtPlotCurve* mCurve;
+
     /// How many elements the log for the parameter being plotted
     /// used to have
     int     mPreviousLogSize;
+
     /// String holding the (QColor-recognised) name of the colour
     /// of the pen for this curve 
     QString mColour;

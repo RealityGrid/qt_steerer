@@ -37,7 +37,7 @@
 #define __UTILITY_H__
 
 #include <qlabel.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 
 class QPainter;
 class QString;
@@ -54,7 +54,7 @@ public:
 
 
 
-class AttachListItem : public QListBoxItem
+class AttachListItem : public Q3ListBoxItem
 {
 
 public:
@@ -64,8 +64,8 @@ public:
   int getSimIndex() const;
 
   virtual void paint( QPainter * );
-  virtual int width( const QListBox* ) const;
-  virtual int height( const QListBox* ) const;
+  virtual int width( const Q3ListBox* ) const;
+  virtual int height( const Q3ListBox* ) const;
 
 private:
   int mSimIndex;

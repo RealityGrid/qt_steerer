@@ -49,16 +49,20 @@
 #include "steerermainwindow.h"
 
 #include <qapplication.h>
-#include <qhbox.h>
+#include <q3hbox.h>
 #include <qlayout.h>
 #include <qlabel.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qtooltip.h> 
-#include <qvbox.h>
-#include <qvgroupbox.h>
-#include <qhbuttongroup.h>
-#include <qgroupbox.h>
+#include <q3vbox.h>
+#include <q3vgroupbox.h>
+//#include <qhbuttongroup.h>
+#include <q3groupbox.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
+#include <Q3HButtonGroup>
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, 
 			 Application *aApplication, QMutex *aMutex)
@@ -106,8 +110,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   // MR: If we're doing a grid session, have the restart button up
   //     in the top control panel, as we're going to restart from
   //     a GSH only...
-  QHBoxLayout *lCmdGrpLayout;
-  lCmdGrpLayout = new QHBoxLayout(-1, "Commands");
+  Q3HBoxLayout *lCmdGrpLayout;
+  lCmdGrpLayout = new Q3HBoxLayout(-1, "Commands");
   
   // then set up each button individually, never setting the maximum size
   // so that each button stretches to fill the standard gap
@@ -154,7 +158,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 				      aSimHandle, mMutexPtr);
   mMonParamTable->initTable();
 
-  QVBoxLayout *lTopLeftLayout = new QVBoxLayout(-1, "topleftlayout");
+  Q3VBoxLayout *lTopLeftLayout = new Q3VBoxLayout(-1, "topleftlayout");
   lTopLeftLayout->addWidget(mMonTableLabel);
   lTopLeftLayout->addWidget(mMonParamTable);
 
@@ -175,13 +179,13 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   mSteerTableLabel = new TableLabel("Steered Parameters", this);
 
-  QHBoxLayout *lSteeredLableLayout = new QHBoxLayout(-1, 
+  Q3HBoxLayout *lSteeredLableLayout = new Q3HBoxLayout(-1, 
 						     "SteeredLableLayout");
   lSteeredLableLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
 						QSizePolicy::Minimum));
   lSteeredLableLayout->addWidget(mEmitButton);
 
-  QVBoxLayout *lSteerLayout = new QVBoxLayout(-1, "SteerLayout");
+  Q3VBoxLayout *lSteerLayout = new Q3VBoxLayout(-1, "SteerLayout");
   lSteerLayout->addWidget(mSteerTableLabel);
   lSteerLayout->addWidget(mSteerParamTable);
   lSteerLayout->addLayout(lSteeredLableLayout);
@@ -212,8 +216,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   connect( mEmitDataButton, SIGNAL( clicked() ), mIOTypeSampleTable, 
 	   SLOT( emitButtonPressedSlot()));
     
-  QVBoxLayout *lSampleLayout = new QVBoxLayout(-1, "sampletablayout");
-  QHBoxLayout *lSampleButtonLayout = new QHBoxLayout(-1, "samplebuttons");
+  Q3VBoxLayout *lSampleLayout = new Q3VBoxLayout(-1, "sampletablayout");
+  Q3HBoxLayout *lSampleButtonLayout = new Q3HBoxLayout(-1, "samplebuttons");
 
   mIOTableLabel = new TableLabel("Data IO", this);
 
@@ -261,8 +265,8 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, 
 	   SLOT( createButtonPressedSlot()));
 
-  QVBoxLayout *lChkPtLayout = new QVBoxLayout(-1, "chktablayout");
-  QHBoxLayout *lChkPtButtonLayout = new QHBoxLayout(-1, "chkptbuttons");
+  Q3VBoxLayout *lChkPtLayout = new Q3VBoxLayout(-1, "chktablayout");
+  Q3HBoxLayout *lChkPtButtonLayout = new Q3HBoxLayout(-1, "chkptbuttons");
 
   mChkTableLabel = new TableLabel("CheckPoint Types", this);
   lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
@@ -283,7 +287,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   //---------------------------------------------
   // the overall layout
-  QVBoxLayout *lEditLayout = new QVBoxLayout(this, 0, 0, "editlayout");
+  Q3VBoxLayout *lEditLayout = new Q3VBoxLayout(this, 0, 0, "editlayout");
 
   lEditLayout->addLayout(lCmdGrpLayout);
   lEditLayout->addLayout(lTopLeftLayout);

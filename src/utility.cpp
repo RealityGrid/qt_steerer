@@ -42,6 +42,8 @@
 #include <qpainter.h>
 #include <qstring.h>
 #include <qwidget.h>
+//Added by qt3to4:
+#include <QLabel>
 
 TableLabel::TableLabel(const QString & text, QWidget * parent)
   : QLabel(text, parent)
@@ -63,7 +65,7 @@ TableLabel::~TableLabel()
 
 
 AttachListItem::AttachListItem(int aSimIndex, const QString &text)
-  : QListBoxItem(), mSimIndex(aSimIndex)
+  : Q3ListBoxItem(), mSimIndex(aSimIndex)
 {
   REG_DBGCON("AttachListItem");
   setText( text );
@@ -91,7 +93,7 @@ AttachListItem::paint( QPainter *painter )
 }
 
 int 
-AttachListItem::height( const QListBox* lb ) const
+AttachListItem::height( const Q3ListBox* lb ) const
 {
     int h = lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
     if (h > QApplication::globalStrut().height())
@@ -102,7 +104,7 @@ AttachListItem::height( const QListBox* lb ) const
 
 
 int 
-AttachListItem::width( const QListBox* lb ) const
+AttachListItem::width( const Q3ListBox* lb ) const
 {
     int w = lb ? lb->fontMetrics().width( text() ) + 6 : 0;
     if (w > QApplication::globalStrut().width())

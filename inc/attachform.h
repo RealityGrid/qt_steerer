@@ -39,7 +39,7 @@
 #include <qdialog.h>
 
 class QLineEdit;
-class QTable;
+class Q3Table;
 class QPushButton;
 
 class AttachForm: public QDialog
@@ -48,7 +48,7 @@ class AttachForm: public QDialog
        
 public:
   AttachForm(QWidget *parent = 0, const char *name = "attachform",
-	     bool modal = TRUE, WFlags f = 0 );
+	     bool modal = TRUE, Qt::WFlags f = 0 );
   ~AttachForm();
 
   int getNumSims() const;
@@ -71,7 +71,7 @@ private:
   char  	**mSimName;
   char		**mSimGSH;
 
-  QTable	*mTable;
+  Q3Table	*mTable;
   QLineEdit	*mFilterLineEdit;
 
   QPushButton	*mAttachButton;

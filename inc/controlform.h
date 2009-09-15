@@ -39,16 +39,19 @@
 #ifndef __CONTROL_FORM_H__
 #define __CONTROL_FORM_H__
 
-#include <qgroupbox.h>
+#include <q3groupbox.h>
 #include <qlabel.h>
-#include <qvbox.h>
+#include <q3vbox.h>
 #include <qwidget.h>
 #include <qmutex.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3PtrList>
 #include "historyplot.h"
 
 class QPushButton;
 class QString;
-class QHBoxLayout;
+class Q3HBoxLayout;
 
 class Application;
 class ParameterTable;
@@ -199,7 +202,7 @@ private:
 
 public:
   /// List of the history plots associated with this application
-  QPtrList<HistoryPlot>  mHistoryPlotList;
+  Q3PtrList<HistoryPlot>  mHistoryPlotList;
   /// Whether or not we are in mode where user is selecting one of the
   /// history plots
   bool                   mUserChoosePlotMode;
