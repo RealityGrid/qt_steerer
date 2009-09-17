@@ -111,6 +111,16 @@ find_package(Qwt REQUIRED)
 include_directories(${QWT_INCLUDE_DIR})
 
 #
+# options
+#
+
+option(STEERER_DEBUG "Enable debugging output from the Steerer" OFF)
+
+if(STEERER_DEBUG)
+  add_definitions(-DDBG_VERSION)
+endif(STEERER_DEBUG)
+
+#
 # build!
 #
 
