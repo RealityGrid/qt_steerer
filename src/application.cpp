@@ -606,6 +606,12 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 } // ::processNextMessage
 
 void Application::emitGridRestartCmdSlot(){
+  // This method is currently a no-op as the restart machinery
+  // really should be in the library. SOAP braindamage should
+  // not be anywhere near GUI code.
+  cout << "Steerer: Restarting is currently disabled, sorry." << endl;
+
+#if 0
   // First of all get the user to enter the GSH
   bool ok = false;
 
@@ -705,6 +711,7 @@ void Application::emitGridRestartCmdSlot(){
   Emit_restart_cmd(mSimHandle, (char*)text.latin1());
   mMutexPtr->unlock();
 #endif // def REG_WSRF
+#endif // 0
 
   return;
 }

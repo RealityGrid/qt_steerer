@@ -434,7 +434,7 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 					   QLineEdit::Password,
 					   QString::null, &ok, this );
       if ( !ok ) return; // Cancel if user didn't press OK
-#ifdef REG_WSRF
+// #ifdef REG_WSRF
       Wipe_security_info(&sec);
       strncpy(sec.passphrase, text.ascii(), REG_MAX_STRING_LENGTH);
       snprintf(sec.userDN, REG_MAX_STRING_LENGTH, "%s", getenv("USER"));
@@ -446,7 +446,7 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       lReGStatus = Sim_attach_secure(aSimID, &sec,
 				     &lSimHandle); // ReG library
       mReGMutex.unlock();
-#endif
+// #endif
     }
     else{
       mReGMutex.lock();

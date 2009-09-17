@@ -80,7 +80,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   }
 
   SteererConfig *lConfig = ((SteererMainWindow *)parent)->getConfig();
-#ifdef REG_WSRF
+// #ifdef REG_WSRF
   if( !(lConfig->mRegistrySecurity.passphrase[0]) ){
 
     // Get the passphrase for the user's key if registry is using
@@ -108,10 +108,10 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   mLibReturnStatus = Get_registry_entries_secure(lConfig->mTopLevelRegistry,
 						 &(lConfig->mRegistrySecurity),
 						 &content);
-#else
-  mLibReturnStatus = Get_registry_entries((char *)(lConfig->mTopLevelRegistry.ascii()),
-					  &content);
-#endif // defined REG_WSRF
+// #else
+//   mLibReturnStatus = Get_registry_entries((char *)(lConfig->mTopLevelRegistry.ascii()),
+// 					  &content);
+// #endif // defined REG_WSRF
 
   if(mLibReturnStatus != REG_SUCCESS) return;
 
