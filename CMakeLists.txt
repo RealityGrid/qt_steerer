@@ -115,6 +115,7 @@ include_directories(${QWT_INCLUDE_DIR})
 #
 
 option(STEERER_DEBUG "Enable debugging output from the Steerer" OFF)
+option(STEERER_BUILD_DOCUMENTATION "Build the Steerer documentation?" OFF)
 
 if(STEERER_DEBUG)
   add_definitions(-DDBG_VERSION)
@@ -125,3 +126,7 @@ endif(STEERER_DEBUG)
 #
 
 add_subdirectory(src)
+
+if(STEERER_BUILD_DOCUMENTATION)
+  add_subdirectory(doc)
+endif(STEERER_BUILD_DOCUMENTATION)
