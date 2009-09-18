@@ -98,7 +98,7 @@ void SteererConfig::readConfig(QString fileName){
   else{
     mTopLevelRegistry = getElementAttrValue(nodeList.item(0).toElement(),
 			       "address");
-    REG_DBGMSG1("Top-level registry is ", mTopLevelRegistry);
+    REG_DBGMSG1("Top-level registry is ", mTopLevelRegistry.ascii());
 
     flag = getElementAttrValue(nodeList.item(0).toElement(),
 			       "username");
