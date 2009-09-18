@@ -44,6 +44,7 @@ set(steerer_SRCS
   historysubplot.cpp
   iotype.cpp
   iotypetable.cpp
+  logo.cpp
   parameter.cpp
   parameterhistory.cpp
   parametertable.cpp

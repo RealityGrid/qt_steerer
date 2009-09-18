@@ -72,6 +72,9 @@
 #include <unistd.h>
 #endif
 
+extern unsigned char reg_logo[];
+extern unsigned int  reg_logo_len;
+
 SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   : Q3MainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
     mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
@@ -158,7 +161,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   // set up the ReG logo
   mStackLogoLabel = new QLabel(mCentralWgt);
   mStackLogoPixMap = new QPixmap();
-  if (mStackLogoPixMap->load("logo-sm.bmp")){
+  if (mStackLogoPixMap->loadFromData(reg_logo, reg_logo_len, "jpg")){
     mStackLogoLabel->setPixmap(*mStackLogoPixMap);
     mCentralWgt->setIcon(*mStackLogoPixMap);
   }
