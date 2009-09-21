@@ -40,7 +40,7 @@
 //Added by qt3to4:
 #include <QPixmap>
 #include <Q3HBoxLayout>
-#include <QCustomEvent>
+#include <QEvent>
 #include <QLabel>
 #include <Q3PtrList>
 
@@ -67,7 +67,7 @@ public:
   ~SteererMainWindow();
 
   Application * getApplication(int aSimHandle);
-  void customEvent(QCustomEvent *);
+  void customEvent(QEvent *);
 
   /// Queries whether or not automatic polling is on or off
   bool  autoPollingOn();

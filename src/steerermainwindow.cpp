@@ -64,7 +64,6 @@
 #include <q3widgetstack.h>
 //Added by qt3to4:
 #include <Q3HBoxLayout>
-#include <QCustomEvent>
 #include <QEvent>
 #include <Q3Action>
 
@@ -303,7 +302,7 @@ SteererMainWindow::getApplication(int aSimHandle)
 
 
 void
-SteererMainWindow::customEvent(QCustomEvent *aEvent)
+SteererMainWindow::customEvent(QEvent *aEvent)
 {
   // this function will be executed when main GUI thread gets round to processing 
   // the event posted by our CommsThread.

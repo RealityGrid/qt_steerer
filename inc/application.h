@@ -43,8 +43,7 @@
 
 #include <qwidget.h>
 #include <qmutex.h>
-//Added by qt3to4:
-#include <QCustomEvent>
+#include <QEvent>
 
 class Q3GroupBox;
 class QPushButton;
@@ -67,7 +66,7 @@ public:
 	      QMutex *aMutex);
   ~Application();
 
-  void customEvent(QCustomEvent *);
+  void customEvent(QEvent *);
   void processNextMessage(CommsThreadEvent *aEvent);
   /// Enable all the command buttons for this application
   void enableCmdButtons();

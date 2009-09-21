@@ -58,7 +58,6 @@
 #include <qdom.h>
 //Added by qt3to4:
 #include <Q3HBoxLayout>
-#include <QCustomEvent>
 #include <QEvent>
 
 Application::Application(QWidget *aParent, const char *aName, 
@@ -412,7 +411,7 @@ Application::emitSingleCmd(int aCmdId)
 
 //------------------------------------------------------------------------
 void
-Application::customEvent(QCustomEvent *aEvent)
+Application::customEvent(QEvent *aEvent)
 {
   // this function will be executed when main GUI thread gets round to processing 
   // the event posted by our CommsThread.
