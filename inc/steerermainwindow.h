@@ -85,7 +85,6 @@ private:
 
 protected slots:
   void attachAppSlot();
-  void attachGridAppSlot();
   void quitSlot(); 
   // Replaced by thead to get messages
   //void readMsgSlot();
@@ -103,7 +102,7 @@ public slots:
   void statusBarMessageSlot(Application *aApp, QString &message);
 
 private:
-  void simAttachApp(char *aSimID, bool aIsLocal = false);
+  void simAttachApp(const char* aSimID, bool aIsLocal = false);
 
 private:
   /// Holds the EPR of service to attach to if specified on cmd line
@@ -122,7 +121,6 @@ private:
   Q3Action	*mSetCheckIntervalAction;
   Q3Action	*mToggleAutoPollAction;
   Q3Action	*mAttachAction;
-  Q3Action	*mGridAttachAction;
   Q3Action       *mSetTabTitleAction;
   Q3Action	*mQuitAction;
 
@@ -134,6 +132,9 @@ private:
   Q3PtrList<Application> mAppList;
   /// Holds the configuration information for the steering client
   SteererConfig *mSteererConfig;
+
+  // The type of steering we are using
+  QString       *mSteerType;
 };
 
 #endif

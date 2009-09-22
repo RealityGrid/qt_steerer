@@ -41,6 +41,7 @@
 #include "commsthread.h"
 #include "application.h"
 #include "attachform.h"
+#include "attachsockets.h"
 #include "configform.h"
 
 #include <qaction.h>
@@ -81,7 +82,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     mCommsThread(kNULL), 
     mSetCheckIntervalAction(kNULL), mToggleAutoPollAction(kNULL),
     mAttachAction(kNULL), 
-    mGridAttachAction(kNULL), 
     mQuitAction(kNULL) 
     
 {
@@ -112,18 +112,10 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   connect(mToggleAutoPollAction, SIGNAL(activated()), this, 
 	  SLOT(toggleAutoPollSlot()));
 
-  mAttachAction = new Q3Action("Attach to local application", "Local &attach",
+  mAttachAction = new Q3Action("Attach to an application", "&Attach",
 			       Qt::CTRL+Qt::Key_A, this, "attachaction");
-  mAttachAction->setToolTip(QString("Attach to local app"));
+  mAttachAction->setToolTip(QString("Attach to an app"));
   connect( mAttachAction, SIGNAL(activated()), this, SLOT(attachAppSlot()) );
-
-
-  mGridAttachAction = new Q3Action("Attach to app on Grid", "&Grid attach",
-				   Qt::CTRL+Qt::Key_G, this,
-				   "gridattachaction");
-  mGridAttachAction->setToolTip(QString("Attach to Grid app"));
-  connect( mGridAttachAction, SIGNAL(activated()), this, 
-	   SLOT(attachGridAppSlot()) );
 
   mSetTabTitleAction = new Q3Action("Set title of current tab",
 				    "&Edit tab title",
@@ -142,7 +134,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   Q3PopupMenu *lConfigMenu = new Q3PopupMenu( this );
   menuBar()->insertItem( "&Steerer", lConfigMenu );
   mAttachAction->addTo(lConfigMenu);
-  mGridAttachAction->addTo(lConfigMenu);
   mSetCheckIntervalAction->addTo(lConfigMenu);
   mToggleAutoPollAction->addTo(lConfigMenu);
   mSetTabTitleAction->addTo(lConfigMenu);
@@ -150,7 +141,6 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   mSetCheckIntervalAction->setEnabled(FALSE);
   mAttachAction->setEnabled(TRUE);
-  mGridAttachAction->setEnabled(TRUE);
   mSetTabTitleAction->setEnabled(TRUE);
   mQuitAction->setEnabled(TRUE);
 
@@ -259,6 +249,9 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     cmdLineSGS = aSGS;
   }
 
+  // Check to see what sort of steering we can do
+  mSteerType = new QString(Get_steering_transport_string());
+
   mAppList.setAutoDelete(TRUE);
 }
 
@@ -352,74 +345,78 @@ SteererMainWindow::resizeForNoAttached()
 void 
 SteererMainWindow::attachAppSlot()
 {
-  // Attach to app using local file system - allow user to specify a directory
-  // other than that contained in the REG_STEER_DIRECTORY env. variable
   statusBar()->clear();
 
-  QString newDir = Q3FileDialog::getExistingDirectory(getenv("REG_STEER_DIRECTORY"),
-						     this,
-						     "get existing directory",
-						     "Choose a directory for steering connection",
-						     TRUE,
-						     FALSE); // Don't resolve sym links
-  // User hit cancel
-  if(newDir.isNull())return;
+  if(*mSteerType == "Files") {
+    QString newDir =
+      Q3FileDialog::getExistingDirectory(getenv("REG_STEER_DIRECTORY"),
+					 this,
+					 "get existing directory",
+					 "Choose a directory for steering connection",
+					 TRUE,
+					 FALSE); // Don't resolve sym links
+    // User hit cancel
+    if(newDir.isNull()) return;
 
-  if ( !newDir.isEmpty() ) {
-    // User entered something and pressed OK
-    // Attempt to attach simulation
-    simAttachApp((char*)newDir.latin1(), true);
-  }  
+    if(!newDir.isEmpty()) {
+      // User entered something and pressed OK
+      // Attempt to attach simulation
+      simAttachApp((char*)newDir.latin1(), true);
+    }  
+    else {
+      simAttachApp((char*) "", true);
+    }
+  }
+  else if(*mSteerType == "Sockets") {
+    AttachSockets* lAttachSockets = new AttachSockets(this);
+
+    if(lAttachSockets->exec() == QDialog::Accepted) {
+      QString remote = lAttachSockets->getRemote();
+      REG_DBGMSG1("attach accepted, remote = ", remote.latin1());
+      simAttachApp(remote.latin1(), true);
+    }
+
+    delete lAttachSockets;
+  }
   else {
-    simAttachApp((char*) "", true);
-  }
-}
-
-//------------------------------------------------------------------
-
-void SteererMainWindow::attachGridAppSlot()
-{
-  AttachForm *lAttachForm = new AttachForm(this);
-     
-  if (lAttachForm->getLibReturnStatus() == REG_SUCCESS)
-  {  
-    if (lAttachForm->getNumSims() > 0)
-    {
-      if ( lAttachForm->exec() == QDialog::Accepted ) 
-      {
-        REG_DBGMSG1("attach accepted, sim = ",  lAttachForm->getSimGSMSelected());
-        simAttachApp(lAttachForm->getSimGSMSelected());
+    AttachForm *lAttachForm = new AttachForm(this);
+    
+    if(lAttachForm->getLibReturnStatus() == REG_SUCCESS) {  
+      if(lAttachForm->getNumSims() > 0) {
+	if(lAttachForm->exec() == QDialog::Accepted) {
+	  REG_DBGMSG1("attach accepted, sim = ", lAttachForm->getSimGSMSelected());
+	  simAttachApp(lAttachForm->getSimGSMSelected());
+	}
       }
-    } 
-    else
-    {
-      QMessageBox::information(0, "Grid Attach", 
-			       "No steerable applications found",
-			       QMessageBox::Ok,
-			       QMessageBox::NoButton, 
-			       QMessageBox::NoButton);
+      else {
+	QMessageBox::information(0, "Grid Attach", 
+				 "No steerable applications found",
+				 QMessageBox::Ok,
+				 QMessageBox::NoButton, 
+				 QMessageBox::NoButton);
+      }
     }
-  }
-  else
-  {
-    // Check to see if we were passed an SGS on the command line
-    if (cmdLineSGS.length() > 0){
-      simAttachApp((char*)cmdLineSGS.latin1());
+    else {
+      // Check to see if we were passed an SGS on the command line
+      if(cmdLineSGS.length() > 0) {
+	simAttachApp(cmdLineSGS.latin1());
+      }
+      else {
+	QMessageBox::information(0, "Grid Proxy Unavailable", 
+				 "Local attach available only",
+				 QMessageBox::Ok,
+				 QMessageBox::NoButton, 
+				 QMessageBox::NoButton);
+      }
     }
-    else
-    QMessageBox::information(0, "Grid Proxy Unavailable", 
-			     "Local attach available only",
-			     QMessageBox::Ok,
-			     QMessageBox::NoButton, 
-			     QMessageBox::NoButton);
-  }
 
-  delete lAttachForm;
+    delete lAttachForm;
+  }
 }
 
 //------------------------------------------------------------------
 
-void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
+void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
 {
   /* Attempt to attach to a simulation */ 
   int lReGStatus = REG_FAILURE;
@@ -436,7 +433,6 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
 					   QLineEdit::Password,
 					   QString::null, &ok, this );
       if ( !ok ) return; // Cancel if user didn't press OK
-// #ifdef REG_WSRF
       Wipe_security_info(&sec);
       strncpy(sec.passphrase, text.ascii(), REG_MAX_STRING_LENGTH);
       snprintf(sec.userDN, REG_MAX_STRING_LENGTH, "%s", getenv("USER"));
@@ -448,11 +444,10 @@ void SteererMainWindow::simAttachApp(char * aSimID, bool aIsLocal)
       lReGStatus = Sim_attach_secure(aSimID, &sec,
 				     &lSimHandle); // ReG library
       mReGMutex.unlock();
-// #endif
     }
     else{
       mReGMutex.lock();
-      lReGStatus = Sim_attach(aSimID, &lSimHandle);  //ReG library
+      lReGStatus = Sim_attach((char*) aSimID, &lSimHandle);  //ReG library
       mReGMutex.unlock();
     }
 

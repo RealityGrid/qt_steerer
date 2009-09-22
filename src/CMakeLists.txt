@@ -34,6 +34,7 @@
 set(steerer_SRCS
   application.cpp
   attachform.cpp
+  attachsockets.cpp
   chkptform.cpp
   chkptvariableform.cpp
   commsthread.cpp
@@ -58,6 +59,7 @@ set(steerer_SRCS
 set(steerer_MOCS
   ${PROJECT_SOURCE_DIR}/inc/application.h
   ${PROJECT_SOURCE_DIR}/inc/attachform.h
+  ${PROJECT_SOURCE_DIR}/inc/attachsockets.h
   ${PROJECT_SOURCE_DIR}/inc/chkptform.h
   ${PROJECT_SOURCE_DIR}/inc/chkptvariableform.h
   ${PROJECT_SOURCE_DIR}/inc/configform.h
