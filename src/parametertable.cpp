@@ -542,54 +542,6 @@ void ParameterTable::updateParameterLog(){
 
 }
 
-/*************************************************************/
-/* DynamicTip Class                                          */
-/*                                                           */
-/* MR - In order to have the tool tips respond to changes    */
-/* in the steerable parameter table we need to subclass      */
-/* qtooltip. This is strongly associated with the steerable  */
-/* parameter table, so will remain in this file with it.     */
-/*************************************************************/
-
-
-// class DynamicTip: public QToolTip{
-// private:
-//     QRect rect;
-// public:
-//     DynamicTip( QWidget * parent, QRect rect );
-//     static void add(QWidget *widget, const QRect &rect, const QString &text);
-
-// protected:
-//     void maybeTip( const QPoint & );
-// };
-
-// DynamicTip::DynamicTip( QWidget * parent, QRect _rect )
-//     : QToolTip( parent )
-// {
-//   rect = _rect;
-//     // no explicit initialization needed
-// }
-
-// void DynamicTip::maybeTip( const QPoint &pos )
-// {
-//     if ( !parentWidget()->inherits( "SteeredParameterTable" ) )
-//         return;
-
-//     QRect tmp;
-//     QString str;
-//     int tipOK = ((SteeredParameterTable*)parentWidget())->getTip(pos, tmp, str);
-//     if (tipOK == 0)
-//       tip(tmp, str);
-// }
-
-
-/*************************************************************/
-/* End of DynamicTip Class                                   */
-/*************************************************************/
-
-
-
-
 SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName, 
 					     ParameterTable *aTable, int aSimHandle,
 					     QMutex *aMutex)
@@ -644,9 +596,6 @@ SteeredParameterTable::initTable()
   // set up signal/slot to handle data entered by user (new parameter value)
   connect (this, SIGNAL( valueChanged(int,int) ),
 	   this, SLOT( validateValueSlot(int,int) ) );
-
-  // Create a DynamicTip object for this table
-  //new DynamicTip(this, frameRect());
 
   // ARP: add a context menu so that we can right click on a cell to 
   // draw a graph of that (steerable) parameter's history
@@ -768,8 +717,10 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 
       if (!lOk)
       {
-	QMessageBox::information(0, "Invalid Parameter Value", 
-				 "The entered value is not valid",
+	QMessageBox::information(parentWidget(), "Invalid Parameter Value", 
+				 "The entered value is not valid.\n"
+				 "Please hover your mouse over the input box\n"
+				 "to see the permitted range of values.",
 				 QMessageBox::Ok,
 				 Qt::NoButton, 
 				 Qt::NoButton);
@@ -1069,10 +1020,10 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 }
 
 
-/** This method is called by the DynamicTip class to find which String to use for a
- *  tooltip, and how big a rectangle to make it for
+/** This method is called by the event handler to find which String
+ *  to use for a tooltip.
  */
-int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &string){
+int SteeredParameterTable::getTip(const QPoint &pnt, QString &string) {
 
   // Check that we're in the correct column
   if (columnAt(pnt.x()) != kNEWVALUE_COLUMN)
@@ -1105,19 +1056,6 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
   // but getMaxRowIndex() returns actual no. of populated rows)
   if (actualRow >= getMaxRowIndex()) 
     return -1;
-
-  // We now want to determine the actual rectangle for the tooltip
-  int top, bottom, left, right;
-  top = (actualRow * singleRowHeight) - scrolled + headerHeight;
-  bottom = top + singleRowHeight;
-  left = horizontalHeader()->sectionPos(kNEWVALUE_COLUMN); // constant
-  right = left + horizontalHeader()->sectionSize(kNEWVALUE_COLUMN);
-
-  // Set the rectangle
-  rect.setTop(top);
-  rect.setBottom(bottom);
-  rect.setLeft(left);
-  rect.setRight(right);
 
   // And grab the text from the Paramter object and send it back to the tooltip
   // get parameter ID from hidden column and use this get parameter from the list
@@ -1177,6 +1115,25 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QRect &rect, QString &strin
  
   // Return success!
   return 0;
+}
+
+bool SteeredParameterTable::event(QEvent* aEvent) {
+  if(aEvent->type() == QEvent::ToolTip) {
+    QHelpEvent* lEvent = dynamic_cast<QHelpEvent*> (aEvent);
+
+    QString lText;
+    getTip(lEvent->pos(), lText);
+
+    if(!lText.isNull())
+      QToolTip::showText(lEvent->globalPos(), lText, 0);
+
+    lEvent->setAccepted(true);
+    return true;
+  }
+
+  // pass uncaught events up to something that cares...
+  aEvent->setAccepted(false);
+  return ParameterTable::event(aEvent);
 }
 
 /** Method is specific to the SteeredParameterTable, and implemented

@@ -48,6 +48,8 @@
 #include "historyplot.h"
 #include "controlform.h"
 
+class QEvent;
+
 class ParameterTable : public Table
 {
   Q_OBJECT
@@ -132,9 +134,12 @@ public:
   int setNewParamValuesInLib();
   void clearNewValues();
 
-  // MR: Method called by the DynamicTip class in order to determine what tooltip (if any) to show
-  int getTip(const QPoint &pos, QRect &rect, QString &string);
+  // Method called by the event handler in order to determine
+  //what tooltip (if any) to show
+  int getTip(const QPoint &pos, QString &string);
 
+protected:
+  virtual bool event(QEvent*);
 
 protected slots:
   void validateValueSlot(int aRow, int aCol);
