@@ -1,7 +1,0 @@
-Preven poll interval being adjusted until first status message arrives.
-
-Fix weird capitalization of "cat userCert.pem > userCertAndKey.pem" in
-manual.
-
-Enable tab 'close' button when things go wrong.
-

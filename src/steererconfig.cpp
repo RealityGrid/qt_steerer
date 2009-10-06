@@ -1,35 +1,51 @@
-/*----------------------------------------------------------------------------
-    (C)Copyright 2003 The University of Manchester, United Kingdom,
-    all rights reserved.
+/*
+  The RealityGrid Steerer
 
-    This software is produced by the Supercomputing, Visualization &
-    e-Science Group, Manchester Computing, the Victoria University of
-    Manchester as part of the RealityGrid project.
+  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  All rights reserved.
 
-    This software has been tested with care but is not guaranteed for
-    any particular purpose. Neither the copyright holder, nor the
-    University of Manchester offer any warranties or representations,
-    nor do they accept any liabilities with respect to this software.
+  This software is produced by Research Computing Services, University
+  of Manchester as part of the RealityGrid project and associated
+  follow on projects, funded by the EPSRC under grants GR/R67699/01,
+  GR/R67699/02, GR/T27488/01, EP/C536452/1, EP/D500028/1,
+  EP/F00561X/1.
 
-    This software must not be used for commercial gain without the
-    written permission of the authors.
-    
-    This software must not be redistributed without the written
-    permission of the authors.
+  LICENCE TERMS
 
-    Permission is granted to modify this software, provided any
-    modifications are made freely available to the original authors.
- 
-    Supercomputing, Visualization & e-Science Group
-    Manchester Computing
-    University of Manchester
-    Manchester M13 9PL
-    
-    WWW:    http://www.sve.man.ac.uk  
-    email:  sve@man.ac.uk
-    Tel:    +44 161 275 6095
-    Fax:    +44 161 275 6800    
----------------------------------------------------------------------------*/
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+    * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+
+    * Neither the name of The University of Manchester nor the names
+      of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written
+      permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+  COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+  POSSIBILITY OF SUCH DAMAGE.
+
+  Author: Andrew Porter
+          Mark Riding
+          Robert Haines
+ */
 
 /** @file SteererConfig.cpp
  *  @brief Holds configuration data for the steering client 
