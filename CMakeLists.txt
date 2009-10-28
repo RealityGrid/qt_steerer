@@ -104,6 +104,9 @@ include_directories(${QWT_INCLUDE_DIR})
 
 option(STEERER_DEBUG "Enable debugging output from the Steerer" OFF)
 option(STEERER_BUILD_DOCUMENTATION "Build the Steerer documentation?" OFF)
+if(APPLE)
+  option(STEERER_BUILD_BUNDLE "Build a Mac OS X Bundle?" ON)
+endif(APPLE)
 
 if(STEERER_DEBUG)
   add_definitions(-DDBG_VERSION)

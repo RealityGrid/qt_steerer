@@ -44,6 +44,9 @@
 #
 #  Author: Robert Haines
 
+set(inc_dir ${PROJECT_SOURCE_DIR}/inc)
+set(res_dir ${PROJECT_SOURCE_DIR}/res)
+
 set(steerer_SRCS
   application.cpp
   attachform.cpp
@@ -70,30 +73,50 @@ set(steerer_SRCS
 )
 
 set(steerer_MOCS
-  ${PROJECT_SOURCE_DIR}/inc/application.h
-  ${PROJECT_SOURCE_DIR}/inc/attachform.h
-  ${PROJECT_SOURCE_DIR}/inc/attachsockets.h
-  ${PROJECT_SOURCE_DIR}/inc/chkptform.h
-  ${PROJECT_SOURCE_DIR}/inc/chkptvariableform.h
-  ${PROJECT_SOURCE_DIR}/inc/configform.h
-  ${PROJECT_SOURCE_DIR}/inc/controlform.h
-  ${PROJECT_SOURCE_DIR}/inc/historyplot.h
-  ${PROJECT_SOURCE_DIR}/inc/historysubplot.h
-  ${PROJECT_SOURCE_DIR}/inc/iotypetable.h
-  ${PROJECT_SOURCE_DIR}/inc/parametertable.h
-  ${PROJECT_SOURCE_DIR}/inc/steerermainwindow.h
-  ${PROJECT_SOURCE_DIR}/inc/table.h
+  ${inc_dir}/application.h
+  ${inc_dir}/attachform.h
+  ${inc_dir}/attachsockets.h
+  ${inc_dir}/chkptform.h
+  ${inc_dir}/chkptvariableform.h
+  ${inc_dir}/configform.h
+  ${inc_dir}/controlform.h
+  ${inc_dir}/historyplot.h
+  ${inc_dir}/historysubplot.h
+  ${inc_dir}/iotypetable.h
+  ${inc_dir}/parametertable.h
+  ${inc_dir}/steerermainwindow.h
+  ${inc_dir}/table.h
 )
 
 # header files and definitions
-include_directories(${PROJECT_SOURCE_DIR}/inc)
+include_directories(${inc_dir})
 
 # moc the include files
 qt4_wrap_cpp(QT_MOC_SRCS ${steerer_MOCS})
 
+# add some platform specific stuff
+set(GUI_TYPE)
+set(EXE_NAME steerer)
+if(APPLE AND STEERER_BUILD_BUNDLE)
+  # set gui type and app name
+  set(GUI_TYPE MACOSX_BUNDLE)
+  set(EXE_NAME Steerer)
+
+  # add icons to the build
+  set(steerer_SRCS ${steerer_SRCS} ${res_dir}/realitygrid.icns)
+  set(MACOSX_BUNDLE_ICON_FILE ${res_dir}/realitygrid.icns)
+  set_source_files_properties(${res_dir}/realitygrid.icns
+    PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+  # set bundle info strings
+  set(MACOSX_BUNDLE_INFO_STRING "${REG_STEERER_VERSION}, (c) 2002-2010, The University of Manchester, UK.")
+  set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${REG_STEERER_VERSION}")
+  set(MACOSX_BUNDLE_COPYRIGHT "(c) 2002-2010, The University of Manchester, UK.")
+endif(APPLE AND STEERER_BUILD_BUNDLE)
+
 # build the executable
-add_executable(steerer ${steerer_SRCS} ${QT_MOC_SRCS})
-target_link_libraries(steerer
+add_executable(${EXE_NAME} ${GUI_TYPE} ${steerer_SRCS} ${QT_MOC_SRCS})
+target_link_libraries(${EXE_NAME}
   ${REG_LINK_LIBRARIES}
   ${QWT_LIBRARIES}
   ${QT_LIBRARIES}
@@ -101,4 +124,8 @@ target_link_libraries(steerer
 )
 
 # install
-install(TARGETS steerer RUNTIME DESTINATION ${STEERER_BIN_INSTALL})
+install(
+  TARGETS ${EXE_NAME}
+  RUNTIME DESTINATION ${STEERER_BIN_INSTALL}
+  BUNDLE  DESTINATION ${STEERER_BIN_INSTALL}
+)
