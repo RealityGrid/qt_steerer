@@ -1,7 +1,7 @@
 #
 #  The RealityGrid Steerer
 #
-#  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+#  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
 #  All rights reserved.
 #
 #  This software is produced by Research Computing Services, University
@@ -54,7 +54,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake")
 set(REG_STEERER_VERSION_MAJ 3)
 set(REG_STEERER_VERSION_MIN 0)
 set(REG_STEERER_VERSION_PAT 0)
-set(REG_STEERER_VERSION 
+set(REG_STEERER_VERSION
     "${REG_STEERER_VERSION_MAJ}.${REG_STEERER_VERSION_MIN}.${REG_STEERER_VERSION_PAT}")
 
 # set output directories, or at least hide them.

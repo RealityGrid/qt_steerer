@@ -1,7 +1,7 @@
 #
 #  The RealityGrid Steerer
 #
-#  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+#  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
 #  All rights reserved.
 #
 #  This software is produced by Research Computing Services, University
@@ -95,7 +95,7 @@ qt4_wrap_cpp(QT_MOC_SRCS ${steerer_MOCS})
 add_executable(steerer ${steerer_SRCS} ${QT_MOC_SRCS})
 target_link_libraries(steerer
   ${REG_LINK_LIBRARIES}
-  ${QWT_LIBRARIES} 
+  ${QWT_LIBRARIES}
   ${QT_LIBRARIES}
   ${REG_EXTERNAL_LIBS}
 )

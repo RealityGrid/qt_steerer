@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -57,7 +57,7 @@ using namespace std;
 // some simple different cerrs for debug versions
 
 #if DBG_VERSION
-  #define REG_DBGMSG(x) cerr << "DBG: " << x << endl; 
+  #define REG_DBGMSG(x) cerr << "DBG: " << x << endl;
   #define REG_DBGMSG1(x,n) cerr << "DBG: " << x <<  n << endl;
   #define REG_DBGMSG2(x,n,m) cerr << "DBG: " << x <<  n << m << endl;
 
@@ -87,9 +87,9 @@ using namespace std;
   #define REG_DBGCON(x)
   #define REG_DBGDST(x)
 
-  #define REG_DBGEXCP(x) 
-  #define REG_DBGLOG(x) 
-  #define REG_DBGLOG1(x, n) 
+  #define REG_DBGEXCP(x)
+  #define REG_DBGLOG(x)
+  #define REG_DBGLOG1(x, n)
 
 #endif
 

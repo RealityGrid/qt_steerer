@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -80,12 +80,12 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
 
     this->setCaption( "CheckPoint Parameters Table" );
     resize( 350, 350 );
-    
+
     // create the layouts for the form
     Q3HBoxLayout *lFormLayout = new Q3HBoxLayout(this, 10, 10, "chkptvariableformlayout");
     Q3VBoxLayout *lTableLayout = new Q3VBoxLayout(6, "chkptvariabletablelayout");
     Q3VBoxLayout *lButtonLayout = new Q3VBoxLayout(6, "chkptvariablebuttonlayout");
-    
+
     lTableLayout->addWidget(new TableLabel("CheckPoint Parameters", this));
     mTable = new Q3Table(0,2,this);
     mTable->setSelectionMode( Q3Table::Single );
@@ -93,12 +93,12 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
     mTable->setLeftMargin(0);
 
     mTable->horizontalHeader()->setLabel(0, "Parameter Label");
-    mTable->horizontalHeader()->setLabel(1, "Value"); 
-        
+    mTable->horizontalHeader()->setLabel(1, "Value");
+
     Q3TableItem *lTableItem = NULL;
     Q3TableItem *lTableItem2 = NULL;
     for (int i=0; i<outputLogStruct->num_param; i++)
-    {      
+    {
       lTableItem = new ChkPtVarTableItem(mTable, Q3TableItem::Never, QString(outputLogStruct->param_labels[i]));
       lTableItem2 = new ChkPtVarTableItem(mTable, Q3TableItem::Never, QString(outputLogStruct->param_values[i]));
       mTable->insertRows(mTable->numRows());
@@ -108,9 +108,9 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
 
     mTable->adjustColumn(0);
     mTable->adjustColumn(1);
-    
+
     lTableLayout->addWidget(mTable);
-    
+
     mCancelButton = new QPushButton("Cancel", this, "cancelbutton");
     mCancelButton->setAutoDefault(FALSE);
     connect(mCancelButton,  SIGNAL(clicked()), this, SLOT( reject()));
@@ -120,7 +120,7 @@ ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
 
     lButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding ));
     lButtonLayout->addWidget(mCancelButton);
-    
+
     lFormLayout->addLayout(lTableLayout);
     lFormLayout->addLayout(lButtonLayout);
 
@@ -137,5 +137,3 @@ ChkPtVariableForm::cleanUp()
 {
 
 }
-
-

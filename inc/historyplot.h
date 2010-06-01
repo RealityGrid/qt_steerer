@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -80,7 +80,7 @@ class Q3PopupMenu;
 class HistoryPlot : public Q3Frame
 {
   Q_OBJECT
-  
+
 private:
     QMenuBar   *mMenuBar;
     Q3PopupMenu *mFileMenu;
@@ -161,17 +161,17 @@ public:
      *  @param yparamID Unique parameter ID so that we don't draw graphs
      *    for the wrong parameter signals
      */
-    HistoryPlot(ParameterHistory *mXParamHist, 
-		ParameterHistory *mYParamHist, 
+    HistoryPlot(ParameterHistory *mXParamHist,
+		ParameterHistory *mYParamHist,
 		const char *lLabelx,
-		const char *lLabely, 
+		const char *lLabely,
 		const int xparamID, const int yparamID,
 		const char *_lComponentName);
     ~HistoryPlot();
 
     /** Add another plot/curve to this history plot */
     void addPlot(ParameterHistory *_mYParamHist,
-		 const char *_lLabely, 
+		 const char *_lLabely,
 		 const int _yparamID);
 
     int    mToggleLogXId, mToggleLogYId;
@@ -190,7 +190,7 @@ public:
  *  and the like only cause a refresh after all current events have been dealt with.
  *  Hence this class.
  */
- 
+
 class ScreenGrabThread: public QThread
 {
   private:
@@ -208,14 +208,13 @@ class ScreenGrabThread: public QThread
 
       // Grab the window contents rather than the widget
       // since we seemingly can't force a refresh immediately - spawn a thread to do this
-      QPixmap lPixmap = QPixmap::grabWindow(mWidget->winId(), 0, 
+      QPixmap lPixmap = QPixmap::grabWindow(mWidget->winId(), 0,
 					    mMenuBar->heightForWidth(mWidget->width()));
       lPixmap.save(mFileName, "JPEG");
     }
 };
 
 /////////////////////////////////////////////////////////
-  
+
 
 #endif
-

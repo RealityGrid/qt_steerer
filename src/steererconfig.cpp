@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -48,8 +48,8 @@
  */
 
 /** @file SteererConfig.cpp
- *  @brief Holds configuration data for the steering client 
- *  @author Mark Riding 
+ *  @brief Holds configuration data for the steering client
+ *  @author Mark Riding
  *  @author Andrew Porter */
 
 #include <iostream>
@@ -85,7 +85,7 @@ SteererConfig::~SteererConfig(){
  *  determine the stored configuration values.
  */
 void SteererConfig::readConfig(QString fileName){
-  
+
   QDomDocument doc( "steererConfigDocument" );
   QFile        configFile(fileName);
   QDomNodeList sectionNodeList;
@@ -119,7 +119,7 @@ void SteererConfig::readConfig(QString fileName){
     flag = getElementAttrValue(nodeList.item(0).toElement(),
 			       "username");
     strncpy(mRegistrySecurity.userDN, flag.ascii(), REG_MAX_STRING_LENGTH);
-    //cout << "          username is " << QString(mRegistrySecurity.userDN) 
+    //cout << "          username is " << QString(mRegistrySecurity.userDN)
     //	 << endl;
   }
 
@@ -203,8 +203,8 @@ void SteererConfig::readSecurityConfig(QString fileName){
 
   QFile configFile(fileName);
 
-  if(!configFile.exists() || 
-     (Get_security_config(fileName.ascii(), &mRegistrySecurity) 
+  if(!configFile.exists() ||
+     (Get_security_config(fileName.ascii(), &mRegistrySecurity)
       != REG_SUCCESS) ){
     QMessageBox::critical( NULL, "Error with security configuration file",
 			   "File "+fileName+" does not exist\n"
@@ -292,7 +292,7 @@ void SteererConfig::writeConfig(QString fileName){
   QDomElement eFile;
   QDomText tFile;
   if(mAppToLaunch->mHasInputFile){
-  
+
     eFile =  doc->createElement("File");
     eInputFiles.appendChild(eFile);
 
@@ -301,10 +301,10 @@ void SteererConfig::writeConfig(QString fileName){
     file.open( IO_ReadOnly );
     QByteArray fileData = file.readAll();
     file.close();
-  
+
     // Encode input file as base64
     QCString fileDataB64 = QCodecs::base64Encode(fileData, true);
-  
+
     tFile = doc->createTextNode(fileDataB64);
     eFile.appendChild(tFile);
   }

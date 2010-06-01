@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -49,7 +49,7 @@
 
 /** @file historyplot.cpp
     @brief Source file for HistoryPlot class - container for one or more
-    history plots on a single canvas 
+    history plots on a single canvas
     @author Mark Riding
     @author Andrew Porter */
 #include <iostream>
@@ -78,11 +78,11 @@ using namespace std;
 
 #include "debug.h"
 
-HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist, 
+HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 			 ParameterHistory *_mYParamHist,
 			 const char *_lLabelx,
-			 const char *_lLabely, 
-			 const int _xparamID, 
+			 const char *_lLabely,
+			 const int _xparamID,
 			 const int _yparamID,
 			 const char *_lComponentName)
   : Q3Frame(0,0,0), mXParamHist(_mXParamHist)
@@ -95,7 +95,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   // name of the component being steered (same as the tab
   // title and set in SteererMainWindow::editTabTitleSlot)
   setCaption(QString(_lLabely)+" of "+QString(_lComponentName));
-    
+
   // Create a plotter widget
   mPlotter = new QwtPlot(this);
 
@@ -113,37 +113,37 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   mFileMenu = new Q3PopupMenu(this, "filePopup");
   mFileMenu->insertItem("&Print", this, SLOT(filePrint()), Qt::CTRL+Qt::Key_P);
   mFileMenu->insertItem("&Save", this, SLOT(fileSave()), Qt::CTRL+Qt::Key_S);
-  mFileMenu->insertItem("Save da&ta", this, SLOT(fileDataSave()), 
+  mFileMenu->insertItem("Save da&ta", this, SLOT(fileDataSave()),
 			Qt::CTRL+Qt::Key_T);
   mFileMenu->insertSeparator();
   mFileMenu->insertItem("&Close", this, SLOT(fileQuit()), Qt::CTRL+Qt::Key_C);
 
   mGraphMenu = new Q3PopupMenu(this, "graphPopup");
 
-  mAutoYAxisId = mGraphMenu->insertItem("&Auto Y Axis", this, 
+  mAutoYAxisId = mGraphMenu->insertItem("&Auto Y Axis", this,
 					SLOT(autoYAxisSlot()), Qt::CTRL+Qt::Key_A);
-  mYUpperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this, 
-					  SLOT(graphYUpperBoundSlot()), 
+  mYUpperBoundId = mGraphMenu->insertItem("Define Y &upper-bound", this,
+					  SLOT(graphYUpperBoundSlot()),
 					  Qt::CTRL+Qt::Key_U);
-  mYLowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this, 
+  mYLowerBoundId = mGraphMenu->insertItem("Define Y &lower-bound", this,
 					  SLOT(graphYLowerBoundSlot()),
  					  Qt::CTRL+Qt::Key_L);
-  mToggleLogYId = mGraphMenu->insertItem("Toggle use of L&og Y axis", this, 
-					 SLOT(toggleLogAxisYSlot()), 
+  mToggleLogYId = mGraphMenu->insertItem("Toggle use of L&og Y axis", this,
+					 SLOT(toggleLogAxisYSlot()),
 					 Qt::CTRL+Qt::Key_O);
 
   mGraphMenu->insertSeparator();
-  
-  mAutoXAxisId = mGraphMenu->insertItem("&Auto X Axis", this, 
+
+  mAutoXAxisId = mGraphMenu->insertItem("&Auto X Axis", this,
 					SLOT(autoXAxisSlot()), Qt::ALT+Qt::Key_A);
-  mXUpperBoundId = mGraphMenu->insertItem("Define X &upper-bound", this, 
-					  SLOT(graphXUpperBoundSlot()), 
+  mXUpperBoundId = mGraphMenu->insertItem("Define X &upper-bound", this,
+					  SLOT(graphXUpperBoundSlot()),
 					  Qt::ALT+Qt::Key_U);
-  mXLowerBoundId = mGraphMenu->insertItem("Define X &lower-bound", this, 
-					  SLOT(graphXLowerBoundSlot()), 
+  mXLowerBoundId = mGraphMenu->insertItem("Define X &lower-bound", this,
+					  SLOT(graphXLowerBoundSlot()),
 					  Qt::ALT+Qt::Key_L);
-  mToggleLogXId = mGraphMenu->insertItem("Toggle use of L&og X axis", this, 
-					 SLOT(toggleLogAxisXSlot()), 
+  mToggleLogXId = mGraphMenu->insertItem("Toggle use of L&og X axis", this,
+					 SLOT(toggleLogAxisXSlot()),
 					 Qt::ALT+Qt::Key_O);
   mGraphMenu->insertSeparator();
 
@@ -165,7 +165,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   mGraphMenu->setItemChecked(mShowCurvesId, true);
   mGraphMenu->setItemChecked(mToggleLogXId, false);
   mGraphMenu->setItemChecked(mToggleLogYId, false);
-    
+
   mMenuBar->insertItem("&File", mFileMenu);
   mMenuBar->insertItem("&Graph", mGraphMenu);
 
@@ -189,10 +189,10 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 
   mPicker = new QwtPicker(mPlotter->canvas());
 
-  mPicker->setSelectionFlags(QwtPicker::PointSelection | 
+  mPicker->setSelectionFlags(QwtPicker::PointSelection |
 			     QwtPicker::ClickSelection);
 
-  if(!( connect(mPicker, SIGNAL(selected(const Q3PointArray &)), 
+  if(!( connect(mPicker, SIGNAL(selected(const Q3PointArray &)),
 		this, SLOT(canvasSelectedSlot(const Q3PointArray &))) )){
     cout << "ERROR: failed to connect signal to slot in HistoryPlot "
       "constructor" << endl;
@@ -205,9 +205,9 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
   QStringList::Iterator it = mColourList.begin();
   while( it != mColourList.end() ) {
     // Remove this colour from the list because we've chosen this to
-    // be the colour of our canvas (earlier) or it's hard to tell 
+    // be the colour of our canvas (earlier) or it's hard to tell
     // apart from one of the other standard colours.
-    if((*it).contains("darkGray", FALSE) || 
+    if((*it).contains("darkGray", FALSE) ||
        (*it).contains("antiquewhite", FALSE)){
       it = mColourList.remove(it);
     }
@@ -216,7 +216,7 @@ HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
     }
   }
 
-  //  for ( QStringList::Iterator it = mColourList.begin(); 
+  //  for ( QStringList::Iterator it = mColourList.begin();
   //	it != mColourList.end(); ++it ) {
   //    cout << *it << ":";
   //  }
@@ -259,8 +259,8 @@ void HistoryPlot::filePrint(){
 //--------------------------------------------------------------------
 void HistoryPlot::fileSave(){
 
-  QString lFileName = Q3FileDialog::getSaveFileName(".", "Images (*.jpg)", 0, 
-						   "save file dialog", 
+  QString lFileName = Q3FileDialog::getSaveFileName(".", "Images (*.jpg)", 0,
+						   "save file dialog",
 						   "Choose a filename to save the image as");
   // ensure the user gave us a sensible file
   if (!lFileName.isNull()){
@@ -270,8 +270,8 @@ void HistoryPlot::fileSave(){
 
     // spawn off a thread to take the screenshot, giving QT enough time
     // to redraw the graph
-    ScreenGrabThread *lScreenGrabThread = new ScreenGrabThread(this, 
-							       lFileName, 
+    ScreenGrabThread *lScreenGrabThread = new ScreenGrabThread(this,
+							       lFileName,
 							       mMenuBar);
     lScreenGrabThread->start();
   }
@@ -283,8 +283,8 @@ void HistoryPlot::fileDataSave(){
   int     i;
   HistorySubPlot *plot;
 
-  QString lFileName = Q3FileDialog::getSaveFileName(".", "Data (*.dat)", 0, 
-						   "save file dialog", 
+  QString lFileName = Q3FileDialog::getSaveFileName(".", "Data (*.dat)", 0,
+						   "save file dialog",
 						   "Choose a name for the data file");
   // ensure the user gave us a sensible file
   if (!lFileName.isNull()){
@@ -304,15 +304,15 @@ void HistoryPlot::fileDataSave(){
 
     // Header for data
     ts << "# Data exported from RealityGrid Qt Steering Client" << endl;
-    ts << "# Seq no."; 
+    ts << "# Seq no.";
     plot = mSubPlotList.first();
     while(plot){
       ts << ", " << plot->getCurveLabel();
       plot = mSubPlotList.next();
-    }    
+    }
     ts << endl;
 
-    // Work out how many points we've got of 'historical data' - compare 
+    // Work out how many points we've got of 'historical data' - compare
     // the no. available for each ordinate and use the smaller of the two.
     plot = mSubPlotList.first();
     int lNumPts = plot->mYParamHist->mPreviousHistArraySize;
@@ -332,7 +332,7 @@ void HistoryPlot::fileDataSave(){
     for(i=0; i<lNumPts; i++){
       ts << lX[i] ;
       for ( plot = mSubPlotList.first(); plot; plot = mSubPlotList.next() ){
-	ts << QString("  %1").arg((plot->mYParamHist->mPtrPreviousHistArray)[i], 
+	ts << QString("  %1").arg((plot->mYParamHist->mPtrPreviousHistArray)[i],
 				  0, 'e', 8);
       }
       ts << endl;
@@ -410,7 +410,7 @@ void HistoryPlot::doPlot(){
 //--------------------------------------------------------------------
 /** Add another plot/curve to this history plot */
 void HistoryPlot::addPlot(ParameterHistory *_mYParamHist,
-			  const char *_lLabely, 
+			  const char *_lLabely,
 			  const int _yparamID){
 
   mSubPlotList.append(new HistorySubPlot(this, mPlotter,
@@ -461,22 +461,22 @@ void HistoryPlot::autoXAxisSlot(){
  *
  */
 void HistoryPlot::graphYUpperBoundSlot(){
-  // using the default double dialog box is a pain, since we have to 
+  // using the default double dialog box is a pain, since we have to
   // worry about the number of decimal points
   bool conversionOk, dialogOk;
-  QString tempStr = QInputDialog::getText("Enter Y-axis upper-bound", 
-					  "Y upper-bound Dialog", 
-					  QLineEdit::Normal, 
-					  QString::number(mYUpperBound), 
+  QString tempStr = QInputDialog::getText("Enter Y-axis upper-bound",
+					  "Y upper-bound Dialog",
+					  QLineEdit::Normal,
+					  QString::number(mYUpperBound),
 					  &dialogOk);
 
   // Check that user pressed Ok and not Cancel
   if (!dialogOk)
     return;
-  
+
   double upperBoundTmp = tempStr.toDouble(&conversionOk);
 
-  // potentially a user could make enough mistakes to reach the stack limit 
+  // potentially a user could make enough mistakes to reach the stack limit
   // on the machine, but it's unlikely ;p
   if (!conversionOk){
     graphYUpperBoundSlot();
@@ -491,22 +491,22 @@ void HistoryPlot::graphYUpperBoundSlot(){
 
 //--------------------------------------------------------------------
 void HistoryPlot::graphXUpperBoundSlot(){
-  // using the default double dialog box is a pain, since we have to 
+  // using the default double dialog box is a pain, since we have to
   // worry about the number of decimal points
   bool conversionOk, dialogOk;
-  QString tempStr = QInputDialog::getText("Enter X-axis upper-bound", 
-					  "X upper-bound Dialog", 
-					  QLineEdit::Normal, 
-					  QString::number(mXUpperBound), 
+  QString tempStr = QInputDialog::getText("Enter X-axis upper-bound",
+					  "X upper-bound Dialog",
+					  QLineEdit::Normal,
+					  QString::number(mXUpperBound),
 					  &dialogOk);
 
   // Check that user pressed Ok and not Cancel
   if (!dialogOk)
     return;
-  
+
   double upperBoundTmp = tempStr.toDouble(&conversionOk);
 
-  // potentially a user could make enough mistakes to reach the stack limit 
+  // potentially a user could make enough mistakes to reach the stack limit
   // on the machine, but it's unlikely ;p
   if (!conversionOk){
     graphXUpperBoundSlot();
@@ -521,13 +521,13 @@ void HistoryPlot::graphXUpperBoundSlot(){
 
 //--------------------------------------------------------------------
 void HistoryPlot::graphYLowerBoundSlot(){
-  // using the default double dialog box is a pain, since we have to 
+  // using the default double dialog box is a pain, since we have to
   // worry about the number of decimal points
   bool conversionOk, dialogOk;
-  QString tempStr = QInputDialog::getText("Enter Y-axis lower-bound", 
-					  "Y lower-bound Dialog", 
-					  QLineEdit::Normal, 
-					  QString::number(mYLowerBound), 
+  QString tempStr = QInputDialog::getText("Enter Y-axis lower-bound",
+					  "Y lower-bound Dialog",
+					  QLineEdit::Normal,
+					  QString::number(mYLowerBound),
 					  &dialogOk);
 
   // Check that user pressed Ok and not Cancel
@@ -536,7 +536,7 @@ void HistoryPlot::graphYLowerBoundSlot(){
 
   double lowerBoundTmp = tempStr.toDouble(&conversionOk);
 
-  // potentially a user could make enough mistakes to reach the 
+  // potentially a user could make enough mistakes to reach the
   // stack limit on the machine, but it's unlikely ;p
   if (!conversionOk){
     graphYLowerBoundSlot();
@@ -551,13 +551,13 @@ void HistoryPlot::graphYLowerBoundSlot(){
 
 //--------------------------------------------------------------------
 void HistoryPlot::graphXLowerBoundSlot(){
-  // using the default double dialog box is a pain, since we have to 
+  // using the default double dialog box is a pain, since we have to
   // worry about the number of decimal points
   bool conversionOk, dialogOk;
-  QString tempStr = QInputDialog::getText("Enter X-axis lower-bound", 
-					  "X lower-bound Dialog", 
-					  QLineEdit::Normal, 
-					  QString::number(mXLowerBound), 
+  QString tempStr = QInputDialog::getText("Enter X-axis lower-bound",
+					  "X lower-bound Dialog",
+					  QLineEdit::Normal,
+					  QString::number(mXLowerBound),
 					  &dialogOk);
 
   // Check that user pressed Ok and not Cancel
@@ -566,7 +566,7 @@ void HistoryPlot::graphXLowerBoundSlot(){
 
   double lowerBoundTmp = tempStr.toDouble(&conversionOk);
 
-  // potentially a user could make enough mistakes to reach the 
+  // potentially a user could make enough mistakes to reach the
   // stack limit on the machine, but it's unlikely ;p
   if (!conversionOk){
     graphXLowerBoundSlot();
@@ -625,7 +625,7 @@ void HistoryPlot::toggleLogAxisXSlot(){
   // Prevent them from being turned on too
   mGraphMenu->setItemEnabled(mAutoXAxisId, !mUseLogXAxis);
 
-  //mPlotter->changeAxisOptions(mPlotter->xBottom, 
+  //mPlotter->changeAxisOptions(mPlotter->xBottom,
   //			      QwtAutoScale::Logarithmic, mUseLogXAxis);
   mForceHistRedraw = true;
   // redraw the plot
@@ -648,7 +648,7 @@ void HistoryPlot::toggleLogAxisYSlot(){
   // Prevent them from being turned on too
   mGraphMenu->setItemEnabled(mAutoYAxisId, !mUseLogYAxis);
 
-  //mPlotter->changeAxisOptions(mPlotter->yLeft, 
+  //mPlotter->changeAxisOptions(mPlotter->yLeft,
   //			      QwtAutoScale::Logarithmic, mUseLogYAxis);
   mForceHistRedraw = true;
   // redraw the plot
@@ -670,7 +670,7 @@ void HistoryPlot::updateSlot(){
 
   mPlotter->replot();
 
-  // also want to update the manual upper and lower bounds to 
+  // also want to update the manual upper and lower bounds to
   // something sensible at this point
   //const QwtScaleDiv *autoScaleDiv = mPlotter->axisScale(0);
   //mYLowerBound = autoScaleDiv->lBound();
@@ -692,4 +692,3 @@ void HistoryPlot::closeEvent(QCloseEvent *e){
   // Emit a SIGNAL to tell parametertable object we can be deleted
   emit plotClosedSignal(this);
 }
-

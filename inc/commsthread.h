@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -87,7 +87,7 @@ private:
     int                 mMsgCount;
     // How many polls to average over in order to decide whether
     // or not to adjust the polling interval
-    int                 mPollAdjustInterval; 
+    int                 mPollAdjustInterval;
     int                 mMinPollAdjustInterval;
     QMutex             *mMutexPtr;
 };
@@ -99,7 +99,7 @@ class CommsThreadEvent : public QCustomEvent
 public:
   CommsThreadEvent(int aMsgType);
   ~CommsThreadEvent();
-  
+
   int  getMsgType() const;
   void storeCommands(int aNum, int *aArray);
   int  getNumCmds() const;
@@ -114,7 +114,7 @@ private:
   /** Array holding the commands in the control message that generated
       this event */
   int mCommands[REG_MAX_NUM_STR_CMDS];
-  
+
 };
 
 #endif

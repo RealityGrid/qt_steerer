@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -77,7 +77,7 @@ class Application : public QWidget
 
 public:
 
-  Application(QWidget *mParent, const char *, int aSimHandle, 
+  Application(QWidget *mParent, const char *, int aSimHandle,
 	      bool aIsLocal,
 	      QMutex *aMutex);
   ~Application();
@@ -87,7 +87,7 @@ public:
   /// Enable all the command buttons for this application
   void enableCmdButtons();
 
-  /** Getter method for mIsLocal 
+  /** Getter method for mIsLocal
       @see mIsLocal */
   bool isLocal(){return mIsLocal;}
   /// Getter method for handle of application

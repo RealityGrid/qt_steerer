@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -106,14 +106,14 @@ AttachListItem::getSimIndex() const
 }
 
 
-void 
+void
 AttachListItem::paint( QPainter *painter )
 {
     QFontMetrics fm = painter->fontMetrics();
     painter->drawText( 3, fm.ascent() +  (fm.leading()+1)/2 + 1, text() );
 }
 
-int 
+int
 AttachListItem::height( const Q3ListBox* lb ) const
 {
     int h = lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
@@ -124,7 +124,7 @@ AttachListItem::height( const Q3ListBox* lb ) const
 }
 
 
-int 
+int
 AttachListItem::width( const Q3ListBox* lb ) const
 {
     int w = lb ? lb->fontMetrics().width( text() ) + 6 : 0;

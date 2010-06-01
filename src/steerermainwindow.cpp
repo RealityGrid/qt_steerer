@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -75,7 +75,7 @@
 #include <qlineedit.h>
 #include <qmenubar.h>
 #include <qmessagebox.h>
-#include <qpixmap.h> 
+#include <qpixmap.h>
 #include <q3popupmenu.h>
 #include <qpushbutton.h>
 #include <qstatusbar.h>
@@ -100,11 +100,11 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   : Q3MainWindow( 0, "steerermainwindow"), mCentralWgt(kNULL),
     mTopLayout(kNULL), mStack(kNULL), mAppTabs(kNULL),
     mStackLogoLabel(kNULL), mStackLogoPixMap(kNULL),
-    mCommsThread(kNULL), 
+    mCommsThread(kNULL),
     mSetCheckIntervalAction(kNULL), mToggleAutoPollAction(kNULL),
-    mAttachAction(kNULL), 
-    mQuitAction(kNULL) 
-    
+    mAttachAction(kNULL),
+    mQuitAction(kNULL)
+
 {
   REG_DBGCON("SteererMainWindow");
   setCaption( "ReG Steerer" );
@@ -115,14 +115,14 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   f.setPointSize(9);
   mCentralWgt->setFont(f);
   setCentralWidget(mCentralWgt);
-   
+
   // set up actions for configure check interval, attach and quit
   mSetCheckIntervalAction =  new Q3Action("Set polling interval",
 					  "Set &polling interval",
 					  Qt::CTRL+Qt::Key_P, this,
 					  "setcheckaction");
   mSetCheckIntervalAction->setToolTip(QString("Set polling interval"));
-  connect(mSetCheckIntervalAction, SIGNAL(activated()), this, 
+  connect(mSetCheckIntervalAction, SIGNAL(activated()), this,
 	  SLOT(configureSteererSlot()));
 
   mToggleAutoPollAction = new Q3Action("Turn on auto polling interval",
@@ -130,7 +130,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 				       Qt::ALT+Qt::Key_P, this,
 				       "toggleautopollaction");
   mToggleAutoPollAction->setToolTip(QString("Toggle use of auto polling interval"));
-  connect(mToggleAutoPollAction, SIGNAL(activated()), this, 
+  connect(mToggleAutoPollAction, SIGNAL(activated()), this,
 	  SLOT(toggleAutoPollSlot()));
 
   mAttachAction = new Q3Action("Attach to an application", "&Attach",
@@ -167,7 +167,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // Create layouts to position the widgets
   mTopLayout = new Q3HBoxLayout( mCentralWgt, 2);
-  
+
   // set up the ReG logo
   mStackLogoLabel = new QLabel(mCentralWgt);
   mStackLogoPixMap = new QPixmap();
@@ -180,14 +180,14 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
     mStackLogoLabel->setText("RealityGrid");
     mStackLogoLabel->setFont(QFont("Times", 9, QFont::DemiBold));
   }
-   
-  // SMR XXX - future add more widgets to stack for log viewing, 
+
+  // SMR XXX - future add more widgets to stack for log viewing,
   // for now only tabwidget
   mStack = new Q3WidgetStack(mCentralWgt);
 
   // tab widget - each tab will be form for one steered application
   mAppTabs = new QTabWidget();
- 
+
   mStack->addWidget(mAppTabs);
   mTopLayout->addWidget(mStack);
   mStack->addWidget(mStackLogoLabel);
@@ -197,24 +197,24 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   Q3PopupMenu *lViewMenu = new Q3PopupMenu(this);
   menuBar()->insertItem("&View", lViewMenu);
 
-  mHideChkPtTableAction = new Q3Action("Hide CheckPoint table", 
+  mHideChkPtTableAction = new Q3Action("Hide CheckPoint table",
 				       "Hide &CheckPoint table",
 				       Qt::CTRL+Qt::Key_C, this,
 				       "hidechkaction");
-  connect( mHideChkPtTableAction, SIGNAL(activated()), this, 
+  connect( mHideChkPtTableAction, SIGNAL(activated()), this,
 	   SLOT(hideChkPtTableSlot()) );
   mHideChkPtTableAction->addTo(lViewMenu);
 
-  mHideIOTableAction = new Q3Action("Hide IO table", 
+  mHideIOTableAction = new Q3Action("Hide IO table",
 				    "Hide &IO table",
 				    Qt::CTRL+Qt::Key_I, this, "hideIOaction");
-  connect( mHideIOTableAction, SIGNAL(activated()), this, 
+  connect( mHideIOTableAction, SIGNAL(activated()), this,
 	   SLOT(hideIOTableSlot()) );
   mHideIOTableAction->addTo(lViewMenu);
 
   mHideSteerTableAction = new Q3Action("Hide Steered Params table",
 				       "Hide &Steered Params table",
-				       Qt::CTRL+Qt::Key_S, this, 
+				       Qt::CTRL+Qt::Key_S, this,
 				       "hideSteeraction");
   connect(mHideSteerTableAction, SIGNAL(activated()), this,
 	  SLOT(hideSteerTableSlot()));
@@ -229,7 +229,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mHideMonTableAction->addTo(lViewMenu);
 
   // Catch tab changes so we can keep the status bar relevant
-  connect(mAppTabs, SIGNAL(currentChanged(QWidget *)), this, 
+  connect(mAppTabs, SIGNAL(currentChanged(QWidget *)), this,
 	  SLOT(tabChangedSlot(QWidget *)));
 
   // Initial size of main GUI form when no applications being steered
@@ -239,19 +239,19 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // Read configuration file (if any)
   mSteererConfig = new SteererConfig();
-  mSteererConfig->readConfig(QString(getenv("HOME")) + 
+  mSteererConfig->readConfig(QString(getenv("HOME")) +
 			     "/.realitygrid/steerer.conf");
 
   mSteererConfig->mRegistrySecurity.use_ssl = 0;
   if(mSteererConfig->mTopLevelRegistry.startsWith("https://")){
     mSteererConfig->mRegistrySecurity.use_ssl = 1;
-    mSteererConfig->readSecurityConfig(QString(getenv("HOME")) + 
+    mSteererConfig->readSecurityConfig(QString(getenv("HOME")) +
 				       "/.realitygrid/security.conf");
   }
 
-  // create commsthread so can set checkinterval 
+  // create commsthread so can set checkinterval
   // - thread is started on first attach
-  mCommsThread = new CommsThread(this, &mReGMutex, 
+  mCommsThread = new CommsThread(this, &mReGMutex,
 				 (int)(1000.0*mSteererConfig->mPollingIntervalSecs));
   if (mCommsThread != kNULL){
     mSetCheckIntervalAction->setEnabled(TRUE);
@@ -284,14 +284,14 @@ SteererMainWindow::~SteererMainWindow()
 }
 
 
-void 
+void
 SteererMainWindow::cleanUp()
 {
   // stop and delete mCommsThread
   delete mCommsThread;
   mCommsThread = kNULL;
 
-  // ARP - List of applications uses autodelete so automatically 
+  // ARP - List of applications uses autodelete so automatically
   // cleaned up when list object deleted
 
   delete mStackLogoPixMap;
@@ -300,9 +300,9 @@ SteererMainWindow::cleanUp()
 }
 
 
-Application * 
+Application *
 SteererMainWindow::getApplication(int aSimHandle)
-{ 
+{
   unsigned int i;
 
   for(i=0; i<mAppList.count(); i++){
@@ -318,7 +318,7 @@ SteererMainWindow::getApplication(int aSimHandle)
 void
 SteererMainWindow::customEvent(QEvent *aEvent)
 {
-  // this function will be executed when main GUI thread gets round to processing 
+  // this function will be executed when main GUI thread gets round to processing
   // the event posted by our CommsThread.
 
   // only expect events with type (User+kSIGNAL_EVENT)
@@ -346,15 +346,15 @@ SteererMainWindow::isThreadRunning() const
       return true;
   }
   return false;
-  
+
 }
 
 
-void 
+void
 SteererMainWindow::resizeForNoAttached()
 {
   mStack->raiseWidget(mStackLogoLabel);
-  
+
   resize(140,180);
   this->setMinimumSize(140, 180);
   qApp->processEvents();
@@ -363,7 +363,7 @@ SteererMainWindow::resizeForNoAttached()
 }
 
 
-void 
+void
 SteererMainWindow::attachAppSlot()
 {
   statusBar()->clear();
@@ -383,7 +383,7 @@ SteererMainWindow::attachAppSlot()
       // User entered something and pressed OK
       // Attempt to attach simulation
       simAttachApp((char*)newDir.latin1(), true);
-    }  
+    }
     else {
       simAttachApp((char*) "", true);
     }
@@ -401,8 +401,8 @@ SteererMainWindow::attachAppSlot()
   }
   else {
     AttachForm *lAttachForm = new AttachForm(this);
-    
-    if(lAttachForm->getLibReturnStatus() == REG_SUCCESS) {  
+
+    if(lAttachForm->getLibReturnStatus() == REG_SUCCESS) {
       if(lAttachForm->getNumSims() > 0) {
 	if(lAttachForm->exec() == QDialog::Accepted) {
 	  REG_DBGMSG1("attach accepted, sim = ", lAttachForm->getSimGSMSelected());
@@ -410,10 +410,10 @@ SteererMainWindow::attachAppSlot()
 	}
       }
       else {
-	QMessageBox::information(0, "Grid Attach", 
+	QMessageBox::information(0, "Grid Attach",
 				 "No steerable applications found",
 				 QMessageBox::Ok,
-				 QMessageBox::NoButton, 
+				 QMessageBox::NoButton,
 				 QMessageBox::NoButton);
       }
     }
@@ -423,10 +423,10 @@ SteererMainWindow::attachAppSlot()
 	simAttachApp(cmdLineSGS.latin1());
       }
       else {
-	QMessageBox::information(0, "Grid Proxy Unavailable", 
+	QMessageBox::information(0, "Grid Proxy Unavailable",
 				 "Local attach available only",
 				 QMessageBox::Ok,
-				 QMessageBox::NoButton, 
+				 QMessageBox::NoButton,
 				 QMessageBox::NoButton);
       }
     }
@@ -439,7 +439,7 @@ SteererMainWindow::attachAppSlot()
 
 void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
 {
-  /* Attempt to attach to a simulation */ 
+  /* Attempt to attach to a simulation */
   int lReGStatus = REG_FAILURE;
   int lSimHandle = -1;
   bool ok;
@@ -449,16 +449,16 @@ void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
     QString idStr(aSimID);
     if(idStr.startsWith("http") && idStr.contains("/WSRF/")){
 
-      QString text = QInputDialog::getText("RealityGrid Steerer", 
-					   "Enter passphrase for this application:", 
+      QString text = QInputDialog::getText("RealityGrid Steerer",
+					   "Enter passphrase for this application:",
 					   QLineEdit::Password,
 					   QString::null, &ok, this );
       if ( !ok ) return; // Cancel if user didn't press OK
       Wipe_security_info(&sec);
       strncpy(sec.passphrase, text.ascii(), REG_MAX_STRING_LENGTH);
       snprintf(sec.userDN, REG_MAX_STRING_LENGTH, "%s", getenv("USER"));
-      strncpy(sec.caCertsPath, 
-	      mSteererConfig->mRegistrySecurity.caCertsPath, 
+      strncpy(sec.caCertsPath,
+	      mSteererConfig->mRegistrySecurity.caCertsPath,
 	      REG_MAX_STRING_LENGTH);
       // WSRF support only for version >= 2.0
       mReGMutex.lock();
@@ -475,27 +475,27 @@ void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
     if (lReGStatus == REG_SUCCESS)
     {
       REG_DBGMSG1("Attached: mSimHandle = ",lSimHandle);
-      
-      mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal, 
+
+      mAppList.append(new Application(this, aSimID, lSimHandle, aIsLocal,
 				      &mReGMutex));
 
-      // get supported command list from library and enable buttons 
+      // get supported command list from library and enable buttons
       // appropriately
       mAppList.current()->enableCmdButtons();
 
-      mAppTabs->addTab(mAppList.current(), QString(aSimID));      
+      mAppTabs->addTab(mAppList.current(), QString(aSimID));
 
       // Need showpage otherwise only shown on first attach - why? SMR XXX
-      mAppTabs->showPage(mAppList.current()); 
+      mAppTabs->showPage(mAppList.current());
 
       mStack->raiseWidget(mAppTabs);
-      
+
       // resize - only do for first app attached
       if(mAppList.count() == 1)resize(525, 700);
 
       REG_DBGMSG("posted now start commsthread");
       // set off comms thread if it's not already running
-      // process messages form all steered applications	
+      // process messages form all steered applications
       if (!isThreadRunning())
       {
 	if (mCommsThread == kNULL)
@@ -505,20 +505,20 @@ void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
 	  THROWEXCEPTION("Thread not instantiated");
 
 	mCommsThread->start();  // calls the run method
-	
+
 	if (!mCommsThread->running())
 	{
 	  THROWEXCEPTION("Thread creation failed");
 	}
-      }            
-      
+      }
+
     }
     else
     {
       statusBar()->message( "Failed to attach" );
       REG_DBGMSG("Sim_attach failed");
     }
-    
+
   } //try
 
   catch (SteererException StEx)
@@ -537,14 +537,14 @@ void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
 		    this, "Modeless warning", false);
     mb.setModal(false);
     mb.exec();
-    
+
     StEx.print();
   }
-  
+
 }
 
 
-void 
+void
 SteererMainWindow::closeApplicationSlot(int aSimHandle)
 {
   unsigned int i;
@@ -570,7 +570,7 @@ SteererMainWindow::closeApplicationSlot(int aSimHandle)
       break;
     }
   }
- 
+
   // If this was last application being steered, resize the window...
   if(mAppList.count() == 0){
 
@@ -597,7 +597,7 @@ SteererMainWindow::editTabTitleSlot()
     // - we pick this up in the ParameterTable class to pass to
     // HistoryPlot.
     mAppTabs->currentPage()->setName(newLabel);
-  } 
+  }
 }
 
 void
@@ -612,7 +612,7 @@ SteererMainWindow::quitSlot()
 }
 
 /*
-void 
+void
 SteererMainWindow::readMsgSlot()
 {
   // SMR XXX tmp code - replaced by thread
@@ -622,17 +622,17 @@ SteererMainWindow::readMsgSlot()
   int   lMsgType = 0;
 
   REG_DBGMSG("In SteererMainWindow run");
-    
+
   if (Get_next_message(&lSimHandle, &lMsgType) != REG_SUCCESS)	//ReG library
     REG_DBGEXCP("Get_next_message");
 
-    
+
   if (lMsgType != MSG_NOTSET)
   {
     //SMR XXX  find Application in list that matches lSimHandle - future
     mApplication->processNextMessage(lMsgType);
   }
-  
+
 }
 */
 
@@ -640,14 +640,14 @@ void
 SteererMainWindow::configureSteererSlot()
 {
 
-  ConfigForm *lConfigForm = new ConfigForm(mCommsThread->getCheckInterval(), 
+  ConfigForm *lConfigForm = new ConfigForm(mCommsThread->getCheckInterval(),
 					   this);
 
-  if ( lConfigForm->exec() == QDialog::Accepted ) 
+  if ( lConfigForm->exec() == QDialog::Accepted )
   {
     REG_DBGMSG1("config applied, interval= ", lConfigForm->getIntervalValue());
      mCommsThread->setCheckInterval(lConfigForm->getIntervalValue());
-   
+
   }
   else {
     REG_DBGMSG("Config cancelled");
@@ -674,7 +674,7 @@ void SteererMainWindow::toggleAutoPollSlot()
   return;
 }
 
-void SteererMainWindow::statusBarMessageSlot(Application *aApp, 
+void SteererMainWindow::statusBarMessageSlot(Application *aApp,
 					     QString &message){
 
   if(mAppTabs->currentPage() == aApp){
@@ -687,7 +687,7 @@ void SteererMainWindow::statusBarMessageSlot(Application *aApp,
 /* Change statusBar message to the current status of the selected
  * application
  */
-void 
+void
 SteererMainWindow::tabChangedSlot(QWidget *aWidget)
 {
   REG_DBGMSG("Tab changed");
@@ -791,7 +791,7 @@ void SteererMainWindow::hideMonTableSlot()
   Application *aApp;
 
   if( (aApp = (Application *)(mAppTabs->currentPage())) ){
-    
+
     if(aApp->monTableVisible()){
       aApp->hideMonTable(true);
       mHideMonTableAction->setMenuText("Show &Monitored Params table");

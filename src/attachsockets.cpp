@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -150,10 +150,10 @@ void AttachSockets::attachSlot() {
   // Get the address from the input boxes
   if(!mInputs[0]->hasAcceptableInput()) {
     QMessageBox::information(this, "Invalid hostname",
-			     "Hostname should be of the form 'localhost', " 
+			     "Hostname should be of the form 'localhost', "
 			     "'server' or 'server.domain'",
 			     QMessageBox::Ok,
-			     QMessageBox::NoButton, 
+			     QMessageBox::NoButton,
 			     QMessageBox::NoButton);
     return;
   }
@@ -161,7 +161,7 @@ void AttachSockets::attachSlot() {
     QMessageBox::information(this, "Invalid port number",
 			     "Port should be a number between 1024 and 65535",
 			     QMessageBox::Ok,
-			     QMessageBox::NoButton, 
+			     QMessageBox::NoButton,
 			     QMessageBox::NoButton);
     return;
   }

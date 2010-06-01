@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -78,16 +78,16 @@
 #include <signal.h>
 
 //file scope global pointer pointing at this CommsThread object; need this to
-//when catch signal.  
+//when catch signal.
 CommsThread *gCommsThreadPtr;
 
 extern "C" void threadSignalHandler(int aSignal)
 {
-  
+
   // caught one signal - ignore all others now as going to quit and do not
   // want the quit process to be interrupted and restarted...
   signal(SIGINT, SIG_IGN);	//ctrl-c
-  signal(SIGTERM, SIG_IGN);	//kill (note cannot (and should not) catch kill -9)  
+  signal(SIGTERM, SIG_IGN);	//kill (note cannot (and should not) catch kill -9)
   signal(SIGSEGV, SIG_IGN);
   signal(SIGILL, SIG_IGN);
   signal(SIGABRT, SIG_IGN);
@@ -98,11 +98,11 @@ extern "C" void threadSignalHandler(int aSignal)
     case SIGINT:
       cout << "CommsThread: Interrupt signal received (signal " << aSignal << ")" << endl;
       break;
-      
+
     case SIGTERM:
       cout << "CommsThread: Kill signal received (signal " << aSignal << ")" << endl;
       break;
-      
+
     case SIGSEGV:
       cout << "CommsThread: Segmentation violation caught (signal " << aSignal << ")" << endl;
       break;
@@ -124,29 +124,29 @@ extern "C" void threadSignalHandler(int aSignal)
       cout << "CommsThread: Signal caught (signal " << aSignal << ")" << endl;
 
   }
-  
+
   cout << "CommsThread received signal..." << endl;
   gCommsThreadPtr->handleSignal();
 }
 
-CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex, 
+CommsThread::CommsThread(SteererMainWindow *aSteerer, QMutex *aMutex,
 			 int aCheckInterval)
-  : mSteerer(aSteerer), mKeepRunningFlag(true), 
+  : mSteerer(aSteerer), mKeepRunningFlag(true),
     mCheckInterval(aCheckInterval), mMutexPtr(aMutex)
 {
   REG_DBGCON("CommsThread constructor");
-  gCommsThreadPtr = this; 
+  gCommsThreadPtr = this;
   // Set polling interval automatically
   mUseAutoPollInterval = aSteerer->autoPollingOn();
   mPollCount = 0;
   mMsgCount = 0;
   // How many polls to average over in order to decide whether
   // or not to adjust the polling interval
-  mPollAdjustInterval = 10; 
+  mPollAdjustInterval = 10;
   mMinPollAdjustInterval = 10;
 
   signal(SIGINT, threadSignalHandler);	//ctrl-c
-  signal(SIGTERM, threadSignalHandler);	//kill (note cannot (and should not) catch kill -9)  
+  signal(SIGTERM, threadSignalHandler);	//kill (note cannot (and should not) catch kill -9)
   signal(SIGSEGV, threadSignalHandler);
   signal(SIGILL, threadSignalHandler);
   signal(SIGABRT, threadSignalHandler);
@@ -169,10 +169,10 @@ CommsThread::handleSignal()
 
   QCustomEvent *lEvent = new QCustomEvent(QEvent::User + kSIGNAL_EVENT);
   QCoreApplication::postEvent(mSteerer, lEvent);
-    
+
 }
 
-void 
+void
 CommsThread::setCheckInterval(const int aInterval)
 {
   // note value aInterval constrained on user entry also
@@ -208,7 +208,7 @@ CommsThread::stop()
 }
 
 
-void 
+void
 CommsThread::run()
 {
   // this is the routine that is call when CommsThread->start() is called.
@@ -235,7 +235,7 @@ CommsThread::run()
   {
     // This section automatically adjusts the polling interval
     // to keep up with the attached application(s)
-    if(lrecvdFirstStatusMsg && mUseAutoPollInterval && 
+    if(lrecvdFirstStatusMsg && mUseAutoPollInterval &&
        (mPollCount == mPollAdjustInterval)){
 
       lPollRatio = (float)mMsgCount/(float)mPollCount;
@@ -248,7 +248,7 @@ CommsThread::run()
 	if(mCheckInterval > kMIN_POLLING_INT){
 	  // Reduce polling interval faster than we increase it
 	  mCheckInterval -= (int)(0.35*mCheckInterval);
-	  //cout << "CommsThread: reducing poll interval to " 
+	  //cout << "CommsThread: reducing poll interval to "
 	  //     << mCheckInterval << endl;
 	  // Adjust how many calls we average over to try and ensure
 	  // we check about every 2 seconds
@@ -256,7 +256,7 @@ CommsThread::run()
 	  if(mPollAdjustInterval < mMinPollAdjustInterval){
 	    mPollAdjustInterval = mMinPollAdjustInterval;
 	  }
-	  //cout << "CommsThread: poll adjust interval = " << 
+	  //cout << "CommsThread: poll adjust interval = " <<
 	  //  mPollAdjustInterval << endl;
 	}
       }
@@ -266,7 +266,7 @@ CommsThread::run()
 	  // Not getting messages very often so increase the interval
 	  // between polls
 	  mCheckInterval += (int)(0.2*mCheckInterval) + 1;
-	  //cout << "CommsThread: increasing poll interval to " << 
+	  //cout << "CommsThread: increasing poll interval to " <<
 	  //  mCheckInterval << endl;
 	  // Adjust how many calls we average over to try and ensure
 	  // we check about every 2 seconds
@@ -274,7 +274,7 @@ CommsThread::run()
 	  if(mPollAdjustInterval < mMinPollAdjustInterval){
 	    mPollAdjustInterval = mMinPollAdjustInterval;
 	  }
-	  //cout << "CommsThread: poll adjust interval = " << 
+	  //cout << "CommsThread: poll adjust interval = " <<
 	  //  mPollAdjustInterval << endl;
 	}
       }
@@ -309,52 +309,52 @@ CommsThread::run()
 
     if (lMsgType != MSG_NOTSET){
 
-      // Protect this count to prevent overflow when not using auto. 
+      // Protect this count to prevent overflow when not using auto.
       // poll interval
       if(mUseAutoPollInterval)mMsgCount++;
 
       switch(lMsgType){
 
       case IO_DEFS:
-      
+
 	REG_DBGMSG("CommsThread: Got IOdefs message");
 
 	// hold qt library mutex for library call
 	mMutexPtr->lock();
-	status = Consume_IOType_defs(lSimHandle); //ReG library 
+	status = Consume_IOType_defs(lSimHandle); //ReG library
 	mMutexPtr->unlock();
 	break;
 
       case CHK_DEFS:
-	
+
 	REG_DBGMSG("CommsThread: Got Chkdefs message");
 	mMutexPtr->lock();
-	status = Consume_ChkType_defs(lSimHandle); //ReG library 
+	status = Consume_ChkType_defs(lSimHandle); //ReG library
 	mMutexPtr->unlock();
 	break;
 
       case PARAM_DEFS:
-      
+
 	REG_DBGMSG("CommsThread: Got param defs message");
 	mMutexPtr->lock();
-	status = Consume_param_defs(lSimHandle); //ReG library 
+	status = Consume_param_defs(lSimHandle); //ReG library
 	mMutexPtr->unlock();
 	break;
-      
+
       case STATUS:
 
 	REG_DBGMSG("CommsThread: Got status message");
 	mMutexPtr->lock();
-	status = Consume_status(lSimHandle,   //ReG library 
+	status = Consume_status(lSimHandle,   //ReG library
 				&app_seqnum,
 				&num_cmds, commands);
 	mMutexPtr->unlock();
 	break;
 
-      case STEER_LOG: 
+      case STEER_LOG:
 	REG_DBGMSG("CommsThread: Got steer_log message");
 	mMutexPtr->lock();
-	status = Consume_log(lSimHandle);   //ReG library 
+	status = Consume_log(lSimHandle);   //ReG library
 	mMutexPtr->unlock();
 	break;
 
@@ -365,7 +365,7 @@ CommsThread::run()
       case CONTROL:
 	REG_DBGMSG("CommsThread: Got control message");
 	break;
-	    
+
       case SUPP_CMDS:
 	REG_DBGMSG("CommsThread: Got supp_cmds message");
 	break;
@@ -426,7 +426,7 @@ void CommsThread::setUseAutoPollFlag(const int aFlag)
 
 CommsThreadEvent::CommsThreadEvent(int aMsgType)
   : QCustomEvent(QEvent::User + kMSG_EVENT), mMsgType(aMsgType)
-{ 
+{
   // class to extend QCustomEvent to hold mMsgType
   REG_DBGCON("CommsThreadEvent");
   mNumCmds = 0;

@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -48,7 +48,7 @@
           Robert Haines
  */
 
-/** 
+/**
  * @file controlform.cpp
  * @brief Implementation of class for showing details of attached app
  * @author Sue Ramsden
@@ -74,7 +74,7 @@
 #include <qlabel.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
-#include <qtooltip.h> 
+#include <qtooltip.h>
 #include <q3vbox.h>
 #include <q3vgroupbox.h>
 //#include <qhbuttongroup.h>
@@ -84,32 +84,32 @@
 #include <Q3VBoxLayout>
 #include <Q3HButtonGroup>
 
-ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle, 
+ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 			 Application *aApplication, QMutex *aMutex)
-  : QWidget(aParent, aName), mSimHandle(aSimHandle), 
-    mEmitButton(kNULL), 
-    mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL), 
-    mRestartChkPtButton(kNULL), 
-    mSndChkPtButton(kNULL), mSetChkPtFreqButton(kNULL), 
+  : QWidget(aParent, aName), mSimHandle(aSimHandle),
+    mEmitButton(kNULL),
+    mSndSampleButton(kNULL), mSetSampleFreqButton(kNULL),
+    mRestartChkPtButton(kNULL),
+    mSndChkPtButton(kNULL), mSetChkPtFreqButton(kNULL),
     mEmitAllValuesButton(kNULL),
     mMonParamTable(kNULL),
-    mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL), 
+    mSteerParamTable(kNULL), mIOTypeSampleTable(kNULL),
     mIOTypeChkPtTable(kNULL),
-    mCloseButton(kNULL), mDetachButton(kNULL), mStopButton(kNULL), 
-    mPauseButton(kNULL), mConsumeDataButton(kNULL), 
+    mCloseButton(kNULL), mDetachButton(kNULL), mStopButton(kNULL),
+    mPauseButton(kNULL), mConsumeDataButton(kNULL),
     mEmitDataButton(kNULL), mMutexPtr(aMutex)
-{ 
+{
   REG_DBGCON("ControlForm");
 
   mHistoryPlotList.setAutoDelete( TRUE );
 
   // MR: keep a reference to the Application class
   mApplication = aApplication;
-  
-  // create widget which holds all steering data (some dynamic) 
-  // for one steered application this consists of four tables - 
+
+  // create widget which holds all steering data (some dynamic)
+  // for one steered application this consists of four tables -
   // one each for monitored parameters, steered parameters,
-  // samples iotypes and checkpoint iotypes, plus buttons 
+  // samples iotypes and checkpoint iotypes, plus buttons
   // associated with the tables
 
   // set up main command buttons
@@ -132,49 +132,49 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   //     a GSH only...
   Q3HBoxLayout *lCmdGrpLayout;
   lCmdGrpLayout = new Q3HBoxLayout(-1, "Commands");
-  
+
   // then set up each button individually, never setting the maximum size
   // so that each button stretches to fill the standard gap
-  
+
   QToolTip::add(mPauseButton, "Tell the attached application to pause/resume");
-  connect( mPauseButton, SIGNAL( clicked() ), aApplication, 
+  connect( mPauseButton, SIGNAL( clicked() ), aApplication,
 	   SLOT( emitPauseCmdSlot() ));
   lCmdGrpLayout->addWidget(mPauseButton);
 
   QToolTip::add(mDetachButton, "Tell the attached application to detach");
-  connect( mDetachButton, SIGNAL( clicked() ), aApplication, 
+  connect( mDetachButton, SIGNAL( clicked() ), aApplication,
 	   SLOT( emitDetachCmdSlot() ));
   lCmdGrpLayout->addWidget(mDetachButton);
 
   QToolTip::add( mCloseButton, "Close form to allow another attach");
-  connect(mCloseButton, SIGNAL( clicked() ), aApplication, 
+  connect(mCloseButton, SIGNAL( clicked() ), aApplication,
 	  SLOT(closeApplicationSlot()) );
   lCmdGrpLayout->addWidget(mCloseButton);
 
   QToolTip::add(mEmitAllValuesButton, "Tell application all new "
 		"parameter and frequency values");
-  connect(mEmitAllValuesButton, SIGNAL(clicked()), this, 
+  connect(mEmitAllValuesButton, SIGNAL(clicked()), this,
 	  SLOT(emitAllValuesSlot()));
   lCmdGrpLayout->addWidget(mEmitAllValuesButton);
 
   QToolTip::add(mStopButton, "Tell the attached application to stop");
-  connect( mStopButton, SIGNAL( clicked() ), aApplication, 
+  connect( mStopButton, SIGNAL( clicked() ), aApplication,
 	   SLOT( emitStopCmdSlot() ));
   lCmdGrpLayout->addWidget(mStopButton);
 
   if (!mApplication->isLocal()){
     //mGridRestartChkPtButton->setMinimumSize(mEmitAllValuesButton->sizeHint());
     QToolTip::add(mGridRestartChkPtButton, "Restart via a GSH");
-    connect( mGridRestartChkPtButton, SIGNAL( clicked() ), aApplication, 
+    connect( mGridRestartChkPtButton, SIGNAL( clicked() ), aApplication,
 	     SLOT( emitGridRestartCmdSlot() ));
     lCmdGrpLayout->addWidget(mGridRestartChkPtButton);
   }
 
   //--------------------------------------
   // set up table for monitored parameters
-  mMonTableLabel = new TableLabel("Monitored Parameters", 
+  mMonTableLabel = new TableLabel("Monitored Parameters",
 				  this);
-  mMonParamTable = new ParameterTable(this, "monparamtable", 
+  mMonParamTable = new ParameterTable(this, "monparamtable",
 				      aSimHandle, mMutexPtr);
   mMonParamTable->initTable();
 
@@ -184,24 +184,24 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   //-----------------------------
   // table for steered parameters
-  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable", 
+  mSteerParamTable = new SteeredParameterTable(this,"steerparamtable",
 					       mMonParamTable, aSimHandle,
 					       mMutexPtr);
   mSteerParamTable->initTable();
-  connect(mSteerParamTable, SIGNAL(detachFromApplicationForErrorSignal()), 
+  connect(mSteerParamTable, SIGNAL(detachFromApplicationForErrorSignal()),
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
 
   // set up buttons for steered parameters
   mEmitButton = new QPushButton( "Tell", this, "tellvalue" );
   QToolTip::add(mEmitButton, "Tell application new parameter values");
-  connect( mEmitButton, SIGNAL( clicked() ), mSteerParamTable, 
+  connect( mEmitButton, SIGNAL( clicked() ), mSteerParamTable,
 	   SLOT( emitValuesSlot() ) );
 
   mSteerTableLabel = new TableLabel("Steered Parameters", this);
 
-  Q3HBoxLayout *lSteeredLableLayout = new Q3HBoxLayout(-1, 
+  Q3HBoxLayout *lSteeredLableLayout = new Q3HBoxLayout(-1,
 						     "SteeredLableLayout");
-  lSteeredLableLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
+  lSteeredLableLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 						QSizePolicy::Minimum));
   lSteeredLableLayout->addWidget(mEmitButton);
 
@@ -215,33 +215,33 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   mIOTypeSampleTable = new IOTypeTable(this,"sampleparamtable",aSimHandle,
 				       mMutexPtr);
   mIOTypeSampleTable->initTable();
-  connect(mIOTypeSampleTable, SIGNAL(detachFromApplicationForErrorSignal()), 
+  connect(mIOTypeSampleTable, SIGNAL(detachFromApplicationForErrorSignal()),
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
 
   // table and buttons for sample iotypes
-  mSetSampleFreqButton = new QPushButton( "Tell Freq's", this, 
+  mSetSampleFreqButton = new QPushButton( "Tell Freq's", this,
 					  "TellFreq" );
   QToolTip::add(mSetSampleFreqButton, "Tell application new frequency "
 		"values for data IO");
-  connect(mSetSampleFreqButton, SIGNAL( clicked() ), 
+  connect(mSetSampleFreqButton, SIGNAL( clicked() ),
 	  mIOTypeSampleTable, SLOT( emitValuesSlot()));
 
   mConsumeDataButton = new QPushButton( "Consume", this, "ConsumeData" );
   QToolTip::add(mConsumeDataButton, "Tell application to Consume data");
-  connect( mConsumeDataButton, SIGNAL( clicked() ), mIOTypeSampleTable, 
+  connect( mConsumeDataButton, SIGNAL( clicked() ), mIOTypeSampleTable,
 	   SLOT( consumeButtonPressedSlot()));
 
   mEmitDataButton = new QPushButton( "Emit", this, "EmitData" );
   QToolTip::add(mEmitDataButton, "Tell application to Emit data");
-  connect( mEmitDataButton, SIGNAL( clicked() ), mIOTypeSampleTable, 
+  connect( mEmitDataButton, SIGNAL( clicked() ), mIOTypeSampleTable,
 	   SLOT( emitButtonPressedSlot()));
-    
+
   Q3VBoxLayout *lSampleLayout = new Q3VBoxLayout(-1, "sampletablayout");
   Q3HBoxLayout *lSampleButtonLayout = new Q3HBoxLayout(-1, "samplebuttons");
 
   mIOTableLabel = new TableLabel("Data IO", this);
 
-  lSampleButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
+  lSampleButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding,
   						QSizePolicy::Minimum));
   lSampleButtonLayout->addWidget(mConsumeDataButton);
   lSampleButtonLayout->addWidget(mEmitDataButton);
@@ -253,18 +253,18 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 
   //-------------------------------------------
   // table and buttons for checkpoint iotypes
-  mIOTypeChkPtTable = new IOTypeTable(this,"chkptparamtable", aSimHandle, 
+  mIOTypeChkPtTable = new IOTypeTable(this,"chkptparamtable", aSimHandle,
 				      mMutexPtr, true);
   mIOTypeChkPtTable->initTable();
-  connect(mIOTypeChkPtTable, 
-	  SIGNAL(detachFromApplicationForErrorSignal()), 
+  connect(mIOTypeChkPtTable,
+	  SIGNAL(detachFromApplicationForErrorSignal()),
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
 
-  mSetChkPtFreqButton = new QPushButton( "Tell Freq's", this, 
+  mSetChkPtFreqButton = new QPushButton( "Tell Freq's", this,
 					 "tellfreq" );
   QToolTip::add(mSetChkPtFreqButton, "Tell application new frequency "
-		"values for checkpoint iotypes");  
-  connect(mSetChkPtFreqButton, SIGNAL( clicked() ), 
+		"values for checkpoint iotypes");
+  connect(mSetChkPtFreqButton, SIGNAL( clicked() ),
 	  mIOTypeChkPtTable, SLOT( emitValuesSlot()));
 
   // MR: we only want to add the RestartChkPtButton to the ChkPtButtonLayout
@@ -275,21 +275,21 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
     mRestartChkPtButton = new QPushButton( "Restart", this, "restartchkpt" );
     QToolTip::add(mRestartChkPtButton, "Tell application to restart using "
 		  "requested checkpoint");
-    connect( mRestartChkPtButton, SIGNAL(clicked()), mIOTypeChkPtTable, 
+    connect( mRestartChkPtButton, SIGNAL(clicked()), mIOTypeChkPtTable,
 	     SLOT(restartButtonPressedSlot()));
   }
 
   mSndChkPtButton = new QPushButton( "Create", this, "sndchkpt" );
-  QToolTip::add(mSndChkPtButton, 
+  QToolTip::add(mSndChkPtButton,
 		"Tell application to create requested checkpoint iotypes");
-  connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable, 
+  connect( mSndChkPtButton, SIGNAL( clicked() ), mIOTypeChkPtTable,
 	   SLOT( createButtonPressedSlot()));
 
   Q3VBoxLayout *lChkPtLayout = new Q3VBoxLayout(-1, "chktablayout");
   Q3HBoxLayout *lChkPtButtonLayout = new Q3HBoxLayout(-1, "chkptbuttons");
 
   mChkTableLabel = new TableLabel("CheckPoint Types", this);
-  lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
+  lChkPtButtonLayout->addItem(new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 					       QSizePolicy::Minimum));
   // MR: RestartChkPtButton Local vs Grid
   if (mApplication->isLocal())
@@ -302,7 +302,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   lChkPtLayout->addWidget(mIOTypeChkPtTable);
   lChkPtLayout->addLayout(lChkPtButtonLayout);
 
-  connect(this, SIGNAL(detachFromApplicationForErrorSignal()), 
+  connect(this, SIGNAL(detachFromApplicationForErrorSignal()),
 	  aApplication, SLOT(detachFromApplicationForErrorSlot()));
 
   //---------------------------------------------
@@ -328,7 +328,7 @@ ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
   // Whether we are in mode where user is selecting a history plot
   mUserChoosePlotMode = false;
   mParamToAdd = NULL;
-} 
+}
 
 ControlForm::~ControlForm()
 {
@@ -340,7 +340,7 @@ ControlForm::updateParameters(const bool isStatusMsg)
 {
   // update monitored parameters
   updateParameters(false, isStatusMsg);
-  
+
   // update steered parameters
   updateParameters(true, isStatusMsg);
 
@@ -367,16 +367,16 @@ ControlForm::updateParameters(const bool aSteeredFlag,
     {
       // find out number of parameters that library is going to give us
       mMutexPtr->lock();
-      if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams) 
+      if(Get_param_number(mSimHandle, aSteeredFlag, &lNumParams)
 	 != REG_SUCCESS){  //ReG library
 	mMutexPtr->unlock();
 	THROWEXCEPTION("Get_param_number");
       }
       mMutexPtr->unlock();
-    
+
       if (lNumParams > 0)
 	{
-	  // flag that cleanup required - don't like this but checking 
+	  // flag that cleanup required - don't like this but checking
 	  // for kNULL didn't work
 	  lCleanUpFlag = true;
 
@@ -389,7 +389,7 @@ ControlForm::updateParameters(const bool aSteeredFlag,
 	    lTablePtr = mSteerParamTable;
 	  else
 	    lTablePtr = mMonParamTable;
-      
+
 	  // get parameter data from library and update tables on gui
 	  mMutexPtr->lock();
 	  if (Get_param_values(mSimHandle,		//ReG library
@@ -400,15 +400,15 @@ ControlForm::updateParameters(const bool aSteeredFlag,
 
 	    for (int i=0; i<lNumParams; i++){
 	      //check if already exists - if so only update value
-	      if (!(lTablePtr->updateRow(lParamDetails[i].handle, 
+	      if (!(lTablePtr->updateRow(lParamDetails[i].handle,
 					 lParamDetails[i].value,
 					 isStatusMsg))){
 
 		// must be new parameter so add it
 		if (aSteeredFlag){
 		  ((SteeredParameterTable*)lTablePtr)->addRow(lParamDetails[i].handle,
-							      lParamDetails[i].label, 
-							      lParamDetails[i].value, 
+							      lParamDetails[i].label,
+							      lParamDetails[i].value,
 							      lParamDetails[i].type,
 							      lParamDetails[i].min_val,
 							      lParamDetails[i].max_val);
@@ -421,8 +421,8 @@ ControlForm::updateParameters(const bool aSteeredFlag,
 		}
 	      }
 	    } //for lNumParams
-	    
-	    // Adjust width of first column holding labels      
+
+	    // Adjust width of first column holding labels
 	    lTablePtr->adjustColumn(0);
 
 	  } // if Get_param_values
@@ -437,9 +437,9 @@ ControlForm::updateParameters(const bool aSteeredFlag,
 
 	} // if lNumParams > 0
 
-      // finally check for any parameters no longer present and flag 
+      // finally check for any parameters no longer present and flag
       // as unregistered SMR XXX to do (ReG library not support unRegister yet)
-  
+
     } //try
 
   catch (SteererException StEx)
@@ -453,7 +453,7 @@ ControlForm::updateParameters(const bool aSteeredFlag,
       // rethrow to Application::processNextMessage
       throw StEx;
     }
-    
+
 } // ::updateParameters
 
 //--------------------------------------------------------------------
@@ -489,7 +489,7 @@ ControlForm::updateIOTypes(bool aChkPtType)
     lIOTypeTablePtr = mIOTypeChkPtTable;
   else
     lIOTypeTablePtr = mIOTypeSampleTable;
-  
+
 
   try
   {
@@ -499,30 +499,30 @@ ControlForm::updateIOTypes(bool aChkPtType)
       lStatus = Get_chktype_number(mSimHandle, &lNumTypes);	//ReG library
     }
     else{
-      lStatus = Get_iotype_number(mSimHandle, &lNumTypes);	//ReG library    
+      lStatus = Get_iotype_number(mSimHandle, &lNumTypes);	//ReG library
     }
     mMutexPtr->unlock();
 
-    if(lStatus != REG_SUCCESS)		
+    if(lStatus != REG_SUCCESS)
       THROWEXCEPTION("Get_iotype_number");
-    
+
     REG_DBGMSG1("Number IO/Chk Types: Monitored = ", lNumTypes);
-    
+
     if (lNumTypes>0)
     {
       lCleanUpFlag = true;
-      
+
       // setup arrays of appropriate size for Get_param_values
       // note that REG_MAX_STRING_LENGTH is max string length imposed by library
       lHandles = new int[lNumTypes];
       lTypes = new int[lNumTypes];
       lVals = new int[lNumTypes];
-      lLabels = new char *[lNumTypes];   
+      lLabels = new char *[lNumTypes];
       for(i=0; i<lNumTypes; i++)
       {
 	lLabels[i] = new char[REG_MAX_STRING_LENGTH + 1];
       }
-      
+
       mMutexPtr->lock();
       if (aChkPtType){
 	lStatus = Get_chktypes(mSimHandle,     		//ReG library
@@ -545,22 +545,22 @@ ControlForm::updateIOTypes(bool aChkPtType)
       if (lStatus == REG_SUCCESS)
       {
 	for (i=0; i<lNumTypes; i++)
-	{	  
+	{
 	  //check if already exists - if so only update frequency value
 	  if (!(lIOTypeTablePtr->updateRow(lHandles[i], lVals[i])))
 	  {
 	    // new IOTypee so add it
 	    lIOTypeTablePtr->addRow(lHandles[i], lLabels[i], lVals[i], lTypes[i]);
-	  } 
-	  
-	} //for lNumTypes            
+	  }
+
+	} //for lNumTypes
       } // if Get_IOType_values
       else
 	THROWEXCEPTION("Get_iotypes");
-      
+
       // note: no need to check for any IOType no longer present
       // as iotype cannot be unregistered
-      
+
       // delete local arrays
       delete [] lHandles;
       delete [] lTypes;
@@ -570,9 +570,9 @@ ControlForm::updateIOTypes(bool aChkPtType)
 	  delete [] lLabels[i];
 	}
       delete [] lLabels;
-      
+
     } //if (lNumTypes>0)
-    
+
   } //try
 
   catch (SteererException StEx)
@@ -593,15 +593,15 @@ ControlForm::updateIOTypes(bool aChkPtType)
     throw StEx;
   }
 
-    
+
 } // ::updateIOTypes
 
 
-void 
+void
 ControlForm::disableAll(const bool aUnRegister)
 {
   // clear and disable all parts of form as application has detached
- 
+
   mSteerParamTable->clearAndDisableForDetach(aUnRegister);
   mMonParamTable->clearAndDisableForDetach(aUnRegister);
   mIOTypeSampleTable->clearAndDisableForDetach();
@@ -618,8 +618,8 @@ ControlForm::disableIOCmdButtons()
   // MR: RestartChkPtButton Local vs Grid
   if (mApplication->isLocal())
     mRestartChkPtButton->setEnabled(FALSE);
-    
-  mSndChkPtButton->setEnabled(FALSE); 
+
+  mSndChkPtButton->setEnabled(FALSE);
   mConsumeDataButton->setEnabled(FALSE);
   mEmitDataButton->setEnabled(FALSE);
 }
@@ -643,10 +643,10 @@ ControlForm::enableIOCmdButtons()
   }
 }
 
-void 
+void
 ControlForm::disableButtons()
 {
-  mEmitButton->setEnabled(FALSE); 
+  mEmitButton->setEnabled(FALSE);
   mSetSampleFreqButton->setEnabled(FALSE);
   // MR: RestartChkPtButton Local vs Grid
   if (mApplication->isLocal())
@@ -654,14 +654,14 @@ ControlForm::disableButtons()
   else
     mGridRestartChkPtButton->setEnabled(FALSE);
 
-  mSndChkPtButton->setEnabled(FALSE); 
-  mSetChkPtFreqButton->setEnabled(FALSE); 
-  mEmitAllValuesButton->setEnabled(FALSE); 
+  mSndChkPtButton->setEnabled(FALSE);
+  mSetChkPtFreqButton->setEnabled(FALSE);
+  mEmitAllValuesButton->setEnabled(FALSE);
   mConsumeDataButton->setEnabled(FALSE);
   mEmitDataButton->setEnabled(FALSE);
 }
 
-void 
+void
 ControlForm::disableAppCmdButtons()
 {
   mDetachButton->setEnabled(FALSE);
@@ -669,37 +669,37 @@ ControlForm::disableAppCmdButtons()
   mPauseButton->setEnabled(FALSE);
 }
 
-void 
+void
 ControlForm::setEnabledDetach(const bool aEnable)
 {
   mDetachButton->setEnabled(aEnable);
 }
 
-void  
+void
 ControlForm::setEnabledStop(const bool aEnable)
 {
   mStopButton->setEnabled(aEnable);
 }
 
-void  
+void
 ControlForm::setEnabledPause(const bool aEnable)
 {
   mPauseButton->setEnabled(aEnable);
 }
 
-void  
+void
 ControlForm::setEnabledClose(const bool aEnable)
 {
   mCloseButton->setEnabled(aEnable);
 }
 
-void 
+void
 ControlForm::enableParamButtonsSlot()
 {
   mEmitButton->setEnabled(TRUE);
 }
 
-void 
+void
 ControlForm::enableSampleButtonsSlot()
 {
   mSetSampleFreqButton->setEnabled(TRUE);
@@ -711,7 +711,7 @@ ControlForm::enableSampleButtonsSlot()
 
 }
 
-void 
+void
 ControlForm::enableChkPtButtonsSlot()
 {
   // MR: RestartChkPtButton Local vs Grid
@@ -720,7 +720,7 @@ ControlForm::enableChkPtButtonsSlot()
   else
     mGridRestartChkPtButton->setEnabled(TRUE);
 
-  mSndChkPtButton->setEnabled(TRUE); 
+  mSndChkPtButton->setEnabled(TRUE);
   mSetChkPtFreqButton->setEnabled(TRUE);
 
   mEmitAllValuesButton->setEnabled(TRUE);
@@ -757,7 +757,7 @@ void ControlForm::setEmitButtonStateSlot(const bool aEnable){
     mEmitDataButton->setEnabled(aEnable);
 }
 
-void 
+void
 ControlForm::emitAllValuesSlot()
 {
   // emit both parameter values and iotype frequencies
@@ -769,7 +769,7 @@ ControlForm::emitAllValuesSlot()
     int lCount = mSteerParamTable->setNewParamValuesInLib();
     lCount += mIOTypeSampleTable->setNewFreqValuesInLib();
     lCount += mIOTypeChkPtTable->setNewFreqValuesInLib();
-    
+
     if (lCount > 0)
     {
       // call ReG library function to "emit" values to steered application
@@ -782,9 +782,9 @@ ControlForm::emitAllValuesSlot()
 
       if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
-      
+
     }
-    
+
   } //try
 
   catch (SteererException StEx)
@@ -814,7 +814,7 @@ Application *ControlForm::application()
   return mApplication;
 }
 
-/** 
+/**
  * Method to show or hide the checkpoint table and associated label
  * and buttons.
  */
@@ -894,29 +894,29 @@ void ControlForm::setPauseButtonLabel(QString aLabel){
 }
 
 //--------------------------------------------------------------------
-void ControlForm::newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr, 
+void ControlForm::newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr,
 				 QString xLabel, QString yLabel){
 
   HistoryPlot *lQwtPlot;
 
   // Call our whizzo graphing method to draw the graph
-  // need to keep a reference to the plotter so that it's cancelled when 
+  // need to keep a reference to the plotter so that it's cancelled when
   // we quit the main window
-  lQwtPlot = new HistoryPlot(xParamPtr->mParamHist, 
+  lQwtPlot = new HistoryPlot(xParamPtr->mParamHist,
 			     yParamPtr->mParamHist,
 			     xLabel.latin1(),
-			     yLabel.latin1(), 
+			     yLabel.latin1(),
 			     xParamPtr->getId(), yParamPtr->getId(),
 			     this->application()->name());
   mHistoryPlotList.append(lQwtPlot);
   lQwtPlot->show();
 
   // And make the connection to ensure that the graph updates
-  connect(this, SIGNAL(paramUpdateSignal()), 
+  connect(this, SIGNAL(paramUpdateSignal()),
 	  lQwtPlot, SLOT(updateSlot()));
- 
+
   // Make connection so that the graph can tell us when it has been closed
-  connect(lQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this, 
+  connect(lQwtPlot, SIGNAL(plotClosedSignal(HistoryPlot*)), this,
 	  SLOT(plotClosedSlot(HistoryPlot*)));
 
   // So that the user can select which history plot to add a curve to
@@ -928,7 +928,7 @@ void ControlForm::newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr,
 //----------------------------------------------------------------
 void ControlForm::plotClosedSlot(HistoryPlot *ptr){
 
-  // Plot closed so remove from list (Auto delete means Qt will then destroy 
+  // Plot closed so remove from list (Auto delete means Qt will then destroy
   // the associated HistoryPlot object)
   mHistoryPlotList.removeRef(ptr);
 }
@@ -938,7 +938,7 @@ void ControlForm::plotSelectedSlot(HistoryPlot *plot){
 
   if(mUserChoosePlotMode && mParamToAdd){
     plot->addPlot(mParamToAdd->mParamHist,
-		  mParamToAdd->getLabel(), 
+		  mParamToAdd->getLabel(),
 		  mParamToAdd->getId());
     mUserChoosePlotMode = false;
     mParamToAdd = NULL;

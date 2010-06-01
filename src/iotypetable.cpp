@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -66,9 +66,9 @@
 #include <q3table.h>
 
 
-IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, 
+IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
 			 QMutex *aMutex, bool aChkPtType)
-  : Table(aParent, aName, aSimHandle), mChkPtTypeFlag(aChkPtType), 
+  : Table(aParent, aName, aSimHandle), mChkPtTypeFlag(aChkPtType),
     mRestartRowIndex(kNULL_INDX), mRestartRowIndexNew(kNULL_INDX),
     mMutexPtr(aMutex)
 {
@@ -76,8 +76,8 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
 
   // set so list items automatically deleted
   mIOTypeList.setAutoDelete( TRUE );
-  
-  // create table to display iotypes 
+
+  // create table to display iotypes
   // table will either display sample or checkpoints - controlform.cpp controls this
 
   // as well as displaying iotypes in a table (one per row), a list of iotype objects
@@ -86,7 +86,7 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
   // that represents that iotype
   // each table row holds the iotype id in a column hidden form the user
 
-  // note: many functions similar to Steeredparametertable class (and iotype 
+  // note: many functions similar to Steeredparametertable class (and iotype
   // similar to paramater) - not looking
   // at merging as iotype display may well change SMR XXX
 
@@ -99,20 +99,20 @@ IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
   connect(this, SIGNAL(currentChanged(int, int)), this, SLOT(currentChangedSlot(int, int)));
 
   // MR:
-  connect(this, SIGNAL(setRestartButtonStateSignal(const bool)), aParent, 
+  connect(this, SIGNAL(setRestartButtonStateSignal(const bool)), aParent,
 	  SLOT(setRestartButtonStateSlot(const bool)));
-  connect(this, SIGNAL(setCreateButtonStateSignal(const bool)), aParent, 
+  connect(this, SIGNAL(setCreateButtonStateSignal(const bool)), aParent,
 	  SLOT(setCreateButtonStateSlot(const bool)));
-  connect(this, SIGNAL(setConsumeButtonStateSignal(const bool)), aParent, 
+  connect(this, SIGNAL(setConsumeButtonStateSignal(const bool)), aParent,
 	  SLOT(setConsumeButtonStateSlot(const bool)));
-  connect(this, SIGNAL(setEmitButtonStateSignal(const bool)), aParent, 
+  connect(this, SIGNAL(setEmitButtonStateSignal(const bool)), aParent,
 	  SLOT(setEmitButtonStateSlot(const bool)));
-  
+
   // MR:
   // Ensure that instances of this table aren't drawn too large,
   // since they're unlikely to be particularly full
   setMinimumHeight(70);
-  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, 
+  setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding,
 			    QSizePolicy::MinimumExpanding));
 }
 
@@ -135,7 +135,7 @@ IOTypeTable::initTable()
   setLeftMargin(0);
 
   horizontalHeader()->setLabel(kIO_ID_COLUMN, "ID");
-  horizontalHeader()->setLabel(kIO_NAME_COLUMN, "Name"); 
+  horizontalHeader()->setLabel(kIO_NAME_COLUMN, "Name");
   horizontalHeader()->setLabel(kIO_VALUE_COLUMN, "Freq");
   horizontalHeader()->setLabel(kIO_NEWVALUE_COLUMN, "New Freq");
 
@@ -150,13 +150,13 @@ IOTypeTable::initTable()
   setColumnReadOnly(kIO_ID_COLUMN, TRUE);
   setColumnReadOnly(kIO_NAME_COLUMN, TRUE);
   setColumnReadOnly(kIO_VALUE_COLUMN, TRUE);
-  
+
   // id column used internally only, therefore not show on gui
   hideColumn(kIO_ID_COLUMN);
   setColumnWidth(kIO_NAME_COLUMN, 200);
   setColumnWidth(kIO_VALUE_COLUMN, 40);
   setColumnWidth(kIO_NEWVALUE_COLUMN, 70);
-  
+
   // set up signal/slot to handle data entered by user
   connect (this, SIGNAL( valueChanged(int,int) ),
 	   this, SLOT( validateValueSlot(int,int) ) );
@@ -169,7 +169,7 @@ IOTypeTable::getNumIOTypes() const
  return getMaxRowIndex();
 }
 
-int 
+int
 IOTypeTable::findIOTypeRowIndex(int aId) // SMR XXX used???
 {
   // search iotype list to find iotype with aId.
@@ -178,8 +178,8 @@ IOTypeTable::findIOTypeRowIndex(int aId) // SMR XXX used???
   // return -1 if iotype not found
 
   IOType *lIOTypePtr;
-    
-  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -189,7 +189,7 @@ IOTypeTable::findIOTypeRowIndex(int aId) // SMR XXX used???
     }
     ++mIOTypeIterator;
   }
-  
+
   return -1;
 
 }
@@ -202,8 +202,8 @@ IOTypeTable::findIOType(int aId)
   // return kNULL is iotype not in list
 
   IOType *lIOTypePtr;
-    
-  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -213,12 +213,12 @@ IOTypeTable::findIOType(int aId)
     }
     ++mIOTypeIterator;
   }
-  
+
   return kNULL;
 
 }
 
-bool 
+bool
 IOTypeTable::updateRow(const int lHandle, const int lVal)
 {
   // Search list of existing iotypes for this lHandle
@@ -227,7 +227,7 @@ IOTypeTable::updateRow(const int lHandle, const int lVal)
 
   IOType	*lIOTypePtr;
   if ((lIOTypePtr = findIOType(lHandle)) != kNULL)
-  { 
+  {
     int lRowIndex = lIOTypePtr->getRowIndex();
     item(lRowIndex,kIO_VALUE_COLUMN)->setText(QString::number(lVal));
     updateCell(lRowIndex, kIO_VALUE_COLUMN);
@@ -259,7 +259,7 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
       emit enableChkPtButtonsSignal();
     else
       emit enableSampleButtonsSignal();
-  }  
+  }
 
   // MR: removed - was causing problems, and giving no noticeable benefit
   //if (lRowIndex >= getNumInitRows())
@@ -270,10 +270,10 @@ IOTypeTable::addRow(const int lHandle, const char *lLabel, const int lVal, const
 
   IOType	*lIOTypePtr;
   lIOTypePtr = new IOType(lHandle, lType);
-  
+
   setText(lRowIndex, kIO_ID_COLUMN, QString::number(lHandle) );
   setText(lRowIndex, kIO_NAME_COLUMN, lLabel);
-  setItem(lRowIndex, kIO_VALUE_COLUMN, 
+  setItem(lRowIndex, kIO_VALUE_COLUMN,
 	  new Q3TableItem(this, Q3TableItem::Never, QString::number(lVal)));
   setItem(lRowIndex, kIO_NEWVALUE_COLUMN,
 	  new Q3TableItem(this, Q3TableItem::OnTyping, QString::null));
@@ -307,13 +307,13 @@ void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
   // this is done when the the application has detached
   // and hence is not longer steerable
 
-  // need to flag that app has detached to prevent any further validation of 
+  // need to flag that app has detached to prevent any further validation of
   // values user is currently editing
   setAppDetached();
 
   IOType *lIOTypePtr;
-    
-  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -329,7 +329,7 @@ void IOTypeTable::clearAndDisableForDetach(const bool aUnRegister)
 
     ++mIOTypeIterator;
   }
-  setReadOnly(TRUE); 
+  setReadOnly(TRUE);
 
 }
 
@@ -339,8 +339,8 @@ void IOTypeTable::clearNewValues()
   // this is done when the values have been emitted to the application
 
   IOType *lIOTypePtr;
-    
-  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
   mIOTypeIterator.toFirst();
   while ( (lIOTypePtr = mIOTypeIterator.current()) != 0)
   {
@@ -350,10 +350,10 @@ void IOTypeTable::clearNewValues()
 
     ++mIOTypeIterator;
   }
-  
+
 }
 
-void 
+void
 IOTypeTable::validateValueSlot( int aRow, int aCol )
 {
   // validate the value entered by user and set on gui,
@@ -367,40 +367,40 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 
   try
   {
-    
+
     if (getAppAttached())
     {
 
       if (aCol == kIO_NEWVALUE_COLUMN)
       {
 	bool lOk = true;
-	
+
 	//always allow empty in which case frequency set to kNULL_REQ , otherwise validate int
 	int lFreq = kNULL_FREQ;
-	if (!this->text( aRow, aCol ).isEmpty())      
+	if (!this->text( aRow, aCol ).isEmpty())
 	  lFreq = this->text( aRow, aCol ).toInt( &lOk );
-	
+
 	if (lOk)
 	{
 	  // get iotype ID from hidden column and use this get iotype from the list
 	  int lId = this->text( aRow, kIO_ID_COLUMN ).toInt(&lOk);
 	  if (!lOk)
 	    THROWEXCEPTION("Failed to get iotype ID from row in table");
-	  
+
 	  IOType *lIOTypePtr = findIOType(lId);
 	  if  (lIOTypePtr == kNULL)
 	    THROWEXCEPTION("Failed to find iotype in list");
-	
+
 	  // validate freq and return whether or not valid
 	  lOk = lIOTypePtr->validateAndSetFrequency(lFreq);
 	}
-	
+
 	if (!lOk)
 	{
-	  QMessageBox::information(0, "Invalid Frequency", 
+	  QMessageBox::information(0, "Invalid Frequency",
 				   "The entered value is not valid",
 				   QMessageBox::Ok,
-				   Qt::NoButton, 
+				   Qt::NoButton,
 				   Qt::NoButton);
 	  setText( aRow, aCol, QString::null );
 	  // SMR XXX make that cell the selected one -  to do setCurrentCell not work
@@ -426,7 +426,7 @@ IOTypeTable::validateValueSlot( int aRow, int aCol )
 		   QMessageBox::NoButton,
 		   this, "Modeless warning", false);
     mb.setModal(false);
-    mb.exec();    
+    mb.exec();
   }
 
 
@@ -437,20 +437,20 @@ int
 IOTypeTable::setNewFreqValuesInLib()
 {
   // call ReG library function to set the new frequency values as per set in the GUI
-  // get the value direct from gui table 
+  // get the value direct from gui table
   // clear all new value cells in table once values have been set
   // return the number of values set
 
   // Note: this only sets the values in the library - the "emit" of the new values
   // to the steered application is done elsewhere via Emit_control()
-		     
+
   if (getMaxRowIndex()==0)
     return 0;
 
 
   IOType *lIOTypePtr;
   int lCount = 0;
-  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );	    
+  Q3PtrListIterator<IOType> mIOTypeIterator( mIOTypeList );
   int *lHandles = kNULL;
   int *lFreqs = kNULL;
   int lIndex=0;
@@ -464,7 +464,7 @@ IOTypeTable::setNewFreqValuesInLib()
     {
       if (lIOTypePtr->getFrequency() > kNULL_FREQ)
 	lCount++;
-      
+
       ++mIOTypeIterator;
     }
 
@@ -473,7 +473,7 @@ IOTypeTable::setNewFreqValuesInLib()
       // set up arrays for ReG libary call
       lHandles = new int [lCount];
       lFreqs = new int [lCount];
-      
+
       mIOTypeIterator.toFirst();
       while ( ((lIOTypePtr = mIOTypeIterator.current()) != 0) &&
 	      (lIndex <lCount) )
@@ -485,7 +485,7 @@ IOTypeTable::setNewFreqValuesInLib()
 	  lIndex++;
 	}
 	++mIOTypeIterator;
-	
+
       }
 
       int lReGStatus = REG_FAILURE;
@@ -511,18 +511,18 @@ IOTypeTable::setNewFreqValuesInLib()
       {
 	THROWEXCEPTION("Set_iotype_freq");
       }
-      
+
       // clear the cells in the table
       clearNewValues();
-            
+
       // clean up
       delete [] lHandles;
       delete [] lFreqs;
-      
+
     }
-    
+
   } //try
-  
+
   catch (SteererException StEx)
     {
       // clean up
@@ -547,11 +547,11 @@ IOTypeTable::emitValuesSlot()
   // ready for user to enter the next values
   int lReGStatus = REG_FAILURE;
 
-  try 
+  try
   {
 
     if (setNewFreqValuesInLib() > 0)
-    {  
+    {
       mMutexPtr->lock();
       // "emit" values to steered application
       lReGStatus = Emit_control(getSimHandle(),	       	//ReG library
@@ -572,12 +572,12 @@ IOTypeTable::emitValuesSlot()
   {
     StEx.print();
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", 
+    QMessageBox::warning(0, "Steerer Error",
 			 "Failed to emit new parameter values - detaching from application",
 			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
+			 QMessageBox::NoButton,
 			 QMessageBox::NoButton);
-    
+
   }
 
 
@@ -589,7 +589,7 @@ IOTypeTable::emitValuesSlot()
  */
 void IOTypeTable::selectionChangedSlot(){
     REG_DBGMSG("\nIOTypeTable::selectionChanged called\n");
-    
+
     if (!getAppAttached())
       return;
 
@@ -624,12 +624,12 @@ void IOTypeTable::setConsumeEmitButtonStates(){
   for (int i=0; i<numRows(); i++){
     if (isRowSelected(i)){
       numTotalRowsSelected++;
-      
+
       if (text(i, kIO_REQUEST_COLUMN).compare("Input") == 0)
         numInputRowsSelected++;
       else // It's an "Output"
         numOutputRowsSelected++;
-        
+
     }
   }
 
@@ -650,7 +650,7 @@ void IOTypeTable::setConsumeEmitButtonStates(){
     // disable both the buttons
     emit setEmitButtonStateSignal(false);
   }
-  
+
 }
 
 /** Unfortunatley this is called on a double click too - at which point
@@ -714,7 +714,7 @@ void IOTypeTable::setCreateRestartButtonStates(){
  */
 int IOTypeTable::getCommandRequestsCountNew(){
   int lCount = 0;
-  
+
   for (int i=0; i<numRows(); i++){
     if (isRowSelected(i))
       lCount++;
@@ -798,18 +798,18 @@ void IOTypeTable::createButtonPressedSlot(){
     delete [] lCmdParamArray;
 
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", 
+    QMessageBox::warning(0, "Steerer Error",
 			 "Failed to emit commands to create "
-			 "checkpoint - detaching from application", 
-			 QMessageBox::Ok, QMessageBox::NoButton, 
-			 QMessageBox::NoButton);    
+			 "checkpoint - detaching from application",
+			 QMessageBox::Ok, QMessageBox::NoButton,
+			 QMessageBox::NoButton);
   }
 }
 
 /** MR: this slot will replace the current emitRestartSlot
  */
 void IOTypeTable::restartButtonPressedSlot(){
-  // this slot will only get called for the Create button form, 
+  // this slot will only get called for the Create button form,
   // so no need to worry about the other table
   int *lCommandArray = kNULL;
   char **lCmdParamArray = kNULL;
@@ -837,24 +837,24 @@ void IOTypeTable::restartButtonPressedSlot(){
           // Get number log entries for this checkpoint
           int lNumEntries = 0;
           mMutexPtr->lock();
-          if (Get_chk_log_number(getSimHandle(), 
+          if (Get_chk_log_number(getSimHandle(),
 				 lCmdId, &lNumEntries) != REG_SUCCESS)
             THROWEXCEPTION("Get_chk_log_number");
           mMutexPtr->unlock();
 
           if (lNumEntries > 0){
             // get list of ChkTags from log
-            lChkPtForm = new ChkPtForm(lNumEntries, getSimHandle(), lCmdId, 
+            lChkPtForm = new ChkPtForm(lNumEntries, getSimHandle(), lCmdId,
 				       mMutexPtr, this);
 
             if (lChkPtForm->getLibReturnStatus() == REG_SUCCESS){
               if (lChkPtForm->exec() == QDialog::Accepted){
-                REG_DBGMSG1("ChkPt accepted, tag = ", 
+                REG_DBGMSG1("ChkPt accepted, tag = ",
 			lChkPtForm->getChkTagSelected());
-                sprintf(lCmdParamArray[0], "IN %s", 
+                sprintf(lCmdParamArray[0], "IN %s",
 			lChkPtForm->getChkTagSelected());
 
-                if (Emit_control(getSimHandle(), 1, lCommandArray, 
+                if (Emit_control(getSimHandle(), 1, lCommandArray,
 				 lCmdParamArray) != REG_SUCCESS){
                   THROWEXCEPTION("Emit_control");
                 }
@@ -869,20 +869,20 @@ void IOTypeTable::restartButtonPressedSlot(){
             }
 
             delete lChkPtForm;
-            
+
           } // if lNumEntries > 0
           else {
-            QMessageBox::information(0, "CheckPoint Restart", 
-				     "No checkpoints found in log", 
-				     QMessageBox::Ok, 
-				     Qt::NoButton, 
+            QMessageBox::information(0, "CheckPoint Restart",
+				     "No checkpoints found in log",
+				     QMessageBox::Ok,
+				     Qt::NoButton,
 				     Qt::NoButton);
           }
         } // if (lOk)
 
         else
           THROWEXCEPTION("Failed to get iotype ID from row in table");
-          
+
       } // if isRowSelected(mRestartRowIndexNew)
       else {
         REG_DBGMSG("mRestartRowIndexNew row not selected - resetting");
@@ -897,13 +897,13 @@ void IOTypeTable::restartButtonPressedSlot(){
       delete[] lCommandArray;
       delete[] lCmdParamArray[0];
       delete[] lCmdParamArray;
-      
+
     } // if mRestartRowIndexNew > kNULL_INDX
     else {
-      QMessageBox::information(0, "Steerer Restart Functionality", 
+      QMessageBox::information(0, "Steerer Restart Functionality",
 			       "Please select checkpoint IOType for "
 			       "application to use for restart",
-                               QMessageBox::Ok, Qt::NoButton, 
+                               QMessageBox::Ok, Qt::NoButton,
 			       Qt::NoButton);
     }
 
@@ -918,12 +918,12 @@ void IOTypeTable::restartButtonPressedSlot(){
     delete lChkPtForm;
 
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", 
-			 "Internal library error - detaching from application", 
-			 QMessageBox::Ok, QMessageBox::NoButton, 
+    QMessageBox::warning(0, "Steerer Error",
+			 "Internal library error - detaching from application",
+			 QMessageBox::Ok, QMessageBox::NoButton,
 			 QMessageBox::NoButton);
-  }  
-  
+  }
+
 }
 
 /** Replaces the original populateCommandRequestArray method with a version
@@ -986,18 +986,18 @@ int IOTypeTable::populateCommandRequestArrayOfType(int *aCmdArray, char **aCmdPa
     // Check to see if we've found a row matching the passed
     // type in the Sample IOType / Data IO Table
     if (!mChkPtTypeFlag && lIOTypePtr->getType() == aType){
-    
+
       if (isRowSelected(lIOTypePtr->getRowIndex())){
         aCmdArray[lIndex] = lIOTypePtr->getId();
         if (mChkPtTypeFlag) // this should always be the case
           strcpy(aCmdParamArray[lIndex], "OUT 1");
-          
+
         lIndex++;
         lNumAdded++;
       }
-      
+
     }
-    
+
     ++mIOTypeIterator;
   }
 
@@ -1016,7 +1016,7 @@ void IOTypeTable::consumeButtonPressedSlot(){
   // search through the table and find any highlighted entries,
   // read in data for those
   REG_DBGMSG("consumeButtonPressedSlot");
-  
+
   // this slot will get called for the CheckPoint IOTypes table
   // as well, so ignore those events
   if (mChkPtTypeFlag)
@@ -1025,10 +1025,10 @@ void IOTypeTable::consumeButtonPressedSlot(){
   int lCount = 0;
   int *lCommandArray = kNULL;
   char **lCmdParamArray = kNULL;
-    
+
   try {
     lCount = getCommandRequestsCountOfType(REG_IO_IN);
-    
+
     if (lCount > 0){
       lCommandArray = new int[lCount];
       lCmdParamArray = new char*[lCount];
@@ -1054,9 +1054,9 @@ void IOTypeTable::consumeButtonPressedSlot(){
         delete[] lCmdParamArray[i];
       }
       delete[] lCmdParamArray;
-      
+
     } // if lCount > 0
-    
+
   } // try
   catch (SteererException StEx){
     StEx.print();
@@ -1067,11 +1067,11 @@ void IOTypeTable::consumeButtonPressedSlot(){
       delete[] lCmdParamArray[i];
     }
     delete[] lCmdParamArray;
-    
+
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", 
-			 "Internal library error - detaching from application", 
-			 QMessageBox::Ok, QMessageBox::NoButton, 
+    QMessageBox::warning(0, "Steerer Error",
+			 "Internal library error - detaching from application",
+			 QMessageBox::Ok, QMessageBox::NoButton,
 			 QMessageBox::NoButton);
   }
 
@@ -1105,13 +1105,13 @@ void IOTypeTable::emitButtonPressedSlot(){
         strcpy(lCmdParamArray[i], " ");
       }
 
-      int lNumAdded = populateCommandRequestArrayOfType(lCommandArray, 
-							lCmdParamArray, 
-							lCount, 0, 
+      int lNumAdded = populateCommandRequestArrayOfType(lCommandArray,
+							lCmdParamArray,
+							lCount, 0,
 							REG_IO_OUT);
       // library call to emit application
       if (lNumAdded > 0){
-        if (Emit_control(getSimHandle(), lNumAdded, lCommandArray, 
+        if (Emit_control(getSimHandle(), lNumAdded, lCommandArray,
 			 lCmdParamArray) != REG_SUCCESS){
           THROWEXCEPTION("Emit_control");
         }
@@ -1139,10 +1139,9 @@ void IOTypeTable::emitButtonPressedSlot(){
     delete[] lCmdParamArray;
 
     emit detachFromApplicationForErrorSignal();
-    QMessageBox::warning(0, "Steerer Error", 
-			 "Failed to emit commands - detaching from application", 
-			 QMessageBox::Ok, QMessageBox::NoButton, 
+    QMessageBox::warning(0, "Steerer Error",
+			 "Failed to emit commands - detaching from application",
+			 QMessageBox::Ok, QMessageBox::NoButton,
 			 QMessageBox::NoButton);
   }
 }
-

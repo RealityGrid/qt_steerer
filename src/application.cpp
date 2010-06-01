@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -75,11 +75,11 @@
 #include <Q3HBoxLayout>
 #include <QEvent>
 
-Application::Application(QWidget *aParent, const char *aName, 
+Application::Application(QWidget *aParent, const char *aName,
 			 int aSimHandle, bool aIsLocal, QMutex *aMutex)
-  : QWidget(aParent, aName), mSimHandle(aSimHandle), mMutexPtr(aMutex), 
-    mNumCommands(0), mDetachSupported(false), mStopSupported(false), 
-    mPauseSupported(false),  mResumeSupported(false), mDetachedFlag(false), 
+  : QWidget(aParent, aName), mSimHandle(aSimHandle), mMutexPtr(aMutex),
+    mNumCommands(0), mDetachSupported(false), mStopSupported(false),
+    mPauseSupported(false),  mResumeSupported(false), mDetachedFlag(false),
     mStatusTxt(""), mControlForm(kNULL), mControlBox(kNULL)
 {
 
@@ -88,21 +88,21 @@ Application::Application(QWidget *aParent, const char *aName,
 
   // construct form for steering one application
   REG_DBGCON("Application");
-  
+
   // create some layouts for positioning
   Q3HBoxLayout *lFormLayout = new Q3HBoxLayout(this, 6, 6);
   ///  QVBoxLayout *lButtonLayout = new QVBoxLayout(-1, "hb1" );
 
-  // create the form which contains all the (dynamic) steered data 
+  // create the form which contains all the (dynamic) steered data
   // (parameters etc)
   mControlBox = new Q3GroupBox(1, Qt::Vertical, "", this, "editbox" );
-  mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this, 
+  mControlForm = new ControlForm(mControlBox, aName, aSimHandle, this,
 				 mMutexPtr);
   lFormLayout->addWidget(mControlBox);
   //this->addChild(mControlBox);
 
   // connect up signaL/slot for close
-  connect (this, SIGNAL(closeApplicationSignal(int)), aParent, 
+  connect (this, SIGNAL(closeApplicationSignal(int)), aParent,
 	   SLOT(closeApplicationSlot(int)) );
 
   // MR
@@ -120,7 +120,7 @@ Application::Application(QWidget *aParent, const char *aName,
   mIOTableVisible = true;
   mSteerTableVisible = true;
   mMonTableVisible = true;
-} 
+}
 
 Application::~Application()
 {
@@ -158,11 +158,11 @@ void Application::detachFromApplication()
 void
 Application::disableForDetach(const bool aUnRegister)
 {
-  mControlForm->disableAll(aUnRegister);  
+  mControlForm->disableAll(aUnRegister);
   // ARPDBG - no longer wait for confirmation and thus
   // let user close form when done.
   mControlForm->setEnabledClose(true);
-}  
+}
 
 /** As for disableForDetach but called when an error condition
   * has occurred - leaves the 'close' button enabled
@@ -172,10 +172,10 @@ Application::disableForDetachOnError()
 {
   mControlForm->disableAll(true);
   mControlForm->setEnabledClose(true);
-}  
+}
 
-void 
-Application::enableCmdButtons() 
+void
+Application::enableCmdButtons()
 {
   // Enable/disable single command buttons for application
   int lReGStatus = REG_FAILURE;
@@ -191,11 +191,11 @@ Application::enableCmdButtons()
   try
   {
     mMutexPtr->lock();
-    lReGStatus = Get_supp_cmd_number(mSimHandle, &mNumCommands);  //ReG library 
+    lReGStatus = Get_supp_cmd_number(mSimHandle, &mNumCommands);  //ReG library
     mMutexPtr->unlock();
 
     if (lReGStatus == REG_SUCCESS)
-    {  
+    {
       if (mNumCommands > 0)
       {
 	lCmdIds = new int[mNumCommands];
@@ -208,32 +208,32 @@ Application::enableCmdButtons()
 	  THROWEXCEPTION("Get_supp_cmds");
       }
     }
-    else 
+    else
       THROWEXCEPTION("Get_supp_cmd_number");
-    
+
     for (int i=0; i<mNumCommands; i++)
     {
       switch (lCmdIds[i])
-      {    
+      {
         case REG_STR_STOP:
 	  mControlForm->setEnabledStop(TRUE);
 	  mStopSupported = true;
 	  break;
-	  
+
         case REG_STR_PAUSE:
 	  mControlForm->setEnabledPause(TRUE);
 	  mPauseSupported = true;
 	  break;
-	  
+
         case REG_STR_RESUME:
 	  mResumeSupported = true;
 	  break;
-	  
+
         case REG_STR_DETACH:
 	  mControlForm->setEnabledDetach(TRUE);
 	  mDetachSupported = true;
 	  break;
-	     
+
         default:
 	  break;
       } // switch
@@ -247,13 +247,13 @@ Application::enableCmdButtons()
 
   catch (SteererException StEx)
   {
-    delete [] lCmdIds; 
+    delete [] lCmdIds;
     lCmdIds = kNULL;
-    
-    StEx.print();    
+
+    StEx.print();
     throw StEx;
   }
-  
+
 
 
 }
@@ -268,7 +268,7 @@ Application::closeApplicationSlot()
   // so get rid of form for this application
 
   // Tell steering lib we're detaching if not already.
-  // May not be detached if still waiting for application to act on 
+  // May not be detached if still waiting for application to act on
   // Stop/detach command.
   if (!mDetachedFlag)
     detachFromApplication();
@@ -287,7 +287,7 @@ Application::detachFromApplicationForErrorSlot()
 }
 
 
-void 
+void
 Application::emitDetachCmdSlot()
 {
   if(emitSingleCmd(REG_STR_DETACH) != REG_SUCCESS){
@@ -300,37 +300,37 @@ Application::emitDetachCmdSlot()
   mSteerer->statusBarMessageSlot(this, message);
 }
 
-void 
+void
 Application::emitStopCmdSlot()
 {
 
-//  if (QMessageBox::information(0, "Stop Application", 
+//  if (QMessageBox::information(0, "Stop Application",
 //				  "Are you sure?",
 //				  QMessageBox::Ok,
-//				  QMessageBox::Cancel, 
+//				  QMessageBox::Cancel,
 //				  QMessageBox::NoButton) == QMessageBox::Ok)
-//    
+//
 // {
   if(emitSingleCmd(REG_STR_STOP) != REG_SUCCESS){
     return;
   }
 
-  // make gui read only 
+  // make gui read only
   disableForDetach(false);
   QString message = QString("Attached - awaiting user requested stop");
   mSteerer->statusBarMessageSlot(this, message);
 }
 
 //------------------------------------------------------------------------
-void 
+void
 Application::emitPauseCmdSlot()
 {
   QString message;
 
-  // Disable Pause and enable resume if supported (should be forced 
+  // Disable Pause and enable resume if supported (should be forced
   // to support both in library)
   if(!getCurrentStatus().contains("paused", FALSE)){
-    
+
     if(emitSingleCmd(REG_STR_PAUSE) != REG_SUCCESS){
       return;
     }
@@ -376,26 +376,26 @@ Application::emitSingleCmd(int aCmdId)
 
   //  int lCommandArray[1];
   //  lCommandArray[0] = aCmdId;
- 
-  try 
+
+  try
   {
     mMutexPtr->lock();
     switch(aCmdId){
 
     case REG_STR_STOP:
-      lReGStatus = Emit_stop_cmd(mSimHandle);		//ReG library 
+      lReGStatus = Emit_stop_cmd(mSimHandle);		//ReG library
       break;
 
     case REG_STR_PAUSE:
-      lReGStatus = Emit_pause_cmd(mSimHandle);		//ReG library 
+      lReGStatus = Emit_pause_cmd(mSimHandle);		//ReG library
       break;
 
     case REG_STR_RESUME:
-      lReGStatus = Emit_resume_cmd(mSimHandle);		//ReG library 
+      lReGStatus = Emit_resume_cmd(mSimHandle);		//ReG library
       break;
 
     case REG_STR_DETACH:
-      lReGStatus = Emit_detach_cmd(mSimHandle);		//ReG library 
+      lReGStatus = Emit_detach_cmd(mSimHandle);		//ReG library
       break;
 
     default:
@@ -414,10 +414,10 @@ Application::emitSingleCmd(int aCmdId)
     StEx.print();
     // ARP - it's OK for app. to reject a command
     //detachFromApplicationForErrorSlot();
-    QMessageBox::warning(0, "Steerer Error", 
+    QMessageBox::warning(0, "Steerer Error",
 			 "Application rejected command",
 			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
+			 QMessageBox::NoButton,
 			 QMessageBox::NoButton);
   }
 
@@ -428,11 +428,11 @@ Application::emitSingleCmd(int aCmdId)
 void
 Application::customEvent(QEvent *aEvent)
 {
-  // this function will be executed when main GUI thread gets round to processing 
+  // this function will be executed when main GUI thread gets round to processing
   // the event posted by our CommsThread.
 
-  // NOTE: Using postEvent means main GUI thread executes processNextMessage  
-  // - alternative is to have CommsThread execute processNextMessage 
+  // NOTE: Using postEvent means main GUI thread executes processNextMessage
+  // - alternative is to have CommsThread execute processNextMessage
   // but then we need to worry about locking within Qt GUI related methods
 
   // only expect events with type (User+kMSG_EVENT)
@@ -469,7 +469,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
     switch(aMsgType){
 
     case IO_DEFS:
-    
+
       REG_DBGMSG("Application::processNextMessage Got IOdefs message");
       // update IOType list and table
       mControlForm->updateIOTypes(false);
@@ -483,13 +483,13 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       break;
 
     case PARAM_DEFS:
-      
+
       REG_DBGMSG("Application::processNextMessage Got param defs message");
       // update parameter list and table
       mControlForm->updateParameters(false);
 
       break;
-      
+
     case STATUS:
 
       REG_DBGMSG("Application::processNextMessage Got status message");
@@ -499,7 +499,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
       detached = false;
       // update parameter list and table
       mControlForm->updateParameters(true);
-      
+
       // update IOType list and table (needed for frequency update)
       mControlForm->updateIOTypes(false);	// sample types
       mControlForm->updateIOTypes(true);	// checkpoint types
@@ -509,19 +509,19 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 
       // now deal with commands
       for(int i=0; i<num_cmds && !detached; i++){
-  
+
 	REG_DBGMSG2("Recd Cmd", i, commands[i]);
 	int lSimHandle = mSimHandle;
-		      
+
 	switch(commands[i]){
-	  
+
 	case REG_STR_DETACH:
 	  {
 	  REG_DBGMSG("Application::processNextMessage Received "
 		 "detach command from application");
 	  detached = true;
 	  mMutexPtr->lock();
-	  Delete_sim_table_entry(&lSimHandle);     //ReG library 
+	  Delete_sim_table_entry(&lSimHandle);     //ReG library
 	  mMutexPtr->unlock();
 
 	  // make GUI form for this application read only
@@ -535,16 +535,16 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 	  mDetachedFlag = true;
 	  break;
 	  }
- 
+
 	case REG_STR_STOP:
 	  {
 	  REG_DBGMSG("Application::processNextMessage Received stop "
 		 "command from application");
 	  detached = true;
 	  mMutexPtr->lock();
-	  Delete_sim_table_entry(&lSimHandle);		//ReG library 
+	  Delete_sim_table_entry(&lSimHandle);		//ReG library
 	  mMutexPtr->unlock();
-	  
+
 	  // make GUI form for this application read only
 	  disableForDetach(true);
 	  QString message = QString("Detached as application has stopped");
@@ -564,7 +564,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 
       break;
 
-    case STEER_LOG: 
+    case STEER_LOG:
       REG_DBGMSG("Application::processNextMessage Got steer_log message");
       mControlForm->updateParameterLog();
       break;
@@ -576,7 +576,7 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
     case CONTROL:
       REG_DBGMSG("Application::processNextMessage Got control message");
       break;
-	    
+
     case SUPP_CMDS:
       REG_DBGMSG("Application::processNextMessage Got supp_cmds message");
       break;
@@ -603,15 +603,15 @@ Application::processNextMessage(CommsThreadEvent *aEvent)
 
     /* ARPDBG - this is draconian
     // detach from application (or at least attempt to)
-    // make form read only and update status 
+    // make form read only and update status
 
     detachFromApplication();
     disableForDetachOnError();
     QMessageBox::warning(0, "Steerer Error", "Internal library error - detaching from application",
 			 QMessageBox::Ok,
-			 QMessageBox::NoButton, 
+			 QMessageBox::NoButton,
 			 QMessageBox::NoButton);
-    
+
     QString message = QString("Detached from application due to internal error");
     mSteerer->statusBarMessageSlot(this, message);
     */
@@ -649,7 +649,7 @@ void Application::emitGridRestartCmdSlot(){
 				  "", // passphrase
 				  &rpDoc) != REG_SUCCESS ){
 
-      THROWEXCEPTION("Call to get ResourcePropertyDocument on " 
+      THROWEXCEPTION("Call to get ResourcePropertyDocument on "
 		     + text + " failed");
     }
 
@@ -657,25 +657,25 @@ void Application::emitGridRestartCmdSlot(){
     doc.setContent(QString(rpDoc));
     QDomElement docElem = doc.documentElement();
     QDomNodeList list = docElem.elementsByTagName("Chk_UID");
-    if(list.count() != 1) 
+    if(list.count() != 1)
       THROWEXCEPTION("Did not find only one Chk_UID element in the RP "
 		     "Doc from node " + text);
 
     QDomText uidNode = list.item(0).firstChild().toText();
     if( uidNode.isNull() )
       THROWEXCEPTION("Failed to get value of UID for node " + text);
-    
+
     // Get the UID of the checkpoint node as a QString
     text = uidNode.nodeValue();
 
     // Now get the handle of this checkpoint
     list = docElem.elementsByTagName("Chk_type");
-    if(list.count() != 1) 
+    if(list.count() != 1)
       THROWEXCEPTION("Did not find only one Chk_type element in the RP "
 		     "Doc from node " + text);
 
     uidNode = list.item(0).firstChild().toText();
-    if( uidNode.isNull() ) 
+    if( uidNode.isNull() )
       THROWEXCEPTION("Failed to get Chk_type value for node " + text);
 
     QString lChkHandle = uidNode.nodeValue();
@@ -706,7 +706,7 @@ void Application::emitGridRestartCmdSlot(){
 		   Qt::NoButton,
 		   this, "Modeless warning", false);
     mb.setModal(false);
-    mb.exec(); 
+    mb.exec();
 
     soap_end(&mySoap);
     soap_done(&mySoap);

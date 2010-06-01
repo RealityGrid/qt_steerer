@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -50,7 +50,7 @@
 
 /** @file parameter.cpp
     @brief Parameter class for QT steerer GUI.
- 
+
     Class represents a steered or monitored parameter.
 
     @author Sue Ramsden
@@ -66,7 +66,7 @@
 Parameter::Parameter(int aId, int aType, bool aSteerable,
 		     QString aLabel)
   : mSteerable(aSteerable), mRegisteredFlag(true),
-    mPresentFlag(true), mRowIndex(-1), mId(aId), mType(aType), 
+    mPresentFlag(true), mRowIndex(-1), mId(aId), mType(aType),
     mLabel(aLabel)
 {
   REG_DBGCON("Parameter constructor");
@@ -83,7 +83,7 @@ Parameter::~Parameter()
 bool
 Parameter::checkRegistered()
 {
-  // if mPresent is false, ReG library has not returned this parameter 
+  // if mPresent is false, ReG library has not returned this parameter
   // in the last Get_param_values() call hence
   // it must have been unregistered by the application
   // So set mRegisteredFlag to indicate this and return it
@@ -100,8 +100,8 @@ Parameter::checkRegistered()
 
 }
 
-bool 
-Parameter::isSteerable() const 
+bool
+Parameter::isSteerable() const
 {
   return mSteerable;
 }
@@ -111,35 +111,35 @@ void
 Parameter::printParameter(Q3Table *lTablePtr) const
 {
   printf("Parameter handle=%d, index=%d\n", getId(), getRowIndex());
-  printf("   Value is %s \n", 
+  printf("   Value is %s \n",
 	 lTablePtr->text(getRowIndex(), kVALUE_COLUMN).latin1());
   if (mSteerable)
-    printf("   NewValue is %s \n", 
+    printf("   NewValue is %s \n",
 	   lTablePtr->text(getRowIndex(), kNEWVALUE_COLUMN).latin1());
 }
 
-int 
-Parameter::getId() const 
+int
+Parameter::getId() const
 {
-  return mId; 
+  return mId;
 }
 
-int 
-Parameter::getType() const 
+int
+Parameter::getType() const
 {
   return mType;
 }
 
-int 
-Parameter::getRowIndex() const  
+int
+Parameter::getRowIndex() const
 {
   return mRowIndex;
 }
- 
-bool 
-Parameter::isRegistered() const 
-{ 
-  return mRegisteredFlag; 
+
+bool
+Parameter::isRegistered() const
+{
+  return mRegisteredFlag;
 }
 
 void
@@ -149,9 +149,9 @@ Parameter::setIndex(int aIndex)
 }
 
 void
-Parameter::unRegister() 
-{ 
-  mRegisteredFlag = false; 
+Parameter::unRegister()
+{
+  mRegisteredFlag = false;
 }
 
 void Parameter::setMinMaxStrings(const char *min, const char *max){

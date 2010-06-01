@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -49,7 +49,7 @@
  */
 
 /** @file iotype.cpp
-    @brief IOType class for QT steerer GUI. 
+    @brief IOType class for QT steerer GUI.
 
     @author Sue Ramsden
     @author Mark Riding
@@ -78,7 +78,7 @@ IOType::IOType(int aId, int aIOTypeType)
 
   // Once registered IOTypes cannot be unregistered by the steered application
 
-  // All iotypes support on demand emit/consume (i.e. user demands via gui) and 
+  // All iotypes support on demand emit/consume (i.e. user demands via gui) and
   // auto emit/consume as dictated by frequency.  Auto consume is NOT relevant to checkpoint types.
 
 }
@@ -88,7 +88,7 @@ IOType::~IOType()
    REG_DBGDST("IOType");
 }
 
-void 
+void
 IOType::printIOType() const
 {
   REG_DBGMSG2("IOType handle/Type", getId(), getType());
@@ -119,10 +119,10 @@ IOType::getFrequency() const
 }
 
 void
-IOType::setIndex(const int aRowIndex) 
+IOType::setIndex(const int aRowIndex)
 {
   mRowIndex = aRowIndex;
-}  
+}
 
 
 bool
@@ -131,10 +131,10 @@ IOType::validateAndSetFrequency(const int aFreq)
   // validate and if OK set the mNewFrequency value as entered on GUI
   // Note: at this point GUI has already validated that user has entered an integer
 
-  // SMR XXX future:  add iotype specific validation here when iotype ranges specified 
+  // SMR XXX future:  add iotype specific validation here when iotype ranges specified
 
   bool lValid = false;
-  
+
   // note - user (unknowingly) sets null frequency by clearing the cell
   // a null freqency is valid and indicates that no new frequency has been specifed for this IOType
   if (aFreq >= kNULL_FREQ)
@@ -150,7 +150,7 @@ IOType::validateAndSetFrequency(const int aFreq)
       lValid = true;
 //SMR    }
   }
-  
+
   return lValid;
 
 }

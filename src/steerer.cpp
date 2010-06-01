@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -80,7 +80,7 @@
     @brief The main source file for the steering client */
 
 //file scope global pointer pointing at this SteererMainWindow object; need this to
-//perform clean up.  
+//perform clean up.
 SteererMainWindow* gSteererMainWindowSelfPtr;
 
 // exception handler function called when new fails
@@ -100,11 +100,11 @@ int failedNewHandler(size_t size)
 
 extern "C" void signalHandler(int aSignal)
 {
-  
+
   // caught one signal - ignore all others now as going to quit and do not
   // want the quit process to be interrupted and restarted...
   signal(SIGINT, SIG_IGN);	//ctrl-c
-  signal(SIGTERM, SIG_IGN);	//kill (note cannot (and should not) catch kill -9)  
+  signal(SIGTERM, SIG_IGN);	//kill (note cannot (and should not) catch kill -9)
   signal(SIGSEGV, SIG_IGN);
   signal(SIGILL, SIG_IGN);
   signal(SIGABRT, SIG_IGN);
@@ -115,11 +115,11 @@ extern "C" void signalHandler(int aSignal)
     case SIGINT:
       cout << "Interrupt signal received (signal " << aSignal << ")" << endl;
       break;
-      
+
     case SIGTERM:
       cout << "Kill signal received (signal " << aSignal << ")" << endl;
       break;
-      
+
     case SIGSEGV:
       cout << "Illegal Access caught (signal " << aSignal << ")" << endl;
       break;
@@ -171,7 +171,7 @@ int main( int argc, char ** argv )
   gSteererMainWindowSelfPtr = kNULL;
 
   signal(SIGINT, signalHandler);	//ctrl-c
-  signal(SIGTERM, signalHandler);	//kill (note cannot (and should not) catch kill -9)  
+  signal(SIGTERM, signalHandler);	//kill (note cannot (and should not) catch kill -9)
   signal(SIGSEGV, signalHandler);
   signal(SIGILL, signalHandler);
   signal(SIGABRT, signalHandler);
@@ -203,7 +203,7 @@ int main( int argc, char ** argv )
   REG_DBGLOG("Steerer starting...\n");
 
   // note no need to lock mutex  here as commsthread not running
-  
+
   // initialise steerer via library
   if (Steerer_initialize() == REG_SUCCESS)		//ReG library
   {
@@ -227,12 +227,12 @@ int main( int argc, char ** argv )
       lSteererMainWindow = new SteererMainWindow();
     gSteererMainWindowSelfPtr = lSteererMainWindow;
     lApp.setMainWidget( lSteererMainWindow );
-    
+
     lSteererMainWindow->show();
-    
+
     lApp.connect( &lApp, SIGNAL( lastWindowClosed() ), &lApp, SLOT( quit() ) );
     result = lApp.exec();
-    
+
     delete lSteererMainWindow;
 
     REG_DBGLOG("Steerer quitting.");
@@ -254,5 +254,3 @@ int main( int argc, char ** argv )
   }
 
 }
-
-

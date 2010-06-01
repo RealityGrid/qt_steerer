@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -95,12 +95,12 @@ public:
 private:
   void cleanUp();
 
-  bool isThreadRunning() const;					     
+  bool isThreadRunning() const;
   void resizeForNoAttached();
 
 protected slots:
   void attachAppSlot();
-  void quitSlot(); 
+  void quitSlot();
   // Replaced by thead to get messages
   //void readMsgSlot();
   void closeApplicationSlot(int aSimHandle);

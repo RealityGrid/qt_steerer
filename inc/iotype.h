@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -64,7 +64,7 @@ public:
   int getType() const;
   int getRowIndex() const;
   int getFrequency() const;
- 
+
   int  getAndResetFrequency();
 
   void setIndex(const int aIndex);

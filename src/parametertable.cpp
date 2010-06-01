@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -69,10 +69,10 @@
 #include <qinputdialog.h>
 
 #include "historyplot.h"
-  
-ParameterTable::ParameterTable(QWidget *aParent, const char *aName, 
+
+ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
 			       int aSimHandle, QMutex *aMutex)
-  : Table(aParent, aName, aSimHandle), mMutexPtr(aMutex), 
+  : Table(aParent, aName, aSimHandle), mMutexPtr(aMutex),
     mParent((ControlForm*)aParent)
 {
   REG_DBGCON("ParameterTable");
@@ -81,7 +81,7 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
   mParamList.setAutoDelete( TRUE );
 
   // create table to display all monitored parameters
-  // as well as displaying parameters in a table (one per row), a list of 
+  // as well as displaying parameters in a table (one per row), a list of
   // parameter objects is also held on the class
   // each parameter object holds the row id  of the row in the parameter table
   // that represents that parameter
@@ -93,21 +93,21 @@ ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
   setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
   mMonParamTable = NULL;
-}  
+}
 
 ParameterTable::~ParameterTable()
 {
   unsigned int i;
   REG_DBGDST("~ParameterTable");
 
-  // Delete plot list first because the QwtPlotter objects have references to 
+  // Delete plot list first because the QwtPlotter objects have references to
   // data in the Parameter objects.  Auto delete means associated objects
   // are deleted by Qt.
   for(i=0; i<mParent->mHistoryPlotList.count(); i++){
     mParent->mHistoryPlotList.remove(i);
   }
-  
-  // Delete parameter list.  Auto delete set in constuctor so the Parameter 
+
+  // Delete parameter list.  Auto delete set in constuctor so the Parameter
   // objects are deleted by Qt
   for(i=0; i<mParamList.count(); i++){
     mParamList.remove(i);
@@ -117,40 +117,40 @@ ParameterTable::~ParameterTable()
 
 void
 ParameterTable::initTable()
-{  
+{
   // set up the monitored parameters table - columns headings, readonly status of columns etc.
 
   setNumCols(kNUM_MON_COLUMNS);
   setReadOnly(TRUE);
- 
+
   setShowGrid(FALSE);
   verticalHeader()->hide();
   setLeftMargin(0);
 
   horizontalHeader()->setLabel(kID_COLUMN, "ID");
-  horizontalHeader()->setLabel(kNAME_COLUMN, "Name"); 
+  horizontalHeader()->setLabel(kNAME_COLUMN, "Name");
   horizontalHeader()->setLabel(kREG_COLUMN, "Registered?");
   horizontalHeader()->setLabel(kVALUE_COLUMN, "Value");
- 
+
   hideColumn(kID_COLUMN);
   hideColumn(kREG_COLUMN);
   setColumnWidth(kREG_COLUMN, 90);
   setColumnWidth(kNAME_COLUMN, 200);
   setColumnWidth(kVALUE_COLUMN, 85);
 
-  // MR: add a context menu so that we can right click on a cell to 
+  // MR: add a context menu so that we can right click on a cell to
   // draw a graph of that parameter's history
-  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), 
+  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)),
 	  this, SLOT(contextMenuSlot(int, int, const QPoint &)));
 }
 
-int 
+int
 ParameterTable::getNumParameters() const
 {
   return getMaxRowIndex();
 }
 
-bool 
+bool
 ParameterTable::updateRow(const int lHandle, const char *lVal,
 			  const bool isStatusMsg)
 {
@@ -160,22 +160,22 @@ ParameterTable::updateRow(const int lHandle, const char *lVal,
   Parameter *lParamPtr;
   if ((lParamPtr = findParameter(lHandle)) != kNULL)
   {
-    // update the parameter value and call updateCell to make sure 
+    // update the parameter value and call updateCell to make sure
     // display is updated immediately
-    // Note: we could make the QTableItem displayed in this cell a 
-    // member of parameter class  and just update that each time 
+    // Note: we could make the QTableItem displayed in this cell a
+    // member of parameter class  and just update that each time
     // SMR XXX to check.
-    if((lVal[0] != '\0') && 
+    if((lVal[0] != '\0') &&
        (lParamPtr->getType()==REG_FLOAT || lParamPtr->getType()==REG_DBL)){
       double lTmp;
       if(sscanf(lVal, "%lf", &lTmp) == 1){
 	// We do this to improve the formatting of floating point numbers
 	// - removes excessive decimal places.
-	item(lParamPtr->getRowIndex(), 
+	item(lParamPtr->getRowIndex(),
 	     kVALUE_COLUMN)->setText(QString::number(lTmp));
       }
       else{
-	item(lParamPtr->getRowIndex(), 
+	item(lParamPtr->getRowIndex(),
 	     kVALUE_COLUMN)->setText(QString(" "));
       }
     }
@@ -185,7 +185,7 @@ ParameterTable::updateRow(const int lHandle, const char *lVal,
 
     updateCell(lParamPtr->getRowIndex(),kVALUE_COLUMN);
 
-    // If this update is a result of a status message then log values 
+    // If this update is a result of a status message then log values
     // of all parameters except those that are strings
     if( isStatusMsg && (lParamPtr->getType() != REG_CHAR) ){
       lParamPtr->mParamHist->updateParameter(lVal);
@@ -199,10 +199,10 @@ ParameterTable::updateRow(const int lHandle, const char *lVal,
 }
 
 //----------------------------------------------------------------------
-void 
-ParameterTable::addRow(const int lHandle, 
-		       const char *lLabel, 
-		       const char *lVal, 
+void
+ParameterTable::addRow(const int lHandle,
+		       const char *lLabel,
+		       const char *lVal,
 		       const int lType)
 {
   // add a new parameter to the table and parameter list
@@ -213,22 +213,22 @@ ParameterTable::addRow(const int lHandle,
   //if (lRowIndex >= getNumInitRows())
   insertRows(lRowIndex);
 
-  Parameter *lParamPtr = new Parameter(lHandle, lType, false, 
+  Parameter *lParamPtr = new Parameter(lHandle, lType, false,
 				       QString(lLabel));
-  
-  setText(lRowIndex, kID_COLUMN, 
+
+  setText(lRowIndex, kID_COLUMN,
 	  QString::number(lHandle) );
   setText(lRowIndex, kNAME_COLUMN, lLabel);
   setText(lRowIndex, kREG_COLUMN, "Yes");
-  
+
   if( (lVal[0] != '\0') && (lType == REG_FLOAT || lType == REG_DBL) ){
     double lTmp;
     sscanf(lVal, "%lf", &lTmp);
-    setItem(lRowIndex, kVALUE_COLUMN, 
+    setItem(lRowIndex, kVALUE_COLUMN,
 	    new Q3TableItem(this, Q3TableItem::Never,  QString::number(lTmp)));
   }
   else{
-    setItem(lRowIndex, kVALUE_COLUMN, 
+    setItem(lRowIndex, kVALUE_COLUMN,
 	    new Q3TableItem(this, Q3TableItem::Never,  QString( lVal)));
   }
   lParamPtr->setIndex(lRowIndex);
@@ -239,9 +239,9 @@ ParameterTable::addRow(const int lHandle,
 
   mParamList.append(lParamPtr);
   incrementRowIndex();
-  
+
   REG_DBGMSG1("mMaxRowIndexPtr", getMaxRowIndex());
-	
+
 }
 
 
@@ -256,7 +256,7 @@ ParameterTable::findParameterRowIndex(int aId)  // SMR XXX used anywhere??
 
   Parameter *lParamPtr;
 
-  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
@@ -281,7 +281,7 @@ ParameterTable::findParameter(int aId)
 
   Parameter *lParamPtr;
 
-  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
@@ -298,7 +298,7 @@ ParameterTable::findParameter(int aId)
 //-----------------------------------------------------------------
 // MR: reverse lookup of parameter ID
 Parameter* ParameterTable::findParameterHandleFromRow(int row){
-  // search through the parameter list for the parameter which 
+  // search through the parameter list for the parameter which
   // has the given row index
   // return the id of that parameter
   // return kNULL if parameter is not in the list
@@ -325,7 +325,7 @@ Parameter* ParameterTable::findParameterFromLabel(const QString &label)
   SteeredParameterTable *lSteeredTable;
 
   if( (lMonTable = mParent->getMonParamTable()) ){
-  
+
     Q3PtrListIterator<Parameter> lParamIterator( lMonTable->mParamList );
     lParamIterator.toFirst();
     while ( (lParamPtr = lParamIterator.current()) != 0){
@@ -359,8 +359,8 @@ ParameterTable::clearAndDisableForDetach(const bool aUnRegister)
   // set all values in "Register?" column to "No" as application has detached
 
   Parameter *lParamPtr;
-    
-  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
+
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );
   mParamIterator.toFirst();
 
   while ( aUnRegister && (lParamPtr = mParamIterator.current()) != 0)
@@ -385,20 +385,20 @@ void ParameterTable::contextMenuSlot(int row, int column, const QPoint &pnt){
 
   Q3PopupMenu popupMenu;
 
-  id = popupMenu.insertItem(QString("Fetch full &history of this parameter"), 
-			    this, 
-			    SLOT(requestParamHistorySlot(int)), 
+  id = popupMenu.insertItem(QString("Fetch full &history of this parameter"),
+			    this,
+			    SLOT(requestParamHistorySlot(int)),
 			    Qt::CTRL+Qt::Key_H, row, 0);
 
   if( (id >= 0) && paramPtr->mHaveFullHistory){
     popupMenu.setItemEnabled(id, false);
   }
 
-  popupMenu.insertItem(QString("&Draw history graph"), this, 
+  popupMenu.insertItem(QString("&Draw history graph"), this,
 		       SLOT(drawGraphSlot(int)), Qt::CTRL+Qt::Key_D, row, 0);
 
   if( mParent->mHistoryPlotList.count() > 0 ){
-    popupMenu.insertItem(QString("Add to History Graph"), this, 
+    popupMenu.insertItem(QString("Add to History Graph"), this,
 			 SLOT(addGraphSlot(int)), Qt::CTRL+Qt::Key_M, row, 0);
   }
 
@@ -473,18 +473,18 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
 
   // Ask the user for the label of the parameter to plot against.
   bool ok;
-  QString labelIn = QInputDialog::getText("Steerer", 
-					  "Enter label of parameter to plot against:", 
+  QString labelIn = QInputDialog::getText("Steerer",
+					  "Enter label of parameter to plot against:",
 					  QLineEdit::Normal,
 					  QString("SEQUENCE_NUM"), &ok, this );
   if ( ok && !labelIn.isEmpty() ) {
     // user entered something and pressed OK
     if( !(txParameter = this->findParameterFromLabel(labelIn)) ){
-      QMessageBox::warning(0, "Parameter selection failed", 
+      QMessageBox::warning(0, "Parameter selection failed",
 			   QString("Failed to find parameter with label ")+
 			   labelIn,
 			   QMessageBox::Ok,
-			   QMessageBox::NoButton, 
+			   QMessageBox::NoButton,
 			   QMessageBox::NoButton);
 
       return;
@@ -494,7 +494,7 @@ void ParameterTable::drawGraphSlot(int popupMenuID){
     return;
   }
 
-  mParent->newHistoryPlot(txParameter, tParameter, labelIn, 
+  mParent->newHistoryPlot(txParameter, tParameter, labelIn,
 			  text(popupMenuID, kNAME_COLUMN));
 }
 
@@ -542,7 +542,7 @@ void ParameterTable::updateParameterLog(){
     if(status == REG_SUCCESS){
       lParamPtr->mParamHist->mPtrPreviousHistArray = dum_ptr;
       lParamPtr->mParamHist->mPreviousHistArraySize = dum_int;
-      //cout << "ARPDBG: handle = "<< lParamPtr->getId() << 
+      //cout << "ARPDBG: handle = "<< lParamPtr->getId() <<
       //", size of history = "  <<
       //lParamPtr->mParamHist->mPreviousHistArraySize << endl;
       //for(int i=0; i < dum_int; i++){
@@ -562,7 +562,7 @@ void ParameterTable::updateParameterLog(){
 
 }
 
-SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName, 
+SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName,
 					     ParameterTable *aTable, int aSimHandle,
 					     QMutex *aMutex)
   : ParameterTable(aParent, aName, aSimHandle, aMutex)
@@ -572,7 +572,7 @@ SteeredParameterTable::SteeredParameterTable(QWidget *aParent, const char *aName
   mMonParamTable = aTable;
 
   // set up signal/slot to enable buttons when table has some data
-  connect(this, SIGNAL(enableButtonsSignal()), aParent, 
+  connect(this, SIGNAL(enableButtonsSignal()), aParent,
 	  SLOT(enableParamButtonsSlot()));
 }
 
@@ -580,10 +580,10 @@ SteeredParameterTable::~SteeredParameterTable()
 {
   REG_DBGDST("SteeredParameterTable");
 }
-  
+
 void
 SteeredParameterTable::initTable()
-{  
+{
   // set up the steered parameters table - columns headings, readonly status of columns etc.
 
   setNumCols(kNUM_STEER_COLUMNS);
@@ -593,7 +593,7 @@ SteeredParameterTable::initTable()
   setLeftMargin(0);
 
   horizontalHeader()->setLabel(kID_COLUMN, "ID");
-  horizontalHeader()->setLabel(kNAME_COLUMN, "Name"); 
+  horizontalHeader()->setLabel(kNAME_COLUMN, "Name");
   horizontalHeader()->setLabel(kREG_COLUMN, "Registered?");
   horizontalHeader()->setLabel(kVALUE_COLUMN, "Value");
   horizontalHeader()->setLabel(kNEWVALUE_COLUMN, "New Value");
@@ -617,17 +617,17 @@ SteeredParameterTable::initTable()
   connect (this, SIGNAL( valueChanged(int,int) ),
 	   this, SLOT( validateValueSlot(int,int) ) );
 
-  // ARP: add a context menu so that we can right click on a cell to 
+  // ARP: add a context menu so that we can right click on a cell to
   // draw a graph of that (steerable) parameter's history
-  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)), 
+  connect(this, SIGNAL(contextMenuRequested(int, int, const QPoint &)),
 	  this, SLOT(contextMenuSlot(int, int, const QPoint &)));
 }
 
 
-void 
+void
 SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 {
-  // validate the value entered by user and set on gui, 
+  // validate the value entered by user and set on gui,
   // otherwise just post invalid msg and clear cell of invalid entry
 
   // Note: we do not store this new value on the parameter class - when we commit
@@ -637,7 +637,7 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 
   // MR:
   QString newVal = text(aRow, aCol);
- 
+
   try
   {
 
@@ -651,7 +651,7 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
     int lId = this->text( aRow, kID_COLUMN ).toInt(&lOk);
     if (!lOk)
       THROWEXCEPTION("Failed to get parameter ID from row in table");
-    
+
     Parameter *lParamPtr = findParameter(lId);
     if  (lParamPtr == kNULL)
       THROWEXCEPTION("Failed to find parameter in list");
@@ -664,7 +664,7 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
       noMinValue = true;
     if (strcmp(maxString, "--") == 0)
       noMaxValue = true;
-      
+
     // validate what user has entered - currently just validate it is correct type
     // SMR XXX future - add more validation when range supported - will mean calling parameter member func
     // as ranges will be held on parameter class
@@ -692,7 +692,7 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
               }
               break;
             }
-              
+
             case REG_FLOAT:
             {
               float newFloat = newVal.toFloat( &lOk );
@@ -709,7 +709,7 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
               }
               break;
             }
-              
+
             case REG_DBL:
             {
               double newDouble = newVal.toDouble( &lOk );
@@ -726,10 +726,10 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
               }
               break;
             }
-            
+
             case REG_CHAR:
               break;
-              
+
             default:
               THROWEXCEPTION("Unknown parameter type");
         }
@@ -737,12 +737,12 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 
       if (!lOk)
       {
-	QMessageBox::information(parentWidget(), "Invalid Parameter Value", 
+	QMessageBox::information(parentWidget(), "Invalid Parameter Value",
 				 "The entered value is not valid.\n"
 				 "Please hover your mouse over the input box\n"
 				 "to see the permitted range of values.",
 				 QMessageBox::Ok,
-				 Qt::NoButton, 
+				 Qt::NoButton,
 				 Qt::NoButton);
 	setText( aRow, aCol, QString::null );
 	// SMR XXX - focus moves to cell below - fix so current cell remains selected - to do
@@ -773,7 +773,7 @@ SteeredParameterTable::validateValueSlot( int aRow, int aCol )
 }
 
 
-void 
+void
 SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char *lVal, const int lType, const char *lMinVal, const char *lMaxVal)
 {
 
@@ -790,16 +790,16 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
   //else
   //  setRowReadOnly(lRowIndex, FALSE);  // set true in initTable SMR XXX rm when initRows goes
 
-  Parameter *lParamPtr = new Parameter(lHandle, lType, true, 
+  Parameter *lParamPtr = new Parameter(lHandle, lType, true,
 				       QString(lLabel));
   lParamPtr->setMinMaxStrings(lMinVal, lMaxVal);
-	     
-  setText(lRowIndex, kID_COLUMN, 
+
+  setText(lRowIndex, kID_COLUMN,
 	     QString::number(lHandle) );
   setText(lRowIndex, kNAME_COLUMN, lLabel);
   setText(lRowIndex, kREG_COLUMN, "Yes");
 
-  setItem(lRowIndex, kVALUE_COLUMN, 
+  setItem(lRowIndex, kVALUE_COLUMN,
 	     new Q3TableItem(this, Q3TableItem::Never,  QString( lVal)));
   setItem(lRowIndex, kNEWVALUE_COLUMN,
 	     new Q3TableItem(this, Q3TableItem::OnTyping,  QString::null));
@@ -807,21 +807,21 @@ SteeredParameterTable::addRow(const int lHandle, const char *lLabel, const char 
   lParamPtr->setIndex(lRowIndex);
   mParamList.append(lParamPtr);
   incrementRowIndex();
-	     
+
   REG_DBGMSG1("Steer MaxRowIndex Ptr", getMaxRowIndex());
-   
+
 }
 
 //----------------------------------------------------------------------
 int
 SteeredParameterTable::setNewParamValuesInLib()
 {
-  // call ReG library function to set the new parameter values as 
+  // call ReG library function to set the new parameter values as
   // per set in the GUI
-  // get the value direct from gui table 
+  // get the value direct from gui table
   // clear all new value cells in table once values have been set
   // return the number of parameters set
-  
+
   // Note: this only sets the values in the library - the "emit" of the new values
   // to the steered application is done elsewhere via Emit_control()
 
@@ -830,7 +830,7 @@ SteeredParameterTable::setNewParamValuesInLib()
 
   Parameter *lParamPtr;
   int lCount=0;
-  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );
   mParamIterator.toFirst();
 
   int *lHandles = kNULL;
@@ -849,37 +849,37 @@ SteeredParameterTable::setNewParamValuesInLib()
 	// this means never possible to set string parameter to empty string - may need revisit
 	if (!(text(lParamPtr->getRowIndex(), kNEWVALUE_COLUMN).isEmpty()))
 	lCount++;
-      }    
+      }
       ++mParamIterator;
     }
-    
-    
+
+
     if (lCount >0)
     {
       // populate arrays for ReG library call Set_param_values
       lHandles = new int [lCount];
       lVals = new char *[lCount];
-      
+
       int lLength=0;
       mParamIterator.toFirst();
       while ( (lParamPtr = mParamIterator.current()) != 0)
       {
-	if (lParamPtr->isSteerable() && 
+	if (lParamPtr->isSteerable() &&
 	    !(this->text(lParamPtr->getRowIndex(), kNEWVALUE_COLUMN).isEmpty()))
 	{
 	  lHandles[lIndex] = lParamPtr->getId();
 	  lLength = this->text(lParamPtr->getRowIndex(), kNEWVALUE_COLUMN).length();
 	  lVals[lIndex] = new char[lLength + 1];
-	  
-	  sprintf(lVals[lIndex], "%s", 
+
+	  sprintf(lVals[lIndex], "%s",
 		  this->text(lParamPtr->getRowIndex(), kNEWVALUE_COLUMN).latin1());
-	  
+
 	  lIndex++;
 	}
-      
+
 	++mParamIterator;
       }
-      
+
       int lReGStatus = REG_FAILURE;
 
       mMutexPtr->lock();
@@ -897,16 +897,16 @@ SteeredParameterTable::setNewParamValuesInLib()
 
       // clear the cells in the table
       clearNewValues();
-    
+
       // clean up
       delete [] lHandles;
       for(int i=0; i<lIndex; i++){
 	delete [] lVals[i];
       }
       delete [] lVals;
-      
+
     } // if lCount>0
- 
+
   } //try
 
   catch (SteererException StEx)
@@ -920,7 +920,7 @@ SteeredParameterTable::setNewParamValuesInLib()
 
     throw StEx;
   }
-  
+
   REG_DBGMSG1("setNewParamValues, lCount = ", lCount);
   return lIndex;
 
@@ -949,17 +949,17 @@ void SteeredParameterTable::emitValuesSlot()
 				NULL,
 				NULL);
       mMutexPtr->unlock();
-     
+
       if (lReGStatus != REG_SUCCESS)
 	THROWEXCEPTION("Emit_contol");
-      
+
       // note: steerer has no control over when the application will actually read these new values
       // thus there will be an indeterminate delay between emitting the values and the steerer gui
       // showing that value as the parameters current value
       // logging of what has been emitted would be very useful for the user here. SMR XXX
-      
+
     }
-    
+
   } //try
 
   catch (SteererException StEx)
@@ -975,21 +975,21 @@ void SteeredParameterTable::emitValuesSlot()
 		    QMessageBox::NoButton,
 		    this, "Modeless warning", false);
     mb.setModal(false);
-    mb.exec();    
+    mb.exec();
   }
 
 }
 
 //--------------------------------------------------------------------
-void 
+void
 SteeredParameterTable::clearNewValues()
 {
   // clear all the (editable) new value cells in the table
   // this is done when the values have been emitted to the application
 
   Parameter *lParamPtr;
-    
-  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
+
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
@@ -1001,7 +1001,7 @@ SteeredParameterTable::clearNewValues()
 }
 
 //--------------------------------------------------------------------
-void 
+void
 SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
 {
   // clear all the (editable) new value cells in the table
@@ -1009,13 +1009,13 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
   // this is done when the the application has detached
   // and hence is not longer steerable
 
-  // need to flag that app has detached to prevent any further validation of 
+  // need to flag that app has detached to prevent any further validation of
   // values user is currently editing
   setAppDetached();
 
   Parameter *lParamPtr;
-    
-  Q3PtrListIterator<Parameter> mParamIterator( mParamList );	    
+
+  Q3PtrListIterator<Parameter> mParamIterator( mParamList );
   mParamIterator.toFirst();
   while ( (lParamPtr = mParamIterator.current()) != 0)
   {
@@ -1027,7 +1027,7 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
     // if do not do this the setItem statement does not work
     if (isSelected(lRowIndex, kNEWVALUE_COLUMN))
       setCurrentCell(0, kNAME_COLUMN);
-    
+
     // clear new value cells
     item(lRowIndex, kNEWVALUE_COLUMN)->setText(QString::null);
     updateCell(lRowIndex, kNEWVALUE_COLUMN);
@@ -1035,7 +1035,7 @@ SteeredParameterTable::clearAndDisableForDetach(const bool aUnRegister)
   }
 
   // set table read only
-  setReadOnly(TRUE); 
+  setReadOnly(TRUE);
 
 }
 
@@ -1052,14 +1052,14 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QString &string) {
   // Get the rows and columns
   int singleRowHeight = verticalHeader()->sectionSize(0); // They're all the same
   int scrolled = contentsY();
-    
+
   // Check that we're not in the title bar
   if (pnt.y() < singleRowHeight)
     return -1;
 
   // headerHeight is the vertical size of the horizontal table header
   int headerHeight = horizontalHeader()->height();
-  // adjustedPos is the mouse coordinate moved from the table 
+  // adjustedPos is the mouse coordinate moved from the table
   // coordinate system to the scroll window coordinate system
   int adjustedPos = scrolled + (pnt.y() - headerHeight);
 
@@ -1074,7 +1074,7 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QString &string) {
 
   // Check that we're not below last row (actualRow is zero-indexed
   // but getMaxRowIndex() returns actual no. of populated rows)
-  if (actualRow >= getMaxRowIndex()) 
+  if (actualRow >= getMaxRowIndex())
     return -1;
 
   // And grab the text from the Paramter object and send it back to the tooltip
@@ -1092,7 +1092,7 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QString &string) {
 
   QString minStr = lParamPtr->getMinString();
   QString maxStr = lParamPtr->getMaxString();
-  
+
   if (minStr.compare(QString("--")) == 0){
     if (maxStr.compare(QString("--")) == 0){
       // then they're both untested so let the user know they can add anything
@@ -1132,7 +1132,7 @@ int SteeredParameterTable::getTip(const QPoint &pnt, QString &string) {
   else
     // there are both upper and lower bounds
     string = QString(minStr+" <= ? <= "+maxStr);
- 
+
   // Return success!
   return 0;
 }

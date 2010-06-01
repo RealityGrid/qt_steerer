@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -59,15 +59,15 @@
 #include "debug.h"
 
 Table::Table(QWidget *aParent, const char *aName, int aSimHandle)
-  : Q3Table(aParent, aName),  mSimHandle(aSimHandle), mInitNumRows(0), 
+  : Q3Table(aParent, aName),  mSimHandle(aSimHandle), mInitNumRows(0),
     mMaxRowIndex(0), mAppAttached(true)
 {
   REG_DBGCON("Table");
 
   // Note: used mNumInitRows to force table to have rows before any data received.
   // This workaround as if have zero rows until parameters consumed and hence displayed, the table always
-  // has a scroll bar - even if only one row!  
-  // Need to fix this properly if poss and get rid of mNumInitRows. (QT issue) SMR XXX 
+  // has a scroll bar - even if only one row!
+  // Need to fix this properly if poss and get rid of mNumInitRows. (QT issue) SMR XXX
 
   // mMaxRowIndex - number rows populated with data in the table (i.e. number of parameters diaplayed)
 
@@ -81,7 +81,7 @@ Table::~Table()
 }
 
 
-void 
+void
 Table::setAppDetached()
 {
   mAppAttached=false;
@@ -112,20 +112,20 @@ Table::getAppAttached() const
 
 // MR: removed - was causing problems, and giving no noticeable benefit
 /*
-int 
+int
 Table::getNumInitRows() const
 {
   return mInitNumRows;
 }
 */
 
-int 
+int
 Table::getMaxRowIndex() const
 {
   return mMaxRowIndex;
 }
- 
-int 
+
+int
 Table::getSimHandle() const
 {
   return mSimHandle;

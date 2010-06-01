@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -58,9 +58,9 @@ using namespace std;
 //---------------------------------------------------------------------------
 HistorySubPlot::HistorySubPlot(HistoryPlot *lHistPlot,
 			       QwtPlot *lPlotter,
-			       ParameterHistory *lXParamHist, 
-			       ParameterHistory *lYParamHist, 
-			       const QString &lLabely, 
+			       ParameterHistory *lXParamHist,
+			       ParameterHistory *lYParamHist,
+			       const QString &lLabely,
 			       const int yparamID,
 			       const QString lColour)
   : mHistPlot(lHistPlot), mPlotter(lPlotter), mXParamHist(lXParamHist),
@@ -83,7 +83,7 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
 {
   QwtSymbol lPlotSymbol;
   int ltmp = 0;
-  bool lReplotHistory = lForceHistRedraw || 
+  bool lReplotHistory = lForceHistRedraw ||
     (mYParamHist->mPreviousHistArraySize != mPreviousLogSize);
 
   mPreviousLogSize = mYParamHist->mPreviousHistArraySize;
@@ -111,7 +111,7 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
     this->graphDisplayCurves();
   }
 
-//   if(mHistCurveID == CURVE_UNSET && 
+//   if(mHistCurveID == CURVE_UNSET &&
 //      mYParamHist->mPreviousHistArraySize > 0){
 //     mHistCurveID = mPlotter->insertCurve(mLabely);
 //     this->graphDisplayCurves();
@@ -163,7 +163,7 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
   }
 
   // Shallow copy of data for plot
-  mCurve->setRawData(mXParamHist->ptrToArray(), 
+  mCurve->setRawData(mXParamHist->ptrToArray(),
 		     mYParamHist->ptrToArray(), nPoints);
 
   if(lReplotHistory) {
@@ -172,7 +172,7 @@ void HistorySubPlot::doPlot(bool lForceHistRedraw=false)
       nPoints = mXParamHist->mPreviousHistArraySize;
     }
     if(nPoints) {
-      mHistCurve->setRawData(mXParamHist->mPtrPreviousHistArray, 
+      mHistCurve->setRawData(mXParamHist->mPtrPreviousHistArray,
 			     mYParamHist->mPtrPreviousHistArray, nPoints);
     }
   }

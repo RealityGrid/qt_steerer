@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -65,9 +65,9 @@
 class IOTypeTable : public Table
 {
   Q_OBJECT
-    
+
 public:
-  IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle, 
+  IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
 	      QMutex *aMutex, bool aChkPtType = false);
   ~IOTypeTable();
 
@@ -101,7 +101,7 @@ protected slots:
   // MR:
   void createButtonPressedSlot();
   void restartButtonPressedSlot();
-  
+
   void selectionChangedSlot();
   void currentChangedSlot(int row, int column);
 
@@ -111,7 +111,7 @@ protected slots:
 signals:
   void enableSampleButtonsSignal();
   void enableChkPtButtonsSignal();
-  
+
   void setRestartButtonStateSignal(const bool aEnable);
   void setCreateButtonStateSignal(const bool aEnable);
   void setConsumeButtonStateSignal(const bool aEnable);

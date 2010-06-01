@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -69,20 +69,20 @@ class ParameterTable : public Table
 {
   Q_OBJECT
 
-public: 
+public:
   ParameterTable(QWidget *aParent, const char *aName, int aSimHandle,
 		 QMutex *aMutex);
   virtual ~ParameterTable();
 
   virtual void initTable();
   virtual void clearAndDisableForDetach(const bool aUnRegister = true);
-  /// Update the information shown in an existing row in the 
+  /// Update the information shown in an existing row in the
   /// parameter table
   /// @param lHandle The handle of the parameter to update
   /// @param lVal The value of the parameter (as a char*)
   /// @param isStatusMsg Whether this update has been forced by receipt
   /// of a status message
-  virtual bool updateRow(const int lHandle, 
+  virtual bool updateRow(const int lHandle,
 			 const char *lVal,
 			 const bool isStatusMsg);
   /// Add a row to the parameter table
@@ -90,9 +90,9 @@ public:
   /// @param lLabel The label of this parameter
   /// @param lVal The value of the parameter (as a char*)
   /// @param lType The type of this parameter encoded as an int
-  virtual void addRow(const int lHandle, const char *lLabel, 
+  virtual void addRow(const int lHandle, const char *lLabel,
 		      const char *lVal, const int lType);
-  /// Update the full log of the parameter values (i.e. for the 
+  /// Update the full log of the parameter values (i.e. for the
   /// period before the steering client attached)
   void updateParameterLog();
   /// Get a ptr to Parameter from its handle
@@ -135,7 +135,7 @@ class SteeredParameterTable : public ParameterTable
   Q_OBJECT
 
 public:
-  SteeredParameterTable(QWidget *aParent, const char *aName, 
+  SteeredParameterTable(QWidget *aParent, const char *aName,
 			ParameterTable *aTable, int aSimHandle,
 			QMutex *aMutex);
   virtual ~SteeredParameterTable();
@@ -166,6 +166,3 @@ signals:
 };
 
 #endif
-
-
-

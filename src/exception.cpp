@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -62,8 +62,8 @@ SteererException::SteererException(const char * const aMsgPtr)
   mMsgPtr = new char [ lLen+1 ];
   strcpy(mMsgPtr, aMsgPtr);
 }
- 
-SteererException::SteererException(const char * const aMsgPtr, const char* const aFileNamePtr, 
+
+SteererException::SteererException(const char * const aMsgPtr, const char* const aFileNamePtr,
 const int aLineNumber)
   : mFilenamePtr(aFileNamePtr), mLineNumber(aLineNumber)
 {
@@ -91,9 +91,9 @@ SteererException::getErrorMsg() const
   return mMsgPtr;
 }
 
-void 
-SteererException::print () const 
-{ 
+void
+SteererException::print () const
+{
   cerr << "Exception: " << mMsgPtr ;
   if (mFilenamePtr != kNULL)
     cerr << " at: " <<  mFilenamePtr << " line:" << mLineNumber;

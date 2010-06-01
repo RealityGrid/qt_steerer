@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -59,14 +59,14 @@
 
 class Q3Table;
 
-/// Container for information on a single parameter registered by a 
-/// steerable application. The parameter object holds information about 
+/// Container for information on a single parameter registered by a
+/// steerable application. The parameter object holds information about
 /// a steered or monitored parameter.
-/// Note that not all data is stored in the class - some is simply 
+/// Note that not all data is stored in the class - some is simply
 /// displayed ( and updated) in the gui (in a ParameterTable).
-/// Note that it is theoretically possible for an application to 
-/// unregister a parameter it has previously registered 
-/// - mRegisteredFlag holds this state 
+/// Note that it is theoretically possible for an application to
+/// unregister a parameter it has previously registered
+/// - mRegisteredFlag holds this state
 /// @author Mark Riding
 /// @author Andrew Porter
 /// @author Sue Ramsden
@@ -78,8 +78,8 @@ public:
   Parameter(int aId, int aType, bool aSteerable,
 	    QString aLabel);
   ~Parameter();
-  
-  void printParameter(Q3Table *) const;  
+
+  void printParameter(Q3Table *) const;
 
   /// Get the handle of the parameter
   int getId() const;
@@ -119,8 +119,8 @@ private:
   /// the steered application
   bool		mRegisteredFlag;
   bool		mPresentFlag;
-  /// Stores the index of the row in the table that diaplays this 
-  /// parameter - this is needed to update the table when the 
+  /// Stores the index of the row in the table that diaplays this
+  /// parameter - this is needed to update the table when the
   /// parameter data changes
   int		mRowIndex;
   /// The handle of this parameter as assigned by the steering lib
@@ -137,5 +137,3 @@ private:
 
 
 #endif
-
-

@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -72,7 +72,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
 		     QMutex *aMutex, QWidget *parent, const char *name,
 		     bool modal, Qt::WFlags f)
   : QDialog( parent, name, modal, f ), mNumEntries(aNumEntries), mLibReturnStatus(REG_SUCCESS),
-    mIndexSelected(-1), mListBox(kNULL), mFilterLineEdit(kNULL), 
+    mIndexSelected(-1), mListBox(kNULL), mFilterLineEdit(kNULL),
     mRestartButton(kNULL), mCancelButton(kNULL), mMutexPtr(aMutex)
 {
 
@@ -91,23 +91,23 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
   {
     this->setCaption( "CheckPoint Selector" );
     resize( 350, 350 );
-    
+
     // create the layouts for the form
     Q3HBoxLayout *lFormLayout = new Q3HBoxLayout(this, 10, 10, "chkptformlayout");
     //    QHBoxLayout *lFilterLayout = new QHBoxLayout(6, "filterlayout");
     Q3VBoxLayout *lListLayout = new Q3VBoxLayout(6, "chkptlistlayout");
     Q3VBoxLayout *lButtonLayout = new Q3VBoxLayout(6, "chkptbuttonlayout");
-     
+
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("CheckPoint Tags", this));
     mListBox = new Q3ListBox(this);
-    mListBox->setSelectionMode( Q3ListBox::Single ); 
-     
-    // populate the list box - each listboxitem holds array index information - this is what 
+    mListBox->setSelectionMode( Q3ListBox::Single );
+
+    // populate the list box - each listboxitem holds array index information - this is what
     // is used by the calling code (via  aSimIndexSelected) to identify the aSimGSH selected
     ChkPtListItem *lListItem;
     for (int i=0; i<mNumEntries; i++)
-    {      
+    {
       REG_DBGMSG1("ChkTag ", mLogEntries[i].chk_tag);
 
       // QString(const char *) is deep copy
@@ -115,18 +115,18 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
       mListBox->insertItem( lListItem );
     }
 
-    
+
     // filter to do SMR XXX
 ///    mFilterLineEdit = new QLineEdit(this, "containsfilter");
 ///    connect(mFilterLineEdit, SIGNAL(returnPressed()), this, SLOT(filterSlot()));
-///  
+///
 ///    lFilterLayout->addWidget(new QLabel("Contains", this));
 ///    lFilterLayout->addWidget(mFilterLineEdit);
-///    
-    
+///
+
     lListLayout->addWidget(mListBox);
     ///    lListLayout->addLayout(lFilterLayout);
-    
+
     // MR: setup a button to deal with the view checkpoint parameters functionality
     mParametersButton = new QPushButton("Parameters", this, "parametersbutton");
     mParametersButton->setAutoDefault(FALSE);
@@ -134,11 +134,11 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     connect(mParametersButton, SIGNAL(clicked()), this, SLOT(viewChkPtParametersSlot()));
     connect(mListBox, SIGNAL(doubleClicked(Q3ListBoxItem*)), this, SLOT(viewChkPtParametersDblClkSlot(Q3ListBoxItem*)));
 
-    mRestartButton = new QPushButton("Restart", this, "restartbutton"); 
+    mRestartButton = new QPushButton("Restart", this, "restartbutton");
     mRestartButton->setAutoDefault(FALSE);
     QToolTip::add(mRestartButton, "Restart using selected checkpoint");
     connect(mRestartButton, SIGNAL(clicked()), this, SLOT(restartSlot()));
-    
+
     mCancelButton = new QPushButton("Cancel", this, "cancelbutton");
     mCancelButton->setAutoDefault(FALSE);
     connect(mCancelButton,  SIGNAL(clicked()), this, SLOT( reject()));
@@ -154,7 +154,7 @@ ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
     lButtonLayout->addWidget(mParametersButton);
     lButtonLayout->addWidget(mRestartButton);
     lButtonLayout->addWidget(mCancelButton);
-    
+
     lFormLayout->addLayout(lListLayout);
     lFormLayout->addLayout(lButtonLayout);
   }
@@ -175,11 +175,11 @@ ChkPtForm::cleanUp()
 }
 
 
-int 
+int
 ChkPtForm::getLibReturnStatus() const
 {
   return mLibReturnStatus;
-  
+
 }
 
 char *
@@ -201,10 +201,10 @@ ChkPtForm::restartSlot()
   if (lCurrentItem >= 0)
   {
     if (mListBox->isSelected(lCurrentItem))
-    { 
+    {
       lSelected = true;
       lTmpPtr = (ChkPtListItem *)mListBox->item(lCurrentItem);
-      
+
       REG_DBGMSG1("selected app index: ",lTmpPtr->getEntryIndex());
       mIndexSelected = lTmpPtr->getEntryIndex();
       REG_DBGMSG1("selected chkpt: ", mLogEntries[mIndexSelected].chk_tag);
@@ -216,12 +216,12 @@ ChkPtForm::restartSlot()
   if (!lSelected)
   {
     // no item in the list has been selected
-    QMessageBox::information(0, "Nothing selected", 
+    QMessageBox::information(0, "Nothing selected",
 			     "Please select an item in the list",
 			     QMessageBox::Ok,
-			     QMessageBox::NoButton, 
+			     QMessageBox::NoButton,
 			     QMessageBox::NoButton);
-    
+
   }
 
 }
@@ -237,17 +237,17 @@ ChkPtForm::filterSlot()
   int lLen = mFilterLineEdit->text().length();
 
   ChkPtListItem *lListItem;
-  
+
   if (lLen > 0)
   {
     for (int i=0; i<mNumSims; i++)
-    {  
+    {
       REG_DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
       if (strstr(mSimName[i], mFilterLineEdit->text().latin1()) != kNULL)
       {
 	lListItem = new ChkPtListItem(i, QString(mSimName[i]));
 	mListBox->insertItem( lListItem );
-      }      
+      }
     }
   }
   else
@@ -309,14 +309,14 @@ ChkPtListItem::getEntryIndex() const
 }
 
 
-void 
+void
 ChkPtListItem::paint( QPainter *painter )
 {
     QFontMetrics fm = painter->fontMetrics();
     painter->drawText( 3, fm.ascent() +  (fm.leading()+1)/2 + 1, text() );
 }
 
-int 
+int
 ChkPtListItem::height( const Q3ListBox* lb ) const
 {
     int h = lb ? lb->fontMetrics().lineSpacing() + 2 : 0;
@@ -327,7 +327,7 @@ ChkPtListItem::height( const Q3ListBox* lb ) const
 }
 
 
-int 
+int
 ChkPtListItem::width( const Q3ListBox* lb ) const
 {
     int w = lb ? lb->fontMetrics().width( text() ) + 6 : 0;
@@ -336,5 +336,3 @@ ChkPtListItem::width( const Q3ListBox* lb ) const
     else
       return QApplication::globalStrut().width();
 }
-
-

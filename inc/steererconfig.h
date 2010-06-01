@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -61,7 +61,7 @@ class SteererConfig {
   public:
 
   // Member variables
-  
+
   /** Address of the top-level registry */
   QString mTopLevelRegistry;
   /// Struct holding info for authentication to registry (via either
@@ -85,19 +85,19 @@ class SteererConfig {
   SteererConfig();
   ~SteererConfig();
 
-  /** Write a configuration file for the steering client using 
+  /** Write a configuration file for the steering client using
       current settings */
   void writeConfig(QString fileName);
-  /** Read configuration file and store values in member variables 
+  /** Read configuration file and store values in member variables
       of this class */
   void readConfig(QString fileName);
-  /** Read security configuration file and store values in member variables 
+  /** Read security configuration file and store values in member variables
       of this class */
   void readSecurityConfig(QString fileName);
 
-  /** Get the value (from the "value" attribute) of the named 
+  /** Get the value (from the "value" attribute) of the named
       element which is to be found somewhere below the elem element */
-  QString getElementAttrValue(QDomElement elem, 
+  QString getElementAttrValue(QDomElement elem,
 			      QString     name);
 };
 

@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -63,7 +63,7 @@ class Q3ListBoxItem;
 class ChkPtForm: public QDialog
 {
   Q_OBJECT
-       
+
 public:
   ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
 	    QMutex *aMutex, QWidget *parent = 0, const char *name = "chkptform",
@@ -94,7 +94,7 @@ private:
 
   /// MR: button to bring up the chkptvariableform
   QPushButton		*mParametersButton;
-  
+
   QPushButton		*mRestartButton;
   QPushButton		*mCancelButton;
   /** Pointer to mutex protecting ReG library calls */
@@ -120,7 +120,7 @@ public:
 private:
   int mEntryIndex;
 
-  
+
 };
 
 

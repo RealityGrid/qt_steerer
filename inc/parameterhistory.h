@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -71,7 +71,7 @@ class ParameterHistory {
 
     /// Size of array pointed to by mParamHistArray
     int     mArraySize;
-    /// Position at which to insert next new value in array pointed 
+    /// Position at which to insert next new value in array pointed
     /// to by mParamHistArray
     int     mArrayPos;
     /// Pointer to array holding data logged by the steering library
@@ -88,4 +88,3 @@ class ParameterHistory {
 };
 
 #endif
-

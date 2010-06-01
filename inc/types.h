@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -66,7 +66,7 @@
 
 /// parameter tables sizes
 #define kNUM_MON_COLUMNS	4
-#define kNUM_STEER_COLUMNS	5 
+#define kNUM_STEER_COLUMNS	5
 // MR: removed - was causing problems, and giving no noticeable benefit
 //#define kINIT_ROWS		0//3
 
@@ -95,19 +95,18 @@
 #define kCHKPT_PARAM_LEN	REG_MAX_STRING_LENGTH + 5
 
 
-/// minimum polling interval (milliseconds) from commsthread 
+/// minimum polling interval (milliseconds) from commsthread
 /// Get_next_message - a SOAP call takes ~0.015 seconds at best
 /// so no point polling more frequently than that
 #define kMIN_POLLING_INT	100
 #define kMAX_POLLING_INT        2000
 
-/// Unique numbers to make QCustomEvent IDs for postEvent 
+/// Unique numbers to make QCustomEvent IDs for postEvent
 /// from CommsThread.cpp
 #define kMSG_EVENT		100
 #define kSIGNAL_EVENT		200
- 
+
 /// Maximum number of plots in a single history plot
 #define kMAX_HISTORY_PLOTS      10
 
 #endif
-

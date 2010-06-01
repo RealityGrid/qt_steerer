@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -58,7 +58,7 @@ class Table : public Q3Table
 {
   Q_OBJECT
 
-public: 
+public:
   Table(QWidget *aParent, const char *aName, int aSimHandle);
   virtual ~Table();
 
@@ -90,4 +90,3 @@ private:
 
 
 #endif
-

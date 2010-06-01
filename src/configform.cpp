@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -54,7 +54,7 @@
     @author Sue Ramsden
     @author Mark Riding
     @author Andrew Porter */
- 
+
 #include "configform.h"
 #include "utility.h"
 #include "types.h"
@@ -75,10 +75,10 @@
 
 #include <math.h>
 
-ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent, 
+ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
 		       const char *name,
 		       bool modal, Qt::WFlags f)
-  : QDialog( parent, name, modal, f ), 
+  : QDialog( parent, name, modal, f ),
     mApplyButton(kNULL), mCancelButton(kNULL)
 {
   mMinVal_Sec = 0.05f;
@@ -89,12 +89,12 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
 
   REG_DBGCON("ConfigForm");
 
-  // note aCurrentIntervalValue is in milliseconds - convert to 
+  // note aCurrentIntervalValue is in milliseconds - convert to
   // seconds for GUI entry
 
   this->setCaption( "Configure Polling" );
   resize( 150, 150 );
-    
+
   // create the layouts for the form
   Q3VBoxLayout *lFormLayout = new Q3VBoxLayout(this, 10, 10, "configformlayout");
   Q3HBoxLayout *lButtonLayout = new Q3HBoxLayout(6, "configbuttonlayout");
@@ -117,8 +117,8 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
   mApplyButton = new QPushButton("Apply", this, "Applybutton"); \
   mApplyButton->setAutoDefault(FALSE);
   QToolTip::add(mApplyButton, "Apply to steerer");
-  connect(mApplyButton, SIGNAL(clicked()), this, SLOT(applySlot()));  
-    
+  connect(mApplyButton, SIGNAL(clicked()), this, SLOT(applySlot()));
+
   mCancelButton = new QPushButton("Cancel", this, "cancelbutton");
   mCancelButton->setAutoDefault(FALSE);
   connect(mCancelButton,  SIGNAL(clicked()), this, SLOT( reject()));
@@ -127,10 +127,10 @@ ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
   mCancelButton->setMaximumSize(mCancelButton->sizeHint());
   mApplyButton->setMinimumSize(mCancelButton->sizeHint());
   mApplyButton->setMaximumSize(mApplyButton->sizeHint());
-    
+
   lButtonLayout->addWidget(mApplyButton);
   lButtonLayout->addWidget(mCancelButton);
-  
+
   lFormLayout->addLayout(lButtonLayout);
 
 }
@@ -172,14 +172,14 @@ ConfigForm::applySlot()
     }
 
     if (!lOk)
-    { 
+    {
       //value is out of range
-      QMessageBox::information(0, "Invalid entry", 
+      QMessageBox::information(0, "Invalid entry",
 			       "Please enter a value between "+
 			       QString::number(mMinVal_Sec)+" and "+
 			       QString::number(mMaxVal_Sec),
 			       QMessageBox::Ok,
-			       QMessageBox::NoButton, 
+			       QMessageBox::NoButton,
 			       QMessageBox::NoButton);
     }
 
@@ -189,10 +189,9 @@ ConfigForm::applySlot()
     // no item in the list has been selected
     QMessageBox::information(0, "No value", "Please enter a value",
 			     QMessageBox::Ok,
-			     QMessageBox::NoButton, 
+			     QMessageBox::NoButton,
 			     QMessageBox::NoButton);
-    
+
 
   }
 }
-

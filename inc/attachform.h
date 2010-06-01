@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -60,7 +60,7 @@ class QPushButton;
 class AttachForm: public QDialog
 {
   Q_OBJECT
-       
+
 public:
   AttachForm(QWidget *parent = 0, const char *name = "attachform",
 	     bool modal = TRUE, Qt::WFlags f = 0 );

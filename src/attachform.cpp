@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -49,11 +49,11 @@
  */
 
 /** @file attachform.cpp
-    @brief AttachForm class header file for QT steerer GUI. 
+    @brief AttachForm class header file for QT steerer GUI.
     @author Sue Ramsden
     @author Mark Riding
     @author Andrew Porter */
- 
+
 #include "attachform.h"
 #include "steererconfig.h"
 #include "steerermainwindow.h"
@@ -79,9 +79,9 @@
 
 AttachForm::AttachForm(QWidget *parent, const char *name,
 		       bool modal, Qt::WFlags f)
-  : QDialog( parent, name, modal, f ), mNumSims(0), 
+  : QDialog( parent, name, modal, f ), mNumSims(0),
     mLibReturnStatus(REG_SUCCESS), mSimGSHSelected(kNULL),
-    mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL), 
+    mSimName(kNULL), mSimGSH(kNULL), mTable(kNULL),
     mFilterLineEdit(kNULL), mAttachButton(kNULL), mCancelButton(kNULL)
 {
   struct registry_contents content;
@@ -108,15 +108,15 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     // SSL
     if( lConfig->mRegistrySecurity.use_ssl == REG_TRUE){
 
-      lString = QInputDialog::getText("RealityGrid Steerer", 
-				      "Enter passphrase for X.509 key:", 
+      lString = QInputDialog::getText("RealityGrid Steerer",
+				      "Enter passphrase for X.509 key:",
 				      QLineEdit::Password,
 				      QString::null, &ok, this );
       if ( !ok ) return; // Cancel if user didn't press OK
     }
     else{
-      lString = QInputDialog::getText("RealityGrid Steerer", 
-				      "Enter passphrase for registry:", 
+      lString = QInputDialog::getText("RealityGrid Steerer",
+				      "Enter passphrase for registry:",
 				      QLineEdit::Password,
 				      QString::null, &ok, this );
       if ( !ok ) return; // Cancel if user didn't press OK
@@ -151,20 +151,20 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
   mNumSims = count;
 
   // only continue if there is some info to show
-  if(mNumSims>0) 
+  if(mNumSims>0)
   {
     this->setCaption( "Grid Attach" );
     resize( 520, 350 );
 
     // create the layouts for the form
-    Q3VBoxLayout *lFormLayout = new Q3VBoxLayout(this, 10, 10, 
+    Q3VBoxLayout *lFormLayout = new Q3VBoxLayout(this, 10, 10,
 					       "attachformlayout");
     Q3HBoxLayout *lFilterLayout = new Q3HBoxLayout(6, "filterlayout");
     Q3VBoxLayout *lListLayout = new Q3VBoxLayout(6, "attachlistlayout");
     Q3HBoxLayout *lButtonLayout = new Q3HBoxLayout(6, "attachbuttonlayout");
-    QSpacerItem* lSpacer = new QSpacerItem( 200, 0, QSizePolicy::Expanding, 
+    QSpacerItem* lSpacer = new QSpacerItem( 200, 0, QSizePolicy::Expanding,
 					    QSizePolicy::Minimum );
-    
+
     // create the list box for the applications on the grid
     lListLayout->addWidget(new TableLabel("Steerable Applications", this));
     mTable = new Q3Table(0, 2, this);
@@ -175,23 +175,23 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mTable->horizontalHeader()->setLabel(0, "Application");
     mTable->horizontalHeader()->setLabel(1, "Handle");
 
-    connect(mTable, SIGNAL(valueChanged(int, int)), this, 
+    connect(mTable, SIGNAL(valueChanged(int, int)), this,
 	    SLOT(editHandleSlot(int, int)));
 
-    // populate the list box - each listboxitem holds array index 
-    // information - this is what is used by the calling code 
+    // populate the list box - each listboxitem holds array index
+    // information - this is what is used by the calling code
     // (via  aSimIndexSelected) to identify the aSimGSH selected
     for (int i=0; i<mNumSims; i++)
-    {      
+    {
       REG_DBGMSG1("mSimName ", mSimName[i]);
       REG_DBGMSG1("mSimGSH ", mSimGSH[i]);
 
       mTable->insertRows(mTable->numRows(),1);
-      mTable->setItem(mTable->numRows()-1, 0, 
-		      new Q3TableItem(mTable, Q3TableItem::Never, 
+      mTable->setItem(mTable->numRows()-1, 0,
+		      new Q3TableItem(mTable, Q3TableItem::Never,
 				     QString(mSimName[i])));
-      mTable->setItem(mTable->numRows()-1, 1, 
-		      new Q3TableItem(mTable, Q3TableItem::WhenCurrent, 
+      mTable->setItem(mTable->numRows()-1, 1,
+		      new Q3TableItem(mTable, Q3TableItem::WhenCurrent,
 				     QString(mSimGSH[i])));
     }
     mTable->adjustColumn(0);
@@ -200,7 +200,7 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
     mTable->selectRow(0);
 
     mFilterLineEdit = new QLineEdit(this, "containsfilter");
-    connect(mFilterLineEdit, SIGNAL(returnPressed()), this, 
+    connect(mFilterLineEdit, SIGNAL(returnPressed()), this,
 	    SLOT(filterSlot()));
 
     // Initialize the filter with the user's username - might be handy
@@ -209,30 +209,30 @@ AttachForm::AttachForm(QWidget *parent, const char *name,
 
     lFilterLayout->addWidget(new QLabel("Contains", this));
     lFilterLayout->addWidget(mFilterLineEdit);
-    
-    
+
+
     lListLayout->addWidget(mTable);
     lListLayout->addLayout(lFilterLayout);
-    
-    mAttachButton = new QPushButton("Attach", this, "attachbutton"); 
+
+    mAttachButton = new QPushButton("Attach", this, "attachbutton");
     mAttachButton->setMinimumSize(mAttachButton->sizeHint());
     mAttachButton->setMaximumSize(mAttachButton->sizeHint());
     mAttachButton->setAutoDefault(FALSE);
     QToolTip::add(mAttachButton, "Attach to selected application");
     connect(mAttachButton, SIGNAL(clicked()), this, SLOT(attachSlot()));
-    
-    
+
+
     mCancelButton = new QPushButton("Cancel", this, "cancelbutton");
     mCancelButton->setMinimumSize(mCancelButton->sizeHint());
     mCancelButton->setMaximumSize(mCancelButton->sizeHint());
     mCancelButton->setAutoDefault(FALSE);
     connect(mCancelButton,  SIGNAL(clicked()), this, SLOT( reject()));
-    
+
 
     lButtonLayout->addItem(lSpacer);
     lButtonLayout->addWidget(mCancelButton);
     lButtonLayout->addWidget(mAttachButton);
-    
+
     lFormLayout->addLayout(lListLayout);
     lFormLayout->addLayout(lButtonLayout);
   }
@@ -260,13 +260,13 @@ AttachForm::cleanUp()
 }
 
 
-int 
+int
 AttachForm::getNumSims() const
 {
   return mNumSims;
 }
 
-int 
+int
 AttachForm::getLibReturnStatus() const
 {
   return mLibReturnStatus;
@@ -284,13 +284,13 @@ AttachForm::attachSlot()
 {
   int lCurrentItem;
   int lNumSel = mTable->numSelections();
-  REG_DBGMSG1("Have selections... ", lNumSel); 
+  REG_DBGMSG1("Have selections... ", lNumSel);
   if(!lNumSel || lNumSel > 1){
     // no item in the list has been selected
-    QMessageBox::information(0, "Nothing selected", 
+    QMessageBox::information(0, "Nothing selected",
 			     "Please select one item from the list",
 			     QMessageBox::Ok,
-			     QMessageBox::NoButton, 
+			     QMessageBox::NoButton,
 			     QMessageBox::NoButton);
     return;
   }
@@ -319,18 +319,18 @@ AttachForm::filterSlot()
   }
 
   for (int i=0; i<mNumSims; i++){
-  
+
     REG_DBGMSG2("***filter: ", mSimName[i], mFilterLineEdit->text().latin1());
     if (strstr(mSimName[i], mFilterLineEdit->text().latin1()) != kNULL){
 
       mTable->insertRows(mTable->numRows(),1);
-      mTable->setItem(mTable->numRows()-1, 0, 
-		      new Q3TableItem(mTable, Q3TableItem::Never, 
+      mTable->setItem(mTable->numRows()-1, 0,
+		      new Q3TableItem(mTable, Q3TableItem::Never,
 				     QString(mSimName[i])));
-      mTable->setItem(mTable->numRows()-1, 1, 
-		      new Q3TableItem(mTable, Q3TableItem::OnTyping, 
+      mTable->setItem(mTable->numRows()-1, 1,
+		      new Q3TableItem(mTable, Q3TableItem::OnTyping,
 				     QString(mSimGSH[i])));
-    }   
+    }
   }
 
   mTable->adjustColumn(0);

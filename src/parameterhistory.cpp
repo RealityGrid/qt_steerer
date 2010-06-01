@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -74,7 +74,7 @@ void ParameterHistory::updateParameter(const char* lVal){
       mParamHistArray[mArrayPos++] = (double)atof(lVal);
     }
     else{
-      void *dum = realloc((void *)mParamHistArray, 
+      void *dum = realloc((void *)mParamHistArray,
 			  (size_t)(mArraySize+mArrayChunkSize)*sizeof(double));
       if(dum){
 	mParamHistArray = (double *)dum;
@@ -98,5 +98,3 @@ const float ParameterHistory::elementAt(int index){
 double* ParameterHistory::ptrToArray(){
   return mParamHistArray;
 }
-
-

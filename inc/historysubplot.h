@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -63,7 +63,7 @@
 class HistorySubPlot : public QObject
 {
   Q_OBJECT
-  
+
 private:
     /// Pointer to the parent HistoryPlot object
     HistoryPlot      *mHistPlot;
@@ -71,14 +71,14 @@ private:
     /// Pointer to the parent QwtPlot object in which we will draw
     QwtPlot          *mPlotter;
 
-    /// Pointer to the ParameterHistory object holding 
+    /// Pointer to the ParameterHistory object holding
     /// data for abscissa
     ParameterHistory *mXParamHist;
 
     /// Holds the label for the y axis or key
     QString           mLabely;
 
-    /// The curve showing the history of the 
+    /// The curve showing the history of the
     /// parameter prior to the time the steerer connected
     QwtPlotCurve* mHistCurve;
 
@@ -91,15 +91,15 @@ private:
     int     mPreviousLogSize;
 
     /// String holding the (QColor-recognised) name of the colour
-    /// of the pen for this curve 
+    /// of the pen for this curve
     QString mColour;
 
 public:
     HistorySubPlot(HistoryPlot *lHistPlot,
 		   QwtPlot *_lPlotter,
-		   ParameterHistory *mXParamHist, 
-		   ParameterHistory *mYParamHist, 
-		   const QString &lLabely, 
+		   ParameterHistory *mXParamHist,
+		   ParameterHistory *mYParamHist,
+		   const QString &lLabely,
 		   const int yparamID,
 		   const QString lColour);
     ~HistorySubPlot();
@@ -131,4 +131,3 @@ public:
 };
 
 #endif
-

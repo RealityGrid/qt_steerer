@@ -1,7 +1,7 @@
 /*
   The RealityGrid Steerer
 
-  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
   All rights reserved.
 
   This software is produced by Research Computing Services, University
@@ -83,13 +83,13 @@ class SteererMainWindow;
 /// @author Sue Ramsden
 /// @author Mark Riding
 /// @author Andrew Porter
-class ControlForm : public QWidget 
+class ControlForm : public QWidget
 {
   Q_OBJECT
 
 public:
 
-  ControlForm(QWidget *aParent, const char *aName, int aSimHandle, 
+  ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 	      Application *aApplication, QMutex *aMutex);
   ~ControlForm();
   /// Update the parameter details for this application
@@ -129,7 +129,7 @@ public:
   ParameterTable *getMonParamTable();
   /// Getter method for the steerable parameters table
   SteeredParameterTable *getSteeredParamTable();
-  void newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr, 
+  void newHistoryPlot(Parameter *xParamPtr, Parameter *yParamPtr,
 		      QString xLabel, QString yLabel);
 
   /// Method to show or hide the checkpoint table and associated label
@@ -149,10 +149,10 @@ private:
   void updateParameters(const bool aSteeredFlag,
 			const bool isStatusMsg);
   void disableButtons();
-  
+
 protected slots:
-  void enableParamButtonsSlot();    
-  void enableSampleButtonsSlot();   
+  void enableParamButtonsSlot();
+  void enableSampleButtonsSlot();
   void enableChkPtButtonsSlot();
   void emitAllValuesSlot();
   void setRestartButtonStateSlot(const bool aEnable);
@@ -173,7 +173,7 @@ signals:
   void paramUpdateSignal();
 
 private:
-  int			mSimHandle;		
+  int			mSimHandle;
 
   QPushButton		*mEmitButton;
 
@@ -183,7 +183,7 @@ private:
   QPushButton		*mRestartChkPtButton;
   // MR:
   QPushButton           *mGridRestartChkPtButton;
-  
+
   QPushButton		*mSndChkPtButton;
   QPushButton		*mSetChkPtFreqButton;
 
@@ -228,5 +228,3 @@ public:
 
 
 #endif
-
-
