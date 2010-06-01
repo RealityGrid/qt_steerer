@@ -153,7 +153,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // put actions in menu
   Q3PopupMenu *lConfigMenu = new Q3PopupMenu( this );
-  menuBar()->insertItem( "&Steerer", lConfigMenu );
+  menuBar()->insertItem( "&Application", lConfigMenu );
   mAttachAction->addTo(lConfigMenu);
   mSetCheckIntervalAction->addTo(lConfigMenu);
   mToggleAutoPollAction->addTo(lConfigMenu);
