@@ -106,7 +106,7 @@ Certificate Authorities that it trusts and the file containing the
 user's private key and certificate from the `security.conf' file
 (figure~\ref{fig:security_conf}). The file containing the user's key
 {\em and} certificate may be constructed by simply concatenating the
-two separate pem-format files that hold the two items: 
+two separate pem-format files that hold the two items:
 \begin{verbatim}
   cat userCert.pem > userCertAndKey.pem
   cat userKey.pem >> userCertAndKey.pem
@@ -161,16 +161,16 @@ figure~\ref{fig:startup_screen}.
 
 The Steerer menu (figure~\ref{fig:steerer_menu}) has six options:
 \begin{itemize}
-\item Local Attach: attach to a local steerable job, 
-communicated with by means of a local, shared file system. 
+\item Local Attach: attach to a local steerable job,
+communicated with by means of a local, shared file system.
 Shortcut Ctrl+A;
-\item Grid Attach: attach to a steerable job located on 
-any machine, communicated with by means of a Web-Service 
+\item Grid Attach: attach to a steerable job located on
+any machine, communicated with by means of a Web-Service
 interface. Shortcut Ctrl+G;
-\item Set Polling Interval: set how often (in seconds) the 
+\item Set Polling Interval: set how often (in seconds) the
 steerer polls the computational job. Shortcut Ctrl+P;
-\item Turn on/off auto polling interval: toggle whether or not 
-to allow the client to automatically adjust the polling 
+\item Turn on/off auto polling interval: toggle whether or not
+to allow the client to automatically adjust the polling
 interval. Shortcut Alt+P;
 \item Edit the title of the current tab. Shortcut Ctrl+E;
 \item Quit: Quits the application. Shortcut Ctrl+Q.
@@ -296,11 +296,11 @@ cannot be stopped.  The following buttons are always displayed in the
 panel:
 \begin{itemize}
 \item Pause/Resume: pauses a running job/resumes a paused job;
-\item Detach: detaches the steerer from the job, \textit{leaving the 
+\item Detach: detaches the steerer from the job, \textit{leaving the
 job running};
-\item Close: closes the main window of the steerer, returning to the 
+\item Close: closes the main window of the steerer, returning to the
 startup screen;
-\item Tell All: causes the steerer to pass any user updated 
+\item Tell All: causes the steerer to pass any user updated
 parameters to the job, see section~\ref{sec:steered_params}.
 \item Stop: ends the job;
 \end{itemize}
@@ -363,7 +363,7 @@ confirmation that it has received the instruction(s).
 
 \begin{figure}
 \centerline{\includegraphics{limits_tool_tip.eps}}
-\caption{Steered Parameters tool tip showing the limits on a steered 
+\caption{Steered Parameters tool tip showing the limits on a steered
 parameter (OPACITY\_\-STEP\_\-STOP in this case).}
 \label{fig:limits_tool_tip}
 \end{figure}
@@ -529,40 +529,40 @@ parameter context menu has an additional `Add to History Graph'
 option. On selecting this option the user must click on the {\em canvas} of
 the graph to which they wish to add the plot.
 
-There are two menus available in a History graph window 
+There are two menus available in a History graph window
 (figure~\ref{fig:param_hist_menus}), the File menu, and the Graph
 menu. The File menu has four options:
 \begin{itemize}
-\item Print: requests a print-out of the image portion of the window. 
+\item Print: requests a print-out of the image portion of the window.
 Shortcut Ctrl+P;
 \item Save: saves the image portion of the window to disk. Shortcut Ctrl+S;
-\item Save data: saves the raw data to ASCII file (pops up a file browser). 
+\item Save data: saves the raw data to ASCII file (pops up a file browser).
 Shortcut Ctrl+t;
 \item Close: closes the window. Shortcut Ctrl+C.
 \end{itemize}
 The Graph menu has nine options:
 \begin{itemize}
-\item Auto Y Axis: allows the application to automatically determine 
-limits for the y-axis. This menu item toggles on and off. 
+\item Auto Y Axis: allows the application to automatically determine
+limits for the y-axis. This menu item toggles on and off.
 Shortcut Ctrl+A;
-\item Define Y upper-bound: if Auto Y axis is not selected, this 
-menu item becomes available. By selecting it, a dialog appears 
-(see below) allowing you to enter an upper bound for the Y axis. 
-If Auto Y Axis is reselected, then this value is ignored. 
+\item Define Y upper-bound: if Auto Y axis is not selected, this
+menu item becomes available. By selecting it, a dialog appears
+(see below) allowing you to enter an upper bound for the Y axis.
+If Auto Y Axis is reselected, then this value is ignored.
 Shortcut Ctrl+U;
-\item Define Y lower-bound: as `Define Y upper-bound', but for 
+\item Define Y lower-bound: as `Define Y upper-bound', but for
 the lower bound. Shortcut Ctrl+L;
-\item Toggle use of Log Y axis: switches between linear and 
-logarithmic axis.  Manual limits cannot be set for the logarithmic 
-axis and therefore those options will be disabled as appropriate. 
+\item Toggle use of Log Y axis: switches between linear and
+logarithmic axis.  Manual limits cannot be set for the logarithmic
+axis and therefore those options will be disabled as appropriate.
 Shortcut Ctrl+O;
-\item Auto X Axis: allows the application to automatically 
-determine limits for the x-axis. This menu item toggles on and 
+\item Auto X Axis: allows the application to automatically
+determine limits for the x-axis. This menu item toggles on and
 off. Shortcut Alt+A;
 \item Define X upper-bound: as for Y upper bound. Shortcut Alt+U;
 \item Define X lower-bound: as for Y lower bound. Shortcut Alt+L;
 \item Toggle use of Log X axis:	as for Log Y axis. Shortcut Alt+O;
-\item Toggle display of symbols: enables/disables the display of 
+\item Toggle display of symbols: enables/disables the display of
 symbols at data points. Shortcut Ctrl-D.
 \end{itemize}
 Symbols are displayed by default if the graph is of an appropriate
