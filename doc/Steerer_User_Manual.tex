@@ -146,7 +146,7 @@ figure~\ref{fig:startup_screen}.
 
 
 \begin{figure}
-\centerline{\includegraphics{startup_screen.eps}}
+\centerline{\includegraphics{startup_screen.png}}
 \caption{Steerer start-up screen}
 \label{fig:startup_screen}
 \end{figure}
@@ -159,8 +159,8 @@ figure~\ref{fig:startup_screen}.
 
 
 \begin{figure}
-\centerline{\includegraphics{steerer_menu.eps}}
-\caption{Steerer menu}
+\centerline{\includegraphics{app_menu.png}}
+\caption{The main steering client menu}
 \label{fig:steerer_menu}
 \end{figure}
 
@@ -210,7 +210,7 @@ file-based steering is being used, respectively.)
 \begin{subsection}{Attaching to a steerable job}
 
 \begin{figure}
-\centerline{\includegraphics{dir_browser.eps}}
+\centerline{\includegraphics{dir_browser.png}}
 \caption{Browser dialog for choosing a directory for steering communication}
 \label{fig:dir_browser}
 \end{figure}
@@ -228,7 +228,7 @@ have selected the correct directory and that the application is
 actually up and running.
 
 \begin{figure}
-\centerline{\includegraphics{grid_attach.eps}}
+\centerline{\includegraphics{grid_attach.png}}
 \caption{Grid Attach dialog}
 \label{fig:grid_attach}
 \end{figure}
@@ -259,14 +259,14 @@ connect to on the command line when launching the steerer.
 \begin{section}{The Main Window}
 
 \begin{figure}
-\centerline{\includegraphics{main_local.eps}}
-\caption{Steerer main window in local-steering mode}
-\label{fig:main_local}
+\centerline{\includegraphics{main_sockets.png}}
+\caption{Steerer main window in direct-steering mode}
+\label{fig:main_socks}
 \end{figure}
 
 Once the steerer has successfully attached to a job, the main window
-is displayed.  When local (file-based) steering is being used, this
-should appear something like the one in figure~\ref{fig:main_local}.
+is displayed.  When direct (sockets-based) steering is being used, this
+should appear something like the one in figure~\ref{fig:main_socks}.
 The Main Window is split into five conceptual sections:
 \begin{itemize}
 \item Control Buttons
@@ -276,7 +276,7 @@ The Main Window is split into five conceptual sections:
 \item CheckPoint Types
 \end{itemize}
 The last four of these each have a table associated with them, as
-shown in figure~\ref{fig:main_local}.  The user can choose to hide one
+shown in figure~\ref{fig:main_socks}.  The user can choose to hide one
 or more of these tables via the View menu shown in
 figure~\ref{fig:view_menu}.  By default, all four tables are displayed
 once the steerer has successfully attached to a job.  However, this
@@ -284,7 +284,7 @@ may be changed by editing the configuration file
 (section~\ref{sec:config}).
 
 \begin{figure}
-\centerline{\includegraphics{main_view_menu.eps}}
+\centerline{\includegraphics{main_view_menu.png}}
 \caption{The View menu on the main window}
 \label{fig:view_menu}
 \end{figure}
@@ -332,7 +332,7 @@ option to add a plot of this parameter to one of them. For more
 details see section~\ref{sec:hist_graphs}.
 
 \begin{figure}
-\centerline{\includegraphics{hist_plot_context_menu.eps}}
+\centerline{\includegraphics{hist_plot_context_menu.png}}
 \caption{Draw History Graph context menu option}
 \label{fig:hist_graph_context_menu}
 \end{figure}
@@ -367,9 +367,9 @@ upon confirmation from the application --- this thus provides
 confirmation that it has received the instruction(s).
 
 \begin{figure}
-\centerline{\includegraphics{limits_tool_tip.eps}}
+\centerline{\includegraphics{limits_tool_tip.png}}
 \caption{Steered Parameters tool tip showing the limits on a steered
-parameter (OPACITY\_\-STEP\_\-STOP in this case).}
+parameter (``data side length'' in this case).}
 \label{fig:limits_tool_tip}
 \end{figure}
 
@@ -440,7 +440,7 @@ the application to restart from it by clicking on the `Restart'
 button. Clicking on `Cancel' quits the dialog without doing anything.
 
 \begin{figure}
-\centerline{\includegraphics{chk_list.eps}}
+\centerline{\includegraphics{chk_list.png}}
 \caption{CheckPoint Selector dialog}
 \label{fig:chk_list_dialog}
 \end{figure}
@@ -455,7 +455,7 @@ checkpoint instances can be compared and contrasted.  Again, clicking
 on the `Cancel' button closes the dialog.
 
 \begin{figure}
-\centerline{\includegraphics{chk_params.eps}}
+\centerline{\includegraphics{chk_params.png}}
 \caption{CheckPoint Parameters Table dialog}
 \label{fig:chk_params_dialog}
 \end{figure}
@@ -472,7 +472,7 @@ The form of the main window when doing remote steering is shown in
 figure~\ref{fig:main_window_grid}.
 
 \begin{figure}
-\centerline{\includegraphics{main_window_grid.eps}}
+\centerline{\includegraphics{main_window_grid.png}}
 \caption{Steerer main window in remote-steering mode}
 \label{fig:main_window_grid}
 \end{figure}
@@ -514,7 +514,7 @@ by connecting adjacent ordinates with straight lines --- no fitting is
 performed.
 
 \begin{figure}
-\centerline{\includegraphics[width=11cm]{hist_plot_2curves.eps}}
+\centerline{\includegraphics{hist_plot_2curves.png}}
 \caption{Example Parameter History Graph}
 \label{fig:eg_param_hist_plot}
 \end{figure}
@@ -575,7 +575,7 @@ scale --- if resolution does not permit then they are automatically
 hidden.
 
 \begin{figure}
-\centerline{\includegraphics[width=9cm]{hist_plot_menus.eps}}
+\centerline{\includegraphics{hist_plot_menus.png}}
 \caption{The File and Graph menus of the Parameter History Graph window}
 \label{fig:param_hist_menus}
 \end{figure}
@@ -607,7 +607,7 @@ second tab will be added to the main window, as shown in
 figure~\ref{fig:tabbed}.
 
 \begin{figure}
-\centerline{\includegraphics{tabbed_steerer.eps}}
+\centerline{\includegraphics{tabbed_steerer.png}}
 \caption{Tabbed steering client connected to two simulations.}
 \label{fig:tabbed}
 \end{figure}

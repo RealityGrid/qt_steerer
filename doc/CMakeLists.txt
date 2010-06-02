@@ -1,7 +1,7 @@
 #
 #  The RealityGrid Steerer
 #
-#  Copyright (c) 2002-2009, University of Manchester, United Kingdom.
+#  Copyright (c) 2002-2010, University of Manchester, United Kingdom.
 #  All rights reserved.
 #
 #  This software is produced by Research Computing Services, University
@@ -48,31 +48,20 @@ set(doc_NAME Steerer_User_Manual)
 
 find_package(LATEX REQUIRED)
 
-# run pdflatex (in dvi mode) twice on the input file.
+# run pdflatex twice on the input file.
 # pdflatex is required so we can do the out of source build.
-# dvi mode is required so we can use eps files.
-add_custom_command(
-  OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${doc_NAME}.dvi
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${doc_NAME}.tex
-  COMMAND ${PDFLATEX_COMPILER}
-  ARGS    -interaction batchmode -output-format dvi -output-directory ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${doc_NAME}.tex
-  COMMAND ${PDFLATEX_COMPILER}
-  ARGS    -interaction batchmode -output-format dvi -output-directory ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${doc_NAME}.tex
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  VERBATIM
-)
-
-# convert the dvi produced above into a pdf file.
 add_custom_command(
   OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${doc_NAME}.pdf
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${doc_NAME}.dvi
-  COMMAND ${DVIPDF_CONVERTER}
-  ARGS    -q -o ${CMAKE_CURRENT_BINARY_DIR}/${doc_NAME}.pdf ${CMAKE_CURRENT_BINARY_DIR}/${doc_NAME}.dvi
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${doc_NAME}.tex
+  COMMAND ${PDFLATEX_COMPILER}
+  ARGS    -interaction batchmode -output-directory ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${doc_NAME}.tex
+  COMMAND ${PDFLATEX_COMPILER}
+  ARGS    -interaction batchmode -output-directory ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${doc_NAME}.tex
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   VERBATIM
 )
 
-# add a target so that the above is 
+# add a target so that the above is
 add_custom_target(Steerer_User_Manual ALL
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${doc_NAME}.pdf
 )
