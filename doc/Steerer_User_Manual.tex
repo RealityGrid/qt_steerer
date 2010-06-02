@@ -155,7 +155,7 @@ figure~\ref{fig:startup_screen}.
 
 %---------------------------
 
-\begin{subsection}{The Steerer menu}
+\begin{subsection}{The Application menu}
 
 
 \begin{figure}
@@ -164,14 +164,16 @@ figure~\ref{fig:startup_screen}.
 \label{fig:steerer_menu}
 \end{figure}
 
-The Steerer menu (figure~\ref{fig:steerer_menu}) has six options:
+The Application menu (figure~\ref{fig:steerer_menu}) has five
+options\footnote{Note that on Mac OS X the \texttt{Cmd} and
+  \texttt{Option} keys are used instead of \texttt{Ctrl} and
+  \texttt{Alt} respectively. Additionally, the Quit option is in the
+  `Steerer' menu rather than the `Application' menu in line with Mac
+  OS X convention.}:
 \begin{itemize}
-\item Local Attach: attach to a local steerable job,
-communicated with by means of a local, shared file system.
-Shortcut Ctrl+A;
-\item Grid Attach: attach to a steerable job located on
-any machine, communicated with by means of a Web-Service
-interface. Shortcut Ctrl+G;
+\item Attach: attach to a steerable job. The options with which the
+  steering library has been compiled with will determine how the
+  connection is made. Shortcut Ctrl+A;
 \item Set Polling Interval: set how often (in seconds) the
 steerer polls the computational job. Shortcut Ctrl+P;
 \item Turn on/off auto polling interval: toggle whether or not
