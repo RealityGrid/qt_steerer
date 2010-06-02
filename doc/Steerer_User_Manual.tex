@@ -210,14 +210,13 @@ file-based steering is being used, respectively.)
 \end{subsection}
 
 \begin{subsection}{Attaching to a steerable job}
+Selecting `Attach' from the Application menu will open a dialog box
+for the user to choose the application to connect to. The format of
+the dialog will be dependent on which options the Steering Library was
+built with.
 
-\begin{figure}
-\centerline{\includegraphics{dir_browser.png}}
-\caption{Browser dialog for choosing a directory for steering communication}
-\label{fig:dir_browser}
-\end{figure}
-
-Selecting `Local Attach' from the Steerer menu will open a file-system
+\begin{subsubsection}{Local steering}
+For local (file-based) steering the dialog will be a file-system
 browser (figure~\ref{fig:dir_browser}) that allows you to choose the
 directory to use for communication with the application that you wish
 to steer.  This directory must match that passed to the application by
@@ -228,6 +227,56 @@ to then the Steerer start-up screen will have a `Failed to attach'
 message displayed at the bottom of it.  If this occurs then check that
 you have selected the correct directory and that the application is
 actually up and running.
+\end{subsubsection}
+
+\begin{figure}
+\centerline{\includegraphics{dir_browser.png}}
+\caption{Browser dialog for choosing a directory for steering communication}
+\label{fig:dir_browser}
+\end{figure}
+
+\begin{subsubsection}{Direct steering}
+When using sockets-based steering the dialog box prompts the user to
+enter the name of the machine on which the steerable application is
+running and the port number on which it is listening (see
+figure~\ref{fig:sock_attach}). If the environment variable
+\texttt{REG\_APP\_ADDRESS} is set then an option to use that is also
+available. The format of \texttt{REG\_APP\_ADDRESS} is
+\texttt{example.com:port}. Once the required details have been input
+then clicking on the `Attach' button will connect to the application
+and show the steering interface.
+
+When launching the steerer from a command line prompt the machine and
+port number can be given as the first parameter in the same format as
+\texttt{REG\_APP\_ADDRESS}. In this case the steerer will open the
+main window (see section~\ref{sec:main_win}) directly rather than the
+startup screen.
+\end{subsubsection}
+
+\begin{figure}
+\centerline{\includegraphics{sock_attach.png}}
+\caption{Dialog for connecting via direct (sockets-based) steering}
+\label{fig:sock_attach}
+\end{figure}
+
+\begin{subsubsection}{Grid-based steering}
+The dialog box (figure~\ref{fig:grid_attach}) will list all available
+RealityGrid applications and their addresses (handles) in a table.
+(This information is obtained by querying the registry specified in
+the configuration file --- see section~\ref{sec:config}.) Entries in
+the Handle column are fully editable.  By selecting an entry in the
+table and clicking on the Attach button, a Steerer is created for the
+chosen application. Should the attach fail then check that the handle
+you've specified is correct and that the application you are
+attempting to connect to is up and running.  (A good way of doing the
+latter is to check that the \texttt{sws:machineName} ResourceProperty
+of the Steering Web Service has been set.  If it hasn't then the job
+has failed to contact the Web Service and you should look at its
+stderr output.)
+
+As with direct steering the handle to connect to can be specified on
+the command line when launching the steerer.
+\end{subsubsection}
 
 \begin{figure}
 \centerline{\includegraphics{grid_attach.png}}
@@ -235,30 +284,13 @@ actually up and running.
 \label{fig:grid_attach}
 \end{figure}
 
-Selecting `Grid Attach' will bring up a small dialog box
-(figure~\ref{fig:grid_attach}) listing all available RealityGrid
-applications and their addresses (handles) in a table.  (This
-information is obtained by querying the registry specified in the
-configuration file --- see section~\ref{sec:config}.) Entries in the
-Handle column are fully editable.  By selecting an entry in the table
-and clicking on the Attach button, a Steerer is created for the chosen
-application. Should the attach fail then check that the handle you've
-specified is correct and that the application you are attempting to
-connect to is up and running.  (A good way of doing the latter is to
-check that the \texttt{sws:machineName} ResourceProperty of the
-Steering Web Service has been set.  If it hasn't then the job
-has failed to contact the Web Service and you should look at its
-stderr output.)
-
-It is also possible (on Linux/UNIX systems) to specify the handle to
-connect to on the command line when launching the steerer.
-
 \end{subsection}
 \end{section}
 
 %------------------------------------------------------------------
 
 \begin{section}{The Main Window}
+\label{sec:main_win}
 
 \begin{figure}
 \centerline{\includegraphics{main_sockets.png}}
