@@ -69,5 +69,5 @@ add_custom_target(Steerer_User_Manual ALL
 # install
 install(
   FILES ${CMAKE_CURRENT_BINARY_DIR}/${doc_NAME}.pdf
-  DESTINATION ${REG_STEERER_DOC_INSTALL}
+  DESTINATION ${STEERER_DOC_INSTALL}
 )

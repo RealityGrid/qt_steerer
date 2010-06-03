@@ -78,32 +78,7 @@ reg_check_version("Steerer" ${REG_STEERER_VERSION_MAJ})
 #
 # optionally install into the current ReG location
 # if not building against a build tree install
-if(${RealityGrid_INSTALL_TYPE} MATCHES "install")
-  option(REG_STEERER_INSTALL_TO_REG_DIR
-    "Install the Steerer to the same location as the RealityGrid installation?"
-    OFF
-  )
-endif(${RealityGrid_INSTALL_TYPE} MATCHES "install")
-
-if(REG_STEERER_INSTALL_TO_REG_DIR)
-  set(CMAKE_INSTALL_PREFIX ${RealityGrid_INSTALL_PREFIX}
-    CACHE PATH
-    "Install path prefix, prepended onto install directories. The default setting is to install the Steerer to the same location as the RealityGrid installation."
-    FORCE
-  )
-
-  string(
-    REPLACE "${RealityGrid_INSTALL_PREFIX}/" "" REG_STEERER_BIN_INSTALL
-    ${RealityGrid_BIN_DIR}
-  )
-  string(
-    REPLACE "${RealityGrid_INSTALL_PREFIX}/" "" REG_STEERER_DOC_INSTALL
-    ${RealityGrid_DOCS_DIR}
-  )
-else(REG_STEERER_INSTALL_TO_REG_DIR)
-  set(REG_STEERER_BIN_INSTALL "bin")
-  set(REG_STEERER_DOC_INSTALL "share/doc/RealityGrid")
-endif(REG_STEERER_INSTALL_TO_REG_DIR)
+reg_setup_install_dirs("Steerer")
 
 #
 # find Qt4 and Qwt

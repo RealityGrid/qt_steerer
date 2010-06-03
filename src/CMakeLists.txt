@@ -101,4 +101,4 @@ target_link_libraries(steerer
 )
 
 # install
-install(TARGETS steerer RUNTIME DESTINATION ${REG_STEERER_BIN_INSTALL})
+install(TARGETS steerer RUNTIME DESTINATION ${STEERER_BIN_INSTALL})
