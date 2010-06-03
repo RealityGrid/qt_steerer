@@ -71,13 +71,7 @@ endif(NOT EXECUTABLE_OUTPUT_PATH)
 find_package(RealityGrid REQUIRED)
 include(${RealityGrid_USE_FILE})
 
-if(NOT ${REG_LIB_VERSION_MAJ} EQUAL ${REG_STEERER_VERSION_MAJ})
-  message(FATAL_ERROR "Steering Library version mismatch. You can not use this Steerer (version ${REG_STEERER_VERSION}) with the selected Steering Library (version ${REG_STEER_LIB_VERSION}).")
-else(NOT ${REG_LIB_VERSION_MAJ} EQUAL ${REG_STEERER_VERSION_MAJ})
-  if(NOT ${REG_LIB_VERSION_MIN} EQUAL ${REG_STEERER_VERSION_MIN})
-    message("Steering Library version mismatch. You may encounter problems using this Steerer (version ${REG_STEERER_VERSION}) with the selected Steering Library (version ${REG_STEER_LIB_VERSION}).")
-  endif(NOT ${REG_LIB_VERSION_MIN} EQUAL ${REG_STEERER_VERSION_MIN})
-endif(NOT ${REG_LIB_VERSION_MAJ} EQUAL ${REG_STEERER_VERSION_MAJ})
+reg_check_version("Steerer" ${REG_STEERER_VERSION_MAJ})
 
 #
 # set up install location
