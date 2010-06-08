@@ -80,6 +80,12 @@ reg_check_version("Steerer" ${REG_STEERER_VERSION_MAJ})
 # if not building against a build tree install
 reg_setup_install_dirs("Steerer")
 
+# set up the RealityGrid library link line
+#
+# if the Steering Library uses modules, this macro
+# does "the right thing"
+reg_link_modules()
+
 #
 # find Qt4 and Qwt
 #
