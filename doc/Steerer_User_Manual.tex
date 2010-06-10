@@ -10,24 +10,29 @@
 
 \begin{document}
 
-\title{RealityGrid Steering Application User Manual}
-
-\author{Mark Riding and Andrew Porter\\
-Manchester Computing,\\University of Manchester,\\Oxford Road,\\
-Manchester,\\M13 9PL.}
+\title{RealityGrid Generic Steering Client User Manual}
+\author{Robert Haines, Mark Riding and Andrew Porter
+\\Research Computing Services
+\\University of Manchester
+\\Oxford Road
+\\Manchester
+\\M13 9PL
+\\United Kingdom}
+\date{}
 
 \maketitle
 
 \begin{table}
 \begin{center}
-\begin{tabular}{l|p{5cm}|c}
+\begin{tabular}{r|p{8cm}|c}
 \hline\hline
 Author & Comments & Date \\
 \hline
-Andrew Porter & As released with v.1.1 of the RealityGrid steering software. & 29th April 2004 \\
-Andrew Porter & Extensions for tabbed steering and additional graphing features. & 25th November 2004 \\
-Andrew Porter & As released with v.1.2 of the RealityGrid steering software. & 25th April 2006\\
-Andrew Porter & As released with v.2.0 of the RealityGrid steering software. & 4th July 2006\\
+Andrew Porter & As released with v.1.1 of the RealityGrid steering software. & April 2004 \\
+Andrew Porter & Extensions for tabbed steering and additional graphing features. & November 2004 \\
+Andrew Porter & As released with v.1.2 of the RealityGrid steering software. & April 2006\\
+Andrew Porter & As released with v.2.0 of the RealityGrid steering software. & July 2006\\
+Robert Haines & As released with v.3.5 of the RealityGrid steering software. & June 2010\\
 \hline\hline
 \end{tabular}
 \end{center}
@@ -66,7 +71,7 @@ pollingInterval is specified in seconds and has a maximum value of
 two. If autoPolling is on then the pollingInterval field only gives
 the initial value --- the steering client is free to change it.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{verbatim}<?xml version="1.0"?>
 <Steerer_config>
   <Registry>
@@ -97,22 +102,22 @@ regServiceGroup/54351518137034689"/>
 \end{figure}
 
 As of version 2.0 of the RealityGrid Steering Library, the use of
-OGSI-based Grid Services has been superceded by WSRF-based Web
+OGSI-based Grid Services has been superseded by WSRF-based Web
 Services.  As part of this change, both the Registry and the Steering
 Web Service (SWS) itself may be secured using both SSL and a
 WS-Security-based username/password scheme. If SSL is being used then
 the steering client obtains the location of the certificates of the
 Certificate Authorities that it trusts and the file containing the
-user's private key and certificate from the `security.conf' file
-(figure~\ref{fig:security_conf}). The file containing the user's key
-{\em and} certificate may be constructed by simply concatenating the
-two separate pem-format files that hold the two items: 
+user's private key and certificate from the \texttt{security.conf}
+file (figure~\ref{fig:security_conf}). The file containing the user's
+key {\em and} certificate may be constructed by simply concatenating
+the two separate pem-format files that hold the two items:
 \begin{verbatim}
   cat userCert.pem > userCertAndKey.pem
   cat userKey.pem >> userCertAndKey.pem
 \end{verbatim}
-Like steerer.conf, the security.conf file should be installed in the user's
-\texttt{$\sim$/.realitygrid} directory.
+Like \texttt{steerer.conf}, the \texttt{security.conf} file should be
+installed in the user's \texttt{$\sim$/.realitygrid} directory.
 
 \begin{figure}
 \begin{verbatim}
@@ -141,7 +146,7 @@ figure~\ref{fig:startup_screen}.
 
 
 \begin{figure}
-\centerline{\includegraphics{startup_screen.eps}}
+\centerline{\includegraphics{startup_screen.png}}
 \caption{Steerer start-up screen}
 \label{fig:startup_screen}
 \end{figure}
@@ -150,30 +155,32 @@ figure~\ref{fig:startup_screen}.
 
 %---------------------------
 
-\begin{subsection}{The Steerer menu}
+\begin{subsection}{The Application menu}
 
 
 \begin{figure}
-\centerline{\includegraphics{steerer_menu.eps}}
-\caption{Steerer menu}
+\centerline{\includegraphics{app_menu.png}}
+\caption{The main steering client menu}
 \label{fig:steerer_menu}
 \end{figure}
 
-The Steerer menu (figure~\ref{fig:steerer_menu}) has six options:
+The Application menu (figure~\ref{fig:steerer_menu}) has five
+options\footnote{Note that on Mac OS X the \texttt{Cmd} and
+  \texttt{Option} keys are used instead of \texttt{Ctrl} and
+  \texttt{Alt} respectively. Additionally, the Quit option is in the
+  `Steerer' menu rather than the `Application' menu in line with Mac
+  OS X convention.}:
 \begin{itemize}
-\item Local Attach: attach to a local steerable job, 
-communicated with by means of a local, shared file system. 
-Shortcut Ctrl+A;
-\item Grid Attach: attach to a steerable job located on 
-any machine, communicated with by means of a Web-Service 
-interface. Shortcut Ctrl+G;
-\item Set Polling Interval: set how often (in seconds) the 
-steerer polls the computational job. Shortcut Ctrl+P;
-\item Turn on/off auto polling interval: toggle whether or not 
-to allow the client to automatically adjust the polling 
-interval. Shortcut Alt+P;
-\item Edit the title of the current tab. Shortcut Ctrl+E;
-\item Quit: Quits the application. Shortcut Ctrl+Q.
+\item Attach: attach to a steerable job. The options with which the
+  steering library has been compiled with will determine how the
+  connection is made. Shortcut \texttt{Ctrl+A};
+\item Set Polling Interval: set how often (in seconds) the
+steerer polls the computational job. Shortcut \texttt{Ctrl+P};
+\item Turn on/off auto polling interval: toggle whether or not
+to allow the client to automatically adjust the polling
+interval. Shortcut \texttt{Alt+P};
+\item Edit the title of the current tab. Shortcut \texttt{Ctrl+E};
+\item Quit: Quits the application. Shortcut \texttt{Ctrl+Q}.
 \end{itemize}
 
 The Polling Interval is an important parameter since it controls how
@@ -181,7 +188,7 @@ often the steerer checks for status messages from an attached
 application.  If the steerer fails to `keep up' with the application
 then status messages will be lost which may result in strange
 behaviour.  For applications that generate many status reports per
-second, the value of the \texttt{STEERING INTERVAL} steerable
+second, the value of the \texttt{STEERING\_INTERVAL} steerable
 parameter of that application should be increased in order to reduce
 the frequency with which it generates status reports. (This steerable
 parameter is automatically generated by the steering library and is
@@ -203,48 +210,79 @@ file-based steering is being used, respectively.)
 \end{subsection}
 
 \begin{subsection}{Attaching to a steerable job}
+Selecting `Attach' from the Application menu will open a dialog box
+for the user to choose the application to connect to. The format of
+the dialog will be dependent on which options the Steering Library was
+built with.
+
+\begin{subsubsection}{Local steering}
+For local (file-based) steering the dialog will be a file-system
+browser (figure~\ref{fig:dir_browser}) that allows you to choose the
+directory to use for communication with the application that you wish
+to steer.  This directory must match that passed to the application by
+way of the \texttt{REG\_\-STEER\_\-DIRECTORY} environment variable.
+On pressing OK the main RealityGrid Steerer window should be
+displayed.  Should the steerer fail to find an application to attach
+to then the Steerer start-up screen will have a `Failed to attach'
+message displayed at the bottom of it.  If this occurs then check that
+you have selected the correct directory and that the application is
+actually up and running.
+\end{subsubsection}
 
 \begin{figure}
-\centerline{\includegraphics{dir_browser.eps}}
+\centerline{\includegraphics{dir_browser.png}}
 \caption{Browser dialog for choosing a directory for steering communication}
 \label{fig:dir_browser}
 \end{figure}
 
-Selecting `Local Attach' from the Steerer menu will open a file-system
-browser (figure~\ref{fig:dir_browser}) that allows you to choose the
-directory to use for communication with the application that you wish
-to steer.  This directory must match that passed to the application by
-way of the REG\_\-STEER\_\-DIRECTORY environment variable.  On
-pressing OK the main RealityGrid Steerer window should be displayed.
-Should the steerer fail to find an application to attach to then the
-Steerer start-up screen will have a `Failed to attach' message
-displayed at the bottom of it.  If this occurs then check that you
-have selected the correct directory and that the application is
-actually up and running.
+\begin{subsubsection}{Direct steering}
+When using sockets-based steering the dialog box prompts the user to
+enter the name of the machine on which the steerable application is
+running and the port number on which it is listening (see
+figure~\ref{fig:sock_attach}). If the environment variable
+\texttt{REG\_APP\_ADDRESS} is set then an option to use that is also
+available. The format of \texttt{REG\_APP\_ADDRESS} is
+\texttt{example.com:port}. Once the required details have been input
+then clicking on the `Attach' button will connect to the application
+and show the steering interface.
+
+When launching the steerer from a command line prompt the machine and
+port number can be given as the first parameter in the same format as
+\texttt{REG\_APP\_ADDRESS}. In this case the steerer will open the
+main window (see section~\ref{sec:main_win}) directly rather than the
+startup screen.
+\end{subsubsection}
 
 \begin{figure}
-\centerline{\includegraphics{grid_attach.eps}}
-\caption{Grid Attach dialog}
-\label{fig:grid_attach}
+\centerline{\includegraphics{sock_attach.png}}
+\caption{Dialog for connecting via direct (sockets-based) steering}
+\label{fig:sock_attach}
 \end{figure}
 
-Selecting `Grid Attach' will bring up a small dialog box
-(figure~\ref{fig:grid_attach}) listing all available RealityGrid
-applications and their addresses (handles) in a table.  (This
-information is obtained by querying the registry specified in the
-configuration file --- see section~\ref{sec:config}.) Entries in the
-Handle column are fully editable.  By selecting an entry in the table
-and clicking on the Attach button, a Steerer is created for the chosen
-application. Should the attach fail then check that the handle you've
-specified is correct and that the application you are attempting to
-connect to is up and running.  (A good way of doing the latter is to
-check that the \texttt{sws:machineName} ResourceProperty of the
-Steering Web Service has been set.  If it hasn't then the job
+\begin{subsubsection}{Grid-based steering}
+The dialog box (figure~\ref{fig:grid_attach}) will list all available
+RealityGrid applications and their addresses (handles) in a table.
+(This information is obtained by querying the registry specified in
+the configuration file --- see section~\ref{sec:config}.) Entries in
+the Handle column are fully editable.  By selecting an entry in the
+table and clicking on the Attach button, a Steerer is created for the
+chosen application. Should the attach fail then check that the handle
+you've specified is correct and that the application you are
+attempting to connect to is up and running.  (A good way of doing the
+latter is to check that the \texttt{sws:machineName} ResourceProperty
+of the Steering Web Service has been set.  If it hasn't then the job
 has failed to contact the Web Service and you should look at its
 stderr output.)
 
-It is also possible (on Linux/UNIX systems) to specify the handle to
-connect to on the command line when launching the steerer.
+As with direct steering the handle to connect to can be specified on
+the command line when launching the steerer.
+\end{subsubsection}
+
+\begin{figure}
+\centerline{\includegraphics{grid_attach.png}}
+\caption{Grid Attach dialog}
+\label{fig:grid_attach}
+\end{figure}
 
 \end{subsection}
 \end{section}
@@ -252,16 +290,17 @@ connect to on the command line when launching the steerer.
 %------------------------------------------------------------------
 
 \begin{section}{The Main Window}
+\label{sec:main_win}
 
 \begin{figure}
-\centerline{\includegraphics{main_local.eps}}
-\caption{Steerer main window in local-steering mode}
-\label{fig:main_local}
+\centerline{\includegraphics{main_sockets.png}}
+\caption{Steerer main window in direct-steering mode}
+\label{fig:main_socks}
 \end{figure}
 
 Once the steerer has successfully attached to a job, the main window
-is displayed.  When local (file-based) steering is being used, this
-should appear something like the one in figure~\ref{fig:main_local}.
+is displayed.  When direct (sockets-based) steering is being used, this
+should appear something like the one in figure~\ref{fig:main_socks}.
 The Main Window is split into five conceptual sections:
 \begin{itemize}
 \item Control Buttons
@@ -271,7 +310,7 @@ The Main Window is split into five conceptual sections:
 \item CheckPoint Types
 \end{itemize}
 The last four of these each have a table associated with them, as
-shown in figure~\ref{fig:main_local}.  The user can choose to hide one
+shown in figure~\ref{fig:main_socks}.  The user can choose to hide one
 or more of these tables via the View menu shown in
 figure~\ref{fig:view_menu}.  By default, all four tables are displayed
 once the steerer has successfully attached to a job.  However, this
@@ -279,7 +318,7 @@ may be changed by editing the configuration file
 (section~\ref{sec:config}).
 
 \begin{figure}
-\centerline{\includegraphics{main_view_menu.eps}}
+\centerline{\includegraphics{main_view_menu.png}}
 \caption{The View menu on the main window}
 \label{fig:view_menu}
 \end{figure}
@@ -296,11 +335,11 @@ cannot be stopped.  The following buttons are always displayed in the
 panel:
 \begin{itemize}
 \item Pause/Resume: pauses a running job/resumes a paused job;
-\item Detach: detaches the steerer from the job, \textit{leaving the 
+\item Detach: detaches the steerer from the job, \textit{leaving the
 job running};
-\item Close: closes the main window of the steerer, returning to the 
+\item Close: closes the main window of the steerer, returning to the
 startup screen;
-\item Tell All: causes the steerer to pass any user updated 
+\item Tell All: causes the steerer to pass any user updated
 parameters to the job, see section~\ref{sec:steered_params}.
 \item Stop: ends the job;
 \end{itemize}
@@ -327,7 +366,7 @@ option to add a plot of this parameter to one of them. For more
 details see section~\ref{sec:hist_graphs}.
 
 \begin{figure}
-\centerline{\includegraphics{hist_plot_context_menu.eps}}
+\centerline{\includegraphics{hist_plot_context_menu.png}}
 \caption{Draw History Graph context menu option}
 \label{fig:hist_graph_context_menu}
 \end{figure}
@@ -362,9 +401,9 @@ upon confirmation from the application --- this thus provides
 confirmation that it has received the instruction(s).
 
 \begin{figure}
-\centerline{\includegraphics{limits_tool_tip.eps}}
-\caption{Steered Parameters tool tip showing the limits on a steered 
-parameter (OPACITY\_\-STEP\_\-STOP in this case).}
+\centerline{\includegraphics{limits_tool_tip.png}}
+\caption{Steered Parameters tool tip showing the limits on a steered
+parameter (``data side length'' in this case).}
 \label{fig:limits_tool_tip}
 \end{figure}
 
@@ -435,7 +474,7 @@ the application to restart from it by clicking on the `Restart'
 button. Clicking on `Cancel' quits the dialog without doing anything.
 
 \begin{figure}
-\centerline{\includegraphics{chk_list.eps}}
+\centerline{\includegraphics{chk_list.png}}
 \caption{CheckPoint Selector dialog}
 \label{fig:chk_list_dialog}
 \end{figure}
@@ -450,7 +489,7 @@ checkpoint instances can be compared and contrasted.  Again, clicking
 on the `Cancel' button closes the dialog.
 
 \begin{figure}
-\centerline{\includegraphics{chk_params.eps}}
+\centerline{\includegraphics{chk_params.png}}
 \caption{CheckPoint Parameters Table dialog}
 \label{fig:chk_params_dialog}
 \end{figure}
@@ -467,7 +506,7 @@ The form of the main window when doing remote steering is shown in
 figure~\ref{fig:main_window_grid}.
 
 \begin{figure}
-\centerline{\includegraphics{main_window_grid.eps}}
+\centerline{\includegraphics{main_window_grid.png}}
 \caption{Steerer main window in remote-steering mode}
 \label{fig:main_window_grid}
 \end{figure}
@@ -494,7 +533,7 @@ launching wizard).
 \label{sec:hist_graphs}
 
 The steerer allows the user to track the changes in both monitored and
-steerable pararmeters by means of 2D plots.  This functionality is
+steerable parameters by means of 2D plots.  This functionality is
 accessed by right-clicking on a parameter in either the Monitored or
 Steerable Parameters tables on the main window.  Selecting the `Draw
 History Graph' option from the resulting context menu
@@ -509,7 +548,7 @@ by connecting adjacent ordinates with straight lines --- no fitting is
 performed.
 
 \begin{figure}
-\centerline{\includegraphics[width=11cm]{hist_plot_2curves.eps}}
+\centerline{\includegraphics{hist_plot_2curves.png}}
 \caption{Example Parameter History Graph}
 \label{fig:eg_param_hist_plot}
 \end{figure}
@@ -520,57 +559,61 @@ a parameter since the beginning of the job then they must right-click
 on the parameter's entry in the Monitored/Steerable Parameters table
 and select the `Fetch full history of this parameter' option.  Note
 that if a parameter is plotted against anything other than the
-SEQUENCE\_NUM then the user must also request that the full history of
-the parameter being used as the abscissa be fetched.
+\texttt{SEQUENCE\_NUM} then the user must also request that the full
+history of the parameter being used as the abscissa be fetched.
 
 The history of more than one parameter may be displayed in a single
 graph.  Once one or more history graphs are already open, the
 parameter context menu has an additional `Add to History Graph'
-option. On selecting this option the user must click on the {\em canvas} of
-the graph to which they wish to add the plot.
+option. On selecting this option the user must click on the {\em
+  canvas} of the graph to which they wish to add the plot.
 
-There are two menus available in a History graph window 
+There are two menus available in a History graph window
 (figure~\ref{fig:param_hist_menus}), the File menu, and the Graph
 menu. The File menu has four options:
 \begin{itemize}
-\item Print: requests a print-out of the image portion of the window. 
-Shortcut Ctrl+P;
-\item Save: saves the image portion of the window to disk. Shortcut Ctrl+S;
-\item Save data: saves the raw data to ASCII file (pops up a file browser). 
-Shortcut Ctrl+t;
-\item Close: closes the window. Shortcut Ctrl+C.
+\item Print: requests a print-out of the image portion of the window.
+  Shortcut \texttt{Ctrl+P};
+\item Save: saves the image portion of the window to disk. Shortcut
+  \texttt{Ctrl+S};
+\item Save data: saves the raw data to ASCII file (pops up a file
+  browser).  Shortcut \texttt{Ctrl+t};
+\item Close: closes the window. Shortcut \texttt{Ctrl+C}.
 \end{itemize}
 The Graph menu has nine options:
 \begin{itemize}
-\item Auto Y Axis: allows the application to automatically determine 
-limits for the y-axis. This menu item toggles on and off. 
-Shortcut Ctrl+A;
-\item Define Y upper-bound: if Auto Y axis is not selected, this 
-menu item becomes available. By selecting it, a dialog appears 
-(see below) allowing you to enter an upper bound for the Y axis. 
-If Auto Y Axis is reselected, then this value is ignored. 
-Shortcut Ctrl+U;
-\item Define Y lower-bound: as `Define Y upper-bound', but for 
-the lower bound. Shortcut Ctrl+L;
-\item Toggle use of Log Y axis: switches between linear and 
-logarithmic axis.  Manual limits cannot be set for the logarithmic 
-axis and therefore those options will be disabled as appropriate. 
-Shortcut Ctrl+O;
-\item Auto X Axis: allows the application to automatically 
-determine limits for the x-axis. This menu item toggles on and 
-off. Shortcut Alt+A;
-\item Define X upper-bound: as for Y upper bound. Shortcut Alt+U;
-\item Define X lower-bound: as for Y lower bound. Shortcut Alt+L;
-\item Toggle use of Log X axis:	as for Log Y axis. Shortcut Alt+O;
-\item Toggle display of symbols: enables/disables the display of 
-symbols at data points. Shortcut Ctrl-D.
+\item Auto Y Axis: allows the application to automatically determine
+  limits for the y-axis. This menu item toggles on and off.  Shortcut
+  \texttt{Ctrl+A};
+\item Define Y upper-bound: if Auto Y axis is not selected, this menu
+  item becomes available. By selecting it, a dialog appears (see
+  below) allowing you to enter an upper bound for the Y axis.  If Auto
+  Y Axis is reselected, then this value is ignored.  Shortcut
+  \texttt{Ctrl+U};
+\item Define Y lower-bound: as `Define Y upper-bound', but for the
+  lower bound. Shortcut \texttt{Ctrl+L};
+\item Toggle use of Log Y axis: switches between linear and
+  logarithmic axis.  Manual limits cannot be set for the logarithmic
+  axis and therefore those options will be disabled as appropriate.
+  Shortcut \texttt{Ctrl+O};
+\item Auto X Axis: allows the application to automatically determine
+  limits for the x-axis. This menu item toggles on and off. Shortcut
+  \texttt{Alt+A};
+\item Define X upper-bound: as for Y upper bound. Shortcut
+  \texttt{Alt+U};
+\item Define X lower-bound: as for Y lower bound. Shortcut
+  \texttt{Alt+L};
+\item Toggle use of Log X axis: as for Log Y axis. Shortcut
+  \texttt{Alt+O};
+\item Toggle display of symbols: enables/disables the display of
+  symbols at data points. Shortcut \texttt{Ctrl-D}.
 \end{itemize}
 Symbols are displayed by default if the graph is of an appropriate
 scale --- if resolution does not permit then they are automatically
 hidden.
 
 \begin{figure}
-\centerline{\includegraphics[width=9cm]{hist_plot_menus.eps}}
+\centerline{\includegraphics{hist_plot_menus.png}}
 \caption{The File and Graph menus of the Parameter History Graph window}
 \label{fig:param_hist_menus}
 \end{figure}
@@ -581,9 +624,9 @@ being plotted) and therefore if it is connected to a running
 simulation for an extended period it may accumulate a considerable
 amount of data.  Displaying a history plot of a large data set
 obviously uses some computational resource, particularly if the plot
-is being updated frequently.  It may therefore become necessary (in order to
-maximise the responsiveness of the steering client) to close history plots
-while not in use if the steering client is being used to
+is being updated frequently. It may therefore become necessary (in
+order to maximise the responsiveness of the steering client) to close
+history plots while not in use if the steering client is being used to
 continuously monitor long runs.
 
 \end{section} % Parameter History Graphs
@@ -596,27 +639,27 @@ continuously monitor long runs.
 The steering client is capable of steering a number of simulations
 simultaneously.  These simulations may be local, remote or a mixture
 of both.  Connecting to additional simulations is straightforward; use
-the `Local Attach' or `Grid Attach' options and proceed as normal.  When
-the client is successfully attached to a second application then a
-second tab will be added to the main window, as shown in
+the `Local Attach' or `Grid Attach' options and proceed as normal.
+When the client is successfully attached to a second application then
+a second tab will be added to the main window, as shown in
 figure~\ref{fig:tabbed}.
 
 \begin{figure}
-\centerline{\includegraphics{tabbed_steerer.eps}}
+\centerline{\includegraphics{tabbed_steerer.png}}
 \caption{Tabbed steering client connected to two simulations.}
 \label{fig:tabbed}
 \end{figure}
 
-Initially, the tab is labelled with either the directory or address of the
-SWS being used to contact the simulation.  This may be edited by
+Initially, the tab is labelled with either the directory or address of
+the SWS being used to contact the simulation.  This may be edited by
 selecting the `Edit tab title' option from the Steerer menu (shortcut
-Ctrl-E).
+\texttt{Ctrl-E}).
 
 When the steerer is connected to more than one simulation then
-obviously it needs to check for status messages more frequently.  This
+obviously it needs to check for status messages more frequently. This
 must be borne in mind if the user is setting the steerer's polling
-interval manually.  However, if the steerer is automatically setting
-the polling interval then this is not an issue.  Clearly, there are
+interval manually. However, if the steerer is automatically setting
+the polling interval then this is not an issue. Clearly, there are
 practical limits on how many applications the steering client can
 connect to simultaneously and these are largely governed by how often
 it is possible for the steering client to check for messages.
@@ -630,9 +673,10 @@ interval must be greater than approximately 0.05 seconds.
 
 \begin{section}{Acknowledgements}
 
-The RealityGrid Steerer is mainly the work of Sue Ramsden, with some
-further enhancements by Mark Riding and Andrew Porter. The steerer makes
-use of the RealityGrid Steering API, by Andrew Porter.
+The RealityGrid Steerer was initially developed by Sue Ramsden and has
+been extended, enhanced and supported by Robert Haines, Mark Riding
+and Andrew Porter. The steerer makes use of the RealityGrid Steering
+API, by Robert Haines and Andrew Porter.
 
 \end{section}
 
