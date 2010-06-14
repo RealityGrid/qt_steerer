@@ -106,7 +106,7 @@ protected slots:
   void closeApplicationSlot(int aSimHandle);
   void configureSteererSlot();
   void toggleAutoPollSlot();
-  void tabChangedSlot(QWidget *aWidget);
+  void tabChangedSlot(int index);
   void editTabTitleSlot();
   void hideChkPtTableSlot();
   void hideIOTableSlot();

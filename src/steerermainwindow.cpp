@@ -229,8 +229,8 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mHideMonTableAction->addTo(lViewMenu);
 
   // Catch tab changes so we can keep the status bar relevant
-  connect(mAppTabs, SIGNAL(currentChanged(QWidget *)), this,
-	  SLOT(tabChangedSlot(QWidget *)));
+  connect(mAppTabs, SIGNAL(currentChanged(int)), this,
+	  SLOT(tabChangedSlot(int)));
 
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
@@ -688,11 +688,14 @@ void SteererMainWindow::statusBarMessageSlot(Application *aApp,
  * application
  */
 void
-SteererMainWindow::tabChangedSlot(QWidget *aWidget)
+SteererMainWindow::tabChangedSlot(int index)
 {
-  REG_DBGMSG("Tab changed");
-  Application *aApp;
-  aApp = (Application *)aWidget;
+  REG_DBGMSG1("Tab changed: ", index);
+  Application* aApp;
+  aApp = (Application*) mAppTabs->widget(index);
+
+  // if index is out of range, then just return
+  if(aApp == NULL) return;
 
   // Update the status bar so it is relevant to this tab
   statusBar()->message( aApp->getCurrentStatus() );
