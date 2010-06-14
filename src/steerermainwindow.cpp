@@ -83,7 +83,7 @@
 #include <qtabwidget.h>
 #include <qtooltip.h>
 #include <qwidget.h>
-#include <q3widgetstack.h>
+#include <QStackedWidget>
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 #include <QEvent>
@@ -183,7 +183,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // SMR XXX - future add more widgets to stack for log viewing,
   // for now only tabwidget
-  mStack = new Q3WidgetStack(mCentralWgt);
+  mStack = new QStackedWidget(mCentralWgt);
 
   // tab widget - each tab will be form for one steered application
   mAppTabs = new QTabWidget();
@@ -191,7 +191,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mStack->addWidget(mAppTabs);
   mTopLayout->addWidget(mStack);
   mStack->addWidget(mStackLogoLabel);
-  mStack->raiseWidget(mStackLogoLabel);
+  mStack->setCurrentWidget(mStackLogoLabel);
 
   // Second menu to configure view
   Q3PopupMenu *lViewMenu = new Q3PopupMenu(this);
@@ -355,7 +355,7 @@ SteererMainWindow::resizeForNoAttached()
 {
   int width = mStackLogoPixMap->width();
   int height = mStackLogoPixMap->height();
-  mStack->raiseWidget(mStackLogoLabel);
+  mStack->setCurrentWidget(mStackLogoLabel);
 
   this->resize(width, height);
   this->setMinimumSize(width, height);
@@ -489,7 +489,7 @@ void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
       // Need showpage otherwise only shown on first attach - why? SMR XXX
       mAppTabs->showPage(mAppList.current());
 
-      mStack->raiseWidget(mAppTabs);
+      mStack->setCurrentWidget(mAppTabs);
 
       // resize - only do for first app attached
       if(mAppList.count() == 1)resize(525, 700);

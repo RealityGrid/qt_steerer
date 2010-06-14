@@ -66,7 +66,7 @@ class QPixMap;
 class QPushButton;
 class QTabWidget;
 class QWidget;
-class Q3WidgetStack;
+class QStackedWidget;
 
 #include "application.h"
 #include "steererconfig.h"
@@ -125,7 +125,7 @@ private:
   QWidget	*mCentralWgt;
   Q3HBoxLayout	*mTopLayout;
 
-  Q3WidgetStack  *mStack;
+  QStackedWidget *mStack;
   QTabWidget	*mAppTabs;
 
   QLabel	*mStackLogoLabel;
