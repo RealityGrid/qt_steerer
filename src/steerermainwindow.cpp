@@ -353,13 +353,14 @@ SteererMainWindow::isThreadRunning() const
 void
 SteererMainWindow::resizeForNoAttached()
 {
+  int width = mStackLogoPixMap->width();
+  int height = mStackLogoPixMap->height();
   mStack->raiseWidget(mStackLogoLabel);
 
-  resize(140,180);
-  this->setMinimumSize(140, 180);
+  this->resize(width, height);
+  this->setMinimumSize(width, height);
   qApp->processEvents();
   this->adjustSize();
-
 }
 
 
