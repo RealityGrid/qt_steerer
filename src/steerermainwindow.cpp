@@ -83,7 +83,7 @@
 #include <qtabwidget.h>
 #include <qtooltip.h>
 #include <qwidget.h>
-#include <q3widgetstack.h>
+#include <QStackedWidget>
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 #include <QEvent>
@@ -153,7 +153,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // put actions in menu
   Q3PopupMenu *lConfigMenu = new Q3PopupMenu( this );
-  menuBar()->insertItem( "&Steerer", lConfigMenu );
+  menuBar()->insertItem( "&Application", lConfigMenu );
   mAttachAction->addTo(lConfigMenu);
   mSetCheckIntervalAction->addTo(lConfigMenu);
   mToggleAutoPollAction->addTo(lConfigMenu);
@@ -183,7 +183,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
 
   // SMR XXX - future add more widgets to stack for log viewing,
   // for now only tabwidget
-  mStack = new Q3WidgetStack(mCentralWgt);
+  mStack = new QStackedWidget(mCentralWgt);
 
   // tab widget - each tab will be form for one steered application
   mAppTabs = new QTabWidget();
@@ -191,7 +191,7 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mStack->addWidget(mAppTabs);
   mTopLayout->addWidget(mStack);
   mStack->addWidget(mStackLogoLabel);
-  mStack->raiseWidget(mStackLogoLabel);
+  mStack->setCurrentWidget(mStackLogoLabel);
 
   // Second menu to configure view
   Q3PopupMenu *lViewMenu = new Q3PopupMenu(this);
@@ -229,8 +229,8 @@ SteererMainWindow::SteererMainWindow(bool autoConnect, const char *aSGS)
   mHideMonTableAction->addTo(lViewMenu);
 
   // Catch tab changes so we can keep the status bar relevant
-  connect(mAppTabs, SIGNAL(currentChanged(QWidget *)), this,
-	  SLOT(tabChangedSlot(QWidget *)));
+  connect(mAppTabs, SIGNAL(currentChanged(int)), this,
+	  SLOT(tabChangedSlot(int)));
 
   // Initial size of main GUI form when no applications being steered
   resizeForNoAttached();
@@ -353,13 +353,14 @@ SteererMainWindow::isThreadRunning() const
 void
 SteererMainWindow::resizeForNoAttached()
 {
-  mStack->raiseWidget(mStackLogoLabel);
+  int width = mStackLogoPixMap->width();
+  int height = mStackLogoPixMap->height();
+  mStack->setCurrentWidget(mStackLogoLabel);
 
-  resize(140,180);
-  this->setMinimumSize(140, 180);
+  this->resize(width, height);
+  this->setMinimumSize(width, height);
   qApp->processEvents();
   this->adjustSize();
-
 }
 
 
@@ -488,7 +489,7 @@ void SteererMainWindow::simAttachApp(const char* aSimID, bool aIsLocal)
       // Need showpage otherwise only shown on first attach - why? SMR XXX
       mAppTabs->showPage(mAppList.current());
 
-      mStack->raiseWidget(mAppTabs);
+      mStack->setCurrentWidget(mAppTabs);
 
       // resize - only do for first app attached
       if(mAppList.count() == 1)resize(525, 700);
@@ -688,11 +689,14 @@ void SteererMainWindow::statusBarMessageSlot(Application *aApp,
  * application
  */
 void
-SteererMainWindow::tabChangedSlot(QWidget *aWidget)
+SteererMainWindow::tabChangedSlot(int index)
 {
-  REG_DBGMSG("Tab changed");
-  Application *aApp;
-  aApp = (Application *)aWidget;
+  REG_DBGMSG1("Tab changed: ", index);
+  Application* aApp;
+  aApp = (Application*) mAppTabs->widget(index);
+
+  // if index is out of range, then just return
+  if(aApp == NULL) return;
 
   // Update the status bar so it is relevant to this tab
   statusBar()->message( aApp->getCurrentStatus() );

@@ -66,7 +66,7 @@ class QPixMap;
 class QPushButton;
 class QTabWidget;
 class QWidget;
-class Q3WidgetStack;
+class QStackedWidget;
 
 #include "application.h"
 #include "steererconfig.h"
@@ -106,7 +106,7 @@ protected slots:
   void closeApplicationSlot(int aSimHandle);
   void configureSteererSlot();
   void toggleAutoPollSlot();
-  void tabChangedSlot(QWidget *aWidget);
+  void tabChangedSlot(int index);
   void editTabTitleSlot();
   void hideChkPtTableSlot();
   void hideIOTableSlot();
@@ -125,7 +125,7 @@ private:
   QWidget	*mCentralWgt;
   Q3HBoxLayout	*mTopLayout;
 
-  Q3WidgetStack  *mStack;
+  QStackedWidget *mStack;
   QTabWidget	*mAppTabs;
 
   QLabel	*mStackLogoLabel;

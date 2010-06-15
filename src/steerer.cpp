@@ -63,16 +63,10 @@
 #include "exception.h"
 #include "steerermainwindow.h"
 
-#ifndef WIN32
-#include <QCleanlooksStyle>
-#else
-#include <qwindowsstyle.h>
-#endif
-
 #include <signal.h>
 #include <new>
 
-#ifndef WIN32
+#ifdef Q_WS_X11
 #include <X11/Xlib.h>
 #endif
 
@@ -163,7 +157,7 @@ int main( int argc, char ** argv )
 
   // Was getting XSync errors when trying to save screenshots to file.
   // This seems to fix it.
-#ifndef WIN32
+#ifdef Q_WS_X11
   XInitThreads();
 #endif
 
