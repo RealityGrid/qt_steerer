@@ -63,6 +63,7 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 #include <Q3PtrList>
+
 #include "historyplot.h"
 
 class QPushButton;

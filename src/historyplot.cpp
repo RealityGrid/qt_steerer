@@ -52,19 +52,13 @@
     history plots on a single canvas
     @author Mark Riding
     @author Andrew Porter */
-#include <iostream>
+
 //Added by qt3to4:
 #include <Q3PointArray>
 #include <QCloseEvent>
 #include <Q3PopupMenu>
 #include <Q3VBoxLayout>
 #include <Q3Frame>
-using namespace std;
-
-#include "historysubplot.h"
-#include "historyplot.h"
-#include "parameterhistory.h"
-
 #include "qprinter.h"
 #include "qinputdialog.h"
 #include "qwt_symbol.h"
@@ -76,7 +70,13 @@ using namespace std;
 #include <qmessagebox.h>
 #include "qcolor.h"
 
+#include "buildconfig.h"
+#include "historysubplot.h"
+#include "historyplot.h"
+#include "parameterhistory.h"
 #include "debug.h"
+
+using namespace std;
 
 HistoryPlot::HistoryPlot(ParameterHistory *_mXParamHist,
 			 ParameterHistory *_mYParamHist,

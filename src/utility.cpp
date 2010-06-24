@@ -54,10 +54,6 @@
     @author Mark Riding
     @author Andrew Porter */
 
-#include "utility.h"
-#include "types.h"
-#include "debug.h"
-
 #include <qapplication.h>
 #include <qfontmetrics.h>
 #include <qpainter.h>
@@ -65,6 +61,11 @@
 #include <qwidget.h>
 //Added by qt3to4:
 #include <QLabel>
+
+#include "buildconfig.h"
+#include "utility.h"
+#include "types.h"
+#include "debug.h"
 
 TableLabel::TableLabel(const QString & text, QWidget * parent)
   : QLabel(text, parent)

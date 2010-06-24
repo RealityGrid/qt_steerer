@@ -54,8 +54,9 @@
 #ifndef __PARAMETER_H__
 #define __PARAMETER_H__
 
-#include "parameterhistory.h"
 #include <qstring.h>
+
+#include "parameterhistory.h"
 
 class Q3Table;
 

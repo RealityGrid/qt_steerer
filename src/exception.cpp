@@ -48,11 +48,10 @@
           Robert Haines
  */
 
+#include "buildconfig.h"
 #include "exception.h"
 #include "types.h"
 
-#include <string.h>
-#include <iostream>
 using namespace std;
 
 SteererException::SteererException(const char * const aMsgPtr)

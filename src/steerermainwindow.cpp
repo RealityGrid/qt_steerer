@@ -54,17 +54,6 @@
     @author Mark Riding
     @author Andrew Porter */
 
-#include "types.h"
-#include "debug.h"
-#include "ReG_Steer_Steerside.h"
-#include "exception.h"
-#include "steerermainwindow.h"
-#include "commsthread.h"
-#include "application.h"
-#include "attachform.h"
-#include "attachsockets.h"
-#include "configform.h"
-
 #include <qaction.h>
 #include <qapplication.h>
 #include <qcombobox.h>
@@ -89,9 +78,18 @@
 #include <QEvent>
 #include <Q3Action>
 
-#ifndef WIN32
-#include <unistd.h>
-#endif
+#include "buildconfig.h"
+#include "types.h"
+#include "debug.h"
+#include "exception.h"
+#include "steerermainwindow.h"
+#include "commsthread.h"
+#include "application.h"
+#include "attachform.h"
+#include "attachsockets.h"
+#include "configform.h"
+
+#include "ReG_Steer_Steerside.h"
 
 extern unsigned char reg_logo[];
 extern unsigned int  reg_logo_len;

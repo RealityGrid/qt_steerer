@@ -55,11 +55,6 @@
     @author Mark Riding
     @author Andrew Porter */
 
-#include "configform.h"
-#include "utility.h"
-#include "types.h"
-#include "debug.h"
-
 #include <qvalidator.h>
 #include <q3hbox.h>
 #include <qlayout.h>
@@ -73,7 +68,11 @@
 #include <Q3VBoxLayout>
 #include <QLabel>
 
-#include <math.h>
+#include "buildconfig.h"
+#include "configform.h"
+#include "utility.h"
+#include "types.h"
+#include "debug.h"
 
 ConfigForm::ConfigForm(int aCurrentIntervalValue, QWidget *parent,
 		       const char *name,

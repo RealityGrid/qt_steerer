@@ -50,8 +50,10 @@
 #define _STEERERCONFIG_H_
 
 using namespace std;
-#include "ReG_Steer_Common.h"
+
 #include <qdom.h>
+
+#include "ReG_Steer_Common.h"
 
 /** @file steererconfig.h
     @brief Defines class holding configuration data

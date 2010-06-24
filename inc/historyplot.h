@@ -67,6 +67,7 @@
 #include <Q3PopupMenu>
 #include <QCloseEvent>
 #include <Q3PtrList>
+
 #include "types.h"
 
 class HistorySubPlot;

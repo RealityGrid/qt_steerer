@@ -55,6 +55,7 @@
     @author Mark Riding
     @author Andrew Porter */
 
+#include "buildconfig.h"
 #include "types.h"
 #include "debug.h"
 #include "iotype.h"

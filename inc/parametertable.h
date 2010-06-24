@@ -54,12 +54,13 @@
 #ifndef __PARAMETER_TABLE_H__
 #define __PARAMETER_TABLE_H__
 
-#include "table.h"
-#include "parameter.h"
 #include "qpoint.h"
 #include "qmutex.h"
 //Added by qt3to4:
 #include <Q3PtrList>
+
+#include "table.h"
+#include "parameter.h"
 #include "historyplot.h"
 #include "controlform.h"
 

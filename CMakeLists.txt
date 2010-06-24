@@ -116,6 +116,14 @@ endif(STEERER_DEBUG)
 # build!
 #
 
+# set up build header file
+configure_file(
+  "${PROJECT_SOURCE_DIR}/buildconfig.h.in"
+  "${PROJECT_BINARY_DIR}/buildconfig.h"
+  @ONLY
+)
+include_directories("${PROJECT_BINARY_DIR}")
+
 add_subdirectory(src)
 
 if(STEERER_BUILD_DOCUMENTATION)

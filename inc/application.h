@@ -55,11 +55,11 @@
 #ifndef __APPLICATION_H__
 #define __APPLICATION_H__
 
-#include "types.h"
-
 #include <qwidget.h>
 #include <qmutex.h>
 #include <QEvent>
+
+#include "types.h"
 
 class Q3GroupBox;
 class QPushButton;

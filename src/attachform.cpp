@@ -54,15 +54,6 @@
     @author Mark Riding
     @author Andrew Porter */
 
-#include "attachform.h"
-#include "steererconfig.h"
-#include "steerermainwindow.h"
-#include "utility.h"
-#include "types.h"
-#include "debug.h"
-#include "ReG_Steer_Steerside.h"
-#include "ReG_Steer_Browser.h"
-
 #include <q3hbox.h>
 #include <qlayout.h>
 #include <qlineedit.h>
@@ -76,6 +67,17 @@
 #include <Q3HBoxLayout>
 #include <QLabel>
 #include <Q3VBoxLayout>
+
+#include "buildconfig.h"
+#include "attachform.h"
+#include "steererconfig.h"
+#include "steerermainwindow.h"
+#include "utility.h"
+#include "types.h"
+#include "debug.h"
+
+#include "ReG_Steer_Steerside.h"
+#include "ReG_Steer_Browser.h"
 
 AttachForm::AttachForm(QWidget *parent, const char *name,
 		       bool modal, Qt::WFlags f)

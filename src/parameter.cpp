@@ -56,12 +56,13 @@
     @author Sue Ramsden
     @author Mark Riding
     @author Andrew Porter */
-#include "parameter.h"
-#include "types.h"
-#include "debug.h"
 
 #include <q3table.h>
 
+#include "buildconfig.h"
+#include "parameter.h"
+#include "types.h"
+#include "debug.h"
 
 Parameter::Parameter(int aId, int aType, bool aSteerable,
 		     QString aLabel)

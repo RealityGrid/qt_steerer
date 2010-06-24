@@ -48,12 +48,12 @@
 /** @file attachsockets.cpp
     @author Robert Haines */
 
+#include <QtGui>
+
+#include "buildconfig.h"
 #include "attachsockets.h"
 #include "types.h"
 #include "debug.h"
-
-#include <cstdlib>
-#include <QtGui>
 
 AttachSockets::AttachSockets(QWidget* parent, bool modal)
   : QDialog(parent) {

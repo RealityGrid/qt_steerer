@@ -54,17 +54,17 @@
     @author Mark Riding
     @author Andrew Porter */
 
-#include "types.h"
-#include "debug.h"
-#include "chkptform.h"
-#include "exception.h"
-#include "iotypetable.h"
-
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <q3popupmenu.h>
 #include <q3table.h>
 
+#include "buildconfig.h"
+#include "types.h"
+#include "debug.h"
+#include "chkptform.h"
+#include "exception.h"
+#include "iotypetable.h"
 
 IOTypeTable::IOTypeTable(QWidget *aParent, const char *aName, int aSimHandle,
 			 QMutex *aMutex, bool aChkPtType)

@@ -56,18 +56,6 @@
  * @author Andrew Porter
  */
 
-#include "types.h"
-#include "debug.h"
-#include "ReG_Steer_Steerside.h"
-
-#include "application.h"
-#include "controlform.h"
-#include "parametertable.h"
-#include "iotypetable.h"
-#include "utility.h"
-#include "exception.h"
-#include "steerermainwindow.h"
-
 #include <qapplication.h>
 #include <q3hbox.h>
 #include <qlayout.h>
@@ -83,6 +71,19 @@
 #include <Q3HBoxLayout>
 #include <Q3VBoxLayout>
 #include <Q3HButtonGroup>
+
+#include "buildconfig.h"
+#include "types.h"
+#include "debug.h"
+#include "application.h"
+#include "controlform.h"
+#include "parametertable.h"
+#include "iotypetable.h"
+#include "utility.h"
+#include "exception.h"
+#include "steerermainwindow.h"
+
+#include "ReG_Steer_Steerside.h"
 
 ControlForm::ControlForm(QWidget *aParent, const char *aName, int aSimHandle,
 			 Application *aApplication, QMutex *aMutex)

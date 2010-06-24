@@ -62,6 +62,13 @@
     @author Mark Riding
     @author Andrew Porter */
 
+#include <qapplication.h>
+//Added by qt3to4:
+#include <QEvent>
+#include <QCustomEvent>
+#include <QCoreApplication>
+
+#include "buildconfig.h"
 #include "types.h"
 #include "debug.h"
 #include "commsthread.h"
@@ -69,13 +76,6 @@
 #include "application.h"
 
 #include "ReG_Steer_Steerside.h"
-
-#include <qapplication.h>
-//Added by qt3to4:
-#include <QEvent>
-#include <QCustomEvent>
-#include <QCoreApplication>
-#include <signal.h>
 
 //file scope global pointer pointing at this CommsThread object; need this to
 //when catch signal.

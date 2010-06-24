@@ -57,6 +57,8 @@
 #include <qdir.h>
 #include <qstring.h>
 #include <qmessagebox.h>
+
+#include "buildconfig.h"
 #include "debug.h"
 #include "steererconfig.h"
 

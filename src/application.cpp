@@ -51,15 +51,6 @@
 /** @file application.cpp
     @brief Holds implementation of Application class */
 
-#include "types.h"
-#include "application.h"
-#include "controlform.h"
-#include "debug.h"
-#include "commsthread.h"
-#include "ReG_Steer_Steerside.h"
-#include "exception.h"
-#include "steerermainwindow.h"
-
 #include <qapplication.h>
 #include <q3groupbox.h>
 #include <qinputdialog.h>
@@ -74,6 +65,17 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 #include <QEvent>
+
+#include "buildconfig.h"
+#include "types.h"
+#include "application.h"
+#include "controlform.h"
+#include "debug.h"
+#include "commsthread.h"
+#include "exception.h"
+#include "steerermainwindow.h"
+
+#include "ReG_Steer_Steerside.h"
 
 Application::Application(QWidget *aParent, const char *aName,
 			 int aSimHandle, bool aIsLocal, QMutex *aMutex)

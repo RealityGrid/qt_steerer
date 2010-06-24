@@ -53,14 +53,6 @@
     @author Sue Ramsden
     @author Mark Riding
     @author Andrew Porter */
-#include "types.h"
-#include "debug.h"
-#include "ReG_Steer_Steerside.h"
-
-#include "exception.h"
-#include "parametertable.h"
-#include "application.h"
-#include "controlform.h"
 
 #include <qapplication.h>
 #include <qmessagebox.h>
@@ -68,7 +60,16 @@
 #include <q3popupmenu.h>
 #include <qinputdialog.h>
 
+#include "buildconfig.h"
 #include "historyplot.h"
+#include "types.h"
+#include "debug.h"
+#include "exception.h"
+#include "parametertable.h"
+#include "application.h"
+#include "controlform.h"
+
+#include "ReG_Steer_Steerside.h"
 
 ParameterTable::ParameterTable(QWidget *aParent, const char *aName,
 			       int aSimHandle, QMutex *aMutex)

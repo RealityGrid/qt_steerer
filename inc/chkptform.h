@@ -54,6 +54,7 @@
 #include <qdialog.h>
 #include <q3listbox.h>
 #include <qmutex.h>
+
 #include "ReG_Steer_Steerside.h"
 
 class QLineEdit;

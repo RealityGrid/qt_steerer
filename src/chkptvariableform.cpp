@@ -48,11 +48,6 @@
           Robert Haines
  */
 
-#include "chkptvariableform.h"
-#include "utility.h"
-#include "types.h"
-#include "debug.h"
-
 #include <qapplication.h>
 #include <q3hbox.h>
 #include <q3table.h>
@@ -67,8 +62,11 @@
 #include <Q3HBoxLayout>
 #include <Q3VBoxLayout>
 
-
-
+#include "buildconfig.h"
+#include "chkptvariableform.h"
+#include "utility.h"
+#include "types.h"
+#include "debug.h"
 
 ChkPtVariableForm::ChkPtVariableForm(const Output_log_struct *outputLogStruct,
 		     QWidget *parent, const char *name,

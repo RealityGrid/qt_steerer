@@ -94,7 +94,7 @@ include_directories(${inc_dir})
 # moc the include files
 qt4_wrap_cpp(QT_MOC_SRCS ${steerer_MOCS})
 
-# add some platform specific stuff
+# add some apple specific stuff
 set(GUI_TYPE)
 set(EXE_NAME steerer)
 if(APPLE AND STEERER_BUILD_BUNDLE)
@@ -113,6 +113,12 @@ if(APPLE AND STEERER_BUILD_BUNDLE)
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${REG_STEERER_VERSION}")
   set(MACOSX_BUNDLE_COPYRIGHT "(c) 2002-2010, The University of Manchester, UK.")
 endif(APPLE AND STEERER_BUILD_BUNDLE)
+
+# and some windows specific stuff
+if(WIN32 AND NOT CYGWIN)
+  # supress braindead warnings
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_DEPRECATE)
+endif(WIN32 AND NOT CYGWIN)
 
 # build the executable
 add_executable(${EXE_NAME} ${GUI_TYPE} ${steerer_SRCS} ${QT_MOC_SRCS})

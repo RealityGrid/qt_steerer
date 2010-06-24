@@ -48,9 +48,8 @@
           Robert Haines
  */
 
+#include "buildconfig.h"
 #include "parameterhistory.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 ParameterHistory::ParameterHistory(){
   mArrayChunkSize = 1024;

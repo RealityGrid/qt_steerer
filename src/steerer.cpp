@@ -53,18 +53,16 @@
     @author Sue Ramsden
     @author Mark Riding
     @author Andrew Porter */
-#include <qapplication.h>
-#include <signal.h>
 
+#include <qapplication.h>
+
+#include "buildconfig.h"
+#include "steerermainwindow.h"
+#include "exception.h"
 #include "types.h"
 #include "debug.h"
+
 #include "ReG_Steer_Steerside.h"
-
-#include "exception.h"
-#include "steerermainwindow.h"
-
-#include <signal.h>
-#include <new>
 
 #ifdef Q_WS_X11
 #include <X11/Xlib.h>

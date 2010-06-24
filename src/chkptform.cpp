@@ -48,12 +48,6 @@
           Robert Haines
  */
 
-#include "chkptform.h"
-#include "chkptvariableform.h"
-#include "utility.h"
-#include "types.h"
-#include "debug.h"
-
 #include <qapplication.h>
 #include <q3hbox.h>
 #include <qlayout.h>
@@ -67,6 +61,13 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 #include <Q3VBoxLayout>
+
+#include "buildconfig.h"
+#include "chkptform.h"
+#include "chkptvariableform.h"
+#include "utility.h"
+#include "types.h"
+#include "debug.h"
 
 ChkPtForm::ChkPtForm(const int aNumEntries, int aSimHandle, int aChkPtHandle,
 		     QMutex *aMutex, QWidget *parent, const char *name,

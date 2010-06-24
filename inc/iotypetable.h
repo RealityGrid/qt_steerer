@@ -54,13 +54,13 @@
 #ifndef __IOTYPE_TABLE_H__
 #define __IOTYPE_TABLE_H__
 
-#include "iotype.h"
-#include "table.h"
-
 #include <qpoint.h>
 #include <qmutex.h>
 //Added by qt3to4:
 #include <Q3PtrList>
+
+#include "iotype.h"
+#include "table.h"
 
 class IOTypeTable : public Table
 {
