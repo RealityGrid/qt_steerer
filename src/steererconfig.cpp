@@ -69,7 +69,7 @@ SteererConfig::SteererConfig(){
   mTopLevelRegistry = "";
   mKeyPassphrase = "";
   mAutoPollingOn = true;
-  mPollingIntervalSecs = 0.1;
+  mPollingIntervalSecs = 0.1f;
   mShowMonParamTable = true;
   mShowSteerParamTable = true;
   mShowIOTypeTable = true;

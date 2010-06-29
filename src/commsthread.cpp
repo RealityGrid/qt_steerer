@@ -222,8 +222,8 @@ CommsThread::run()
   int   num_cmds = 0;
   int   status = REG_FAILURE;
   int   commands[REG_MAX_NUM_STR_CMDS];
-  const float maxSuccessFraction = 0.9;
-  const float minSuccessFraction = 0.6;
+  const float maxSuccessFraction = 0.9f;
+  const float minSuccessFraction = 0.6f;
 
   REG_DBGMSG("CommsThread starting");
 
