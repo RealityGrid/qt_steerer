@@ -54,6 +54,7 @@
 
 #include "buildconfig.h"
 #include "historysubplot.h"
+#include "historyplot.h"
 
 using namespace std;
 

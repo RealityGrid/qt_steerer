@@ -69,8 +69,8 @@
 #include <Q3PtrList>
 
 #include "types.h"
+#include "historysubplot.h"
 
-class HistorySubPlot;
 class ParameterHistory;
 class QMenuBar;
 class Q3PopupMenu;

@@ -101,19 +101,11 @@ ParameterTable::~ParameterTable()
   unsigned int i;
   REG_DBGDST("~ParameterTable");
 
-  // Delete plot list first because the QwtPlotter objects have references to
-  // data in the Parameter objects.  Auto delete means associated objects
-  // are deleted by Qt.
-  for(i=0; i<mParent->mHistoryPlotList.count(); i++){
-    mParent->mHistoryPlotList.remove(i);
-  }
-
   // Delete parameter list.  Auto delete set in constuctor so the Parameter
   // objects are deleted by Qt
   for(i=0; i<mParamList.count(); i++){
     mParamList.remove(i);
   }
-
 }
 
 void

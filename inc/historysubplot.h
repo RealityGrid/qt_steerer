@@ -55,7 +55,8 @@
 #include <qwt_plot_curve.h>
 
 #include "parameterhistory.h"
-#include "historyplot.h"
+
+class HistoryPlot;
 
 /** The historysubplot class deals with the plotting of a single
  *  curve on a historyplot (which may consist of more than one
