@@ -1,6 +1,18 @@
 Release Notes for the RealityGrid Generic Steering Client
 ---------------------------------------------------------
 
+Version 3.5.1
+-------------
+
+ * Add a configurable header file to the build.
+
+ Internal changes
+ ----------------
+
+ * Fix construction and destruction of history plot classes.
+ * Minor float initialization fixes to silence compiler warnings.
+ * Two very minor fixes for -Wall.
+
 Version 3.5.0
 -------------
 

@@ -11,8 +11,8 @@ Prerequisites:
 Compilers
 
 You will need a C++ compiler to build the Steerer. The Steerer has
-been tested with GCC and Intel compilers but hopefully should compile
-using any standards compliant compiler.
+been tested with GCC, Intel and MSVC compilers but hopefully should
+compile using any standards compliant compiler.
 
 RealityGrid Steering Library
 
@@ -26,7 +26,7 @@ You can also input the path by hand into CMake.
 Qt and Qwt
 
 The Steerer requires Qt version 4 and Qwt version 5 build against
-Qt4. Most modern linux distributions include both of these packages as
+Qt4. Most modern Linux distributions include both of these packages as
 standard but they can be downloaded and built by hand if necessary.
 
 See http://qt.nokia.com and http://qwt.sourceforge.net for
