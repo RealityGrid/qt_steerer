@@ -732,12 +732,13 @@ ControlForm::enableChkPtButtonsSlot()
 
 // MR:
 void ControlForm::setRestartButtonStateSlot(const bool aEnable){
-  if (mRestartChkPtButton != NULL)
+  if (mRestartChkPtButton != NULL) {
     // MR: RestartChkPtButton Local vs Grid
     if (mApplication->isLocal())
       mRestartChkPtButton->setEnabled(aEnable);
     else
       mGridRestartChkPtButton->setEnabled(aEnable);
+  }
 }
 
 // MR:

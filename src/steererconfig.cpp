@@ -241,9 +241,9 @@ QString SteererConfig::getElementAttrValue(QDomElement elem, QString name)
  */
 void SteererConfig::writeConfig(QString fileName){
 
+  /*
   QDomDocument *doc = new QDomDocument();
 
-  /*
   // Get root node
   QDomElement root = doc->createElement("LaunchSimulation");
   doc->appendChild(root);
